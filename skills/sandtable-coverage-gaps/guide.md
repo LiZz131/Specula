@@ -1,26 +1,36 @@
 # 覆盖率缺口
 
-`sandtable-coverage` 给出从未执行的函数和行之后，先判断它重不重要，再决定加轨迹还是交回 Specula。这一阶段不改 `base.tla` 的协议公式，也不为了盖住一行去改被测源码。
+`sandtable-coverage` 写出 `uncovered.txt` 之后，只给未覆盖的可执行行一个集合，再决定加轨迹还是交回 Specula。次数大于 0 的行不分类。不改 `spec/base.tla` 的协议公式。判定见 `references/classification.md`。路径相对 `<run>`，定义见 `sandtable-workflow-overview.md`。
 
 ## 输入 / 输出
 
-**输入**：未覆盖清单、可执行规格里的动作、原 Specula 规格里的变量和场景。
+**输入**：
 
-**输出**：一份分类文档。每一段未覆盖代码落入 `references/classification.md` 的一类，并写明下一步。
+- `controlled-execution-runs/<轮次>/uncovered.txt`
+- 各配置的 `controlled-execution-runs/<轮次>/<配置>/gcov/*.gcov`
+- `spec/base_for_sandtable.tla`、`spec/MC_for_sandtable*.tla`、对应 cfg 里的常量
+- `spec/base.tla` 里的变量
 
-下一步只有两种：
+**输出**，只在这一轮次达到上界时写盘。循环中途不留上一份分类。
 
-- 模型里已经有对应动作或守卫。加大 `DepthBound` 或增加种子，回到 `sandtable-replay` 采样并回放，再用 `sandtable-coverage` 确认该行的 gcov 计数大于 0。
-- 模型里没有这些字段。把机制写成一个场景：读写哪些状态、守卫是什么、现在的规格为什么表达不了。停在这里，交给 `spec_generation`。不要在 `Sand*` 里补一套协议。
+- `controlled-execution-runs/<轮次>/行分类.tsv`：`uncovered.txt` 里每一行一条。列是 `文件`、`行号`、`集合`、`依据`、`下一步`。集合只写 A、B、C、D、E。
+- `controlled-execution-runs/<轮次>/未覆盖代码分类.md`：按集合写行数、原始覆盖率、调整后覆盖率、每个集合的下一步。不逐行复述。
+- `controlled-execution-runs/<轮次>/scenarios.md`：E，以及对不上现有动作的 A。交给 `spec_generation`。
 
 ## 步骤
 
-1. 确认 dump 有效，清单里的 `called 0` 是真的没执行。`sandtable-coverage` 的 `references/gcov-gotchas.md` 描述了计数被冻住时的样子。
-2. 对每个 `called 0` 的函数，以及函数被调用过但内部仍有大段 `#####` 的路径，按四条标准归类。四条都要答，顺序固定，见 `references/classification.md`。
-3. 标成重要、且规格里已有动作的，先看 30 步样本里该 `pc` 有没有出现。消息只出现在轨迹末尾时，加长上界，让处理动作来得及发生。值集合或界限使守卫几乎为假时，在文档里写明守卫，再增加针对该守卫的采样；采样配置与横向比较用的原配置分开。
-4. 加出来的轨迹仍走 `sandtable-replay` 的判决。为了覆盖而改 `Sand*` 之后，全部建模配置重跑。
-5. 分类文档和曲线放在同一份 case study 运行目录里。总览级的技能说明留在本目录，不把某一次 WRaft 的百分比写进 skill。
+1. 确认 dump 有效。`sandtable-coverage` 的 `references/gcov-gotchas.md` 描述了计数被冻住时的样子。`#####` 才是未执行。
+2. 按 `references/classification.md` 的顺序给 `uncovered.txt` 的每一行分类。一行只进一个集合。
+3. 下一步是加采样或换常量的 A 和 B，回到 `sandtable-replay`，仍用这一轮次。`sandtable-coverage` 把新 trace 合并进原配置的 `coverage.json` 和 `gcov/`，并重写 `uncovered.txt`。次数变成大于 0 的行从新的 `uncovered.txt` 里消失。
+4. 新轨迹仍走 `sandtable-replay` 的判决。改了 `Sand*`、源码、驱动或生成器之后新开一轮次，不把旧 gcda 并进来。
+5. E，以及对不上现有动作的 A，写入 `scenarios.md`。C 和 D 不采样。
+
+## 上界
+
+每个配置的 `coverage.json` 里行覆盖已经封顶，并且 `uncovered.txt` 里每一行都有下一步。封顶指该配置行覆盖最后一次上升之后不再上升。采样步数暂时保持 30。要加长时用 `spec/MC_for_sandtable_deep.tla`，不改 30 步 cfg。
+
+达到上界才写 `行分类.tsv` 和 `未覆盖代码分类.md`。
 
 ## 完成标准
 
-清单里每一项都有类别和下一步。重要且模型已有的路径，要么 gcov 显示对应行已经执行，要么文档写明当前界限下守卫为假、还要哪一种采样。没建模的项有一段可以交回 Specula 的场景说明。防御性分支和初始化、销毁路径列在白名单里，并注明销毁路径仍可能藏资源泄漏。
+`行分类.tsv` 的行集合与最终的 `uncovered.txt` 一致，每一行都有集合、依据和下一步。A 和 B 的下一步写明加长、换常量，或已经放进 `scenarios.md`。E 在 `scenarios.md` 里有可以交回 Specula 的说明。C 和 D 在白名单里。摘要同时有原始行覆盖率和调整后行覆盖率。
