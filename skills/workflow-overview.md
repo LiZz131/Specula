@@ -226,7 +226,7 @@ Pauses when API usage exceeds threshold, waits for reset, resumes automatically.
 | `sandtable-coverage` | SandTable 3 | `skills/sandtable-coverage/` |
 | `sandtable-coverage-gaps` | SandTable 4 | `skills/sandtable-coverage-gaps/` |
 
-SandTable 受控执行是另一条管道：用已有 Specula 规格驱动未改动的二进制。总览和交接物见 `sandtable-workflow-overview.md`。
+SandTable 受控执行是另一条管道。路径、轮次和循环见 `sandtable-workflow-overview.md`。
 
 ## MCP Tools
 

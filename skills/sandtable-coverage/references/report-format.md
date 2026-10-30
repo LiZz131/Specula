@@ -1,6 +1,6 @@
 # 覆盖率报告
 
-每种建模配置单独一节。数字来自同一份按轨迹追加的记录，建议用 JSON，每条轨迹一个对象。
+每种建模配置一个 `controlled-execution-runs/<轮次>/<配置>/coverage.json`。同一配置追加 trace 时往这份文件的数组后面加对象，不另起一份。
 
 ## 每条轨迹
 
@@ -23,12 +23,9 @@
 
 ## 未覆盖清单
 
-从该配置最后一次 `gcov -b` 的文本里摘：
+`controlled-execution-runs/<轮次>/uncovered.txt` 从各配置已经落盘的 `gcov/*.gcov` 合并而来。一行在任一配置里次数大于 0 就不写入。写入的是次数都为 0 的可执行行，格式 `文件名:行号`。
 
-- `function <名> called 0`
-- 若某一配置的 gcda 已被下一配置清掉，只引用清掉之前保存的 gcov，或写明清单来自哪一次运行
-
-动作名出现在 `pc` 里，而对应函数仍是 `called 0`，在清单里单独标出。这通常表示发送了消息但没有投递，或 dump 过早。交给 `sandtable-coverage-gaps` 之前先排除 dump 问题。
+动作名出现在 `pc` 里，而对应函数仍是 `called 0`，在 `uncovered.txt` 末尾用 `# called 0 <函数名>` 标出。这通常表示发送了消息但没有投递，或 dump 过早。交给 `sandtable-coverage-gaps` 之前先排除 dump 问题。
 
 ## 曲线
 

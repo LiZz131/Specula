@@ -17,6 +17,6 @@
 
 环境问题用同一份清单，并在开头写明这一步没有在节点上执行。连接断开、`check_has_recv_queue` 连续失败属于这一类。
 
-目录放在 case study 的 `potential-bugs/<短名>/`，避免下一轮重跑覆盖 `bugs/random/` 里的样本。
+目录放在 `<run>/potential-bugs/<短名>/`。新开一轮次时不要改这个目录。
 
 交接给 `bug-confirmation` 时带上这个目录。确认和修复不在本 skill 里做。

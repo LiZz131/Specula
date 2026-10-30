@@ -1,6 +1,6 @@
 # WRaft 回放中出现过的差异
 
-可执行规格是 `spec/MC_for_sandtable*.cfg`。样本在 `sandtable/build/mount/systems/WRaft-series/SpeculaWRaft/bugs/random/`。
+可执行规格是 `spec/MC_for_sandtable*.cfg`。轨迹记在 `controlled-execution-runs/<轮次>/<配置>/traces/`。
 
 ## 已收进适配层的
 
@@ -18,8 +18,8 @@
 
 ## 比较通过仍然要留的实现差异
 
-`raft_begin_load_snapshot`（`raft_server.c:1383`）把 `current_term` 写成 `last_included_term`，任期可以变小。规格的 `HandleInstallSnapshot` 做了同样的赋值。专用轨迹在 `bugs/term_drop/`：n1 的任期从 2 写成 1。
+`raft_begin_load_snapshot`（`artifact/raft` 的 `raft_server.c:1383`）把 `current_term` 写成 `last_included_term`，任期可以变小。规格的 `HandleInstallSnapshot` 做了同样的赋值。专用回放里 n1 的任期从 2 写成 1。这类记录按 `references/mismatch-record.md` 放进 `potential-bugs/<短名>/`。
 
-80 步随机轨迹 `bugs/random/deep3/s001/` 也执行了这一行。该次写入的任期仍是 4，可见状态与模型一致，没有构成新的下降。下降的记录以 `bugs/term_drop/` 为准。
+80 步的 deep 配置也执行过这一行。该次写入的任期仍是 4，可见状态与模型一致，没有构成新的下降。
 
-过期领导者那条 11 状态反例违反的是当时过强的 `LeaderCompleteness`，case study 的 bug report 把它标成不变量问题。回放材料若还在 `bugs/stale_leader/`，不要把它当成代码 bug。
+过期领导者那条 11 状态反例违反的是当时过强的 `LeaderCompleteness`，case study 的 bug report 把它标成不变量问题，不要把它当成代码 bug。

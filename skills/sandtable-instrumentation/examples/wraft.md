@@ -1,6 +1,6 @@
 # WRaft 上的执行对齐
 
-系统是 willemt/raft，SandTable 驱动是 `systems/WRaft-series`。协议文件留在 case study 的 `spec/base.tla`。可执行副本是 `spec/base_for_sandtable.tla` 和 `spec/MC_for_sandtable.tla`。生成器是 `sandtable/systems/WRaft-series/SpeculaWRaft/scripts/testcase_generator.py`。
+系统是 willemt/raft。源码在 `<run>/artifact/raft/`。协议文件留在 `spec/base.tla`。可执行副本是 `spec/base_for_sandtable.tla` 和 `spec/MC_for_sandtable.tla`。生成器是 `<run>/sandtable/testcase_generator.py`，驱动改动在 `<run>/sandtable/driver/`。
 
 时钟：`Timeout` 用 2000 ms，`AppendEntriesAll` 用 200 ms。前者是选举超时的推进量，后者是 `request_timeout`。
 
