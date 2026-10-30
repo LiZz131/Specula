@@ -221,6 +221,12 @@ Pauses when API usage exceeds threshold, waits for reset, resumes automatically.
 | `tla-trace-workflow` | 3A | `skills/tla-trace-workflow/` |
 | `tla-checking-workflow` | 3B | `skills/tla-checking-workflow/` |
 | `bug-confirmation` | 4 | `skills/bug-confirmation/` |
+| `sandtable-instrumentation` | SandTable 1 | `skills/sandtable-instrumentation/` |
+| `sandtable-replay` | SandTable 2 | `skills/sandtable-replay/` |
+| `sandtable-coverage` | SandTable 3 | `skills/sandtable-coverage/` |
+| `sandtable-coverage-gaps` | SandTable 4 | `skills/sandtable-coverage-gaps/` |
+
+SandTable 受控执行是另一条管道：用已有 Specula 规格驱动未改动的二进制。总览和交接物见 `sandtable-workflow-overview.md`。
 
 ## MCP Tools
 
