@@ -17,7 +17,7 @@
 
 ## 潜在 bug 目录
 
-同一类的每一条轨迹都拷进 `<run>/potential-bugs/<短名>/`。一条一个子目录：
+同一类的每一条轨迹都拷进 `<run>/potential-bugs/<短名>/`。轮次目录里的 `traces/` 被 gitignore，GitHub 上只保留这里的副本。子目录不要命名为 `traces`。一条轨迹一个子目录，里面放 `MC.out`、`traces.txt`、`log.host`，以及同一次回放的 `replay.status`、`tlc.err`、`tlc.status`：
 
 ```
 potential-bugs/<短名>/
