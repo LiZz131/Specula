@@ -38,4 +38,4 @@ Model: ...
 - 没有 `Variable ... compare failed`，也没有 `Assertion`
 - 若有 `Net mgs length` 警告，在判决里标出来，轨迹仍算变量一致
 
-`logout` 出现在断言之后时，以断言为准，这条轨迹失败。
+`logout` 出现在断言之后时，以断言为准，这条轨迹失败。失败立刻写入该轮次的 `failures.tsv`，归类见 `mismatch-record.md`。
