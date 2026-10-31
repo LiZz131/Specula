@@ -6,13 +6,16 @@
 # <轮次>
 
 ## 启动
-挂载盘路径、节点数、`run_round.py` 的参数。采样步数。30 步用 `DepthBound`，加长用 `MC_for_sandtable_deep`。
+挂载盘路径、节点数、启动命令。采样步数。30 步用 `DepthBound`，加长用 `MC_for_sandtable_deep`。覆盖率二进制和 sanitizer 二进制分开写。
 
 ## 轨迹
 每种配置的条数、变量一致条数、墙钟合计。各配置的行覆盖和分支覆盖。写明这些百分比各自从零累计，不能相加。
 
 ## 失败
-`failures.tsv` 的全表。适配层或模型问题：写修了什么、新轮次的目录名。潜在 bug：链到 `potential-bugs/<短名>/`，并给出每条轨迹的复现命令。崩溃单独列出。
+`failures.tsv` 的全表。`adapter`：写修了什么、新轮次的目录名。`bug`：链到 `potential-bugs/<短名>/`，给出每条轨迹的复现命令，并写 `KNOWN` 或 `NOT_FOUND` 与链接。`crash` 单独列出。已经改成 `bug` 的崩溃写在 `bug` 下面，并注明表现是崩溃或 sanitizer。
+
+## Sanitizer
+若另开了一轮：复用的轨迹目录、`-fsanitize=address,undefined`、`ASAN_OPTIONS=detect_leaks=0`。这一轮的 `crash` 行数。它的 gcda 不并入下面的并集覆盖率。
 
 ## 并集覆盖率
 `lcov.info` 的已执行行 / 全部可执行行。调整后覆盖率见 `未覆盖代码分类.md`。

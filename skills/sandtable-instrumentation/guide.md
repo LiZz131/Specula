@@ -39,6 +39,16 @@
 6. 每种 Specula 配置写一份 cfg，规则见 `references/config-mapping.md`。
 7. 生成器在 `states[0]` 含有 `scr` 时走 `pc` 路径，否则保留原来的状态差路径，让没有 `scr` 的旧反例还能回放。`pc` 到命令的对照见 `references/pc-seq.md`。未知的 `pc` 直接失败，不要猜一条命令。
 
+## Sanitizer 轮次
+
+覆盖率轮次的二进制保持 `--coverage`，不要同时打开 sanitizer。sanitizer 另开一轮次，复用覆盖率轮次已经生成的 `MC.out`，不重新采样。
+
+被测库和驱动加上 `-fsanitize=address,undefined`。启动时设置 `ASAN_OPTIONS=detect_leaks=0`。这一轮不查泄漏。泄漏要查时再另开一轮，并在轮次报告里写明开了泄漏检测。
+
+构建记在 `<run>/artifact/<system>/` 和 `<run>/sandtable/driver/`，不改 SandTable 仓库。
+
+有 sanitizer 报告就按 `sandtable-replay` 记 `crash`，即使进程退出码是 0。这份 gcda 不并入覆盖率轮次的 `lcov.info`。
+
 ## 完成标准
 
 任选一条带 `scr.pc` 的 TLC `-tool` 行为，生成器能写出 `traces.txt`，控制器能把这条轨迹跑到比较点。这一步只证明链路通。一批轨迹是否对齐，交给 `sandtable-replay`。

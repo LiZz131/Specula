@@ -30,12 +30,28 @@ Model: ...
 
 自动扫描时要分开两句日志。`Variable` 那句和 `Net mgs length` 那句都含有 “compare failed”。只搜这四个单词会把警告算成断言。
 
+## 崩溃
+
+下面任一情况记 `crash`，和变量不一致分开。立刻写入 `failures.tsv`，拷贝 `log.host`、`replay.status` 和 sanitizer 输出，并停住这条之后的采样。
+
+- 进程退出码非 0
+- 没有 `logout`
+- 容器没有起来
+- 回放超时
+- 库或 sanitizer 的输出里有 `Assertion`、`Sanitizer`、`stack smashing`
+
+有 `Variable ... compare failed` 时归 `bug` 或 `adapter`，不归 `crash`。那是控制器的变量断言。只读后返回错误码、进程仍在的防御性分支也不是 `crash`。
+
+超时或容器没起来时，循环仍要留下 `replay.status` 和 `failures.tsv` 的一行。不要在没有这一行的情况下让整个回放进程退出。
+
 ## 通过
 
 同时满足：
 
 - 回放进程留下的 `log.host` 以 `logout` 结束
-- 没有 `Variable ... compare failed`，也没有 `Assertion`
+- 退出码是 0
+- 没有 `Variable ... compare failed`
+- 没有库或 sanitizer 的 `Assertion`、`Sanitizer`、`stack smashing`
 - 若有 `Net mgs length` 警告，在判决里标出来，轨迹仍算变量一致
 
-`logout` 出现在断言之后时，以断言为准，这条轨迹失败。失败立刻写入该轮次的 `failures.tsv`，归类见 `mismatch-record.md`。
+`logout` 出现在变量断言之后时，以变量断言为准，这条轨迹失败。失败立刻写入该轮次的 `failures.tsv`，归类见 `mismatch-record.md`。

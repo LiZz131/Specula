@@ -21,3 +21,5 @@
 ## AppendEntries 响应里的提交点
 
 `raft_recv_appendentries_response` 先 `raft_set_commit_idx`，再 `raft_send_appendentries`。发出去的 `leader_commit` 是新值。`WireMsg` 带一个提交点参数；成功响应这支传入更新后的值，其余调用点传入当前的 `commitIndex`。
+
+覆盖率二进制保持 `--coverage`。sanitizer 是另一轮构建，见 `guide.md` 的 Sanitizer 轮次。不和这份覆盖率二进制混在一起。

@@ -32,3 +32,5 @@
 ## 完成标准
 
 每种配置都有 `coverage.json` 和 `gcov/`。轮次根上有并集 `lcov.info` 和由此生成的 `uncovered.txt`。并集的已执行行数写入 `轮次报告.md`。gcda 在进程中途被冻住时，曲线会从第一条就水平，已执行的函数却显示 `called 0`。出现这个形态时先按 `references/gcov-gotchas.md` 修正 dump，再重测覆盖率。轨迹判决本身不用因此重跑，除非回放进程也要换二进制。
+
+sanitizer 轮次使用另一份二进制，复用本轮的 `MC.out`。它的 gcda 不进入这份 `lcov.info`，也不改这里的行覆盖数字。有 sanitizer 报告时按 `sandtable-replay` 记 `crash`。

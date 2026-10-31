@@ -15,8 +15,12 @@
 
 ## 启动
 
-轮次脚本是 `<run>/sandtable/scripts/run_round.py`。它调用生成器，再调用 `run_one_testcase.sh <MC.out> <节点数>`。不要加 `-it`。
+超过一条轨迹的回放放在后台。正常轨迹不通知。每一条不一致、失败、崩溃、异常退出都通知。
 
-脚本把 `<run>/artifact` 和 `<run>/sandtable` 同步到挂载盘，再在容器里执行。willemt/raft 这一轮用的挂载盘是 `sandtable/build/mount/specula-ce`，容器内是 `/root/sandtable/specula-ce`。换机器时以脚本里的路径为准，并写进 `轮次报告.md`。
+循环调用生成器，再调用 `run_one_testcase.sh <MC.out> <节点数>`。不要加 `-it`。`<run>/sandtable/scripts/run_round.py` 是这个循环的一种实现，技能不要求这个文件名。
 
-跑完把 `traces.txt`、`log.host` 和该配置的 gcov 留在 `controlled-execution-runs/<轮次>/`。挂载盘上的副本可以删，记录以 `<run>` 为准。
+后台任务在 `adapter` 和 `crash` 上停住。通知发出之后可以另一次启动来续跑，并跳过已经有判决的轨迹。`crash` 从下一条还没有判决的编号接着跑。`adapter` 只在修好后的新轮次里跑。`bug` 通知后由同一次后台任务继续。
+
+把 `<run>/artifact` 和 `<run>/sandtable` 同步到挂载盘，再在容器里执行。willemt/raft 的覆盖率轮次用过挂载盘 `sandtable/build/mount/specula-ce`，容器内是 `/root/sandtable/specula-ce`。换机器时以当次启动命令里的路径为准，并写进 `轮次报告.md`。
+
+跑完把 `traces.txt`、`log.host` 和该配置的 gcov 留在 `controlled-execution-runs/<轮次>/`。超时、容器没起来、进程非 0 时也留下 `replay.status`。挂载盘上的副本可以删，记录以 `<run>` 为准。
