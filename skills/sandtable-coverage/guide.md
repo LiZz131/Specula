@@ -10,7 +10,8 @@
 
 - `controlled-execution-runs/<轮次>/<配置>/coverage.json`：第 k 条 trace 结束时的行覆盖、分支覆盖和墙钟。字段见 `references/report-format.md`
 - `controlled-execution-runs/<轮次>/<配置>/gcov/*.gcov`：该配置累计到目前的 gcov 文本
-- `controlled-execution-runs/<轮次>/uncovered.txt`：各配置 gcov 合并后次数仍为 0 的可执行行，一行一条，格式 `文件名:行号`
+- `controlled-execution-runs/<轮次>/lcov.info`：各配置 gcov 的并集。一行在任一配置里次数大于 0，`DA` 计数就大于 0。`SF` 用 `<run>/artifact/<system>/` 下的绝对路径。willemt/raft 是 `artifact/raft/`
+- `controlled-execution-runs/<轮次>/uncovered.txt`：从这份 lcov 里计数为 0 的可执行行生成，一行一条，格式 `文件名:行号`
 
 行覆盖取 gcov 的 Lines executed。分支覆盖取 Taken at least once，也就是该分支至少走过一次的比例。Branches executed 是另一列，报告里可以附上，曲线以 Taken at least once 为准。
 
@@ -19,7 +20,7 @@
 1. 按 `references/gcov-gotchas.md` 准备库、驱动和退出时的 dump。确认一条短轨迹能写出非空的 gcda，并且库里已知跑过的函数计数大于 0。
 2. 一个配置第一次回放前删除 gcda。同一配置继续追加 trace 时保留 gcda。换配置时从零开始。
 3. 每条轨迹结束后，在容器里合并各节点的 gcda，再跑 `gcov -b`。把百分比和墙钟追加到该配置的 `coverage.json`。用这次 gcov 覆盖该配置的 `gcov/*.gcov`。
-4. 这一轮每个配置都跑完后，写 `uncovered.txt`。一行在任一配置的 gcov 里次数大于 0，就不列入。次数都是 0 的可执行行写入 `文件名:行号`。这份文件交给 `sandtable-coverage-gaps`。
+4. 这一轮用于分类的那一次，写轮次根上的 `lcov.info`，再从它生成 `uncovered.txt`。一行在任一配置里执行过就不算未覆盖。各配置的百分比不要加总。这两份文件交给 `sandtable-coverage-gaps`。
 5. 各配置的 `gcov/` 在清掉 gcda 之前已经落盘，切换配置不丢失上一配置的文本。
 
 ## 曲线怎么读
@@ -30,4 +31,4 @@
 
 ## 完成标准
 
-每种配置都有 `coverage.json` 和 `gcov/`，轮次根上有 `uncovered.txt`。gcda 在进程中途被冻住时，曲线会从第一条就水平，已执行的函数却显示 `called 0`。出现这个形态时先按 `references/gcov-gotchas.md` 修正 dump，再重测覆盖率。轨迹判决本身不用因此重跑，除非回放进程也要换二进制。
+每种配置都有 `coverage.json` 和 `gcov/`。轮次根上有并集 `lcov.info` 和由此生成的 `uncovered.txt`。并集的已执行行数写入 `轮次报告.md`。gcda 在进程中途被冻住时，曲线会从第一条就水平，已执行的函数却显示 `called 0`。出现这个形态时先按 `references/gcov-gotchas.md` 修正 dump，再重测覆盖率。轨迹判决本身不用因此重跑，除非回放进程也要换二进制。

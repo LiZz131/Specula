@@ -6,8 +6,7 @@
 
 **输入**：
 
-- `controlled-execution-runs/<轮次>/uncovered.txt`
-- 各配置的 `controlled-execution-runs/<轮次>/<配置>/gcov/*.gcov`
+- `controlled-execution-runs/<轮次>/lcov.info`，以及由它生成的 `uncovered.txt`
 - `spec/base_for_sandtable.tla`、`spec/MC_for_sandtable*.tla`、对应 cfg 里的常量
 - `spec/base.tla` 里的变量
 
@@ -21,7 +20,7 @@
 
 1. 确认 dump 有效。`sandtable-coverage` 的 `references/gcov-gotchas.md` 描述了计数被冻住时的样子。`#####` 才是未执行。
 2. 按 `references/classification.md` 的顺序给 `uncovered.txt` 的每一行分类。一行只进一个集合。
-3. 下一步是加采样或换常量的 A 和 B，回到 `sandtable-replay`，仍用这一轮次。`sandtable-coverage` 把新 trace 合并进原配置的 `coverage.json` 和 `gcov/`，并重写 `uncovered.txt`。次数变成大于 0 的行从新的 `uncovered.txt` 里消失。
+3. 下一步是加采样或换常量的 A 和 B，回到 `sandtable-replay`，仍用这一轮次。`sandtable-coverage` 把新 trace 合并进原配置的 `coverage.json` 和 `gcov/`，并重写并集 `lcov.info` 和 `uncovered.txt`。次数变成大于 0 的行从新的 `uncovered.txt` 里消失。
 4. 新轨迹仍走 `sandtable-replay` 的判决。改了 `Sand*`、源码、驱动或生成器之后新开一轮次，不把旧 gcda 并进来。
 5. E，以及对不上现有动作的 A，写入 `scenarios.md`。C 和 D 不采样。
 
@@ -33,4 +32,4 @@
 
 ## 完成标准
 
-`行分类.tsv` 的行集合与最终的 `uncovered.txt` 一致，每一行都有集合、依据和下一步。A 和 B 的下一步写明加长、换常量，或已经放进 `scenarios.md`。E 在 `scenarios.md` 里有可以交回 Specula 的说明。C 和 D 在白名单里。摘要同时有原始行覆盖率和调整后行覆盖率。
+`行分类.tsv` 的行集合与最终的 `uncovered.txt` 一致，每一行都有集合、依据和下一步。A 和 B 的下一步写明加长、换常量，或已经放进 `scenarios.md`。E 在 `scenarios.md` 里有可以交回 Specula 的说明。C 和 D 在白名单里。摘要同时有并集行覆盖率和调整后行覆盖率。这些计数写入 `轮次报告.md`。`failures.tsv` 里还有未归类的行时，不要把本轮写成已经完成。
