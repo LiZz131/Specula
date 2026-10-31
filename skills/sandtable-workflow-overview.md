@@ -19,8 +19,9 @@ artifact/<system>/
 2. sandtable-replay
    controlled-execution-runs/<轮次>/<配置>/traces/
         │
-        ├─ 潜在 bug → 拷贝每条轨迹到 potential-bugs/，本轮继续
-        └─ 适配层或模型 → 写入 failures.tsv，修好后新开一轮次
+        ├─ bug → 拷贝每条轨迹到 potential-bugs/，查上游，本轮继续
+        ├─ crash → 记下并停。确认是实现问题后改为 bug，再查上游
+        └─ 适配层或模型 → 写入 failures.tsv，通知并停，修好后新开一轮次
         ▼
 3. sandtable-coverage
    各配置的 coverage.json，以及轮次根上的并集 lcov.info
@@ -35,9 +36,13 @@ artifact/<system>/
 
 一条轨迹怎么从 TLC 进到三个节点，见 `sandtable-replay` 的 `references/runtime.md`。采样步数暂时是 30：`DepthBound` 为 `TLCGet("level") < 31`。加长时另用 `spec/MC_for_sandtable_deep.tla`，不改 30 步那份 cfg。
 
-停的条件：每个配置的行覆盖曲线都已封顶，并集 `lcov.info` 里每一条未覆盖行都有下一步，并且 `failures.tsv` 里每一行都已归类。封顶指该配置的行覆盖最后一次上升之后不再上升。
+停的条件：每个配置的行覆盖曲线都已封顶，并集 `lcov.info` 里每一条未覆盖行都有下一步，并且 `failures.tsv` 里每一行都已归类。保持 `crash` 的行算已归类。封顶指该配置的行覆盖最后一次上升之后不再上升。
 
-同一轮次、同一配置、同一份二进制上再加 trace 时，gcda 保留，`coverage.json` 追加。适配层、模型、源码、驱动或生成器改了之后新开一轮次。潜在 bug 不新开一轮。`行分类.tsv`、`未覆盖代码分类.md` 和 `轮次报告.md` 只在达到上界的那一次写盘。报告模板见 `sandtable-replay` 的 `references/round-report.md`。
+超过一条轨迹的回放放在后台。正常轨迹不通知。每一条不一致、失败、崩溃、异常退出都通知。续跑跳过已经有判决的轨迹。`bug` 由同一次后台任务继续。`adapter` 和 `crash` 停住；`crash` 记录写完后可以从下一条续跑，`adapter` 只在修好后的新轮次里跑。
+
+同一轮次、同一配置、同一份二进制上再加 trace 时，gcda 保留，`coverage.json` 追加。适配层、模型、源码、驱动或生成器改了之后新开一轮次。`bug` 不新开一轮。`crash` 是终态，可以就是 bug：防御性编码、崩溃或报错把进程打死时记这一类，不改写成另外三档。确认是实现问题后改为 `bug`，再查该仓库的 issue 和 PR。只查已经标成 `bug` 的记录。`行分类.tsv`、`未覆盖代码分类.md` 和 `轮次报告.md` 只在达到上界的那一次写盘。报告模板见 `sandtable-replay` 的 `references/round-report.md`。
+
+覆盖率轮次之后，可以用同一批 `MC.out` 另开一轮 sanitizer（`-fsanitize=address,undefined`，`ASAN_OPTIONS=detect_leaks=0`）。有报告就记该轮的 `crash`，即使退出码是 0。这份 gcda 不并入覆盖率轮次的 `lcov.info`。
 
 ## 文件位置
 
@@ -49,7 +54,7 @@ artifact/<system>/
 | 加长步数 | `spec/MC_for_sandtable_deep.tla`、`spec/MC_for_sandtable_deep.cfg` |
 | 驱动 | `sandtable/driver/` |
 | 生成器 | `sandtable/testcase_generator.py` |
-| 轮次启动脚本 | `sandtable/scripts/run_round.py` |
+| 回放循环的一种实现 | `sandtable/scripts/run_round.py`。技能不要求这个文件名 |
 | 一轮受控执行 | `controlled-execution-runs/<轮次>/` |
 | 某配置的轨迹 | `controlled-execution-runs/<轮次>/<配置>/traces/tNNNN/MC.out`、同目录的 `traces.txt`、`log.host` |
 | 某配置的曲线 | `controlled-execution-runs/<轮次>/<配置>/coverage.json`、`gcov/*.gcov` |
@@ -66,7 +71,7 @@ willemt/raft 的 `<system>` 是 `raft`。一次轮次的目录长这样：
 
 ```
 <run>/artifact/raft/
-<run>/sandtable/scripts/run_round.py
+<run>/sandtable/scripts/run_round.py   （可选）
 <run>/controlled-execution-runs/controlled-execution-1030-1/
   log/traces/t0001/MC.out
   log/coverage.json

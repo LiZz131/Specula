@@ -42,6 +42,8 @@ gcno 记录的源码路径是容器内的绝对路径。`gcov -b` 也在容器�
 
 节点之间用 `docker cp` 经由宿主机中转。容器之间直接 `docker cp` 不可用。宿主机上 `docker cp` 出来的文件属主是 root，清理时用 `sudo rm`。
 
+`-fsanitize=address,undefined` 的二进制不写进这一轮的 gcda。sanitizer 轮次的计数不并入 `lcov.info`。覆盖率轮次不打开泄漏检测。
+
 ## 先确认 dump 有效
 
 一条会竞选并成为领导者的短轨迹之后，检查：

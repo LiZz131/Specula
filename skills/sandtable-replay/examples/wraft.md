@@ -23,3 +23,5 @@
 80 步的 deep 配置也执行过这一行。该次写入的任期仍是 4，可见状态与模型一致，没有构成新的下降。
 
 过期领导者那条 11 状态反例违反的是当时过强的 `LeaderCompleteness`，case study 的 bug report 把它标成不变量问题，不要把它当成代码 bug。
+
+`controlled-execution-1030-1` 的五条失败都是退出码 0 且有 `logout` 的变量比较，不是 `crash`。`ae-prev0-reappend` 的两条在 `failures.tsv` 里是 `bug`，对应 willemt/raft PR #118 Bug 1，README 按 `KNOWN` 保留。`nextidx-stays-one` 的三条是 `adapter`，不查上游。不要按后来的归类规则回写这张表。
