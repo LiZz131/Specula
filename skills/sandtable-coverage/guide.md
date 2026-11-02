@@ -1,16 +1,16 @@
 # 受控执行上的覆盖率
 
-用同一批 `sandtable-replay` 轨迹，记录 `artifact/<system>/` 被执行到的行和分支。路径相对 `<run>`，定义见 `sandtable-workflow-overview.md`。覆盖率按配置分开累计。换配置时从零开始。同一轮次、同一配置里追加的 trace 接着累加。
+用同一批 `sandtable-replay` 轨迹，记录 `<ce>/system/` 被执行到的行和分支。`<ce>` 的定义见 `sandtable-workflow-overview.md`。覆盖率按配置分开累计。换配置时从零开始。同一轮次、同一配置里追加的 trace 接着累加。
 
 ## 输入 / 输出
 
-**输入**：`controlled-execution-runs/<轮次>/<配置>/traces/tNNNN/MC.out`，`artifact/<system>/` 里带 `--coverage` 的库，以及 `sandtable/driver/` 里会在进程退出时把计数写盘的驱动。
+**输入**：`<ce>/<配置>/traces/tNNNN/MC.out`，`<ce>/system/` 里带 `--coverage` 的库，以及 `<ce>/sandtable/` 里会在进程退出时把计数写盘的驱动。
 
 **输出**：
 
 - `controlled-execution-runs/<轮次>/<配置>/coverage.json`：第 k 条 trace 结束时的行覆盖、分支覆盖和墙钟。字段见 `references/report-format.md`
 - `controlled-execution-runs/<轮次>/<配置>/gcov/*.gcov`：该配置累计到目前的 gcov 文本
-- `controlled-execution-runs/<轮次>/lcov.info`：各配置 gcov 的并集。一行在任一配置里次数大于 0，`DA` 计数就大于 0。`SF` 用 `<run>/artifact/<system>/` 下的绝对路径。willemt/raft 是 `artifact/raft/`
+- `<ce>/lcov.info`：各配置 gcov 的并集。一行在任一配置里次数大于 0，`DA` 计数就大于 0。`SF` 用 `<ce>/system/` 下的绝对路径。
 - `controlled-execution-runs/<轮次>/uncovered.txt`：从这份 lcov 里计数为 0 的可执行行生成，一行一条，格式 `文件名:行号`
 
 行覆盖取 gcov 的 Lines executed。分支覆盖取 Taken at least once，也就是该分支至少走过一次的比例。Branches executed 是另一列，报告里可以附上，曲线以 Taken at least once 为准。
@@ -33,4 +33,4 @@
 
 每种配置都有 `coverage.json` 和 `gcov/`。轮次根上有并集 `lcov.info` 和由此生成的 `uncovered.txt`。并集的已执行行数写入 `轮次报告.md`。gcda 在进程中途被冻住时，曲线会从第一条就水平，已执行的函数却显示 `called 0`。出现这个形态时先按 `references/gcov-gotchas.md` 修正 dump，再重测覆盖率。轨迹判决本身不用因此重跑，除非回放进程也要换二进制。
 
-sanitizer 轮次使用另一份二进制，复用本轮的 `MC.out`。它的 gcda 不进入这份 `lcov.info`，也不改这里的行覆盖数字。有 sanitizer 报告时按 `sandtable-replay` 记 `crash`。
+sanitizer 轮次使用另一份二进制，复用本轮的 `MC.out`。它的 gcda 不进入这份 `lcov.info`，也不改这里的行覆盖数字。有 sanitizer 报告、且不是受控的崩溃这一步时，按 `sandtable-replay` 记失败类 `crash`。

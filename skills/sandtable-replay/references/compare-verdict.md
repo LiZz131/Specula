@@ -14,7 +14,11 @@ Model(<节点>): ...
 
 这是一条失败。记录变量名、节点、两边的值，以及该步的 `pc` 注释（`# [k] ...`）。
 
-比较的变量是 `commitIdx`、`currentTerm`、`log`、`state`。领导者还有 `nextIdx`、`matchIdx`。快照元数据和 `lastApplied` 不在这组比较里。加载快照是否发生，要到节点自己的日志里看 `loaded snapshot`，不能只看变量断言。
+每一步比较该 action 在 `base.tla` 里读或写的变量。不在这里列举某一个系统的变量名。
+
+持久变量是崩溃之后、恢复时仍然保留的那些。怎么判定见 `sandtable-instrumentation` 的 `references/controllability.md`。恢复之后，这些值必须来自驱动写下的副本，不来自停掉之前的进程内存。副本没有写下，或读回的值与公式不一致，是失败。
+
+易失变量是崩溃丢掉、或恢复按公式重设的那些。比较的是公式给出的新值。
 
 ## 队列长度
 
@@ -30,9 +34,9 @@ Model: ...
 
 自动扫描时要分开两句日志。`Variable` 那句和 `Net mgs length` 那句都含有 “compare failed”。只搜这四个单词会把警告算成断言。
 
-## 崩溃
+## 计划外崩溃
 
-下面任一情况记 `crash`，和变量不一致分开。立刻写入 `failures.tsv`，拷贝 `log.host`、`replay.status` 和 sanitizer 输出，并停住这条之后的采样。
+下面任一情况记失败类 `crash`，和变量不一致分开。当前 label 是受控的崩溃或恢复时，不把这一步记入这里。立刻写入 `failures.tsv`，拷贝 `log.host`、`replay.status` 和 sanitizer 输出，并停住这条之后的采样。
 
 - 进程退出码非 0
 - 没有 `logout`
