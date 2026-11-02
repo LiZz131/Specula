@@ -12,7 +12,7 @@
 每种配置的条数、变量一致条数、墙钟合计。各配置的行覆盖和分支覆盖。写明这些百分比各自从零累计，不能相加。
 
 ## 失败
-`failures.tsv` 的全表。`adapter`：写修了什么、新轮次的目录名。`bug`：链到 `potential-bugs/<短名>/`，给出每条轨迹的复现命令，并写 `KNOWN` 或 `NOT_FOUND` 与链接。`crash` 单独列出。已经改成 `bug` 的崩溃写在 `bug` 下面，并注明表现是崩溃或 sanitizer。
+`failures.tsv` 的全表。`adapter`：写修了什么、新轮次的目录名。`bug`：链到 `potential-bugs/<短名>/`，给出每条轨迹的复现命令，并写 `KNOWN` 或 `NOT_FOUND` 与链接。计划外 `crash` 单独列出。已经改成 `bug` 的崩溃写在 `bug` 下面，并注明表现是崩溃或 sanitizer。受控的崩溃和恢复成功时不出现在这张表里。
 
 ## Sanitizer
 若另开了一轮：复用的轨迹目录、`-fsanitize=address,undefined`、`ASAN_OPTIONS=detect_leaks=0`。这一轮的 `crash` 行数。它的 gcda 不并入下面的并集覆盖率。

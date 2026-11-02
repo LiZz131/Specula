@@ -11,7 +11,7 @@
 | `adapter` | 模型或 `Sand*`、生成器、驱动和代码对不齐。通知并停。修好之后新开一轮次。旧轮次的 gcda 不并入。不查上游 issue。 |
 | `bug` | 规格已经描述这条路径，回放仍不一致；或两边一起写成规格标明的偏离。拷贝文件，查上游，通知后在同一轮次继续。 |
 | `environment` | 这一步没有在节点上执行。通知。修好环境后在同一轮次继续。 |
-| `crash` | 进程非 0、没有 `logout`、容器没有起来、超时，或库 / sanitizer 打出 `Assertion`、`Sanitizer`、`stack smashing`。通知并停。拷贝 `log.host`、`replay.status` 和 sanitizer 输出。 |
+| `crash` | 当前 label 不是受控的崩溃或恢复，而进程非 0、没有 `logout`、容器没有起来、超时，或库 / sanitizer 打出 `Assertion`、`Sanitizer`、`stack smashing`。通知并停。拷贝 `log.host`、`replay.status` 和 sanitizer 输出。受控的崩溃或恢复执行成功时不写这一行。 |
 
 控制器的 `Variable ... compare failed` 是变量不一致，归 `bug` 或 `adapter`，即使日志里同时有控制器自己的断言。只读后返回错误码、进程仍在的防御性分支不是 `crash`。这条路径把进程打死时才是 `crash`。
 
@@ -46,9 +46,9 @@ potential-bugs/<短名>/
 
 1. 配置名、每条轨迹的种子和步号。步号用日志里的 `# [k]`。
 2. 不一致的变量、节点、代码值、模型值。两边的值都写上。崩溃没有变量差时，写退出码、信号或 sanitizer 摘要。
-3. 库里的位置：`artifact/<system>/` 下的文件、函数、行号。
+3. 库里的位置：`<ce>/system/` 下的文件、函数、行号。
 4. 为什么归成这一类。`bug` 要指出规格的哪一条公式已经描述了这条路径。
 5. 每条轨迹一条复现命令：`run_one_testcase.sh <potential-bugs 里的 MC.out> <节点数>`。写上期望看到的变量名、失败步，或期望看到的崩溃。
 6. 归类是 `bug` 时：`KNOWN` 或 `NOT_FOUND`，以及 issue 或 PR 链接。表现是崩溃或 sanitizer 时写明。
 
-规格保持不动，不用改 `artifact/<system>/` 或驱动去抹平这条记录。交接给 `bug-confirmation` 时带上这个目录。`NOT_FOUND` 才作为新的潜在 bug 交出去。
+规格保持不动，不用改 `<ce>/system/` 或驱动去抹平这条记录。交接给 `bug-confirmation` 时带上这个目录。`NOT_FOUND` 才作为新的潜在 bug 交出去。

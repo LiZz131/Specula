@@ -23,7 +23,7 @@
 
 ## 并集与未覆盖清单
 
-`controlled-execution-runs/<轮次>/lcov.info` 是各配置 gcov 的并集。`SF` 是 `<run>/artifact/<system>/` 下源文件的绝对路径。一行只要在任一配置里执行过，`DA` 计数就取这些配置里的最大值，且大于 0。各配置自己的百分比仍留在 `coverage.json`，不能相加。
+`<ce>/lcov.info` 是各配置 gcov 的并集。`SF` 是 `<ce>/system/` 下源文件的绝对路径。一行只要在任一配置里执行过，`DA` 计数就取这些配置里的最大值，且大于 0。各配置自己的百分比仍留在 `coverage.json`，不能相加。
 
 `uncovered.txt` 只含这份 lcov 里计数为 0 的可执行行，格式 `文件名:行号`。
 

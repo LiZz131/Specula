@@ -1,10 +1,35 @@
 # WRaft 上的执行对齐
 
-系统是 willemt/raft。源码在 `<run>/artifact/raft/`。协议文件留在 `spec/base.tla`。可执行副本是 `spec/base_for_sandtable.tla` 和 `spec/MC_for_sandtable.tla`。生成器是 `<run>/sandtable/testcase_generator.py`，驱动改动在 `<run>/sandtable/driver/`。
+本文件只记录 willemt/raft。通用规则在 `references/controllability.md` 和 `references/pc-seq.md`：`base.tla` 的每一个 action 单独受控；持久内容由该规格的崩溃与恢复判定；公式这一步没有的发送不进入袋子。
 
-时钟：`Timeout` 用 2000 ms，`AppendEntriesAll` 用 200 ms。前者是选举超时的推进量，后者是 `request_timeout`。
+本轮源码在 `<ce>/system/`。协议公式留在 `<run>/spec/base.tla`。可执行副本在 `<ce>/spec/`。驱动和生成器在 `<ce>/sandtable/`。早先轮次写在 `<run>/artifact/raft/` 和 `<run>/sandtable/driver/`，不要按新路径去搬。
 
-下面三处是 `Sand*` 相对原动作的执行对齐。原规格里的 bug 注释，包括 `raft_begin_load_snapshot` 把 `current_term` 写成 `last_included_term`，保留在加载快照的公式里。
+这份规格里，崩溃之后恢复仍然保留的是 `currentTerm`、`votedFor`、`log` 和快照。`state`、`commitIndex`、`lastApplied` 按恢复公式重设。驱动必须把前面那一组真正写出去，恢复时从副本读回。不能只在内存里改三个字段。
+
+## 本系统的命令
+
+三个节点时，盖章顺序与库跳过自己之后的发送顺序一致：s1 发往 s2、s3；s2 发往 s1、s3；s3 发往 s1、s2。节点名 `n1 < n2 < n3`。
+
+时钟：`Timeout` 用 2000 ms，广播心跳用 200 ms。前者是选举超时的推进量，后者是 `request_timeout`。
+
+| 模型动作 | 控制 |
+|---|---|
+| `Timeout` | 非领导者上推进选举超时，再 `raft periodic` |
+| `ClientRequest` | `raft cli` |
+| `BroadcastAppendEntries` | 领导者上推进请求超时，或一次向公式给出的那些 peer 发送。不要用它代替单播 |
+| `SendAppendEntries`、`SendInstallSnapshot` | 向这一个 peer 发送一次。发送函数按步前状态选择哪一种消息 |
+| `TakeSnapshot` | `raft snapshot`。这一步把快照元数据写入持久副本 |
+| 五个 `Handle*` | 按序号投递这一条，再 `raft recvfrom` |
+| `LoseMessage` | 按序号丢掉一条 |
+| `DuplicateMessage` | 按序号再放入一份 |
+| `Crash` | 停止该节点，持久副本保留 |
+| `Recover` | 从副本读回任期、票、日志和快照，再按公式写易失字段 |
+
+## 旧轮次的记录
+
+下面几节是旧轮次把多出来的发送折进 `Sand*` 的记录，不是现行规则。
+
+原规格里的 bug 注释，包括 `raft_begin_load_snapshot` 把 `current_term` 写成 `last_included_term`，保留在加载快照的公式里。
 
 ## 领导者收到 RequestVote
 
