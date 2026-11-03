@@ -36,6 +36,8 @@ For each guard you found in the implementation, check whether the spec models it
 - **Spec doesn't model the guard at all** → spec explores states the impl can't reach. This is **Case B**.
 - **Impl has no guard for this precondition** → the precondition really can occur. The counterexample is Case C-eligible. Continue verification.
 
+When the spec is missing a guard or weakens it, add the state the implementation uses to decide. Do not restore the guard by having a harness or driver write the implementation's private fields. A guard the code expresses as "a duration has not elapsed" is the corresponding time event not having occurred. Do not add milliseconds to stand in for that event.
+
 ### Step 4. Re-run with the spec fix
 
 If you found Case B, fix the spec (add the guard, tighten the precondition, model the reactive update) and re-run TLC. If the violation persists, repeat from Step 1 — there may be a second under-modeled mechanism. If the violation disappears, the original counterexample was a fidelity gap, not a bug.

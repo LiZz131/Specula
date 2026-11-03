@@ -42,6 +42,14 @@ Split a single implementation function into multiple spec actions when:
 4. **A lock-free operation has separate visibility stages** — e.g., read snapshot -> confirm -> dereference, reserve -> write -> publish, retire -> reclaim
 5. **Ownership transfers across threads** — e.g., enqueue wakeup -> decrement counter -> complete, detach -> fulfill -> bottom-half finish
 
+### When not to split
+
+Do not split a single-threaded call that does not block and does not return to the event loop. Bytes the call sends before it returns belong to that same action. The same process cannot take another protocol action between those lines.
+
+A crash window is a split point only where controlled execution can actually stop: at a return to the event loop, or at a wait placed after the persist and before the send, where the only enabled action of that process is the crash. Do not add a wait so the same thread can take another protocol action mid-call.
+
+A `\/` inside one action is a modeling gap when the code picks the branch from state the spec left out. Add that state and delete the free choice. A condition the code expresses as "this time event has not happened yet" stays an event. Do not add a clock variable or a duration in its place. If two thresholds produce different states, they are two events. Do not cover the window a single clock step skips with a free choice inside the handler.
+
 ### Granularity for Concurrent Specs — *the headline fault category*
 
 For concurrent / lock-free targets, action granularity is the most important faithfulness decision in the entire spec. Production concurrent bugs are overwhelmingly pure interleaving bugs — two correct-looking operations run in an order the author did not consider — and TLC is uniquely good at exposing them by exhaustively exploring all interleavings. A spec that collapses a multi-step protocol into one atomic action makes those bugs invisible, no matter how careful the rest of the spec is.
