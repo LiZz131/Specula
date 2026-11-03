@@ -1,6 +1,6 @@
 # SandTable 受控执行
 
-Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上执行。目标是 `spec/base.tla` 的每一个 action 都被控制，包括持久化、崩溃和恢复。协议公式留在 `spec/base.tla` 和 `spec/MC.tla`。不写死某一个系统的 action 或变量名。持久内容由规格和系统源码判定，见 `sandtable-instrumentation` 的 `references/controllability.md`。
+Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上执行。目标是 `spec/base.tla` 的每一个 action 都被控制，包括持久化、崩溃和恢复。一次受控步是事件循环的一次调用返回。驱动只控制环境：投递、丢失、复制、在时间事件上拨钟、库自己调用的持久化，以及崩溃和恢复。不写库用来做决定的内部字段，不丢弃这次调用已经发出的字节，不在调用内部阻塞来拆步。时间在规格里是事件，不写毫秒。协议公式留在 `spec/base.tla` 和 `spec/MC.tla`。不写死某一个系统的 action 或变量名。持久内容、调用边界和拨钟见 `sandtable-instrumentation` 的 `references/controllability.md`。
 
 每一轮要改的系统源码、驱动和 SandTable 源码都放在该轮目录里。先把 SandTable 整棵源码树拷进来，再只改这份副本。不改上游 SandTable 检出。`harness-generation` 打的是 NDJSON；这里打的是控制器命令。计划外的进程死亡才记失败类 `crash`。
 

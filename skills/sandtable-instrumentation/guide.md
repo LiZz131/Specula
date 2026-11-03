@@ -24,13 +24,14 @@
 
 `<run>/spec/base.tla`、`MC.tla` 的动作公式保持不动。`<ce>/spec/` 里的新文件可以加辅助状态：`scr.pc`、`scr.nSent`、消息上的 `seq`。这些变量指导生成器，不进入协议不变量。
 
-`MCNext` 包含 `Next` 里的每一个 action，协议更新沿用该 action 的公式。`seq` 等于拦截器的捕获序号。某一个 action 不能因为 stock 驱动没有命令就被删掉或并进另一个 action。
+`MCNext` 包含 `Next` 里的每一个 action，协议更新沿用该 action 的公式。`seq` 等于拦截器的捕获序号。某一个 action 不能因为 stock 驱动没有命令就被删掉或并进另一个 action。源码在一次不让出事件循环的调用里做完的事，规格里就是一个 action；合成发生在规格对齐，不是驱动因为缺命令去合并。
 
-对齐时守三条，都相对「当前这一步的公式」：
+对齐时守这几条，都相对「当前这一步的公式」。细则见 `references/controllability.md`。
 
-1. 公式这一步会发出的消息，在同一步盖上 `seq` 并进入消息袋。实现若额外发出公式这一步没有的字节，这些字节不进入袋子，发送仍返回成功，好让这一步走完。不要把这些字节记成当前 action 的发送，也不要因此从 `Next` 里删掉另一个本来就要单独受控的 action。
-2. 这一步走哪条分支，由这一步的 `label` 或步前状态决定。不要把公式改成未改过的驱动碰巧会走的那一条。插桩时不改协议公式。公式和源码对不上时，先按 `sandtable-replay` 的 `references/mismatch-record.md` 在 `<ce>/spec/base.tla` 上对齐，再回到这里重新生成适配层。对齐时只看规格和源码。
-3. 持久内容按 `references/controllability.md` 判定，不在这里点名变量。驱动必须把持久内容写到可重读的副本。崩溃留下这份副本。恢复从副本读回，再按公式写易失内容。只改内存、不读副本，不算执行了恢复。
+1. 一次受控步是事件循环里的一次调用返回。公式这一步的消息，就是这次调用在返回前实际发出的字节：同一步盖上 `seq` 并进入消息袋。不丢弃这些字节。不为同一批字节在后面的 action 里再调用一次发送。调用没返回之前不阻塞，不用等待把一次调用拆成两个 action。库若在这次调用里发出了公式没有的字节，停下，按 `sandtable-replay` 的 `references/mismatch-record.md` 对齐规格，使这些字节属于这一步。不把它们丢掉来让这一步走完，也不因此从 `Next` 里删掉另一个由单独调用触发的 action。
+2. `label` 选择环境输入：投递哪一条，哪个节点发生哪一个时间事件。分支由库自己的状态和这个输入决定。驱动不写库用来做决定的内部字段。不要把公式改成未改过的驱动碰巧会走的那一条。插桩时不改协议公式。同一 action 里的选择在源码中由规格没写的状态决定时，先按 `mismatch-record.md` 在 `<ce>/spec/base.tla` 上对齐，再回到这里重新生成适配层。对齐时只看规格和源码。
+3. 时间是事件。只在代表该事件的 action 上拨钟，拨到足以让库自己触发它。不把流逝时间或随机超时写进驱动，也不写进规格。随机时长由轨迹选择哪个节点先发生该事件来表达。毫秒数记在本轮目录。
+4. 持久内容按 `references/controllability.md` 判定，不在这里点名变量。驱动必须把持久内容写到可重读的副本。崩溃留下这份副本。恢复从副本读回，再按公式写易失内容。只改内存、不读副本，不算执行了恢复。
 
 对 `<ce>/sandtable` 和 `<ce>/system` 的修改同时写入 `<ce>/patches/`。步骤见 `references/patches.md`。整棵副本不提交进 case-studies。
 
@@ -42,7 +43,7 @@
 4. 处理一条消息、丢掉一条、复制一条，都按 `label` 里的序号只动这一条。不要求它是通道上最老的一条，也不要用清空整条通道来丢掉一条。
 5. 写 `<ce>/spec/MC_for_sandtable.tla`，`EXTENDS base_for_sandtable`。`MCNext` 的成员见 `references/controllability.md`。计数器只在原规格有对应界限的 action 上增加。
 6. 每种 Specula 配置写一份 cfg，规则见 `references/config-mapping.md`。
-7. 生成器在 `states[0]` 含有 `scr` 时走 `pc` 路径，否则保留原来的状态差路径，让没有 `scr` 的旧反例还能回放。与协议无关的命令见 `references/pc-seq.md`。已有的系统命令对照在 `examples/`，只读。未知的 `pc` 直接失败，不要猜一条命令。不要往 `examples/` 里写文件，除非用户明确要求写那一个文件。系统命令记在本轮目录。
+7. 生成器在 `states[0]` 含有 `scr` 时走 `pc` 路径，否则保留原来的状态差路径，让没有 `scr` 的旧反例还能回放。与协议无关的命令见 `references/pc-seq.md`。已有的系统命令对照在 `examples/`，只读。`examples/` 里若写着丢掉库已发出的字节，或驱动写入库的内部字段来选择分支，以 `references/controllability.md` 为准，不要照做。未知的 `pc` 直接失败，不要猜一条命令。不要往 `examples/` 里写文件，除非用户明确要求写那一个文件。系统命令记在本轮目录。
 8. 副本相对基线有差异时，按 `references/patches.md` 写 `<ce>/patches/`。回放期间驱动或脚本又改过的，轮次结束时再生成一次。
 
 ## Sanitizer 轮次

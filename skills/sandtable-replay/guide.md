@@ -28,11 +28,11 @@
 
 立刻把这条写入 `failures.tsv` 并通知，再按 `references/mismatch-record.md` 归类。失败类 `crash` 只表示计划外的进程死亡。确认之前不改成 `adapter`、`bug`、`environment` 或 `spec`。受控的崩溃或恢复执行成功时不写入这张表。
 
-**适配层。** 驱动、生成器或序号映射没有把库这次的发送、接收或读回交给比较。通知并停。修好后新开一轮次，从采样重跑。不把旧 gcda 并进新轮次。不查上游 issue。
+**适配层。** 驱动、生成器或序号映射没有把库这次的发送、接收或读回交给比较。写了库用来做决定的内部字段、丢掉本次调用已经发出的字节、或在调用中途阻塞，也算这一类。通知并停。修好后新开一轮次，从采样重跑。不把旧 gcda 并进新轮次。不查上游 issue。
 
 **潜在 bug。** 库这一步违反协议，或两边一起写成偏离协议的值。模型值不是修补目标；协议要求的结果写在 README 里。按 `references/mismatch-record.md` 把该类每一条轨迹的 `MC.out`、`traces.txt`、`log.host` 拷进 `potential-bugs/<短名>/<轨迹>/`。检索该仓库的 issue 和 PR，在 README 写 `KNOWN` 或 `NOT_FOUND` 并附链接。`KNOWN` 保留轨迹和复现命令。`NOT_FOUND` 才作为新的潜在 bug 交出去。通知后在同一轮次继续，不新开一轮。
 
-**规格。** 库这一步符合协议，公式多写、少写或引错了源码行。同样拷贝轨迹。通知并停。按 `references/mismatch-record.md` 的「规格对齐」把对不上的规格拷进 `<ce>/spec/`，只对照 `<ce>/system/` 的源码改公式，把每次修改记入 `<ce>/spec-repairs.md`。这一步不读驱动和生成器。改完回到 `sandtable-instrumentation`，用 `<ce>/spec/base.tla` 重新生成可执行规格和适配层，新开一轮再回放。不改库去贴公式，不查上游。再出现 `spec` 或 `adapter` 就再走对应的修复。交出去的那一轮，`failures.tsv` 里没有这两类。
+**规格。** 库这一步符合协议，公式多写、少写或引错了源码行。同一 action 里由未建模状态决定的选择，或把时间写成了数字，也在这一类。同样拷贝轨迹。通知并停。按 `references/mismatch-record.md` 的「规格对齐」把对不上的规格拷进 `<ce>/spec/`，只对照 `<ce>/system/` 的源码改公式，把每次修改记入 `<ce>/spec-repairs.md`。这一步不读驱动和生成器。改完回到 `sandtable-instrumentation`，用 `<ce>/spec/base.tla` 重新生成可执行规格和适配层，新开一轮再回放。不改库去贴公式，不查上游。再出现 `spec` 或 `adapter` 就再走对应的修复。交出去的那一轮，`failures.tsv` 里没有这两类。
 
 **环境。** 连接被关掉、队列检查一直失败，这一步没有在节点上执行。通知。修好后在同一轮次继续。
 
