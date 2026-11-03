@@ -19,7 +19,7 @@
 
 循环调用生成器，再调用 `run_one_testcase.sh <MC.out> <节点数>`。不要加 `-it`。`<ce>/sandtable/scripts/run_round.py` 是这个循环的一种实现，技能不要求这个文件名。
 
-后台任务在 `adapter` 和 `crash` 上停住。通知发出之后可以另一次启动来续跑，并跳过已经有判决的轨迹。`crash` 从下一条还没有判决的编号接着跑。`adapter` 只在修好后的新轮次里跑。`bug` 和 `spec` 通知后由同一次后台任务继续。
+后台任务在 `adapter`、`spec` 和 `crash` 上停住。通知发出之后可以另一次启动来续跑，并跳过已经有判决的轨迹。`crash` 从下一条还没有判决的编号接着跑。`bug` 通知后由同一次后台任务继续。`adapter` 和 `spec` 修好之后必须新开一轮次再采样回放，不能在发现错误的那一轮里接着跑。旧 gcda 不并入。
 
 把 `<ce>/system/` 和 `<ce>/sandtable/` 同步到挂载盘，再在容器里执行。挂载盘的具体路径以当次启动命令为准，并写进 `轮次报告.md`。早先轮次用过 `sandtable/build/mount/specula-ce`，容器内是 `/root/sandtable/specula-ce`。
 

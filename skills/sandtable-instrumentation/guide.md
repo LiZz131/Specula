@@ -6,7 +6,7 @@
 
 ## 输入 / 输出
 
-**输入**：`<run>/spec/base.tla`、`MC.tla`、`MC.cfg`、每一份 `MC_hunt_*.cfg`，以及被测系统源码。开始时把系统源码拷进 `<ce>/system/`，把正在使用的 SandTable 源码树整份拷进 `<ce>/sandtable/`。之后只改这两份副本，不改上游检出，也不改别的轮次。
+**输入**：`<run>/spec/base.tla`、`MC.tla`、`MC.cfg`、每一份 `MC_hunt_*.cfg`，以及被测系统源码。`<ce>/spec/base.tla` 已经存在时，协议公式用这份，不要用 `<run>/spec/base.tla` 覆盖它。开始时把系统源码拷进 `<ce>/system/`，把正在使用的 SandTable 源码树整份拷进 `<ce>/sandtable/`。之后只改这两份副本，不改上游检出，也不改别的轮次。
 
 **输出**（都在 `<ce>` 里）：
 
@@ -29,20 +29,20 @@
 对齐时守三条，都相对「当前这一步的公式」：
 
 1. 公式这一步会发出的消息，在同一步盖上 `seq` 并进入消息袋。实现若额外发出公式这一步没有的字节，这些字节不进入袋子，发送仍返回成功，好让这一步走完。不要把这些字节记成当前 action 的发送，也不要因此从 `Next` 里删掉另一个本来就要单独受控的 action。
-2. 这一步走哪条分支，由这一步的 `label` 或步前状态决定。不要把公式改成未改过的驱动碰巧会走的那一条。公式里已经写成偏离的行为留在公式里。和实现不一致时按协议语义归类，不把模型值当成实现应当达到的结果，见 `sandtable-replay` 的 `references/mismatch-record.md`。
+2. 这一步走哪条分支，由这一步的 `label` 或步前状态决定。不要把公式改成未改过的驱动碰巧会走的那一条。插桩时不改协议公式。公式和源码对不上时，先按 `sandtable-replay` 的 `references/mismatch-record.md` 在 `<ce>/spec/base.tla` 上对齐，再回到这里重新生成适配层。对齐时只看规格和源码。
 3. 持久内容按 `references/controllability.md` 判定，不在这里点名变量。驱动必须把持久内容写到可重读的副本。崩溃留下这份副本。恢复从副本读回，再按公式写易失内容。只改内存、不读副本，不算执行了恢复。
 
 对 `<ce>/sandtable` 和 `<ce>/system` 的修改同时写入 `<ce>/patches/`。步骤见 `references/patches.md`。整棵副本不提交进 case-studies。
 
 ## 步骤
 
-1. 复制 `<run>/spec/base.tla` 为 `<ce>/spec/base_for_sandtable.tla`，模块名一并改掉。为模型里的每一个 server 声明一个有名常量。生成器按这个集合把模型节点映射到实现节点。个数等于 server 集合，不默认三个。
+1. 复制协议公式为 `<ce>/spec/base_for_sandtable.tla`，模块名一并改掉。`<ce>/spec/base.tla` 已存在时用它，否则用 `<run>/spec/base.tla`。为模型里的每一个 server 声明一个有名常量。生成器按这个集合把模型节点映射到实现节点。个数等于 server 集合，不默认三个。
 2. 增加 `VARIABLE scr`。初始状态把它设为 `[pc |-> <<"Init">>, nSent |-> 0]`。`pc` 让生成器知道刚执行的是哪一个 action，`nSent` 是已经盖过序号的消息条数。
 3. 为 `Next` 里的每一个 action 写可执行副本，包括崩溃、恢复、丢失、复制，以及公式里每一个独立的发送。发送时调用统一的盖章公式：`seq` 从 `scr.nSent + 1` 起，按实现的发送顺序递增。字段名必须写成 `"seq" :> n`，单独的 `seq` 是 TLC 运算符。`@@` 保留左边已有的字段，新序号要写在左边。
 4. 处理一条消息、丢掉一条、复制一条，都按 `label` 里的序号只动这一条。不要求它是通道上最老的一条，也不要用清空整条通道来丢掉一条。
 5. 写 `<ce>/spec/MC_for_sandtable.tla`，`EXTENDS base_for_sandtable`。`MCNext` 的成员见 `references/controllability.md`。计数器只在原规格有对应界限的 action 上增加。
 6. 每种 Specula 配置写一份 cfg，规则见 `references/config-mapping.md`。
-7. 生成器在 `states[0]` 含有 `scr` 时走 `pc` 路径，否则保留原来的状态差路径，让没有 `scr` 的旧反例还能回放。与协议无关的命令见 `references/pc-seq.md`。某一个系统的命令见 `examples/`。未知的 `pc` 直接失败，不要猜一条命令。
+7. 生成器在 `states[0]` 含有 `scr` 时走 `pc` 路径，否则保留原来的状态差路径，让没有 `scr` 的旧反例还能回放。与协议无关的命令见 `references/pc-seq.md`。已有的系统命令对照在 `examples/`，只读。未知的 `pc` 直接失败，不要猜一条命令。不要往 `examples/` 里写文件，除非用户明确要求写那一个文件。系统命令记在本轮目录。
 8. 副本相对基线有差异时，按 `references/patches.md` 写 `<ce>/patches/`。回放期间驱动或脚本又改过的，轮次结束时再生成一次。
 
 ## Sanitizer 轮次
