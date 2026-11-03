@@ -44,7 +44,7 @@ Model: ...
 - 回放超时
 - 库或 sanitizer 的输出里有 `Assertion`、`Sanitizer`、`stack smashing`
 
-有 `Variable ... compare failed` 时归 `bug` 或 `adapter`，不归 `crash`。那是控制器的变量断言。只读后返回错误码、进程仍在的防御性分支也不是 `crash`。
+有 `Variable ... compare failed` 时按 `mismatch-record.md` 归 `adapter`、`bug` 或 `spec`，不归 `crash`。那是控制器的变量断言。模型值不是协议要求的结果。只读后返回错误码、进程仍在的防御性分支也不是 `crash`。
 
 超时或容器没起来时，循环仍要留下 `replay.status` 和 `failures.tsv` 的一行。不要在没有这一行的情况下让整个回放进程退出。
 

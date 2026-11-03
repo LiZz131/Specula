@@ -2,7 +2,7 @@
 
 `sandtable-coverage` 写出 `uncovered.txt` 之后，只给未覆盖的可执行行一个集合，再决定加轨迹还是交回 Specula。次数大于 0 的行不分类。不改 `spec/base.tla` 的协议公式。判定见 `references/classification.md`。路径相对 `<run>`，定义见 `sandtable-workflow-overview.md`。
 
-计划外的崩溃、异常退出和 sanitizer 报告不在 A–E 里，记在该轮次的 `failures.tsv`。受控的崩溃和恢复不是这种失败。防御性行仍按本技能分类。进程被 assert 打死时，判决归 `sandtable-replay`。
+计划外的崩溃、异常退出和 sanitizer 报告不在 A–E 里，记在该轮次的 `failures.tsv`。受控的崩溃和恢复不是这种失败。防御性行仍按本技能分类。进程被 assert 打死时，判决归 `sandtable-replay`，用协议语义区分 `bug` 和 `spec`，不用模型值当目标。
 
 ## 输入 / 输出
 
