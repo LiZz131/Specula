@@ -50,4 +50,4 @@
 
 ## 完成标准
 
-约定条数都有判决。`failures.tsv` 里每一行都已归类。保持 `crash` 的行算已归类。改成 `bug` 的崩溃要有 `KNOWN` 或 `NOT_FOUND`。`spec` 的 README 要写要改的公式，以及库这一步为何符合协议。适配层失败已经在新轮次里消失，或者本轮报告写明新轮次的目录。每条 `bug` 和 `spec` 都能用 README 里的命令复现。覆盖率交给 `sandtable-coverage`。全文写进 `轮次报告.md`。
+约定条数都有判决。`failures.tsv` 里每一行都已归类。保持 `crash` 的行算已归类。改成 `bug` 的崩溃要有 `KNOWN` 或 `NOT_FOUND`。`spec` 的 README 要写要改的公式，以及库这一步为何符合协议。适配层失败已经在新轮次里消失，或者本轮报告写明新轮次的目录。每条 `bug` 和 `spec` 都能用 README 里的命令复现。本轮副本和基线有差异时，`<ce>/patches/` 已按 `sandtable-instrumentation` 的 `references/patches.md` 重新生成，并且打补丁后的文件和副本一致。覆盖率交给 `sandtable-coverage`。全文写进 `轮次报告.md`。

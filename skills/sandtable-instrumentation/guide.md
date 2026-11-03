@@ -32,6 +32,8 @@
 2. 这一步走哪条分支，由这一步的 `label` 或步前状态决定。不要把公式改成未改过的驱动碰巧会走的那一条。公式里已经写成偏离的行为留在公式里。和实现不一致时按协议语义归类，不把模型值当成实现应当达到的结果，见 `sandtable-replay` 的 `references/mismatch-record.md`。
 3. 持久内容按 `references/controllability.md` 判定，不在这里点名变量。驱动必须把持久内容写到可重读的副本。崩溃留下这份副本。恢复从副本读回，再按公式写易失内容。只改内存、不读副本，不算执行了恢复。
 
+对 `<ce>/sandtable` 和 `<ce>/system` 的修改同时写入 `<ce>/patches/`。步骤见 `references/patches.md`。整棵副本不提交进 case-studies。
+
 ## 步骤
 
 1. 复制 `<run>/spec/base.tla` 为 `<ce>/spec/base_for_sandtable.tla`，模块名一并改掉。为模型里的每一个 server 声明一个有名常量。生成器按这个集合把模型节点映射到实现节点。个数等于 server 集合，不默认三个。
@@ -41,6 +43,7 @@
 5. 写 `<ce>/spec/MC_for_sandtable.tla`，`EXTENDS base_for_sandtable`。`MCNext` 的成员见 `references/controllability.md`。计数器只在原规格有对应界限的 action 上增加。
 6. 每种 Specula 配置写一份 cfg，规则见 `references/config-mapping.md`。
 7. 生成器在 `states[0]` 含有 `scr` 时走 `pc` 路径，否则保留原来的状态差路径，让没有 `scr` 的旧反例还能回放。与协议无关的命令见 `references/pc-seq.md`。某一个系统的命令见 `examples/`。未知的 `pc` 直接失败，不要猜一条命令。
+8. 副本相对基线有差异时，按 `references/patches.md` 写 `<ce>/patches/`。回放期间驱动或脚本又改过的，轮次结束时再生成一次。
 
 ## Sanitizer 轮次
 

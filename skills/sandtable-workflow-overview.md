@@ -16,6 +16,7 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 1. sandtable-instrumentation
    <ce>/spec/base_for_sandtable.tla、MC_for_sandtable*.tla/cfg
    <ce>/sandtable/ 里的驱动和 testcase_generator.py
+   <ce>/patches/：副本相对基线的补丁
         │
         ▼
 2. sandtable-replay
@@ -53,6 +54,7 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 |---|---|
 | 本轮被测源码 | `<ce>/system/` |
 | 本轮 SandTable 副本 | `<ce>/sandtable/`。驱动在该系统原来的驱动目录，生成器是 `testcase_generator.py` |
+| 副本补丁 | `<ce>/patches/`。生成步骤见 `sandtable-instrumentation` 的 `references/patches.md`。整棵 `<ce>/sandtable` 和 `<ce>/system` 不提交 |
 | 协议规格，不改 | `<run>/spec/base.tla`、`MC.tla`、`MC.cfg`、`MC_hunt_*.cfg` |
 | 本轮可执行规格 | `<ce>/spec/base_for_sandtable.tla`、`MC_for_sandtable.tla`、`MC_for_sandtable.cfg`、`MC_for_sandtable_<配置>.cfg` |
 | 加长步数 | `<ce>/spec/MC_for_sandtable_deep.tla`、`MC_for_sandtable_deep.cfg` |
@@ -74,6 +76,8 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 ```
 <ce>/system/
 <ce>/sandtable/
+<ce>/patches/sandtable.patch
+<ce>/patches/system.patch
 <ce>/spec/base_for_sandtable.tla
 <ce>/<配置>/traces/t0001/MC.out
 <ce>/<配置>/coverage.json
@@ -103,7 +107,7 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 
 | 阶段 | 交给下一阶段的文件 |
 |---|---|
-| 1 | `<ce>/spec/` 下的可执行规格和每种建模配置一份 cfg，`<ce>/system/`，`<ce>/sandtable/`（含驱动和生成器） |
+| 1 | `<ce>/spec/` 下的可执行规格和每种建模配置一份 cfg，`<ce>/system/`，`<ce>/sandtable/`（含驱动和生成器），`<ce>/patches/` |
 | 2 | `traces/` 下每条轨迹的 `MC.out`、`traces.txt`、`log.host`；`failures.tsv`；`potential-bugs/<短名>/<轨迹>/` |
 | 3 | 各配置的 `coverage.json` 与 `gcov/`，轮次根上的并集 `lcov.info` 和 `uncovered.txt` |
 | 4 | `行分类.tsv`、`未覆盖代码分类.md`、`轮次报告.md`；继续采样的配置，或 `scenarios.md` |
