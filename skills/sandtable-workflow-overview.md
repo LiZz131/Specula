@@ -4,7 +4,7 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 
 每一轮要改的系统源码、驱动和 SandTable 源码都放在该轮目录里。先把 SandTable 整棵源码树拷进来，再只改这份副本。不改上游 SandTable 检出。`harness-generation` 打的是 NDJSON；这里打的是控制器命令。计划外的进程死亡才记失败类 `crash`。
 
-`<run>` 是一次 Specula case study run，例如 `case-studies/systems/willemt-raft/modules/core/runs/case-studies-willemt-raft`。`<ce>` 是其中一轮，`controlled-execution-runs/<轮次>/`。下文没写 `<ce>` 的路径相对 `<run>`。
+`<run>` 是一次 Specula case study run，例如 `case-studies/systems/<system>/modules/<module>/runs/<run>`。`<ce>` 是其中一轮，`controlled-execution-runs/<轮次>/`。下文没写 `<ce>` 的路径相对 `<run>`。
 
 ## 四个阶段
 
@@ -21,9 +21,10 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 2. sandtable-replay
    controlled-execution-runs/<轮次>/<配置>/traces/
         │
-        ├─ bug → 拷贝每条轨迹到 potential-bugs/，查上游，本轮继续
-        ├─ 计划外 crash → 记下并停。确认是实现问题后改为 bug，再查上游
-        └─ 适配层或模型 → 写入 failures.tsv，通知并停，修好后新开一轮次
+        ├─ bug → 库违反协议。拷贝每条轨迹到 potential-bugs/，查上游，本轮继续
+        ├─ spec → 公式和库不一致，库这一步符合协议。拷贝轨迹，写要改的公式，本轮继续
+        ├─ 计划外 crash → 记下并停。用协议确认后再改为 bug 或 spec
+        └─ adapter → 写入 failures.tsv，通知并停，修好后新开一轮次
         ▼
 3. sandtable-coverage
    各配置的 coverage.json，以及轮次根上的并集 lcov.info
@@ -40,9 +41,9 @@ Specula 套件已经存在之后，用 SandTable 把模型轨迹放到实现上�
 
 停的条件：每个配置的行覆盖曲线都已封顶，并集 `lcov.info` 里每一条未覆盖行都有下一步，并且 `failures.tsv` 里每一行都已归类。保持 `crash` 的行算已归类。封顶指该配置的行覆盖最后一次上升之后不再上升。
 
-超过一条轨迹的回放放在后台。正常轨迹不通知。每一条不一致、失败、计划外崩溃、异常退出都通知。受控的崩溃和恢复成功时不通知。续跑跳过已经有判决的轨迹。`bug` 由同一次后台任务继续。`adapter` 和计划外 `crash` 停住；该记录写完后可以从下一条续跑，`adapter` 只在修好后的新轮次里跑。
+超过一条轨迹的回放放在后台。正常轨迹不通知。每一条不一致、失败、计划外崩溃、异常退出都通知。受控的崩溃和恢复成功时不通知。续跑跳过已经有判决的轨迹。`bug` 和 `spec` 由同一次后台任务继续。`adapter` 和计划外 `crash` 停住；该记录写完后可以从下一条续跑，`adapter` 只在修好后的新轮次里跑。变量不一致的归类顺序见 `sandtable-replay` 的 `references/mismatch-record.md`。模型值不是协议要求的结果。
 
-同一轮次、同一配置、同一份二进制上再加 trace 时，gcda 保留，`coverage.json` 追加。适配层、模型、源码、驱动或生成器改了之后新开一轮次。`bug` 不新开一轮。计划外 `crash` 是终态，可以就是 bug：当前 label 不是受控的崩溃时，防御性编码、崩溃或报错把进程打死，记这一类，不改写成另外三档。确认是实现问题后改为 `bug`，再查该仓库的 issue 和 PR。只查已经标成 `bug` 的记录。`行分类.tsv`、`未覆盖代码分类.md` 和 `轮次报告.md` 只在达到上界的那一次写盘。报告模板见 `sandtable-replay` 的 `references/round-report.md`。
+同一轮次、同一配置、同一份二进制上再加 trace 时，gcda 保留，`coverage.json` 追加。适配层、可执行规格、源码、驱动或生成器改了之后新开一轮次。只记下 `spec`、还没改公式时留在本轮。`bug` 不新开一轮。计划外 `crash` 是终态，可以就是 bug 或 spec：当前 label 不是受控的崩溃时，防御性编码、崩溃或报错把进程打死，记这一类，确认之前不改成 `adapter`、`bug`、`environment` 或 `spec`。确认时用协议语义。确认是实现违反协议后改为 `bug`，再查该仓库的 issue 和 PR。确认是公式把一次符合协议的退出写成了别的状态，改为 `spec`。只查已经标成 `bug` 的记录。`行分类.tsv`、`未覆盖代码分类.md` 和 `轮次报告.md` 只在达到上界的那一次写盘。报告模板见 `sandtable-replay` 的 `references/round-report.md`。
 
 覆盖率轮次之后，可以用同一批 `MC.out` 另开一轮 sanitizer（`-fsanitize=address,undefined`，`ASAN_OPTIONS=detect_leaks=0`）。有报告、且不是受控的崩溃这一步时，记该轮的失败类 `crash`，即使退出码是 0。这份 gcda 不并入覆盖率轮次的 `lcov.info`。
 

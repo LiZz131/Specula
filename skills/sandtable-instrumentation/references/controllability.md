@@ -2,7 +2,7 @@
 
 `MCNext` 包含 `spec/base.tla` 的 `Next` 里的每一个 action。缺命令就在本轮的 SandTable 副本里补。不因为 stock 驱动还没有命令就把某一个留在外面，也不把协议公式改成 stock 驱动碰巧走的那一条。
 
-某个系统上每个 action 对应哪条命令，写在该系统的例子里。本文件不列举某一个系统的 action 或变量。WRaft 的对照见 `examples/wraft.md`。
+某个系统上每个 action 对应哪条命令，写在该系统自己的例子里。本文件不列举某一个系统的 action 或变量。
 
 ## 持久化
 
