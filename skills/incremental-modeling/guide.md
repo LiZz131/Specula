@@ -40,6 +40,7 @@ Read and apply the relevant parts of the existing skills rather than restating t
 - For running and debugging trace validation, follow the installed Specula **tla-trace-workflow** skill. Use [Validation 3's category-specific completion evidence](references/validation/03-trace-validation-loop.md#completion-evidence) in place of generic template requirements that assume every trace needs a temporal completion property.
 - For the trace/MC validation loop, follow the installed Specula **validation-workflow** skill with the incremental ordering and budgeted completion rules in Part 3.
 - For counterexample confirmation and reproduction, follow the installed Specula **bug-confirmation** skill.
+- For the persistent code-to-model map (`spec/code-map.json`), follow the installed Specula **code-model-mapping** skill: use it to project the update in Chapter 1 and refresh it in Chapter 5.
 
 Do not rerun full-project archaeology by default. Reuse the old run and investigate history/issues only where the update introduces uncertainty, changes a known mechanism, or invalidates prior evidence.
 

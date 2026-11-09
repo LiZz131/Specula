@@ -86,6 +86,7 @@ class TestInstallSkills(SkillInstallCase):
                 "bug-confirmation",
                 "byom",
                 "code-analysis",
+                "code-model-mapping",
                 "harness-generation",
                 "incremental-modeling",
                 "spec-generation",

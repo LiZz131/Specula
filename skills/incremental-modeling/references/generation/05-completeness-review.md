@@ -10,6 +10,8 @@ Do not equate one code hunk with one spec edit. Do not stop after changing the f
 
 Also inspect the final spec diff against the prior suite. Apply Chapter 2's repair criteria: every semantic edit needs an implementation or property justification. Record source-driven updates and repairs of old model defects separately. Remove unsupported behavior changes while retaining justified repairs, even where the source code is unchanged.
 
+Then refresh the persistent code-to-model map against the new source, following the installed Specula **code-model-mapping** skill, until its check passes. The map is a maintained CI asset, like the instrumentation specification; it is not a record of this review.
+
 ## 2. Close the Reference Semantics
 
 Completeness means both expressing the new behavior and keeping old behavior valid in new or refined contexts. Review in both directions:
