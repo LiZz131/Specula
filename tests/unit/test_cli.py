@@ -33,6 +33,7 @@ commands:
   ci         Handle a GitHub event using a persistent CI model
   ci-result  Generate incremental CI deliverables from one final result
   findings   Look up and reuse persistent findings
+  code-map   Build and use the code-to-model correspondence map
   batch      Batch-run the pipeline over a task queue (workers, quota gate, retries)
   analyze    Phase 1 - static code analysis -> modeling brief
   specgen    Phase 2 - generate TLA+ specs from the modeling brief
