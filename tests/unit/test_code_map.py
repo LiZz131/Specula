@@ -11,6 +11,7 @@ from typing import Any
 import pytest
 
 from specula import code_map
+from specula.callgraph import Site
 
 NODE_C = """\
 #include "node.h"
@@ -419,3 +420,255 @@ def test_bare_names_are_disambiguated_conservatively(project: dict[str, Path]) -
     (project["source"] / "test/node.c").write_text("\n" * 100)
     data = build(project)
     assert "ambiguous path" in data["elements"]["Timeout"]["code"][0]["problem"]
+
+
+# ---------------------------------------------------------------------------
+# Call graph integration
+
+
+class StubGraph:
+    """Call graph keyed by function name, for testing impact without a real backend."""
+
+    def __init__(self, callers: dict[str, list[str]], path: str = "src/node.c") -> None:
+        self.table = callers
+        self.path = path
+        self.asked: list[str] = []
+
+    def callers(self, site: Site) -> list[Site]:
+        self.asked.append(site.function)
+        return [Site(self.path, name, 1) for name in self.table.get(site.function, [])]
+
+    @property
+    def failures(self) -> dict[str, str]:
+        return {}
+
+
+def test_impact_traces_callers_of_unmapped_changes(project: dict[str, Path]) -> None:
+    data = build(project)
+    diff = change(project, "    free(me);\n", "    cleanup(me);\n    free(me);\n")
+    graph = StubGraph({"node_free": ["helper"], "helper": ["node_timeout"]})
+    report = code_map.impact(data, diff, project["old"], project["source"], graph)  # type: ignore[arg-type]
+    hunk = report["hunks"][0]
+    assert hunk["status"] == "reached-via-callers"
+    assert hunk["reached"][0]["element"] == "Timeout"
+    assert [p.split(" ")[0] for p in hunk["reached"][0]["path"]] == ["node_free", "helper", "node_timeout"]
+    assert report["direct"] == {} and "Timeout" in report["via_callers"]
+    assert "Reached through callers" in code_map.render_impact(report)
+
+    graph = StubGraph({"node_free": ["main"]})
+    report = code_map.impact(data, diff, project["old"], project["source"], graph)  # type: ignore[arg-type]
+    hunk = report["hunks"][0]
+    assert hunk["status"] == "unmapped"
+    assert hunk["caller_trace"]["tops"] == ["main (src/node.c)"]
+    assert "topmost: main (src/node.c)" in code_map.render_impact(report)
+
+
+def test_impact_traces_deleted_functions_in_the_old_tree(project: dict[str, Path]) -> None:
+    data = build(project)
+    diff = change(project, "void node_free(node_t* me)\n{\n    free(me);\n}\n\n", "")
+    new_graph, old_graph = StubGraph({}), StubGraph({"node_free": ["node_recv_vote"]})
+    report = code_map.impact(
+        data,
+        diff,
+        project["old"],
+        project["source"],
+        new_graph,  # type: ignore[arg-type]
+        old_graph=old_graph,  # type: ignore[arg-type]
+    )
+    assert "node_free" not in new_graph.asked and "node_free" in old_graph.asked
+    assert report["hunks"][0]["reached"][0]["element"] == "RecvVote"
+
+
+def test_impact_separates_projection_hints_tests_and_non_source(project: dict[str, Path]) -> None:
+    data = build(project)
+    (project["source"] / "README.md").write_text("docs\n")
+    (project["source"] / "tests").mkdir()
+    (project["source"] / "tests/node_test.c").write_text("int t(void) { return 0; }\n")
+    git(project["source"], "add", ".")
+    git(project["source"], "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-qm", "more")
+    project.pop("old", None)
+    diff = change(project, "    free(me);\n", '    log("%d", node_get_term(me));\n    free(me);\n')
+    (project["source"] / "README.md").write_text("docs changed\n")
+    (project["source"] / "tests/node_test.c").write_text("int t(void) { return 1; }\n")
+    diff = git(project["source"], "diff")
+    report = code_map.impact(data, diff, project["old"], project["source"])
+    statuses = {h["location"].split(":")[0]: h["status"] for h in report["hunks"]}
+    assert statuses == {"README.md": "non-source", "src/node.c": "unmapped", "tests/node_test.c": "test"}
+    node_hunk = next(h for h in report["hunks"] if h["location"].startswith("src/node.c"))
+    assert node_hunk["projection_hints"] == ["term"] and node_hunk["elements"] == []  # P1: a log is not a hit
+    text = code_map.render_impact(report)
+    assert "## Test code" in text and "## Non-source files" in text and "## Projection hints" in text
+
+
+def test_cflow_backend_reads_reverse_calls(tmp_path: Path) -> None:
+    if shutil.which("cflow") is None:
+        pytest.skip("cflow not installed")
+    from specula.callgraph import CflowBackend
+
+    (tmp_path / "a.c").write_text(
+        "static int leaf(int x) { return x; }\nint mid(int x) { return leaf(x); }\n"
+        "int top(void) { return mid(1) + leaf(2); }\n"
+    )
+    backend = CflowBackend(tmp_path)
+    assert {s.function for s in backend.callers(Site("a.c", "leaf", 1))} == {"mid", "top"}
+    assert [s.function for s in backend.callers(Site("a.c", "mid", 2))] == ["top"]
+    assert backend.callers(Site("a.c", "top", 3)) == []
+
+
+FAKE_SERVER = r"""
+import json, sys
+def read():
+    length = 0
+    while True:
+        line = sys.stdin.buffer.readline()
+        if line in (b"\r\n", b"\n", b""):
+            break
+        if line.lower().startswith(b"content-length"):
+            length = int(line.split(b":")[1])
+    return json.loads(sys.stdin.buffer.read(length)) if length else None
+def send(msg):
+    body = json.dumps(msg).encode()
+    sys.stdout.buffer.write(b"Content-Length: %d\r\n\r\n" % len(body) + body); sys.stdout.buffer.flush()
+root = None
+while True:
+    msg = read()
+    if msg is None:
+        break
+    method = msg.get("method")
+    if method == "initialize":
+        root = msg["params"]["rootUri"]
+        send({"jsonrpc": "2.0", "method": "$/progress", "params": {"token": "i", "value": {"kind": "begin", "title": "indexing"}}})
+        send({"jsonrpc": "2.0", "id": msg["id"], "result": {"capabilities": {"callHierarchyProvider": True}}})
+        send({"jsonrpc": "2.0", "method": "$/progress", "params": {"token": "i", "value": {"kind": "end"}}})
+    elif method == "textDocument/prepareCallHierarchy":
+        line = msg["params"]["position"]["line"]
+        send({"jsonrpc": "2.0", "id": msg["id"], "result": [{"name": "leaf", "line": line, "uri": msg["params"]["textDocument"]["uri"]}]})
+    elif method == "callHierarchy/incomingCalls":
+        rng = {"start": {"line": 4, "character": 0}, "end": {"line": 4, "character": 3}}
+        send({"jsonrpc": "2.0", "id": msg["id"], "result": [
+            {"from": {"name": "(*Server).Handle", "uri": root + "/pkg/b.go", "range": rng, "selectionRange": rng}},
+            {"from": {"name": "external", "uri": "file:///elsewhere/x.go", "range": rng, "selectionRange": rng}}]})
+    elif method == "shutdown":
+        send({"jsonrpc": "2.0", "id": msg["id"], "result": None})
+    elif method == "exit":
+        break
+"""
+
+
+def test_lsp_backend_speaks_call_hierarchy(tmp_path: Path) -> None:
+    import sys
+
+    from specula.callgraph import LspBackend
+
+    server = tmp_path / "server.py"
+    server.write_text(FAKE_SERVER)
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg/a.go").write_text("package pkg\n\nfunc leaf() {}\n")
+    backend = LspBackend(tmp_path, "fake", {"command": [sys.executable, str(server)], "language_id": "go"})
+    try:
+        found = backend.callers(Site("pkg/a.go", "leaf", 3))
+    finally:
+        backend.close()
+    assert found == [Site("pkg/b.go", "Handle", 5)]  # receiver stripped; callers outside the root dropped
+
+
+# ---------------------------------------------------------------------------
+# Stage 2: update scope
+
+
+def scoped_report(project: dict[str, Path]) -> tuple[dict[str, Any], dict[str, Any]]:
+    data = build(project)
+    data["out_of_scope"] = [{"path": "src/node.c", "symbol": "node_free", "reason": "memory management"}]
+    change(project, "    if (me->snapshotting)\n", "    if (me->snapshotting || me->paused)\n")
+    path = project["source"] / "src/node.c"
+    path.write_text(path.read_text().replace("    free(me);\n", "    cleanup(me);\n    free(me);\n"))
+    diff = git(project["source"], "diff")
+    report = code_map.impact(data, diff, project["old"], project["source"])
+    return data, report
+
+
+def test_scope_skeleton_and_check(project: dict[str, Path]) -> None:
+    data, report = scoped_report(project)
+    scope = code_map.scope_skeleton(report, data, None)
+    assert [h["impact_status"] for h in scope["hunks"]] == ["mapped", "declared-out-of-scope"]
+    assert [e["name"] for e in scope["elements"]] == ["Timeout"]
+    errors, _, _ = code_map.scope_check(scope, data)
+    assert any("disposition must be one of" in e for e in errors)
+    assert any("element Timeout: verdict" in e for e in errors)
+    assert any("interaction candidate" in e for e in errors)
+
+    scope["hunks"][0].update(disposition="reaches-model", via=["Timeout"], evidence="election guard changes")
+    scope["hunks"][1].update(disposition="out-of-scope", evidence="memory management")
+    scope["elements"][0].update(verdict="changed", evidence="Timeout is now also disabled while paused")
+    for name in scope["interaction"]["candidates"]:
+        scope["interaction"]["selected" if name == "RecvVote" else "rejected"][name] = "reads term"
+    for name in scope["properties"]["candidates"]:
+        scope["properties"]["recheck"][name] = "reads term"
+    errors, warnings, derived = code_map.scope_check(scope, data)
+    assert errors == [] and warnings == []
+    assert derived["disposition"] == "MODEL_CHANGE_REQUIRED"
+    assert derived["affected_actions"] == ["Timeout"]
+    assert derived["interaction_actions"] == ["RecvVote"]
+
+    scope["elements"][0].update(verdict="unchanged", evidence="same abstract effect")
+    _, _, derived = code_map.scope_check(scope, data)
+    assert derived["disposition"] == "NO_MODEL_CHANGE"
+
+    data["out_of_scope"] = []
+    errors, _, _ = code_map.scope_check(scope, data)
+    assert any("no matching out_of_scope entry" in e for e in errors)
+    scope["hunks"][1].update(disposition="map-gap")
+    errors, _, _ = code_map.scope_check(scope, data)
+    assert any("map-gap but no valid anchor" in e for e in errors)
+    scope["hunks"][0]["via"] = ["Nope"]
+    errors, _, _ = code_map.scope_check(scope, data)
+    assert any("unknown element Nope" in e for e in errors)
+
+
+def test_scope_init_keeps_earlier_answers(project: dict[str, Path]) -> None:
+    data, report = scoped_report(project)
+    first = code_map.scope_skeleton(report, data, None)
+    first["hunks"][0].update(disposition="reaches-model", via=["Timeout"], evidence="e")
+    first["elements"][0].update(verdict="changed", evidence="e")
+    again = code_map.scope_skeleton(report, data, first)
+    assert again["hunks"][0]["disposition"] == "reaches-model"
+    assert again["elements"][0]["verdict"] == "changed"
+
+
+def test_callers_match_mapped_functions_by_file(project: dict[str, Path]) -> None:
+    data = build(project)
+    diff = change(project, "    free(me);\n", "    cleanup(me);\n    free(me);\n")
+    other_file = StubGraph({"node_free": ["node_timeout"]}, path="src/other.c")  # same name, different file
+    report = code_map.impact(data, diff, project["old"], project["source"], other_file)  # type: ignore[arg-type]
+    assert report["hunks"][0]["status"] == "unmapped"
+    tests_only = StubGraph({"node_free": ["node_timeout"]}, path="tests/node_test.c")
+    report = code_map.impact(data, diff, project["old"], project["source"], tests_only)  # type: ignore[arg-type]
+    assert report["hunks"][0]["status"] == "unmapped"  # callers in test files are not traversed
+
+
+def test_java_anonymous_class_is_not_a_function() -> None:
+    lines = [
+        "class A {",
+        "  Iface make() {",
+        "    return new Iface() {",
+        "      public int get() {",
+        "        return 1;",
+        "      }",
+        "    };",
+        "  }",
+        "}",
+    ]
+    assert [f.name for f in code_map.scan_functions(lines, "java")] == ["make", "get"]
+
+
+def test_rust_new_is_a_function() -> None:
+    lines = [
+        "impl Client {",
+        "    pub fn new(id: u64) -> Client {",
+        "        Client { id }",
+        "    }",
+        "",
+        "    fn drain(&mut self) {}",
+        "}",
+    ]
+    assert [(f.name, f.start) for f in code_map.scan_functions(lines, "rs")] == [("new", 2), ("drain", 6)]

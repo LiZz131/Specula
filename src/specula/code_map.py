@@ -27,10 +27,12 @@ import json
 import re
 import subprocess
 import sys
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+from specula.callgraph import CallGraph, CallGraphError, Site, load_config
 
 VERSION = 1
 FILENAME = "spec/code-map.json"
@@ -70,11 +72,16 @@ class CodeMapError(RuntimeError):
 
 # Debug log: every classification and anchor decision with its file:line origin and rule.
 DEBUG: list[str] | None = None
+DEBUG_STREAM: Any = None  # open file when --debug-log is given, so long runs can be followed live
 
 
 def _debug(stage: str, message: str) -> None:
     if DEBUG is not None:
-        DEBUG.append(f"[{stage}] {message}")
+        line = f"[{stage}] {message}"
+        DEBUG.append(line)
+        if DEBUG_STREAM is not None:
+            DEBUG_STREAM.write(line + "\n")
+            DEBUG_STREAM.flush()
 
 
 # ---------------------------------------------------------------------------
@@ -538,8 +545,11 @@ def scan_functions(lines: list[str], suffix: str) -> list[Function]:
     starts: list[tuple[int, str]] = []
     for number, line in enumerate(lines, 1):
         match = pattern.match(line)
-        if not match or match.group(1) in NOT_FUNCTIONS:
+        # Languages whose definitions start with a keyword (fn, func, def) need no blacklist: Rust's `fn new` is real.
+        if not match or (LANGUAGE[suffix] in {"c", "java"} and match.group(1) in NOT_FUNCTIONS):
             continue
+        if re.search(rf"\bnew\s+{re.escape(match.group(1))}\s*[(<]", line):
+            continue  # Java/C# anonymous class or constructor call, not a definition
         if LANGUAGE[suffix] in {"c", "java"}:
             window = " ".join(lines[number - 1 : number + 6])
             brace, semicolon = window.find("{"), window.find(";")
@@ -613,13 +623,13 @@ def resolve_anchor(source: SourceTree, anchor: dict[str, Any], hints: set[str] |
     if start < 1 or end > length:
         problems.append(f"{path}:{start}-{end}: outside the file ({length} lines)")
         return problems
-    functions = {
-        f.name for f in source.functions(path) if f.start <= end and start <= f.end and f.name not in NOT_FUNCTIONS
-    }
+    functions = {f.name for f in source.functions(path) if f.start <= end and start <= f.end}
     if functions:
         anchor["functions"] = sorted(functions)
         # A function-level anchor covers a function's start; a line anchor inside a body does not.
-        anchor["covers"] = sorted(f.name for f in source.functions(path) if start <= f.start <= end)
+        covered = [f for f in source.functions(path) if start <= f.start <= end]
+        anchor["covers"] = sorted({f.name for f in covered})
+        anchor["covers_at"] = sorted(f.start for f in covered)  # distinguishes same-named functions in one file
     symbol = anchor.get("symbol")
     if symbol and functions and symbol not in functions:
         text = "\n".join(source.lines(path)[start - 1 : end])
@@ -828,7 +838,7 @@ def extract(spec_dir: Path, source_root: Path, previous: dict[str, Any] | None =
                     )
                     continue
                 anchor["cited"] = anchor["path"]
-                for key in ("problem", "functions", "covers"):
+                for key in ("problem", "functions", "covers", "covers_at"):
                     anchor.pop(key, None)
                 for problem in resolve_anchor(source, anchor):
                     anchor["problem"] = problem
@@ -1025,7 +1035,7 @@ def _added_functions(hunk: Hunk, suffix: str) -> set[str]:
         return set()
     added = {m.group(1) for line in hunk.text if line.startswith("+") and (m := pattern.match(line[1:]))}
     removed = {m.group(1) for line in hunk.text if line.startswith("-") and (m := pattern.match(line[1:]))}
-    return added - removed - NOT_FUNCTIONS
+    return added - removed - (NOT_FUNCTIONS if LANGUAGE.get(suffix) in {"c", "java"} else set())
 
 
 def _state_patterns(code: str) -> list[tuple[str, re.Pattern[str]]]:
@@ -1061,20 +1071,110 @@ def _ranges(lines: list[int]) -> str:
     return ",".join(parts)
 
 
+TEST_PATH = re.compile(
+    r"(^|/)(tests?|testing|testdata|__tests__|mocks?)/|_test\.(go|rs|py|c|cc|cpp)$|(^|/)test_[^/]*\.py$"
+    r"|Tests?\.java$|(^|/)Test[^/]*\.java$|_mock\.go$|(^|/)mock_[^/]*$|(^|/)Mock[^/]*\.java$"
+)
+
+
+def _file_class(path: str) -> str:
+    if Path(path).suffix[1:] not in SOURCE_SUFFIXES:
+        return "non-source"
+    if TEST_PATH.search(path):
+        return "test"
+    return "source"
+
+
+def _definition(tree: SourceTree | None, path: str | None, name: str) -> Site | None:
+    if tree is None or path is None or not (tree.root / path).is_file():
+        return None
+    for function in tree.functions(path):
+        if function.name == name:
+            return Site(path, name, function.start)
+    return None
+
+
+def _trace_callers(
+    graph: CallGraph,
+    starts: list[Site],
+    mapped: dict[tuple[str, str], set[str]],
+    scoped: Callable[[str, str], bool],
+    depth: int,
+    width: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Walk callers upward until a mapped function; return paths per reached element and a trace summary."""
+    reached: dict[str, dict[str, Any]] = {}
+    tops: set[str] = set()  # functions with no callers: entry points, tests, or callbacks
+    frontier = [(site, [f"{site.function} ({site.path}:{site.line})"]) for site in starts]
+    seen = {site for site in starts}
+    for level in range(1, depth + 1):
+        following: list[tuple[Site, list[str]]] = []
+        for site, path in frontier:
+            callers = graph.callers(site)
+            if not callers:
+                tops.add(f"{site.function} ({site.path})")
+            _debug(
+                "callgraph",
+                f"level {level}: callers of {site.function} ({site.path}:{site.line}) -> "
+                f"{[f'{c.function}@{c.path}:{c.line}' for c in callers] or '-'}",
+            )
+            skipped = [c for c in callers if _file_class(c.path) == "test"]
+            if skipped:
+                _debug("callgraph", f"  skip {len(skipped)} callers in test or mock files")
+            for caller in callers:
+                if _file_class(caller.path) == "test":
+                    continue
+                step = path + [f"{caller.function} ({caller.path}:{caller.line})"]
+                if (caller.path, caller.function) in mapped:
+                    for element in sorted(mapped[(caller.path, caller.function)]):
+                        if element not in reached:
+                            reached[element] = {"element": element, "via": caller.function, "path": step}
+                            _debug("callgraph", f"  reached {element} through {' <- '.join(step)}")
+                    continue  # a mapped function ends this branch
+                if scoped(caller.path, caller.function):
+                    _debug("callgraph", f"  stop at {caller.function}: declared out of scope")
+                    continue
+                if caller not in seen and len(following) < width:
+                    seen.add(caller)
+                    following.append((caller, step))
+        frontier = following
+        if not frontier:
+            break
+    if frontier:
+        _debug("callgraph", f"  depth limit {depth} reached with {len(frontier)} unexplored callers")
+    return list(reached.values()), {
+        "explored": len(seen),
+        "tops": sorted(tops)[:12],
+        "depth_limited": bool(frontier),
+    }
+
+
 def impact(
-    data: dict[str, Any], diff_text: str, old_root: Path | None = None, new_root: Path | None = None
+    data: dict[str, Any],
+    diff_text: str,
+    old_root: Path | None = None,
+    new_root: Path | None = None,
+    graph: CallGraph | None = None,
+    depth: int = 4,
+    width: int = 60,
+    old_graph: CallGraph | None = None,
 ) -> dict[str, Any]:
+    """Map a diff onto model elements. ``graph`` serves the new tree; ``old_graph`` traces deleted functions."""
     old = SourceTree(old_root) if old_root else None
     new = SourceTree(new_root) if new_root else None
     elements: dict[str, dict[str, Any]] = data["elements"]
     by_path: dict[str, list[tuple[str, dict[str, Any]]]] = {}
-    by_function: dict[str, set[str]] = {}
+    # Functions are keyed by (file, name): languages such as Go and Java reuse names (Invoke, run) across files.
+    by_function: dict[tuple[str, str], set[str]] = {}
+    by_start: dict[tuple[str, int], set[str]] = {}  # (file, function start line in the old source)
     for name, entry in elements.items():
         for anchor in _valid_code(entry):
             by_path.setdefault(anchor["path"], []).append((name, anchor))
+            for start in anchor.get("covers_at", []):
+                by_start.setdefault((anchor["path"], start), set()).add(name)
             covered = anchor["covers"] if "covers" in anchor else anchor.get("functions", [])
             for function in covered + ([anchor["symbol"]] if anchor.get("symbol") else []):
-                by_function.setdefault(function, set()).add(name)
+                by_function.setdefault((anchor["path"], function), set()).add(name)
     projections = {
         name: IDENT.findall(
             str(
@@ -1084,78 +1184,145 @@ def impact(
         for name, entry in elements.items()
         if entry.get("projection")
     }
-    hunks: list[dict[str, Any]] = []
-    direct: dict[str, list[str]] = {}
-    hidden: dict[str, list[str]] = {}
-    for hunk in parse_diff(diff_text):
-        functions = _hunk_functions(hunk, old, new)
-        first = (hunk.new_lines or hunk.old_lines or [hunk.new_start])[0]
-        location = f"{hunk.path}:{first}"
-        label = f"{location} ({', '.join(sorted(functions)) or hunk.context or 'no function'})"
-        hits: dict[str, str] = {}
-        if hunk.old_path:
-            for name, anchor in by_path.get(hunk.old_path, []):
-                start, stop = anchor["lines"]
-                if any(start <= line <= stop for line in hunk.old_lines):
-                    hits.setdefault(name, f"lines overlap {anchor['path']}:{start}-{stop}")
-        for function in functions:
-            for name in by_function.get(function, ()):
-                hits.setdefault(name, f"function {function}")
-        changed = " ".join(line[1:] for line in hunk.text)
-        for name, tokens in projections.items():
-            if tokens and any(re.search(rf"\b{re.escape(t)}\b", changed) for t in tokens):
-                hits.setdefault(name, f"uses projection {tokens[0]}")
-        state_hits = []
-        for item in data.get("code_state", []):
-            matched = [t for t, pattern in _state_patterns(str(item.get("code", ""))) if pattern.search(changed)]
-            if matched:
-                state_hits.append(str(item.get("code")))
-                for name in item.get("affects", []):
-                    hidden.setdefault(name, []).append(f"{label} touches hidden state {', '.join(matched)}")
-        scope = next(
+
+    def out_of_scope(path: str, functions: set[str] | str) -> dict[str, Any] | None:
+        names = {functions} if isinstance(functions, str) else functions
+        return next(
             (
                 item
                 for item in data.get("out_of_scope", [])
-                if fnmatch.fnmatch(hunk.path, str(item.get("path", "")))
-                and (not item.get("symbol") or item.get("symbol") in functions)
+                if fnmatch.fnmatch(path, str(item.get("path", "")))
+                and (not item.get("symbol") or item["symbol"] in names)
             ),
             None,
         )
-        new_functions = _added_functions(hunk, Path(hunk.path).suffix[1:])
-        if old is not None and hunk.old_path and (old.root / hunk.old_path).is_file():
-            new_functions -= {f.name for f in old.functions(hunk.old_path)}  # changed signatures are not new
+
+    hunks: list[dict[str, Any]] = []
+    direct: dict[str, list[str]] = {}
+    via_callers: dict[str, list[dict[str, Any]]] = {}
+    hidden: dict[str, list[str]] = {}
+    hints: dict[str, list[str]] = {}
+    for index, hunk in enumerate(parse_diff(diff_text), 1):
+        file_class = _file_class(hunk.path)
+        functions = _hunk_functions(hunk, old, new) if file_class != "non-source" else set()
+        first = (hunk.new_lines or hunk.old_lines or [hunk.new_start])[0]
+        location = f"{hunk.path}:{first}"
+        label = f"{location} ({', '.join(sorted(functions)) or hunk.context or 'no function'})"
         _debug(
             "impact",
-            f"hunk {hunk.path}: old changed lines {_ranges(hunk.old_lines)}, new changed lines {_ranges(hunk.new_lines)}; "
-            f"enclosing functions {sorted(functions) or '-'}",
+            f"H{index} {hunk.path} [{file_class}]: old changed lines {_ranges(hunk.old_lines)}, "
+            f"new changed lines {_ranges(hunk.new_lines)}; enclosing functions {sorted(functions) or '-'}",
         )
-        for name, reason in hits.items():
-            direct.setdefault(name, []).append(f"{label}: {reason}")
-            _debug("impact", f"  -> {name} by {reason}")
-        for state in state_hits:
-            _debug("impact", f"  -> hidden state {state} named in changed lines")
-        if not hits and not state_hits:
-            _debug(
-                "impact",
-                f"  -> {'declared out of scope: ' + str(scope.get('reason')) if scope else 'UNMAPPED: no anchor, function, projection, or code_state matched'}",
-            )
-        if new_functions:
-            _debug(
-                "impact", f"  -> new functions {sorted(new_functions)} (defined in + lines, absent from the old file)"
-            )
-        if hits or state_hits:
-            status = "mapped"
-        elif scope:
-            status = "declared-out-of-scope"
+        hits: dict[str, str] = {}
+        state_hits: list[str] = []
+        hint_hits: list[str] = []
+        reached: list[dict[str, Any]] = []
+        trace: dict[str, Any] = {}
+        scope = None
+        new_functions: set[str] = set()
+        if file_class == "non-source":
+            status = "non-source"
+            _debug("impact", "  -> NON-SOURCE file (build, docs, config): listed separately; still needs a disposition")
         else:
-            status = "unmapped"
+            if hunk.old_path:
+                for name, anchor in by_path.get(hunk.old_path, []):
+                    start, stop = anchor["lines"]
+                    if any(start <= line <= stop for line in hunk.old_lines):
+                        hits.setdefault(name, f"lines overlap {anchor['path']}:{start}-{stop}")
+            old_starts = {
+                (f.name, f.start)
+                for line in hunk.old_lines
+                if old is not None and hunk.old_path and (old.root / hunk.old_path).is_file()
+                for f in [old.enclosing(hunk.old_path, line)]
+                if f is not None
+            }
+            for function, start in sorted(old_starts):
+                for name in by_start.get((str(hunk.old_path), start), ()):
+                    hits.setdefault(name, f"function {function} (old line {start})")
+            precise = {function for function, _ in old_starts if by_start}
+            for function in functions - precise:  # maps without start lines, or functions only in the new file
+                for path in {hunk.old_path, hunk.new_path} - {None}:
+                    for name in by_function.get((str(path), function), ()):
+                        hits.setdefault(name, f"function {function}")
+            changed = " ".join(line[1:] for line in hunk.text)
+            for name, tokens in projections.items():
+                if tokens and any(re.search(rf"\b{re.escape(t)}\b", changed) for t in tokens):
+                    hint_hits.append(name)
+                    hints.setdefault(name, []).append(f"{label} mentions projection {tokens[0]}")
+            for item in data.get("code_state", []):
+                matched = [t for t, pattern in _state_patterns(str(item.get("code", ""))) if pattern.search(changed)]
+                if matched:
+                    state_hits.append(str(item.get("code")))
+                    for name in item.get("affects", []):
+                        hidden.setdefault(name, []).append(f"{label} touches hidden state {', '.join(matched)}")
+            scope = out_of_scope(hunk.path, functions)
+            new_functions = _added_functions(hunk, Path(hunk.path).suffix[1:])
+            if old is not None and hunk.old_path and (old.root / hunk.old_path).is_file():
+                new_functions -= {f.name for f in old.functions(hunk.old_path)}  # changed signatures are not new
+            for name, reason in hits.items():
+                direct.setdefault(name, []).append(f"{label}: {reason}")
+                _debug("impact", f"  -> {name} by {reason}")
+            for state in state_hits:
+                _debug("impact", f"  -> hidden state {state} named in changed lines")
+            for name in hint_hits:
+                _debug(
+                    "impact", f"  -> hint only: changed text mentions the projection of {name} (not counted as a hit)"
+                )
+            if not hits and not state_hits and not scope and file_class == "source" and graph is not None:
+                in_new = [s for n in sorted(functions) if (s := _definition(new, hunk.new_path, n)) is not None]
+                in_old = [
+                    s
+                    for n in sorted(functions)
+                    if all(x.function != n for x in in_new) and (s := _definition(old, hunk.old_path, n)) is not None
+                ]
+                for tree_graph, starts, side in ((graph, in_new, "new"), (old_graph, in_old, "old")):
+                    if not starts or tree_graph is None:
+                        continue
+                    _debug(
+                        "callgraph",
+                        f"H{index}: tracing callers of {[s.function for s in starts]} in the {side} tree (depth {depth})",
+                    )
+                    found, summary = _trace_callers(
+                        tree_graph, starts, by_function, lambda p, f: out_of_scope(p, f) is not None, depth, width
+                    )
+                    reached += found
+                    trace = {
+                        "explored": trace.get("explored", 0) + summary["explored"],
+                        "tops": sorted(set(trace.get("tops", [])) | set(summary["tops"]))[:12],
+                        "depth_limited": trace.get("depth_limited", False) or summary["depth_limited"],
+                    }
+                    for item in reached:
+                        via_callers.setdefault(item["element"], []).append({"hunk": label, "path": item["path"]})
+            if hits or state_hits:
+                status = "mapped"
+            elif scope:
+                status = "declared-out-of-scope"
+                _debug("impact", f"  -> declared out of scope: {scope.get('reason')}")
+            elif reached:
+                status = "reached-via-callers"
+            elif file_class == "test":
+                status = "test"
+                _debug("impact", "  -> TEST file with no anchor: listed separately; still needs a disposition")
+            else:
+                status = "unmapped"
+                _debug("impact", "  -> UNMAPPED: no anchor, function, code_state, or caller path matched")
+            if new_functions:
+                _debug(
+                    "impact",
+                    f"  -> new functions {sorted(new_functions)} (defined in + lines, absent from the old file)",
+                )
         hunks.append(
             {
+                "id": f"H{index}",
                 "location": location,
+                "file_class": file_class,
                 "functions": sorted(functions),
                 "status": status,
                 "elements": sorted(hits),
+                "reached": [{"element": r["element"], "path": r["path"]} for r in reached],
+                "caller_trace": trace or None,
                 "hidden_state": state_hits,
+                "projection_hints": sorted(hint_hits),
                 "out_of_scope_reason": scope.get("reason") if scope else None,
                 "new_functions": sorted(new_functions),
             }
@@ -1176,21 +1343,37 @@ def impact(
             "actions": sorted(n for n in users if elements[n]["kind"] == "action"),
             "properties": sorted(n for n in users if elements[n]["kind"] == "property"),
         }
+    statuses = ["mapped", "reached-via-callers", "declared-out-of-scope", "unmapped", "test", "non-source"]
     return {
         "version": VERSION,
         "map_source_commit": data.get("source_commit"),
         "direct": {name: direct[name] for name in sorted(direct)},
+        "via_callers": {name: via_callers[name] for name in sorted(via_callers)},
         "hidden_state": hidden,
+        "projection_hints": hints,
         "propagated": readers,
         "hunks": hunks,
+        "callgraph": {"failures": graph.failures} if graph is not None else None,
         "summary": {
             "hunks": len(hunks),
-            "mapped": sum(h["status"] == "mapped" for h in hunks),
-            "declared_out_of_scope": sum(h["status"] == "declared-out-of-scope" for h in hunks),
-            "unmapped": sum(h["status"] == "unmapped" for h in hunks),
+            **{key.replace("-", "_"): sum(h["status"] == key for h in hunks) for key in statuses},
             "new_functions": sorted({f for h in hunks for f in h["new_functions"]}),
         },
     }
+
+
+def _group_by_file(hunks: list[dict[str, Any]]) -> list[str]:
+    grouped: dict[str, dict[str, int]] = {}
+    for h in hunks:
+        file = h["location"].rsplit(":", 1)[0]
+        for function in h["functions"] or ["(no function)"]:
+            grouped.setdefault(file, {}).setdefault(function, 0)
+            grouped[file][function] += 1
+    lines = []
+    for file, functions in sorted(grouped.items()):
+        parts = ", ".join(f"{f}" + (f" ×{n}" if n > 1 else "") for f, n in sorted(functions.items()))
+        lines.append(f"- `{file}`: {parts}")
+    return lines
 
 
 def render_impact(report: dict[str, Any]) -> str:
@@ -1198,11 +1381,12 @@ def render_impact(report: dict[str, Any]) -> str:
     out = [
         "# Code-map impact",
         "",
-        f"Map source commit: `{report.get('map_source_commit') or 'unknown'}`. "
-        f"Hunks: {s['hunks']}; mapped {s['mapped']}; declared out of scope {s['declared_out_of_scope']}; "
-        f"**unmapped {s['unmapped']}**.",
+        f"Map source commit: `{report.get('map_source_commit') or 'unknown'}`. Hunks: {s['hunks']}: "
+        f"mapped {s['mapped']}, reached via callers {s['reached_via_callers']}, declared out of scope "
+        f"{s['declared_out_of_scope']}, **unmapped {s['unmapped']}**, test {s['test']}, non-source {s['non_source']}.",
         "",
-        "This report orders review; it never proves a change irrelevant. Read the complete diff.",
+        "This report orders review; it never proves a change irrelevant. Read the complete diff. "
+        "Hunk ids (H1, H2, ...) are the keys of `update-scope.json`.",
         "",
         "## Directly affected model elements",
         "",
@@ -1210,6 +1394,19 @@ def render_impact(report: dict[str, Any]) -> str:
         "",
     ]
     out += [f"- **{name}**: " + "; ".join(reasons) for name, reasons in report["direct"].items()] or ["- none"]
+    out += [
+        "",
+        "## Reached through callers",
+        "",
+        "Changed functions with no anchor whose callers lead to a mapped function. Decide whether the change reaches "
+        "the element's modeled behavior through that call path.",
+        "",
+    ]
+    via = report.get("via_callers", {})
+    out += [
+        f"- **{name}**: " + "; ".join(f"{p['hunk']}: {' <- '.join(p['path'])}" for p in paths)
+        for name, paths in via.items()
+    ] or ["- none"]
     out += ["", "## Hidden implementation state", ""]
     out += [f"- **{name}**: " + "; ".join(reasons) for name, reasons in report["hidden_state"].items()] or ["- none"]
     out += [
@@ -1226,21 +1423,61 @@ def render_impact(report: dict[str, Any]) -> str:
         )
     if not report["propagated"]:
         out.append("- none")
-    unmapped = [h for h in report["hunks"] if h["status"] == "unmapped"]
+    by_status = {
+        key: [h for h in report["hunks"] if h["status"] == key]
+        for key in ("unmapped", "declared-out-of-scope", "test", "non-source")
+    }
     out += [
         "",
         "## Unmapped hunks",
         "",
-        "No model element cites this code. Do not skip them: for each, decide whether it changes modeled behavior "
-        "through callers, shared state, or assumptions; is outside the modeling scope (record it in out_of_scope); "
-        "or reveals a missing map entry.",
+        "No anchor, code_state entry, or caller path reaches the model. Do not skip them: decide whether each changes "
+        "modeled behavior, is outside the modeling scope (record it in out_of_scope), or reveals a missing map entry.",
         "",
     ]
-    out += [f"- {h['location']} ({', '.join(h['functions']) or 'no function'})" for h in unmapped] or ["- none"]
-    scoped = [h for h in report["hunks"] if h["status"] == "declared-out-of-scope"]
-    if scoped:
+
+    def traced(h: dict[str, Any]) -> str:
+        t = h.get("caller_trace")
+        if not t:
+            return ""
+        limit = "; depth limit reached" if t["depth_limited"] else ""
+        return f" — callers traced ({t['explored']} functions{limit}); topmost: {', '.join(t['tops']) or '-'}"
+
+    out += [
+        f"- {h['id']} {h['location']} ({', '.join(h['functions']) or 'no function'}){traced(h)}"
+        for h in by_status["unmapped"]
+    ][:40] or ["- none"]
+    if len(by_status["unmapped"]) > 40:
+        out += ["", f"{len(by_status['unmapped'])} unmapped hunks; grouped by file:", ""] + _group_by_file(
+            by_status["unmapped"]
+        )
+    if by_status["declared-out-of-scope"]:
         out += ["", "## Declared out of scope", "", "Confirm the recorded reason still holds.", ""]
-        out += [f"- {h['location']}: {h['out_of_scope_reason']}" for h in scoped]
+        out += [f"- {h['id']} {h['location']}: {h['out_of_scope_reason']}" for h in by_status["declared-out-of-scope"]][
+            :40
+        ]
+    if by_status["test"]:
+        out += [
+            "",
+            "## Test code",
+            "",
+            "Tests can reveal the intended behavior of an update; they rarely change it.",
+            "",
+        ]
+        out += _group_by_file(by_status["test"])
+    if by_status["non-source"]:
+        out += ["", "## Non-source files", "", "Build, documentation, or configuration changes.", ""]
+        out += [f"- {h['id']} {h['location']}" for h in by_status["non-source"]]
+    if report.get("projection_hints"):
+        out += [
+            "",
+            "## Projection hints",
+            "",
+            "Changed text mentions the getter a trace uses for these elements. "
+            "Usually a log or read; not counted as a hit.",
+            "",
+        ]
+        out += [f"- **{name}**: " + "; ".join(r) for name, r in report["projection_hints"].items()]
     if s["new_functions"]:
         out += [
             "",
@@ -1250,11 +1487,204 @@ def render_impact(report: dict[str, Any]) -> str:
             "",
             "- " + ", ".join(s["new_functions"]),
         ]
+    if report.get("callgraph") and report["callgraph"]["failures"]:
+        out += ["", "## Call graph unavailable", ""]
+        out += [f"- {lang}: {why}" for lang, why in report["callgraph"]["failures"].items()]
     return "\n".join(out) + "\n"
 
 
 # ---------------------------------------------------------------------------
 # CLI
+
+
+# ---------------------------------------------------------------------------
+# Stage 2: update scope (projection and disposition)
+
+SCOPE_FILE = "spec/update-scope.json"
+HUNK_DISPOSITIONS = {
+    "reaches-model": "the change alters behavior of the listed model elements (via)",
+    "no-behavior-change": "no modeled behavior changes (logging, refactor, comments); evidence required",
+    "out-of-scope": "outside the modeling scope; a matching out_of_scope entry must exist in code-map.json",
+    "map-gap": "modeled code the map missed; a valid anchor for this code must now exist in code-map.json",
+    "non-model-file": "test, build, documentation, or configuration change that does not alter implementation behavior",
+}
+ELEMENT_VERDICTS = {
+    "changed": "the element's modeled behavior must change",
+    "now-wrong": "the existing model was already wrong here; repair needed regardless of the update",
+    "unchanged": "reviewed; modeled behavior is the same (evidence required)",
+}
+ENTRY_VERDICTS = {"new-action", "new-environment-step", "internal"}
+
+
+def scope_skeleton(report: dict[str, Any], data: dict[str, Any], previous: dict[str, Any] | None) -> dict[str, Any]:
+    """Fill-in skeleton for update-scope.json from an impact report; keeps earlier Agent answers."""
+    old_hunks = {h["location"]: h for h in (previous or {}).get("hunks", [])}
+    old_elements = {e["name"]: e for e in (previous or {}).get("elements", [])}
+    hunks = []
+    for h in report["hunks"]:
+        entry = {
+            "id": h["id"],
+            "location": h["location"],
+            "functions": h["functions"],
+            "impact_status": h["status"],
+            "impact_elements": h["elements"] + [r["element"] for r in h.get("reached", [])],
+            "disposition": None,
+            "via": [],
+            "evidence": "",
+        }
+        for key in ("disposition", "via", "evidence"):
+            if h["location"] in old_hunks and old_hunks[h["location"]].get(key):
+                entry[key] = old_hunks[h["location"]][key]
+        hunks.append(entry)
+    sources: dict[str, set[str]] = {}
+    for name in report["direct"]:
+        sources.setdefault(name, set()).add("direct")
+    for name in report.get("via_callers", {}):
+        sources.setdefault(name, set()).add("callers")
+    for name in report["hidden_state"]:
+        sources.setdefault(name, set()).add("hidden-state")
+    elements = []
+    for name in sorted(sources):
+        entry = {
+            "name": name,
+            "kind": data["elements"].get(name, {}).get("kind"),
+            "sources": sorted(sources[name]),
+            "verdict": None,
+            "evidence": "",
+        }
+        if name in old_elements:
+            entry["verdict"] = old_elements[name].get("verdict")
+            entry["evidence"] = old_elements[name].get("evidence", "")
+        elements.append(entry)
+    actions = sorted({a for users in report["propagated"].values() for a in users["actions"]})
+    properties = sorted({p for users in report["propagated"].values() for p in users["properties"]})
+    old_interaction = (previous or {}).get("interaction", {})
+    old_properties = (previous or {}).get("properties", {})
+    return {
+        "version": VERSION,
+        "map_source_commit": report.get("map_source_commit"),
+        "hunks": hunks,
+        "elements": elements,
+        "new_functions": [
+            {"function": f, "verdict": None, "evidence": ""}
+            | next((o for o in (previous or {}).get("new_functions", []) if o.get("function") == f), {})
+            for f in report["summary"]["new_functions"]
+        ],
+        "interaction": {
+            "candidates": actions,
+            "selected": old_interaction.get("selected", {}),
+            "rejected": old_interaction.get("rejected", {}),
+        },
+        "properties": {
+            "candidates": properties,
+            "recheck": old_properties.get("recheck", {}),
+            "skip": old_properties.get("skip", {}),
+        },
+        "derived": None,
+    }
+
+
+def _anchor_covers(data: dict[str, Any], path: str, functions: list[str]) -> list[str]:
+    names = []
+    for name, entry in data["elements"].items():
+        for anchor in _valid_code(entry):
+            covered = set(anchor.get("covers", [])) | set(anchor.get("functions", []))
+            if anchor.get("path") == path and (covered & set(functions) or not functions):
+                names.append(name)
+    return sorted(set(names))
+
+
+def scope_check(scope: dict[str, Any], data: dict[str, Any]) -> tuple[list[str], list[str], dict[str, Any]]:
+    """Validate an update scope against the current map; return (errors, warnings, derived)."""
+    errors: list[str] = []
+    warnings: list[str] = []
+    elements = data["elements"]
+    verdicts = {e["name"]: e for e in scope.get("elements", [])}
+    for h in scope.get("hunks", []):
+        hid = f"{h['id']} {h['location']}"
+        disposition = h.get("disposition")
+        path = h["location"].rsplit(":", 1)[0]
+        if disposition not in HUNK_DISPOSITIONS:
+            errors.append(f"{hid}: disposition must be one of {', '.join(HUNK_DISPOSITIONS)}")
+            continue
+        if not str(h.get("evidence", "")).strip():
+            errors.append(f"{hid}: {disposition} needs evidence")
+        _debug("scope", f"{hid}: {disposition} via {h.get('via') or '-'} (impact said {h['impact_status']})")
+        if disposition == "reaches-model":
+            if not h.get("via"):
+                errors.append(f"{hid}: reaches-model must name the model elements it reaches in via")
+            for name in h.get("via", []):
+                if name not in elements:
+                    errors.append(f"{hid}: via names unknown element {name}")
+                elif name not in verdicts:
+                    errors.append(f"{hid}: {name} is reached but has no entry in elements; add it with a verdict")
+        elif disposition == "out-of-scope":
+            if not any(
+                fnmatch.fnmatch(path, str(item.get("path", "")))
+                and (not item.get("symbol") or item["symbol"] in h.get("functions", []))
+                for item in data.get("out_of_scope", [])
+            ):
+                errors.append(
+                    f"{hid}: out-of-scope but code-map.json has no matching out_of_scope entry; record it there"
+                )
+        elif disposition == "map-gap":
+            covered = _anchor_covers(data, path, h.get("functions", []))
+            if not covered:
+                errors.append(
+                    f"{hid}: map-gap but no valid anchor covers {path} {h.get('functions')}; add it, then extract"
+                )
+            else:
+                _debug("scope", f"  map-gap now covered by {covered}")
+        elif disposition == "no-behavior-change" and h.get("impact_elements"):
+            warnings.append(
+                f"{hid}: impact linked it to {h.get('impact_elements')} but it is marked no-behavior-change; "
+                "make sure the evidence covers those elements"
+            )
+        elif disposition == "non-model-file" and h["impact_status"] not in {"test", "non-source"}:
+            warnings.append(f"{hid}: non-model-file used for a {h['impact_status']} hunk")
+    for name, e in verdicts.items():
+        if e.get("verdict") not in ELEMENT_VERDICTS:
+            errors.append(f"element {name}: verdict must be one of {', '.join(ELEMENT_VERDICTS)}")
+        elif not str(e.get("evidence", "")).strip():
+            errors.append(f"element {name}: verdict {e['verdict']} needs evidence")
+        if name not in elements:
+            errors.append(f"element {name}: not in code-map.json")
+    for f in scope.get("new_functions", []):
+        if f.get("verdict") not in ENTRY_VERDICTS or not str(f.get("evidence", "")).strip():
+            errors.append(
+                f"new function {f.get('function')}: verdict ({', '.join(sorted(ENTRY_VERDICTS))}) and evidence required"
+            )
+    for group, accept, reject in (("interaction", "selected", "rejected"), ("properties", "recheck", "skip")):
+        block = scope.get(group, {})
+        decided = set(block.get(accept, {})) | set(block.get(reject, {}))
+        for name in block.get("candidates", []):
+            if name not in decided:
+                errors.append(f"{group} candidate {name}: put it in {accept} or {reject} with a reason")
+        for name, reason in {**block.get(accept, {}), **block.get(reject, {})}.items():
+            if not str(reason).strip():
+                errors.append(f"{group} {name}: reason required")
+    changed = sorted(n for n, e in verdicts.items() if e.get("verdict") in {"changed", "now-wrong"})
+    new_steps = sorted(
+        f["function"]
+        for f in scope.get("new_functions", [])
+        if f.get("verdict") in {"new-action", "new-environment-step"}
+    )
+    affected_actions = sorted(n for n in changed if elements.get(n, {}).get("kind") == "action")
+    required = bool(changed or new_steps)
+    derived = {
+        "disposition": "MODEL_CHANGE_REQUIRED" if required else "NO_MODEL_CHANGE",
+        "changed_elements": changed,
+        "affected_actions": affected_actions,
+        "new_steps": new_steps,
+        "interaction_actions": sorted(scope.get("interaction", {}).get("selected", {})),
+        "properties_to_recheck": sorted(scope.get("properties", {}).get("recheck", {})),
+        "repairs": sorted(n for n, e in verdicts.items() if e.get("verdict") == "now-wrong"),
+        "hunk_counts": {d: sum(h.get("disposition") == d for h in scope.get("hunks", [])) for d in HUNK_DISPOSITIONS},
+    }
+    _debug(
+        "scope", f"derived disposition {derived['disposition']}: changed {changed or '-'}; new steps {new_steps or '-'}"
+    )
+    return errors, warnings, derived
 
 
 def _summary(data: dict[str, Any]) -> str:
@@ -1289,19 +1719,31 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--old-source", type=Path)
     p.add_argument("--new-source", type=Path)
     p.add_argument("--json", type=Path, help="Also write the machine-readable report here")
+    p.add_argument(
+        "--callgraph",
+        choices=["auto", "none"],
+        default="auto",
+        help="Trace callers of unmapped changed functions with the configured per-language tool (default: auto)",
+    )
+    p.add_argument("--callgraph-config", type=Path, help="JSON overriding the backend per language and server commands")
+    p.add_argument("--callgraph-depth", type=int, default=4, help="Maximum caller levels to walk (default: 4)")
+    p = sub.add_parser("scope", help="Stage 2: project an update onto the model and record its disposition")
+    p.add_argument("action", choices=["init", "check"])
+    p.add_argument("--work", type=Path, required=True, help="Directory with spec/code-map.json (old source map)")
+    p.add_argument("--impact", type=Path, help="impact --json output (init only)")
     args = parser.parse_args(argv)
-    global DEBUG
+    global DEBUG, DEBUG_STREAM
     DEBUG = [] if args.debug or args.debug_log else None
+    DEBUG_STREAM = args.debug_log.open("w") if args.debug_log else None
     try:
         return _run(args)
     finally:
-        if DEBUG is not None:
-            text = "\n".join(DEBUG) + "\n"
-            if args.debug_log:
-                args.debug_log.write_text(text)
-            else:
-                sys.stderr.write(text)
-            DEBUG = None
+        if DEBUG_STREAM is not None:
+            DEBUG_STREAM.close()
+            DEBUG_STREAM = None
+        elif DEBUG is not None:
+            sys.stderr.write("\n".join(DEBUG) + "\n")
+        DEBUG = None
 
 
 def _run(args: argparse.Namespace) -> int:
@@ -1324,14 +1766,80 @@ def _run(args: argparse.Namespace) -> int:
             print("code map complete" if not errors else f"code map incomplete: {len(errors)} error(s)")
             return 1 if errors else 0
         data = read_map(path)
-        report = impact(data, args.diff.read_text(errors="replace"), args.old_source, args.new_source)
+        if args.command == "scope":
+            return _run_scope(args, data)
+        graphs: dict[str, CallGraph] = {}
+        if args.callgraph != "none":
+            config = load_config(args.callgraph_config)
+            for side, root in (("new", args.new_source), ("old", args.old_source)):
+                if root is not None:  # backends start lazily, only when a hunk needs them
+                    graphs[side] = CallGraph(
+                        root.resolve(),
+                        config,
+                        log=_side_logger(side),
+                    )
+        try:
+            report = impact(
+                data,
+                args.diff.read_text(errors="replace"),
+                args.old_source,
+                args.new_source,
+                graphs.get("new") or graphs.get("old"),
+                args.callgraph_depth,
+                old_graph=graphs.get("old") if "new" in graphs else None,
+            )
+            failures = {f"{side}:{k}": v for side, g in graphs.items() for k, v in g.failures.items()}
+            if report.get("callgraph") is not None:
+                report["callgraph"]["failures"] = failures
+        finally:
+            for g in graphs.values():
+                g.close()
         if args.json:
             args.json.write_text(json.dumps(report, indent=2) + "\n")
         sys.stdout.write(render_impact(report))
         return 0
-    except (CodeMapError, OSError) as exc:
+    except (CodeMapError, CallGraphError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
+
+
+def _side_logger(side: str) -> Callable[[str], None]:
+    def log(message: str) -> None:
+        _debug("callgraph", f"[{side}] {message}")
+
+    return log
+
+
+def _run_scope(args: argparse.Namespace, data: dict[str, Any]) -> int:
+    path = args.work / SCOPE_FILE
+    if args.action == "init":
+        if args.impact is None:
+            raise CodeMapError("scope init requires --impact=<impact --json output>")
+        report = json.loads(args.impact.read_text())
+        previous = json.loads(path.read_text()) if path.is_file() else None
+        scope = scope_skeleton(report, data, previous)
+        path.write_text(json.dumps(scope, indent=2) + "\n")
+        print(
+            f"Wrote {path}: {len(scope['hunks'])} hunks, {len(scope['elements'])} elements, "
+            f"{len(scope['new_functions'])} new functions to disposition"
+        )
+        return 0
+    scope = json.loads(path.read_text())
+    errors, warnings, derived = scope_check(scope, data)
+    scope["derived"] = derived if not errors else None
+    path.write_text(json.dumps(scope, indent=2) + "\n")
+    for line in warnings:
+        print(f"WARNING: {line}")
+    for line in errors:
+        print(f"ERROR: {line}")
+    if errors:
+        print(f"update scope incomplete: {len(errors)} error(s)")
+        return 1
+    print(
+        f"update scope complete: {derived['disposition']}; affected actions {derived['affected_actions'] or '-'}; "
+        f"changed elements {derived['changed_elements'] or '-'}"
+    )
+    return 0
 
 
 if __name__ == "__main__":
