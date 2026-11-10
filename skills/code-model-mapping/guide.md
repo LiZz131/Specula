@@ -78,20 +78,29 @@ Do this when a CI baseline or BYOM model is final, or when an incremental run fi
 
 Cite only code you have read. A precise partial map is more useful than a complete guess.
 
-## Using the Map for a Source Update
+## Projecting a Source Update (update-scope.json)
 
-Use this in incremental Chapter 1, before choosing the disposition.
+Use this in incremental Chapter 1, before choosing the disposition. The result is `spec/update-scope.json`: one recorded decision for every changed hunk and every model element the update may touch. The tool checks that nothing was skipped and derives the disposition from your decisions.
 
 1. Make sure the working artifacts have a map for the **old** source. If the prior artifacts have none, build it first against the old source tree, before editing any spec.
-2. Run `specula code-map impact --work=<working output directory> --diff=<source diff> --old-source=<old source> --new-source=<new source>`.
-3. Treat the report as follows:
-   - **Directly affected model elements**: each must appear in your Chapter 1 projection with an explicit conclusion: changed, unchanged with a reason, or newly incorrect.
-   - **Hidden implementation state**: check whether the update changes how that state affects the listed elements. A change here can alter enabling conditions without touching any modeled variable.
-   - **Readers of written variables**: candidates for `InteractionActions` and for properties that need rechecking. They are candidates, not conclusions.
-   - **Unmapped hunks**: never skip them. For each, decide whether it reaches modeled behavior through callers, shared state, persistence, or assumptions; whether it is outside the modeling scope (then add an `out_of_scope` entry with the reason); or whether the map is missing an entry (then add it).
-   - **Declared out of scope**: confirm the recorded reason still holds for this change.
-   - **New functions**: decide whether each is a new entry point, message handler, timer, or callback that needs a new Action or environment step.
-4. Read the complete diff anyway. The report lists hunks by location; it does not judge their semantics.
+2. Run `specula code-map impact --work=<working output directory> --diff=<source diff> --old-source=<old source> --new-source=<new source> --json=<impact.json>`. For changed functions with no anchor, `impact` walks their callers with the language's call-graph tool until it reaches a mapped function. Add `--callgraph=none` only if the tool cannot run.
+3. Run `specula code-map scope init --work=<working output directory> --impact=<impact.json>`. It writes the skeleton with every hunk (`H1`, `H2`, ...), every directly reached, caller-reached, or hidden-state element, the new functions, and the interaction and property candidates.
+4. Fill in every hunk's `disposition`, `evidence`, and, for `reaches-model`, `via` (the model elements it reaches):
+
+   | Disposition | Use when | What the check requires |
+   |---|---|---|
+   | `reaches-model` | the change alters behavior that the listed elements model, directly or through callers, shared state, persistence, or assumptions | `via` names elements that also appear in `elements` with a verdict |
+   | `no-behavior-change` | logging, renaming, refactoring, or comments with no effect on modeled behavior | evidence that explains why, especially when `impact` linked the hunk to elements |
+   | `out-of-scope` | the code is outside the modeling scope | a matching `out_of_scope` entry in `code-map.json` (add it, with the brief's reason) |
+   | `map-gap` | modeled code the map does not cite | a valid anchor covering it in `code-map.json` (add it, then `extract`) |
+   | `non-model-file` | tests, build, documentation, or configuration that do not change implementation behavior | evidence |
+
+   Read the hunk and the caller path before deciding. A caller path proves only that the code can run under a mapped function, not that the change alters modeled behavior; a hunk without a path is not thereby irrelevant.
+5. Give every element a `verdict` and `evidence`: `changed` (its modeled behavior must change), `unchanged` (reviewed; same behavior), or `now-wrong` (the existing model was already wrong here; record it as a repair). Add elements that your `via` lists name and the skeleton does not include.
+6. Give every new function a verdict: `new-action`, `new-environment-step`, or `internal`.
+7. Put every interaction candidate in `interaction.selected` or `interaction.rejected`, and every property candidate in `properties.recheck` or `properties.skip`, each with a reason. Selected interactions become `InteractionActions`.
+8. Run `specula code-map scope check --work=<working output directory>` until it reports `update scope complete`. It writes `derived`: the disposition (`MODEL_CHANGE_REQUIRED` when any element is `changed` or `now-wrong` or a new step is needed), the affected Actions, selected interactions, properties to recheck, and repairs. Use `derived` as the Chapter 1 result; do not state a different disposition.
+9. Read the complete diff anyway. The report and the scope order the review; they do not judge semantics for you.
 
 ## Refreshing the Map After an Update
 

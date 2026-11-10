@@ -8,7 +8,7 @@ Use the existing `code-analysis` methodology selectively. The old run already co
 - Read the complete diff, then read every changed function in both revisions with its callers, callees, tests, and downstream consumers.
 - Read the old `modeling-brief.md`, `analysis-report.md`, base/MC/Trace specs, validation changelog, findings, confirmed dispositions, reproductions, and repair history relevant to the changed mechanism.
 - Preserve the old system category unless the update changes the concurrency or communication architecture. If it does, reapply the category routing from the installed Specula **code-analysis** skill.
-- Run the code-map impact report from the installed Specula **code-model-mapping** skill on the source diff, building the old-source map first if the prior artifacts lack one. Every directly affected element it lists needs an explicit conclusion in the projection below, and every unmapped hunk needs a disposition: it reaches modeled behavior, it is out of scope (recorded in the map), or the map is missing an entry. The report orders this review; it does not replace reading the complete diff.
+- Project the update with the installed Specula **code-model-mapping** skill ("Projecting a Source Update"), building the old-source map first if the prior artifacts lack one. Record every hunk and affected element in `spec/update-scope.json` and run its check; the disposition you choose in this chapter is the one it derives. The projection orders this review; it does not replace reading the complete diff.
 
 Do not infer protocol importance from diff size. A one-line guard can be model-critical; a large refactor can be outside the current abstraction.
 
