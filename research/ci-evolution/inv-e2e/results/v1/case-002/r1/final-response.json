@@ -1,0 +1,21 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "MODEL_CHANGE_REQUIRED: the update moves follower logging of DIFF-synchronized proposals into the NEWLEADER handler (logRequest only enqueues to the async SyncRequestProcessor, then the NEWLEADER ACK is written), adds a learner INITIAL server state (startupWithoutServing/startServing) and moves setSyncMode(NONE). The reference suite was rebuilt to the new atomicity (DIFF buffering, NEWLEADER/UPTODATE steps, leader activation on a NEWLEADER-ACK quorum, data-tree vs persisted-log state, INITIAL-state shutdown, fast-forward floor), with Update.tla/UpdateProps.tla adding CommittedPersistedOnQuorum and LeaderCompleteness, focused/open/discharge configs and divergence evidence. The prior harness was rebased (one drifted hunk) and densified; six fresh new-version traces (4 prior scenarios, the update's DIFFSyncConsistencyTest, a reproduction) replay through reference actions with TraceMatched on the final reference; 4 negative controls are rejected. Findings: MC-2 (Critical, REPRODUCED): a learner that ACKs NEWLEADER and fails before UPTODATE stays INITIAL, so shutdown skips fastForwardDataBase and its vote/loaded database omit logged committed records; learners then elect a leader without them (clients see the committed /zk2 vanish; real trace violates LeaderCompleteness and CommittedHistoriesPrefix; baseline control fails the same way). MC-1 (High, ENV_LIMITED): the NEWLEADER ACK (and epoch persistence) still precede fsync of those records, so a leader serves history persisted only on itself (observed on a real trace) and a learner crash in that window loses a committed transaction (TLC counterexample). All model checking is time-budgeted (standard MC.cfg BFS 40.8M distinct states to depth 42, no core-invariant violation): LIMITED_COVERAGE; TRUNC is not observed in any fresh trace.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/mc-Z3-update-concrete-A1.log",
+    "/work/current/.specula-output/spec/output/mc-Z3b-update-concrete2-A2-initial.log",
+    "/work/current/.specula-output/spec/output/mc-Z3c-update-concrete2-A2-crash.log",
+    "/work/current/.specula-output/spec/evidence/trace-A1/tlc.log",
+    "/work/current/.specula-output/spec/evidence/trace-A2/tlc.log",
+    "/work/current/.specula-output/spec/evidence/trace-A2/tlc-CommittedHistoriesPrefix.log",
+    "/work/current/.specula-output/spec/output/repro-surefire-update.txt",
+    "/work/current/.specula-output/spec/output/old-control-repro.log",
+    "/work/current/.specula-output/spec/invariant-evidence.json",
+    "/work/current/.specula-output/spec/output/validation-summary.md"
+  ],
+  "blockers": []
+}

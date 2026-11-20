@@ -1,0 +1,14 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update rewrites ConsensusParams.ValidateUpdate (types/params.go:208-261). Old rule accepts iff u=c or (u>h and c>h); new rule accepts iff u>=0 and vote extensions are enabled at h under neither c nor u. The V0 static ValidParams could not express this, so the reference was refined ([body,veh] params, code-faithful ValidateBasic/ValidateUpdate, stage-split rejection) and Update.tla added (affected/interaction actions, EnvUpdate rely + discharge, properties P-U1..P-U4, 11 canaries). Validation: V0 harness patch applied cleanly and was minimally rebased; 6 prior + 14 update-focused fresh traces all pass real TLC trace validation with TraceMatched; 6 mutation controls rejected (one exposed and fixed a circular body-validity derivation in Trace.tla); scope baseline tests pass. Model checking: MC.cfg clean (75,944 states, exhausted); P-U2..P-U4 hold in full, focused, open+discharge, hunts, deep BFS (289,761 states) and a 30-min simulation (1.41B states); all canaries reached. Finding MC-1: P-U1 violated - once vote extensions are enabled, an application that re-sends its unchanged VoteExtensionsEnableHeight (contract-consistent, e.g. a full params echo) is rejected; ApplyBlock fails, consensus halts, and restart replay rejects again. Reproduced at Level 0 on a real consensus node; old-tree control accepts it (and halts instead on enable-from-zero, the bug the update fixes), so the regression is update-introduced. All results are bounded (LIMITED_COVERAGE). specula ci-result and the bug-confirmation controller were unavailable; confirmation was performed directly.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/output/mc-v1-MC-1-cex.log",
+    "/work/current/.specula-output/spec/output/MC-1-counterexample.json",
+    "/work/current/.specula-output/spec/final-result.json"
+  ],
+  "blockers": []
+}

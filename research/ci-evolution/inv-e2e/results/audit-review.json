@@ -6,5 +6,17 @@
   "v1/case-006/r1": {
     "contaminated": false,
     "reason": "flagged command is `cat /work/tools/network-guard/git /work/tools/network-guard/curl`: reading the guard scripts, nothing executed"
+  },
+  "v0/case-002/r1": {
+    "contaminated": false,
+    "reason": "flagged command is `git clone -q $C/artifact work-source`: a local clone of the workspace's own artifact repo; no network access (pre-reviewed while running)"
+  },
+  "v1/case-002/r1": {
+    "contaminated": false,
+    "reason": "flagged command is `cat /work/tools/network-guard/git /work/tools/network-guard/curl; ... git log`: reading the guard scripts and the local artifact log; nothing fetched"
+  },
+  "v1/case-012/r1": {
+    "contaminated": false,
+    "reason": "flagged command is `git clone -q ../artifact instrumented`: a local clone of the workspace's own artifact repo to apply the instrumentation patch; the network guard blocked it anyway (exit 128); no network access (reviewed 2026-11-20 00:37)"
   }
 }

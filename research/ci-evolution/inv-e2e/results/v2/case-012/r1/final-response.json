@@ -1,0 +1,11 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update moves leader replication progress and commit calculation into the Engine: a per-leadership VecProgress whose quorum set is captured at elect and upgraded by membership entries; leader append now commits through update_progress; committed membership is promoted only when the commit advances. This changes modeled behavior, so the disposition is MODEL_CHANGE_REQUIRED (MODEL_UPDATED). Generation revised the reference suite (base/MC/Trace, new leaderState/progressConfig) and added Update.tla with affected/interaction actions, an EnvUpdate rely with discharge, and the properties CommitWitnessSound_new (replacing the V0 property), LeaderProgressConfigCurrent and ProgressMonotonic, all with TLC-evaluated divergence evidence. Validation rebased the prior harness: drifted hunks re-placed by symbol, nightly replaced by stable, probes added for update_progress, update_effective_membership and handle_vote_resp. 18 fresh nonempty traces (7 V0 regressions and 11 update-focused) pass real TLC replay with TraceMatched; one inconsistent unit fixture is dispositioned. 15 single-field trace mutations are all rejected, and the V0 model rejects exactly the update-focused traces. Model checking ran standard MC, full/focused/open/discharge update campaigns, inherited and update scenario hunts with simulation follow-ups, and canaries. It exposed two pre-existing issues that were handled and are not implementation bugs: OneOutstandingMembership is not a valid oracle across restarts (Case A wiring), and the follower membership/truncation abstraction was unfaithful (Case B repair, re-validated). No implementation defect was found. All exploration is bounded and mostly budget-terminated, so coverage is LIMITED. The specula ci-result CLI is not installed; spec/final-result.json was written but not post-processed.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json"
+  ],
+  "blockers": []
+}

@@ -1,0 +1,99 @@
+{
+  "update": "d86101c7 (baseline) -> d7176ef9 (update): RaftMsg::TransferLeader",
+  "entries": [
+    {
+      "property": "ElectionInitiatorIsVoter",
+      "module": "Update.tla",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new property (old verdict: not checked; V0 StartElection enforced IsVoter by construction)",
+      "affected_because": "TransferLeader (core/raft_core.rs:1197-1200) introduces a new caller of Engine::elect that skips the is_voter guard present at every older election trigger (raft_core.rs:1449-1457, 1206-1214; engine_impl.rs:694-704).",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": ["E1-sep", "E1-ctl", "E2-sep-window", "E2-ctl-window", "E2-sep-unit"]
+    },
+    {
+      "property": "CandidateIsVoterOfSnapshot",
+      "module": "Update.tla",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new state form of ElectionInitiatorIsVoter for present members",
+      "affected_because": "same mechanism; candidate snapshot (engine_impl.rs:126-141) now may exclude the candidate itself",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": ["E1-sep-state", "E1-ctl-state"]
+    },
+    {
+      "property": "NoCorePanic",
+      "module": "Update.tla",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new property; added after code observation (Candidate::grant_by panics for a non-quorum target, proposer/candidate.rs:86-92)",
+      "affected_because": "the non-voter candidate's own SaveVote self-response (raft_core.rs:1670-1682) reaches grant_by for a target outside the voter-only candidate progress",
+      "initial_decision": "not identified at source-reading time (only ElectionInitiatorIsVoter was proposed)",
+      "changed_from_initial": true,
+      "evidence_ids": ["E2-sep-panic-window", "E2-sep-panic-unit", "E2-ctl-selfgrant"]
+    },
+    {
+      "property": "CandidateGrantSound / LeaderVoteCommitted / DurableStateBounded / CurrentTermCommit",
+      "module": "base.tla",
+      "decision": "keep",
+      "affected_because": "read role/leader/vote/leaderGrants written by the new TransferLeader->Elect path and by the repaired vote/append actions",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": ["E3-keep"]
+    },
+    {
+      "property": "TypeOK / IOOrder / CommitWithinAccepted / MembershipOrder / MembershipWellFormed / LearnersExcluded / MatchWithinLeaderLog / CommittedLogAgreement",
+      "module": "base.tla",
+      "decision": "keep",
+      "affected_because": "TypeOK extended for the new representation (candidateLast, corePanic, network sets: representation-only); others read state written by repaired actions (R2-R4). CommittedLogAgreement is the unaffected core-safety control.",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": ["MC-standard (spec/output/mc-standard.log)", "MC-full-update"],
+      "note": "Single-node trace replays cannot evaluate these meaningfully (TraceInit seeds unobserved I/O indices); their keep evidence is the MC state space that includes post-transfer states (see validation/model-checking logs)."
+    }
+  ],
+  "evidence": [
+    {"id": "E1-sep", "property": "ElectionInitiatorIsVoter", "role": "separating", "state_source": "constructed",
+     "state": "spec/evidence/E1/E1.tla (Target=3)", "how_populated": "leader 1 at committed vote (1,1); learner 3 holds that vote and blank (1,1)@1; one MCTransferLeader(3) step",
+     "old": {"claimed": "not checked", "tlc": "n/a"}, "new": {"claimed": false, "tlc": false},
+     "log": "spec/evidence/E1/E1_T3_action.log",
+     "impl_produces": {"value": "yes", "basis": "traces/window/t99-transfer-to-learner/*transfer-elect-n3.ndjson (real RaftCore)"},
+     "requirement": {"value": "forbidden", "citations": ["openraft/src/docs/data/vote.md:50-51", "openraft/src/raft_state/mod.rs:341-343", "openraft/src/core/raft_core.rs:1454-1457", "openraft/src/core/raft_core.rs:1208-1213"]},
+     "cell": "bug candidate"},
+    {"id": "E1-ctl", "property": "ElectionInitiatorIsVoter", "role": "control", "state_source": "constructed",
+     "state": "spec/evidence/E1/E1.tla (Target=2)", "expected": true, "new": {"claimed": true, "tlc": true}, "log": "spec/evidence/E1/E1_T2_action.log"},
+    {"id": "E1-sep-state", "property": "CandidateIsVoterOfSnapshot", "role": "separating", "state_source": "constructed",
+     "state": "spec/evidence/E1/E1.tla (Target=3)", "old": {"claimed": "not checked"}, "new": {"claimed": false, "tlc": false}, "log": "spec/evidence/E1/E1_T3_state.log"},
+    {"id": "E1-ctl-state", "property": "CandidateIsVoterOfSnapshot", "role": "control", "state_source": "constructed",
+     "state": "spec/evidence/E1/E1.tla (Target=2)", "expected": true, "new": {"claimed": true, "tlc": true}, "log": "spec/evidence/E1/E1_T2_state.log"},
+    {"id": "E2-sep-window", "property": "ElectionInitiatorIsVoter", "role": "separating", "state_source": "trace",
+     "state": "traces/window/t99-transfer-to-learner/00003-transfer-elect-n3.ndjson", "how_populated": "real RaftCore TransferLeader{from=<T1-N0:Q>,to=3} handled by learner 3",
+     "new": {"claimed": false, "tlc": false}, "log": "spec/evidence/E2-trace/sep-learner-transfer-elect.log",
+     "impl_produces": {"value": "yes", "basis": "same trace"}, "requirement": {"value": "forbidden", "citations": ["openraft/src/docs/data/vote.md:50-51"]}, "cell": "bug candidate"},
+    {"id": "E2-ctl-window", "property": "ElectionInitiatorIsVoter", "role": "control", "state_source": "trace",
+     "state": "traces/window/t14-transfer-to-voter/00001-transfer-elect-n2.ndjson", "expected": true, "new": {"claimed": true, "tlc": true}, "log": "spec/evidence/E2-trace/ctl-voter-transfer-elect.log"},
+    {"id": "E2-sep-unit", "property": "ElectionInitiatorIsVoter", "role": "separating", "state_source": "trace",
+     "state": "traces/elect-learner.ndjson", "new": {"claimed": false, "tlc": false}, "log": "spec/evidence/E2-trace/sep-unit-elect-learner.log"},
+    {"id": "E2-sep-panic-window", "property": "NoCorePanic", "role": "separating", "state_source": "trace",
+     "state": "traces/window/t99-transfer-to-learner/00004-vote-response-n3.ndjson", "how_populated": "real panic 'target not in quorum set' at proposer/candidate.rs:92 on learner 3 (spec/output/harness.log)",
+     "new": {"claimed": false, "tlc": false}, "log": "spec/evidence/E2-trace/sep-learner-selfgrant-panic.log",
+     "impl_produces": {"value": "yes", "basis": "traces/window/t99-transfer-to-learner/observations.json: node 3 is_initialized = Err(Panicked)"},
+     "requirement": {"value": "forbidden", "citations": ["openraft/src/error.rs:122-132", "openraft/src/proposer/candidate.rs:86-92"]}, "cell": "bug candidate"},
+    {"id": "E2-sep-panic-unit", "property": "NoCorePanic", "role": "separating", "state_source": "trace",
+     "state": "traces/elect-learner.ndjson", "new": {"claimed": false, "tlc": false}, "log": "spec/evidence/E2-trace/sep-unit-elect-learner-panic.log"},
+    {"id": "E2-ctl-selfgrant", "property": "NoCorePanic", "role": "control", "state_source": "trace",
+     "state": "traces/window/t14-transfer-to-voter/00002-vote-response-n2.ndjson", "expected": true, "new": {"claimed": true, "tlc": true}, "log": "spec/evidence/E2-trace/ctl-voter-selfgrant.log"},
+    {"id": "E3-keep", "property": "CandidateGrantSound, LeaderVoteCommitted, DurableStateBounded, CurrentTermCommit", "role": "keep", "state_source": "trace",
+     "state": "all 22 traces/window/*/*.ndjson (post-transfer leader at n2, candidates, grants, learner panic)",
+     "old": {"tlc": "equal to new on every state"}, "new": {"tlc": true}, "log": "spec/evidence/E3-keep/summary.tsv",
+     "impl_produces": {"value": "yes", "basis": "real RaftCore windows"}, "requirement": {"value": "allowed", "citations": ["openraft/src/docs/data/vote.md:72-77"]}, "cell": "keep justified"}
+  ],
+  "repair_evidence": [
+    {"id": "R-V0-replay", "what": "fresh new-version unit traces replayed against the unmodified V0 suite", "log": "spec/evidence/V0-replay/summary.tsv",
+     "result": "8/8 prior regression scenarios PASS; elect-learner, elect-absent (TransferLeader effect), follower-membership (R3) and vote-request-logid (R1) FAIL under V0"}
+  ],
+  "bug_candidates": ["E1-sep", "E2-sep-window", "E2-sep-panic-window"],
+  "unresolved": []
+}

@@ -1,0 +1,23 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "MODEL_CHANGE_REQUIRED: the update changes the follower's NEWLEADER handling. It now calls startupWithoutServing (server state INITIAL, request processors started) and hands buffered DIFF/TRUNC proposals to the asynchronous SyncRequestProcessor before ACK(NEWLEADER). After UPTODATE it calls startServing. The reference was refined: CompleteSync was split into ReceiveSyncPayload, PersistCurrentEpoch, ClearSyncMode, AckNewLeader and EnterBroadcast. Leader activation now happens on a NEWLEADER-ACK quorum. The leave path distinguishes RUNNING (flush plus fast-forward) from INITIAL (no shutdown, so the pipeline leaks). A trace-driven in-memory history (memHist) now drives FLE, sync selection and what a new leader serves. Unfaithful prior actions were removed. Update.tla, UpdateProps.tla, TraceSync.tla and invariant evidence were added. The prior harness was rebased (one hunk re-anchored) and gained update probes. All 4 prior scenarios, DIFFSyncConsistencyTest and 2 observation tests produced fresh traces. All 7 pass TLC trace validation with TraceMatched, and 2 DIFF traces also replay action by action through the reference. Standard MC.cfg, base and discharge found no violation within the depth-23 bound. The full, focused, open and simulation campaigns are budget-limited. Findings: MC-1, the NEWLEADER ACK is sent before the synced txns are durable, so the leader commits a history that is durable only on itself. The model hits this in 12-13 steps and from MCInit by simulation; real traces show it, and the old-semantics control shows the gap predates the update, which narrowed but did not close it. MC-2, an abort between NEWLEADER and UPTODATE skips shutdown and the fast-forward, so the learner keeps a stale in-memory history and can win the next epoch without a committed txn. The model hits LeaderCompleteness in 14 steps without a crash, and DIFFSyncConsistencyTest's real trace shows a leader activating epoch 3 that way. MC-3, pre-existing: a learner's shutdown fast-forwards before flushing its sync processor, leaving a ghost proposal in its log. CR-1: clearing packetsNotCommitted makes a post-NEWLEADER COMMIT throw an NPE; reproduced on the new code, and the old-code control is clean. Formal bug confirmation (Part 4) was not run.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/evidence-CR-1.md",
+    "/work/current/.specula-output/spec/output/update/final-focused-quorumdurable.log",
+    "/work/current/.specula-output/spec/output/update/final-focused-ackdurable.log",
+    "/work/current/.specula-output/spec/output/update/final-sim-update-full.log",
+    "/work/current/.specula-output/spec/output/update/final-sim-full-quorum.log",
+    "/work/current/.specula-output/spec/output/update/final-hunt-postact-leak.log",
+    "/work/current/.specula-output/spec/output/update/final-hunt-postact-full.log",
+    "/work/current/.specula-output/spec/output/update/final-hunt-ghost.log",
+    "/work/current/.specula-output/spec/output/update/final-hunt-ghost-full.log",
+    "/work/current/.specula-output/spec/output/update/campaign-summary.md",
+    "/work/current/.specula-output/spec/invariant-evidence.json",
+    "/work/current/.specula-output/traces/update-diff-sync-consistency.ndjson"
+  ],
+  "blockers": []
+}

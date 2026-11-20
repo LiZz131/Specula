@@ -1,0 +1,19 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update adds Raft::transfer_leader / RaftMsg::TransferLeader (vote==from -> Leased::disable_lease; to==self -> Engine::elect() with no voter or not-leader guard) and the lease_enabled flag, so the modeled election enablement changed. The reference suite was updated (TransferLeader, shared ElectCore with the containment branch, leaseEnabled) and V0 abstractions the update depends on were repaired (sound vote exchange, linked replication/acks, Candidate::grant_by panic branch, restart containment, self vote-response FIFO ordering). Update.tla adds full/focused/open/discharge views, properties U1-U7 and canaries. The V0 harness was reused and rebased (patch applied cleanly), extended with lease/IO capture, a lease-touch unit scenario and a RaftCore hook; 20 fresh traces (8 rerun V0 scenarios, 1 lease scenario, 11 RaftCore chains from the update's t14 test and a learner-target scenario) all pass real TLC trace validation with TraceMatched, and 8 field mutations are rejected; 199/199 lib tests pass instrumented. Model checking found MC-1 (update-introduced): transfer_leader to a learner makes it elect itself and its RaftCore panics in Candidate::grant_by (target not in quorum set) while voters depose the leader; counterexamples on full, focused and open specs, a validated real trace, uninstrumented reproduction 5/5, baseline and same-revision trigger().elect() controls guarded. It also found MC-2 (pre-existing, new trigger): transfer_leader to the current leader (or trigger().elect() on the leader, already on baseline) trips the Engine::leader_handler vote-order debug assertion and panics the leader. All other standard, update, discharge and hunt campaigns found no violation within 30-minute budgets with non-empty queues (LIMITED_COVERAGE, not proof); canaries show the transfer paths are reachable.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/MC-1_NoCorePanic_violation.out",
+    "/work/current/.specula-output/spec/output/MC-1_ElectOnlyByVoter_violation.out",
+    "/work/current/.specula-output/spec/output/MC-2_LeaderVoteNotSuperseded_transfer.out",
+    "/work/current/.specula-output/spec/output/MC-2_LeaderVoteNotSuperseded_preexisting.out",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/confirmation-MC-2.md"
+  ],
+  "blockers": [
+    "The specula CLI (specula ci-result / specula findings) is not installed in this environment: spec/final-result.json and spec/issue-input/*.json were written but the generated CI reports and persistent-finding registration were not produced."
+  ]
+}

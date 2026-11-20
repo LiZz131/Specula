@@ -1,0 +1,15 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update rewrites ConsensusParams.ValidateUpdate (types/params.go), flipping three (current enable height E, proposed U, block height h) cells: enabling from 0 at a future height and cancelling a not-yet-reached height are now accepted (previously rejected), while re-sending an unchanged, already reached height (U=E, 0<E<=h) is now rejected (previously accepted). The V0 model's fixed ValidParams could not express this, so the reference was updated: [rest, ve] parameter records, update records with Abci presence, the new decision table, a rejection rule, and a per-height enable-height history; Update.tla adds affected/interaction actions, EnvUpdate with a passing discharge check, and six update properties. The prior harness patch applied cleanly and was minimally extended; 16 fresh traces (6 V0 regression, 7 update ApplyBlock, 3 update x crash/replay) pass TLC trace validation with TraceMatched (8/8 field mutations rejected), and the scope regression tests pass. The standard, full, focused, open, discharge, scenario-hunt, and 20 reachability campaigns plus four 30-minute simulations ran on the final artifacts. Every property except one holds within bounds, including enable-height history stability for extended-commit consumers and acceptance of protocol-permitted updates. Finding MC-1 (model-checking, High): an unchanged, already reached VoteExtensionsEnableHeight in ConsensusParamUpdates (e.g. complete params via ToProto) is rejected by row 6. ApplyBlock then fails, the node halts, and every restart re-executes and rejects the block again. A real-code reproduction fails on the update commit and passes on the baseline. The requirement is contested: the update's own unit test expects this rejection, while the protocol text, the removed V0 test, and the in-tree complete-params pattern support acceptance. Coverage is bounded (BFS within small height/crash bounds plus budgeted simulation), not a proof.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/output/mc/MC-1_Update_full_counterexample.log",
+    "/work/current/.specula-output/spec/output/mc/Update_full.cex.json",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/repro/MC-1/specula_mc1_repro_test.go",
+    "/work/current/.specula-output/spec/final-result.json"
+  ],
+  "blockers": []
+}

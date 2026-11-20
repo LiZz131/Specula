@@ -1,0 +1,17 @@
+{
+ "decision": "MODEL_UPDATED",
+ "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "summary": "MODEL_CHANGE_REQUIRED. The update makes Learner.shutdown call zk.shutdown(syncMode==SNAP), and ZooKeeperServer.shutdown(boolean) now clears an unstarted server's DB. The model was revised: explicit in-memory DB versus disk; learner sync split at its source boundaries plus a leader-side decision; Learner.shutdown with old/new semantics; Update.tla with update properties. The prior harness was rebased (V0 patch applies cleanly) and update probes added. Four fresh new-code traces (prior scenarios, the diff's testDiffSyncAfterSnap, a forced-SNAP scenario) pass TLC trace validation with all base and update invariants after two repair rounds; mutation and old-model controls are rejected. The SNAP fix works: the diff's test passes on new code and fails on old (node 0 lost). The old-mode model replays that old trace and flags it, and the SNAP-only view finds no new-code violation within bounds. Two findings: MC-1 (High, reproduced on new and old code): an unfinished TRUNC sync applies a COMMIT in memory only, and the SNAP-only fullyShutDown keeps that DB, so after restart a committed node is lost on the follower; also found by full MCNext. MC-2 (Medium, update-introduced): zk.shutdown(boolean) bypasses LearnerZooKeeperServer.shutdown(), so the learner SyncRequestProcessor is never stopped. Real traces show syncAlive=true (old code: false); the model shows a late flush after TRUNC leaving a log gap, which was not reproduced. Model checking is bounded and time-limited (LIMITED_COVERAGE); MC.cfg was exhaustive with no violation.",
+ "findings_paths": [
+  "/work/current/.specula-output/spec/bug-report.md",
+  "/work/current/.specula-output/spec/findings.json",
+  "/work/current/.specula-output/spec/final-result.json",
+  "/work/current/.specula-output/spec/output/counterexamples/MC-1-trunc-abort-update-focused-txn1.log",
+  "/work/current/.specula-output/spec/output/counterexamples/MC-1-trunc-abort-update-full-MCNext.log",
+  "/work/current/.specula-output/spec/output/counterexamples/MC-2-leaked-sync-processor-update-focused.log",
+  "/work/current/.specula-output/spec/output/repro/trunc-abort-new.out",
+  "/work/current/.specula-output/traces/repro-trunc-abort-new.ndjson",
+  "/work/current/.specula-output/spec/output/verification-summary.md"
+ ],
+ "blockers": []
+}

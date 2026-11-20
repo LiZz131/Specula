@@ -1,0 +1,18 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update rewrites ConsensusParams.ValidateUpdate (types/params.go). Under it, updateState accepts enabling vote extensions from 0 to a future height (row 7) and cancelling a not-yet-reached height (row 5), which the old code rejected. It also rejects re-sending an unchanged, already reached VoteExtensionsEnableHeight (row 6), which the old code accepted. The V0 model's static ValidParams could not express this, so the disposition is MODEL_CHANGE_REQUIRED. The suite was regenerated: parameter records [other, veh], a row-faithful ValidateUpdateRow, Abci-presence state, and split Basic/VE rejection actions. Update.tla adds affected/interaction actions, EnvUpdate with a discharge check, and four update properties. The prior harness patch applied cleanly; with the V1 fields added, all 19 fresh traces (6 prior, 13 update-focused) pass real TLC trace validation with TraceMatched. Mutation controls and exact-old control traces fail exactly where expected, showing the new fields and the changed decision are checked. MC.cfg (40,119 states), full/focused/open/discharge, inherited and update hunts, height-3 BFS (158,158 states), height-5 simulation, and 25 reachability canaries all ran; all are bounded (LIMITED_COVERAGE). The update's intended fixes hold. One update-introduced Case C finding, MC-1 (UnchangedVENotRejected): an app that re-sends its unchanged, already reached enable height, e.g. by forwarding its complete parameter set, is rejected after the response is durable. ApplyBlock fails, consensus panics, and every restart replays the block and fails again, so the chain halts permanently. The real code reproduces this on 401753b (instrumented and clean); the exact-old 9dd6e50 control passes. Caveat: the new unit-test data expects ValidateUpdate to error on this input; the ABCI contract and the old unit test treat it as compliant.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/MC-1_counterexample_Update_full.log",
+    "/work/current/.specula-output/spec/output/MC-1_counterexample_Update_full.cex.json",
+    "/work/current/.specula-output/spec/output/MC-1_counterexample_enable_then_echo.log",
+    "/work/current/.specula-output/spec/output/MC-1_consequence_halt_persists.log",
+    "/work/current/.specula-output/harness/repro_MC-1.sh",
+    "/work/current/.specula-output/spec/output/repro-MC-1-updated-clean-401753b.log",
+    "/work/current/.specula-output/spec/output/repro-MC-1-control-baseline-9dd6e50.log"
+  ],
+  "blockers": []
+}

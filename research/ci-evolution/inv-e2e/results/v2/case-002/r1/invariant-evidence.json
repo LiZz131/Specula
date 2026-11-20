@@ -1,0 +1,461 @@
+{
+  "source_revision": "artifact commit 2efbdfc3754df193bce05b9792297c813377cdaf (update); prior suite at baseline 1414ebfb1d16fd81abc38550a96950d919ecf805",
+  "evaluation": "All truth values below were produced by TLC on the actual definitions: prior properties through spec/evidence/OldBase.tla (MODULE renamed copy of /work/previous/.specula-output/spec/base.tla), current properties through spec/base.tla + spec/UpdateProps.tla. Command: spec/evidence/run-evidence.sh <ID>; logs at spec/evidence/<ID>/tlc.log.",
+  "entries": [
+    {
+      "property": "SyncCompletionJustified",
+      "replaces": "SyncCompletionJustified (prior)",
+      "decision": "modify",
+      "kind": "strengthening",
+      "affected_because": "watch Learner.java:syncWithLeader touched; UPTODATE processing (follower BROADCAST) is now a separate step after the NEWLEADER ACK (AckNewLeader/EnterBroadcast).",
+      "initial_decision": "modify",
+      "changed_from_initial": false,
+      "ledger_status": "mixed: syncedBeforeBroadcast=requirement, epochsAlignedInBroadcast=requirement, leaderKnown=model-internal",
+      "watch_touched": true,
+      "evidence_ids": [
+        "E1",
+        "K1"
+      ]
+    },
+    {
+      "property": "NewLeaderAckDurable",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new requirement property (Scenario U1)",
+      "affected_because": "the update introduces logging of the buffered sync proposals before the NEWLEADER ACK and states the contract 'make sure sync the uncommitted logs before commit them (ACK NEWLEADER)' (Learner.java:757).",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "ledger_status": "requirement (zookeeperInternals.md:119, :194, :196-197; Learner.java:757 comment)",
+      "watch_touched": true,
+      "evidence_ids": [
+        "E2",
+        "E2c"
+      ]
+    },
+    {
+      "property": "CommittedDurableOnQuorum",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new requirement property (Scenario U1/U2)",
+      "affected_because": "the NEWLEADER quorum now counts ACKs whose synced history is only queued; LeaderBroadcast commits the leader history.",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "ledger_status": "requirement (zookeeperInternals.md:117-119, :180)",
+      "watch_touched": true,
+      "evidence_ids": [
+        "E3",
+        "E3c"
+      ]
+    },
+    {
+      "property": "LeaderCompleteness",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new consequence property (Scenarios U2/U4)",
+      "affected_because": "a crash or an aborted sync inside the changed NEWLEADER->UPTODATE window can remove a committed transaction from a later leader's history.",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "ledger_status": "requirement (zookeeperInternals.md:59, :197; zookeeperProgrammers.md:1177)",
+      "watch_touched": true,
+      "evidence_ids": [
+        "E4",
+        "E4c"
+      ]
+    },
+    {
+      "property": "SyncedLogMatchesLeader",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new interaction property (Scenario U4); formulation revised after model evidence",
+      "affected_because": "an aborted sync now leaves a running SyncRequestProcessor (server INITIAL, shutdown skipped) that can persist transactions the next leader never sends.",
+      "initial_decision": "add",
+      "changed_from_initial": true,
+      "ledger_status": "requirement (zookeeperInternals.md:182-183; TxnLog.java:83 contract)",
+      "watch_touched": true,
+      "evidence_ids": [
+        "E5",
+        "E5c",
+        "E5g"
+      ],
+      "revision": "first formulation (durable and committed prefix-comparable) rejected a duplicated record of a committed transaction (E5); revised to: every txn in a broadcasting follower log is known to its current leader (E5 accepted, E5c and E5g rejected). Requirement for the revision: zookeeperAdmin.md:2599 idempotent replay."
+    },
+    {
+      "property": "PendingOnlyDuringSync",
+      "replaces": null,
+      "decision": "add",
+      "kind": "structural (model-internal)",
+      "affected_because": "new pendingSync variable.",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "ledger_status": "model-internal",
+      "watch_touched": false,
+      "evidence_ids": [
+        "E6"
+      ]
+    },
+    {
+      "property": "CommittedHistoriesPrefix",
+      "decision": "keep",
+      "affected_because": "watch Learner.java:syncWithLeader touched (committed prefix of a synced follower now set at UPTODATE from the streamed history).",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "ledger_status": "requirement",
+      "watch_touched": true,
+      "evidence_ids": [
+        "K1"
+      ]
+    },
+    {
+      "property": "ApplyRequiresCommitCertificate",
+      "decision": "keep",
+      "affected_because": "watch Learner.java:syncWithLeader touched; NEWLEADER-quorum certification added (LeaderBroadcast).",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "ledger_status": "requirement",
+      "watch_touched": true,
+      "evidence_ids": [
+        "K1"
+      ]
+    },
+    {
+      "property": "PipelinePrefix",
+      "decision": "keep",
+      "affected_because": "watch FollowerZooKeeperServer.logRequest is now also reached from the NEWLEADER handler.",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "ledger_status": "mixed: durableInProposalOrder=requirement, intermediateStages=impl-abstraction (behavior of the stages unchanged: logRequest still enqueues), snapshotWithinApplied=requirement",
+      "watch_touched": true,
+      "evidence_ids": [
+        "K1"
+      ]
+    },
+    {
+      "property": "EpochHistoryConsistency",
+      "decision": "keep",
+      "affected_because": "watch Learner.java:syncWithLeader touched; setCurrentEpoch position unchanged (still before the ACK).",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "ledger_status": "mixed: currentEpochAtMostAccepted=requirement, logEpochAtMostAccepted=unknown (kept, not weakened)",
+      "watch_touched": true,
+      "evidence_ids": [
+        "K1"
+      ]
+    },
+    {
+      "property": "NoIllegalRollback / HistoryPositionsMonotonicExceptRecovery",
+      "decision": "keep",
+      "affected_because": "watch Learner.java:syncWithLeader touched; rollback authorization moved from CompleteSync to ReceiveSyncPayload.",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "ledger_status": "mixed: durable/applied=requirement, committed=unknown (kept)",
+      "watch_touched": true,
+      "evidence_ids": [
+        "K1"
+      ],
+      "note": "Action property; checked in MC.cfg/Update-focused.cfg runs, keep state K1 covers the state-level records it reads."
+    },
+    {
+      "property": "ElectionSafety, OneActiveLeaderPerEpoch",
+      "decision": "keep (unaffected control)",
+      "affected_because": "not affected; kept enabled in every update cfg family as the control against accidental global weakening.",
+      "ledger_status": "requirement",
+      "watch_touched": false,
+      "evidence_ids": [
+        "K1"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "K1",
+      "role": "keep",
+      "state_source": "trace",
+      "state": "spec/evidence/K1/K1.tla",
+      "how_populated": "final state (l=20) of the action-level replay of traces/follower-diff.ndjson through TraceSync.tla (spec/output/update/tracesync-finalstate-follower-diff.log, state 21); committed/applied/durable of s0 = <<(1,2)>>",
+      "old": {
+        "claimed": true,
+        "tlc": true
+      },
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/K1/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "fresh updated-source trace traces/follower-diff.ndjson"
+      },
+      "requirement": {
+        "value": "allowed",
+        "citations": [
+          "zookeeperInternals.md:194",
+          "zookeeperInternals.md:197"
+        ]
+      },
+      "cell": "keep justified"
+    },
+    {
+      "id": "E1",
+      "property": "SyncCompletionJustified",
+      "role": "separating",
+      "state_source": "constructed",
+      "state": "spec/evidence/E1/E1.tla",
+      "how_populated": "K1 with nlAckSent[s0] = FALSE (a broadcasting follower that never wrote its NEWLEADER ACK)",
+      "old": {
+        "claimed": true,
+        "tlc": true
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E1/tlc.log",
+      "impl_produces": {
+        "value": "no",
+        "basis": "Learner.syncWithLeader reaches UPTODATE only after the NEWLEADER branch wrote the ACK; LearnerHandler queues UPTODATE only after reading that ACK (LearnerHandler.java:613-648)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeperInternals.md:194",
+          "zookeeperInternals.md:197"
+        ]
+      },
+      "cell": "strengthening justified"
+    },
+    {
+      "id": "E1c",
+      "property": "SyncCompletionJustified",
+      "role": "control",
+      "state_source": "trace",
+      "state": "spec/evidence/K1/K1.tla",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/K1/tlc.log"
+    },
+    {
+      "id": "E2",
+      "property": "NewLeaderAckDurable",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "spec/evidence/E2/E2.tla",
+      "how_populated": "transition of event 12 (NewLeaderAckSent) in the action-level replay of traces/follower-diff.ndjson (spec/output/update/tracesync-ackwitness-follower-diff-final.log states 12->13): s0 queued <<(1,2)>>, durable <<>>, nlAckSent FALSE->TRUE",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E2/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "traces/follower-diff.ndjson event 12 NewLeaderAckSent detail.durableZxid=-1 with logged=1; code observation SpeculaUpdateObservationTest#newLeaderAckPrecedesDurability: streamedDurableWhenNewLeaderAckReceived=false (traces/update-observe-ack-durability.ndjson.observation.json); update-diff-sync-consistency.ndjson events 82/101 (disk at 0x100000001 while logging 0x100000002)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:119",
+          "zookeeperInternals.md:194",
+          "new-source Learner.java:757"
+        ]
+      },
+      "cell": "bug candidate (MC-1)"
+    },
+    {
+      "id": "E2c",
+      "property": "NewLeaderAckDurable",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E2c/E2c.tla",
+      "how_populated": "same transition with the streamed entry durable at the ACK",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/E2c/tlc.log"
+    },
+    {
+      "id": "E3",
+      "property": "CommittedDurableOnQuorum",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/evidence/E3/E3.tla",
+      "how_populated": "final state (14) of the U2 counterexample spec/output/update/Update-focused-quorumdurable-r1.log reached from RecoveryInit",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked (old CommittedHistoriesPrefix TRUE)"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E3/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "traces/update-diff-sync-consistency.ndjson: leader s2 counts s0's NEWLEADER ACK (event 84) and activates (event 86) before s0's TxnDurable for 0x100000002 (event 89)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeperInternals.md:117-119",
+          "zookeeperInternals.md:180"
+        ]
+      },
+      "cell": "bug candidate (MC-1)"
+    },
+    {
+      "id": "E3c",
+      "property": "CommittedDurableOnQuorum",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E3c/E3c.tla",
+      "how_populated": "E3 with the follower's copy durable",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/E3c/tlc.log"
+    },
+    {
+      "id": "E4",
+      "property": "LeaderCompleteness",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/evidence/E4/E4.tla",
+      "how_populated": "final state of spec/output/update/Update-hunt-postact-leak-r1.log (14 steps from the reachable post-activation state)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E4/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "traces/update-diff-sync-consistency.ndjson events 103-126: s1 aborts its sync after the NEWLEADER ACK, re-enters election reporting 0x100000001 (in-memory) although 0x100000002 became durable (event 105), wins epoch 3 and activates (event 126) without 0x100000002, which epoch-2 leader s2 activated with at event 86"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeperInternals.md:59",
+          "zookeeperProgrammers.md:1177"
+        ]
+      },
+      "cell": "bug candidate (MC-2)"
+    },
+    {
+      "id": "E4c",
+      "property": "LeaderCompleteness",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E4c/E4c.tla",
+      "how_populated": "E4 with the epoch-3 leader's committed history containing T1",
+      "expected": true,
+      "log": "spec/evidence/E4c/tlc.log",
+      "new": {
+        "claimed": true,
+        "tlc": true
+      }
+    },
+    {
+      "id": "E6",
+      "property": "PendingOnlyDuringSync",
+      "role": "separating",
+      "state_source": "constructed",
+      "state": "n/a (model-internal structural invariant)",
+      "how_populated": "a broadcasting follower with a non-empty sync buffer",
+      "new": {
+        "claimed": false,
+        "tlc": "not evaluated separately (model-internal)"
+      },
+      "cell": "model-internal"
+    },
+    {
+      "id": "E5",
+      "property": "SyncedLogMatchesLeader",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/evidence/E5/E5.tla",
+      "how_populated": "final state of spec/output/update/hunt-ghost-duplicate-caseA.log (first formulation's counterexample): follower log <<T1,T1>> (duplicate re-logged record), committed <<T1,T2>>",
+      "old": {
+        "claimed": false,
+        "tlc": false,
+        "note": "first formulation, per hunt-ghost-duplicate-caseA.log"
+      },
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/E5/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "source: LearnerZooKeeperServer.shutdown fast-forwards before flushing the sync processor; the next DIFF starts at the reported (in-memory) zxid and the txn log appends duplicates with only a warning (FileTxnLog.java:274-281)"
+      },
+      "requirement": {
+        "value": "allowed",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperAdmin.md:2599"
+        ]
+      },
+      "cell": "weakening justified (Case A: duplicate tolerated by idempotent replay)"
+    },
+    {
+      "id": "E5c",
+      "property": "SyncedLogMatchesLeader",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E5c/E5c.tla",
+      "how_populated": "E5 with the leader's history lacking T1 (a true ghost)",
+      "expected": false,
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E5c/tlc.log"
+    },
+    {
+      "id": "E5g",
+      "property": "SyncedLogMatchesLeader",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/evidence/E5g/E5g.tla",
+      "how_populated": "final state of spec/output/update/final-hunt-ghost.log: broadcasting follower log <<T1,T2>> while its epoch-3 leader knows only T1 (T2 uncommitted epoch-2 proposal)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E5g/tlc.log",
+      "impl_produces": {
+        "value": "unknown",
+        "basis": "code path evident in unchanged source (LearnerZooKeeperServer.java:155-172, QuorumPeer.getLastLoggedZxid, LearnerHandler.syncFollower); not observed in a fresh trace"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeperInternals.md:182-183"
+        ]
+      },
+      "cell": "bug candidate (MC-3, pre-existing)"
+    }
+  ],
+  "bug_candidates": [
+    "E2",
+    "E3",
+    "E4",
+    "E5g"
+  ],
+  "unresolved": []
+}

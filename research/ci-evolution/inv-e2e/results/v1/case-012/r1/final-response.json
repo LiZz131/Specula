@@ -1,0 +1,15 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "Source delta changes modeled behaviour (MODEL_CHANGE_REQUIRED): leader commit moved from greatest_majority_value to Engine::update_progress over Leader.progress (VecProgress, order-sensitive), leader_append_entries now updates progress around update_effective_membership/upgrade_quorum_set, votes are counted on the progress quorum set, and committed membership is promoted only on commit advance. The reference suite (base/MC/Trace), new Update.tla with full/focused/open/discharge configs, and the rebased V0 harness (cargo +stable; nightly unavailable) were updated; 17 fresh new-version traces (8 V0 reruns, 9 update scenarios) pass real TLC trace validation with negative controls rejected. Standard MC.cfg and V0 hunts complete with no error. Model checking found MC-1: VecProgress::update stores a value in place without re-sorting, so after a membership upgrade the leader commits an entry without a quorum of every joint group (CommitWitnessSound violated over full MCNext; reproduced at Engine level; old revision's greatest_majority_value is correct on the same state); a directed 5-server run shows two different entries committed at the same index. All other campaigns are bounded/time-limited (LIMITED_COVERAGE).",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/MC-1_counterexample_Update_full_cws.out",
+    "/work/current/.specula-output/spec/output/MC-1_consequence_counterexample_MC5_divergence.out",
+    "/work/current/.specula-output/spec/output/new-observe-u1.log",
+    "/work/current/.specula-output/spec/output/new-observe-add-voters.log"
+  ],
+  "blockers": []
+}
