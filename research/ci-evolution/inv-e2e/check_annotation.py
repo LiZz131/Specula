@@ -104,7 +104,7 @@ def check(original: Path, annotated: Path, sany: bool = True) -> dict:
                 continue
             name = m.group(1)
             blocks[name] = blocks.get(name, 0) + 1
-            if re.search(r"->\s*(?:alias of\b|\w+\s*\(alias\b)", line):
+            if re.search(r"->\s*(?:alias of\b|\w+\s*\(alias\b)|\(alias of\b", line):
                 statuses[name] = "alias"
                 continue
             for follow in lines[i + 1:i + 6]:
