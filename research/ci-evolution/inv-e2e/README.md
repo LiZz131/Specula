@@ -69,6 +69,7 @@ Other files:
   The network stays up for the model API and for dependency downloads. Every shell command is audited afterwards, and a hit marks the run `contaminated`. Each flagged run is reviewed by hand and recorded in `results/audit-review.json`. Every flag so far was a false alarm: a local `git clone` of the workspace's own artifact repository, or a `cat` of the guard scripts.
 - **Freeze.** Skill trees and annotations are built once. Their hashes go into `manifest.json` and `attempt.json`, and the overlays were not changed after the first real run. Each run is used once.
 - **Infrastructure failures.** Runs that end in `USAGE_LIMIT` (the account's 5-hour window) or `AUTH_ERROR` (the sandbox's OAuth session expired) are archived as invalid and restarted from scratch with a freshly prepared workspace. They are never results; their cost is reported separately.
+- **Truncated runs are results.** A run stopped by the per-run cost cap (`BUDGET_CAP`, `--max-budget-usd 100`) or the 4-hour timeout (`TIMEOUT`) is recorded as it is and never rerun: rerunning would select on whether a run fits the cap. Its partial outputs go to `results/<arm>/<case>/r<N>/partial/`; the workspace and the full session log stay under `WORK/attempts/`. The pipeline moves on to the next configuration.
 
 ## What is recorded per run
 
@@ -109,10 +110,19 @@ All three arms ended with workflow status `COMPLETED_WITH_LIMITED_COVERAGE`.
 - **Cost.** v1 < v2 < v0. With one run per arm, this may be noise. Part of v0's extra cost is its property-revision loop and an extra repair of a pre-existing V0 crash defect.
 - **Annotation cost (v2 only, once per case).** $12.21: annotation $7.80 plus review $4.41.
 
-## Status (2026-11-18)
+## Status (2026-11-20)
 
-- Pilot cases 002 (ZooKeeper), 003 (CometBFT) and 004 (OpenRaft) were picked from public metadata only, without looking at Gold. They are running through `pipeline.py`, and their results will be added when all three arms of a case finish.
-- Not yet exercised: the codex backend.
+- Finished: 7 cases (006, 002, 003, 004 pilot; 010, 012, 011 extension, picked by the user from public
+  metadata only) × v0/v1/v2, r1. 20 runs EXITED_0; v0/case-010 hit the 4-hour TIMEOUT and is kept as a
+  truncated result (its `partial/` was backfilled by hand because that run predates the partial-copy code).
+  No contamination after manual review (`results/audit-review.json`). Ungraded (Gold sealed).
+  Automatic decisions: `WORK/pipeline-decisions.md`.
+- `pipeline.py` runs cases back to back in the fixed order v2, v0, v1 and annotates the next case while the
+  current case runs v1; it is resumable.
+- Infrastructure hardening found during the pilot: OAuth credentials are synced both ways during a run and an
+  auth failure ends the run as AUTH_ERROR (archived and retried); usage limits archive and retry after the reset.
+- `findings` in `summary.md` counts `findings_paths` entries, not distinct defects.
+- Not yet exercised: the codex backend; a real `BUDGET_CAP` run.
 
 ## Known gaps
 
