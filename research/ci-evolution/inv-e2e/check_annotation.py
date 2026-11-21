@@ -28,6 +28,7 @@ from common import SPECULA
 KEYWORDS = {"CONSTANT", "CONSTANTS", "INIT", "NEXT", "SPECIFICATION", "SYMMETRY", "VIEW", "CONSTRAINT",
             "CONSTRAINTS", "CHECK_DEADLOCK", "INVARIANT", "INVARIANTS", "PROPERTY", "PROPERTIES",
             "ACTION_CONSTRAINT", "ACTION_CONSTRAINTS", "ALIAS", "POSTCONDITION"}
+LIST_KEYWORDS = {"INVARIANT", "INVARIANTS", "PROPERTY", "PROPERTIES"}
 STATUSES = {"requirement", "impl-abstraction", "model-internal", "unknown", "mixed", "alias"}
 COMMENT = re.compile(r"^\s*\\\*")
 # Heuristic for model observations leaking into block text (the rule: notes are about the
@@ -54,11 +55,16 @@ def properties(cfg_text: str) -> set[str]:
             kept.append(line)
         elif re.match(r"(INVARIANTS?|PROPERT(?:Y|IES))\b", m.group(1)) or re.fullmatch(r"[A-Za-z_]\w*\s*", m.group(1)):
             kept.append(m.group(1))
-    text = "\n".join(kept)
-    for match in re.finditer(r"\b(INVARIANTS?|PROPERT(?:Y|IES))\b((?:\s+[A-Za-z_]\w*)+)", text):
-        for word in match.group(2).split():
-            if word in KEYWORDS:
-                break
+    # Walk the tokens: a property list starts at INVARIANT(S)/PROPERT(Y|IES) and runs until any
+    # other keyword or non-identifier token. (A single regex match per list used to swallow a
+    # PROPERTIES keyword that directly followed an INVARIANTS list, dropping the whole second list.)
+    listing = False
+    for word in re.findall(r"[A-Za-z_]\w*|\S", "\n".join(kept)):
+        if word in LIST_KEYWORDS:
+            listing = True
+        elif word in KEYWORDS or not (word[0].isalpha() or word[0] == "_"):
+            listing = False
+        elif listing:
             names.add(word)
     return names
 
