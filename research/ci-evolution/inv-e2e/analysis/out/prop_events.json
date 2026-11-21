@@ -1,0 +1,904 @@
+[
+ {
+  "case": "case-002",
+  "prior_properties": [
+   "ApplyRequiresCommitCertificate",
+   "CommittedHistoriesPrefix",
+   "ElectionSafety",
+   "EpochHistoryConsistency",
+   "HistoryPositionsMonotonicExceptRecovery",
+   "MCTypeOK",
+   "NotElectionReached",
+   "NotMutationReached",
+   "NotRecoveryReached",
+   "NotSyncReached",
+   "OneActiveLeaderPerEpoch",
+   "PipelinePrefix",
+   "SyncCompletionJustified",
+   "TraceMatched",
+   "TypeOK"
+  ],
+  "arms": {
+   "v0": {
+    "prior": [
+     {
+      "property": "ApplyRequiresCommitCertificate",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "CommittedHistoriesPrefix",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 11,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "ElectionSafety",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "EpochHistoryConsistency",
+      "ledger": "mixed",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "HistoryPositionsMonotonicExceptRecovery",
+      "ledger": "-",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 3,
+      "cfg_after": 10,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "MCTypeOK",
+      "ledger": "model-internal",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 2,
+      "cfg_after": 4,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotElectionReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotMutationReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotRecoveryReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotSyncReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "OneActiveLeaderPerEpoch",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 5,
+      "dropped_from": [
+       "Trace.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "PipelinePrefix",
+      "ledger": "mixed",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "SyncCompletionJustified",
+      "ledger": "mixed",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "TraceMatched",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [
+       "JsonFile"
+      ],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "TypeOK",
+      "ledger": "model-internal",
+      "def": "changed",
+      "helpers_changed": [
+       "HandlerStages",
+       "NlAckMessage",
+       "SyncErrorKinds",
+       "SyncPacket",
+       "SyncStages",
+       "ZkStates"
+      ],
+      "cfg_before": 4,
+      "cfg_after": 17,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     }
+    ],
+    "new": [
+     {
+      "property": "CommittedNeverLost",
+      "cfg_after": 8,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "DischargeContext",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "EpochHistoryRecoverable",
+      "cfg_after": 5,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "LeaderCompleteness",
+      "cfg_after": 8,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NewLeaderAckDurable",
+      "cfg_after": 4,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NoSyncException",
+      "cfg_after": 5,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotCommitAfterNewLeaderReached",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "TraceOneActiveLeaderPerEpoch",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     }
+    ],
+    "evidence_only": []
+   },
+   "v1": {
+    "prior": [
+     {
+      "property": "ApplyRequiresCommitCertificate",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 0,
+      "dropped_from": [
+       "MC.cfg",
+       "Trace.cfg",
+       "base.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "CommittedHistoriesPrefix",
+      "ledger": "requirement",
+      "def": "changed",
+      "helpers_changed": [
+       "Comparable"
+      ],
+      "cfg_before": 4,
+      "cfg_after": 7,
+      "dropped_from": [],
+      "evidence": "keep/unaffected control kept enabled in every update cfg (UpdateControl)",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "ElectionSafety",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 4,
+      "dropped_from": [],
+      "evidence": "keep/leadersByEpoch now written by LeaderProposeEpoch",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "EpochHistoryConsistency",
+      "ledger": "mixed",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "HistoryPositionsMonotonicExceptRecovery",
+      "ledger": "-",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 3,
+      "cfg_after": 5,
+      "dropped_from": [],
+      "evidence": "keep/action property; new actions mark SyncDiff/SyncTrunc/SyncSnap/SNAP-NEWLEADER/Crash as authorized rollback",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "MCTypeOK",
+      "ledger": "model-internal",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 2,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotElectionReached",
+      "ledger": "model-internal",
+      "def": "deleted",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 0,
+      "dropped_from": [
+       "MC-hunt-election.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotMutationReached",
+      "ledger": "model-internal",
+      "def": "deleted",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 0,
+      "dropped_from": [
+       "MC-hunt-mutation.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotRecoveryReached",
+      "ledger": "model-internal",
+      "def": "deleted",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 0,
+      "dropped_from": [
+       "MC-hunt-recovery.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotSyncReached",
+      "ledger": "model-internal",
+      "def": "deleted",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 0,
+      "dropped_from": [
+       "MC-hunt-sync.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "OneActiveLeaderPerEpoch",
+      "ledger": "requirement",
+      "def": "changed",
+      "helpers_changed": [
+       "Established"
+      ],
+      "cfg_before": 4,
+      "cfg_after": 4,
+      "dropped_from": [],
+      "evidence": "modify/representation migration (weakening of the literal predicate): V0 'leading' implied an atomically proposed epoch; FLE decision and getEpochToPropose are now separate steps, so the predicate quantifies over established leaders (role leading and epoch settled).",
+      "evidence_initial": "modify"
+     },
+     {
+      "property": "PipelinePrefix",
+      "ledger": "mixed",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 6,
+      "dropped_from": [],
+      "evidence": "modify/weakening (representation: a crashed process has no data tree, so snapshot-prefix-of-applied is required only for live servers)",
+      "evidence_initial": "modify"
+     },
+     {
+      "property": "SyncCompletionJustified",
+      "ledger": "mixed",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 5,
+      "dropped_from": [],
+      "evidence": "modify/strengthening (a broadcasting follower must also have sent its NEWLEADER ACK)",
+      "evidence_initial": "modify"
+     },
+     {
+      "property": "TraceMatched",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [
+       "AllLines",
+       "JsonFile",
+       "TraceLog"
+      ],
+      "cfg_before": 1,
+      "cfg_after": 2,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "TypeOK",
+      "ledger": "model-internal",
+      "def": "changed",
+      "helpers_changed": [
+       "Message",
+       "MsgKind",
+       "ZkStates"
+      ],
+      "cfg_before": 4,
+      "cfg_after": 15,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     }
+    ],
+    "new": [
+     {
+      "property": "CanaryActivationCommitsOldEpoch",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryCommittedApplied",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryDiffAckBeforeFsync",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryFocusInitExact",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryFocusInitShape",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryFollowerBroadcast",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryLeaderActive",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryLeaderEstablished",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryRecovery",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanarySnap",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanarySync",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CanaryTrunc",
+      "cfg_after": 2,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "CommittedPersistedOnQuorum",
+      "cfg_after": 5,
+      "in_prior_defs": false,
+      "evidence": "add/new update property (Scenario 5)",
+      "replaces": null
+     },
+     {
+      "property": "CursorBelowStop",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "DischargeContext",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "LeaderCompleteness",
+      "cfg_after": 9,
+      "in_prior_defs": false,
+      "evidence": "add/new update consequence property (Scenarios 5, 6)",
+      "replaces": null
+     },
+     {
+      "property": "OldApplyRequiresCommitCertificate",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "OldOneActiveLeaderPerEpoch",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "OldPipelinePrefix",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "OldSyncCompletionJustified",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "ServingApplyCommitted",
+      "cfg_after": 6,
+      "in_prior_defs": false,
+      "evidence": "modify/weakening (representation: applied is now the in-memory data tree, which restore and fast-forward fill with uncommitted logged records)",
+      "replaces": "ApplyRequiresCommitCertificate"
+     },
+     {
+      "property": "StructuralInvariants",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "UpdateControl",
+      "cfg_after": 7,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     }
+    ],
+    "evidence_only": []
+   },
+   "v2": {
+    "prior": [
+     {
+      "property": "ApplyRequiresCommitCertificate",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 10,
+      "dropped_from": [],
+      "evidence": "keep/-",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "CommittedHistoriesPrefix",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 21,
+      "dropped_from": [],
+      "evidence": "keep/-",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "ElectionSafety",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 10,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "EpochHistoryConsistency",
+      "ledger": "mixed",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 7,
+      "dropped_from": [],
+      "evidence": "keep/-",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "HistoryPositionsMonotonicExceptRecovery",
+      "ledger": "-",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 3,
+      "cfg_after": 8,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "MCTypeOK",
+      "ledger": "model-internal",
+      "def": "changed",
+      "helpers_changed": [
+       "Milestones"
+      ],
+      "cfg_before": 2,
+      "cfg_after": 4,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotElectionReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotMutationReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotRecoveryReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "NotSyncReached",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 1,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "OneActiveLeaderPerEpoch",
+      "ledger": "requirement",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 5,
+      "dropped_from": [
+       "Trace.cfg"
+      ],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "PipelinePrefix",
+      "ledger": "mixed",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 10,
+      "dropped_from": [],
+      "evidence": "keep/-",
+      "evidence_initial": "keep"
+     },
+     {
+      "property": "SyncCompletionJustified",
+      "ledger": "mixed",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 10,
+      "dropped_from": [],
+      "evidence": "modify/strengthening",
+      "evidence_initial": "modify"
+     },
+     {
+      "property": "TraceMatched",
+      "ledger": "model-internal",
+      "def": "same",
+      "helpers_changed": [],
+      "cfg_before": 1,
+      "cfg_after": 4,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     },
+     {
+      "property": "TypeOK",
+      "ledger": "model-internal",
+      "def": "changed",
+      "helpers_changed": [],
+      "cfg_before": 4,
+      "cfg_after": 23,
+      "dropped_from": [],
+      "evidence": "-",
+      "evidence_initial": "-"
+     }
+    ],
+    "new": [
+     {
+      "property": "CommittedDurableOnQuorum",
+      "cfg_after": 3,
+      "in_prior_defs": false,
+      "evidence": "add/new requirement property (Scenario U1/U2)",
+      "replaces": null
+     },
+     {
+      "property": "DischargeContext",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "LeaderCompleteness",
+      "cfg_after": 9,
+      "in_prior_defs": false,
+      "evidence": "add/new consequence property (Scenarios U2/U4)",
+      "replaces": null
+     },
+     {
+      "property": "NewLeaderAckDurable",
+      "cfg_after": 2,
+      "in_prior_defs": false,
+      "evidence": "add/new requirement property (Scenario U1)",
+      "replaces": null
+     },
+     {
+      "property": "NotAckBeforeDurable",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotBothAckedActivated",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotFinished",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotHistoryActivated",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotNewLeaderAckWithLog",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotRecoveryShape",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "NotUpToDateReached",
+      "cfg_after": 1,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "OneActiveLeaderPerEpochTrace",
+      "cfg_after": 2,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     },
+     {
+      "property": "PendingOnlyDuringSync",
+      "cfg_after": 4,
+      "in_prior_defs": false,
+      "evidence": "add/structural (model-internal)",
+      "replaces": null
+     },
+     {
+      "property": "SyncedLogMatchesLeader",
+      "cfg_after": 5,
+      "in_prior_defs": false,
+      "evidence": "add/new interaction property (Scenario U4); formulation revised after model evidence",
+      "replaces": null
+     },
+     {
+      "property": "TraceSafety",
+      "cfg_after": 3,
+      "in_prior_defs": false,
+      "evidence": "-",
+      "replaces": null
+     }
+    ],
+    "evidence_only": [
+     "ElectionSafety, OneActiveLeaderPerEpoch",
+     "NoIllegalRollback / HistoryPositionsMonotonicExceptRecovery"
+    ]
+   }
+  }
+ }
+]
