@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "run_id": "case-011-v1-incremental",
+  "summary": "Pre-Vote update modelled (MODEL_CHANGE_REQUIRED); harness rebased, 20 fresh traces validated by TLC; model checking found MC-1: a Pre-Vote round started while Candidate survives leader establishment and its quorum makes the new Leader start a real election.",
+  "validation_limits": [
+    "All TLC campaigns are bounded (3 nodes, MaxTerm 2, MaxLogIndex 4, counters) and most were stopped by the 30-minute budget with a non-empty queue: LIMITED_COVERAGE, not proof.",
+    "Trace harness drives the real Engine; RaftCore tick decision, rate limit and response correlation are exercised only by the passing t12_pre_vote integration tests and by code reading.",
+    "Reproduction (Part 4) was not executed in this run; MC-1 is backed by a TLC counterexample over the complete MCNext and by a validated real-Engine trace whose follow-up call trips a debug assertion.",
+    "Pre-vote grant accumulation without quorum is unreachable in the 3-voter uniform MC seed (canary budget-limited); it is covered by the joint-configuration trace only."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Stale Pre-Vote round survives leader establishment and makes the new Leader start a real election",
+      "status": "DEFERRED",
+      "source": "model-checking",
+      "cause": "Engine.pre_candidate is cleared only by do_elect and become_following; pre_elect runs beside a live candidacy (the tick skips only Leaders) and establish_leader/become_leader keep the round, so handle_pre_vote_resp later calls elect() on the established Leader.",
+      "trigger": "With Pre-Vote enabled (or trigger().elect(true)), a Candidate starts a Pre-Vote round for T+1, a delayed term-T grant makes it Leader, then the round's granted pre-vote responses reach quorum.",
+      "consequence": "A freshly elected Leader bumps its term and becomes Candidate while its term-T leader object remains; try_leader_handler's debug assertion leader.committed_vote >= state.vote fails (observed on the real Engine), contradicting the Pre-Vote contract of not disrupting a healthy leader.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/v1-mc-hunt-stale-precandidate-bfs.log",
+        "spec/output/v1-mc-update-full-U4.log",
+        "spec/output/MC-1-full-counterexample-decoded.txt",
+        "spec/output/MC-1-counterexample-decoded.txt",
+        "traces/candidate_pre_vote_then_leader.ndjson",
+        "traces/candidate_pre_vote_then_leader.ndjson.observation.json",
+        "spec/output/v1-trace-candidate_pre_vote_then_leader.log",
+        "spec/invariant-evidence.json"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/engine/engine_impl.rs:establish_leader",
+          "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+          "openraft/src/engine/engine_impl.rs:pre_elect",
+          "openraft/src/core/raft_core.rs:handle_tick_election"
+        ],
+        "actions": [
+          "HandlePreVoteResponse",
+          "HandleVoteResponse",
+          "TickPreElect",
+          "ExternalPreElect",
+          "DoElect"
+        ],
+        "invariants": [
+          "PreVoteNeverDemotesLeader",
+          "NoStalePreCandidateAtLeader"
+        ],
+        "premises": [
+          "Pre-Vote is enabled for the tick (Config::enable_pre_vote or RuntimeConfigHandle::pre_vote) or requested via trigger().elect(true) while the node is Candidate.",
+          "For the timer path, the delayed term-T vote response arrives after the election timer fired and within the vote RPC timeout (election_timeout_min)."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/handler/vote_handler/mod.rs"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update-hunt-stale-precandidate.cfg"
+          }
+        ]
+      }
+    }
+  ]
+}

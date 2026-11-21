@@ -1,0 +1,66 @@
+TLC2 Version 2.20 of Day Month 20?? (rev: ${git.shortRevision})
+Running breadth-first search Model-Checking with fp 48 and seed 3639168134615144163 with 4 workers on 96 cores with 7282MB heap and 64MB offheap memory [pid: 2466] (Linux 6.8.0-1044-azure amd64, Ubuntu 21.0.11 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/prior/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-2953690304946023601/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2953690304946023601/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-2953690304946023601/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-2953690304946023601/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2953690304946023601/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-2953690304946023601/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-2953690304946023601/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module base
+Starting... (2026-09-05 03:23:21)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-05 03:23:21.
+Progress(12) at 2026-09-05 03:23:24: 596,693 states generated (596,693 s/min), 138,720 distinct states found (138,720 ds/min), 63,702 states left on queue.
+Progress(18) at 2026-09-05 03:24:24: 19,224,268 states generated (18,627,575 s/min), 3,904,122 distinct states found (3,765,402 ds/min), 1,689,635 states left on queue.
+Error: Invariant EpochHistoryConsistency is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <BeginElection(s1) line 76, col 5 to line 89, col 20 of module base>
+
+State 3: <CastVote(s2,s1) line 98, col 5 to line 107, col 20 of module base>
+
+State 4: <WinElection(s1) line 111, col 5 to line 126, col 20 of module base>
+
+State 5: <FollowLeader(s2,s1) line 130, col 5 to line 139, col 20 of module base>
+
+State 6: <FollowLeader(s3,s1) line 130, col 5 to line 139, col 20 of module base>
+
+State 7: <AcceptEpoch(s3) line 143, col 5 to line 152, col 20 of module base>
+
+State 8: <FinishDiscovery(s1) line 156, col 5 to line 165, col 20 of module base>
+
+State 9: <EnterSyncPhase(s2,s1) line 172, col 5 to line 182, col 20 of module base>
+
+State 10: <SelectSync(s2,s1,"DIFF") line 186, col 5 to line 200, col 20 of module base>
+
+State 11: <CompleteSync(s2) line 204, col 5 to line 223, col 51 of module base>
+
+State 12: <EnterBroadcast(s2) line 240, col 5 to line 248, col 20 of module base>
+
+State 13: <LeaderBroadcast(s1) line 263, col 5 to line 272, col 20 of module base>
+
+State 14: <Propose(s1,t1) line 276, col 5 to line 290, col 20 of module base>
+
+State 15: <Next line 494, col 8 to line 494, col 45 of module base>
+
+State 16: <AppendOne(s2) line 338, col 5 to line 346, col 20 of module base>
+
+State 17: <FsyncOne(s2) line 350, col 5 to line 366, col 20 of module base>
+
+21571668 states generated, 4346336 distinct states found, 1865195 states left on queue.
+The depth of the complete state graph search is 18.
+Finished in 01min 10s at (2026-09-05 03:24:31)
+Trace exploration spec path: ./base_TTrace_1788578600.tla

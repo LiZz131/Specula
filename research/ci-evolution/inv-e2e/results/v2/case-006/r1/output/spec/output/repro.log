@@ -1,0 +1,28 @@
+=== update tree HEAD c780d355cfeae6ee6be52c50c1f0bd7d30c6657a
+=== RUN   TestSpeculaReproStaleReadAfterContextReuse
+    specula_repro_test.go:73: old leader term=1 state=StateLeader pending=0 readStates=[{Index:2 RequestCtx:[99 116 120 49]}]; newer leader term=2 committed=3 before the read
+    specula_repro_test.go:77: STALE READ: ReadState{Index:2, ctx:"ctx1"} returned for a request issued after index 3 was committed in term 2
+--- FAIL: TestSpeculaReproStaleReadAfterContextReuse (0.00s)
+=== RUN   TestSpeculaReproUniqueContextControl
+    specula_repro_test.go:93: control: readStates=[] pending=1
+--- PASS: TestSpeculaReproUniqueContextControl (0.00s)
+=== RUN   TestSpeculaReproContextReuseServed
+    specula_repro_test.go:108: readStates=[{Index:2 RequestCtx:[99 116 120 49]} {Index:2 RequestCtx:[99 116 120 49]}] pending=0 queue=0
+--- PASS: TestSpeculaReproContextReuseServed (0.00s)
+FAIL
+FAIL	github.com/coreos/etcd/raft	0.005s
+FAIL
+=== baseline tree HEAD 7289d1c5e049933b90a9692bbf508714bee02fce
+=== RUN   TestSpeculaReproStaleReadAfterContextReuse
+    specula_repro_test.go:73: old leader term=1 state=StateLeader pending=1 readStates=[]; newer leader term=2 committed=3 before the read
+--- PASS: TestSpeculaReproStaleReadAfterContextReuse (0.00s)
+=== RUN   TestSpeculaReproUniqueContextControl
+    specula_repro_test.go:93: control: readStates=[] pending=2
+--- PASS: TestSpeculaReproUniqueContextControl (0.00s)
+=== RUN   TestSpeculaReproContextReuseServed
+    specula_repro_test.go:108: readStates=[{Index:2 RequestCtx:[99 116 120 49]}] pending=1 queue=0
+    specula_repro_test.go:111: reused context answered 1 times, want 2
+--- FAIL: TestSpeculaReproContextReuseServed (0.00s)
+FAIL
+FAIL	github.com/coreos/etcd/raft	0.004s
+FAIL

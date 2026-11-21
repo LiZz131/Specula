@@ -1,0 +1,126 @@
+# source: /work/current/.specula-output/fixcheck-source HEAD=3ab6cddc34a5bf127747434bb41e20a1b9ef7769 toolchain=stable 2026-11-20T13:29:00Z
+# command: cargo test -p openraft --lib specula_repro_removed_leader_pre_vote -- --nocapture
+warning: unused workspace dependency `bytes`
+  --> Cargo.toml:22:1
+   |
+22 | bytes              = { version = "1.0" }
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `bytes`
+warning: unused workspace dependency `tempfile`
+  --> Cargo.toml:45:1
+   |
+45 | tempfile           = { version = "3.4.0" }
+   | ^^^^^^^^
+   |
+help: consider removing the workspace dependency `tempfile`
+warning: workspace (manifest) generated 2 warnings
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> rt/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-rt` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> macros/Cargo.toml:10:17
+   |
+10 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+13 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-macros` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> legacy/Cargo.toml:11:1
+   |
+11 | homepage.workspace = true
+   | ^^^^^^^^
+...
+14 | repository.workspace = true
+   | ----------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-legacy` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore-custom-node-id/Cargo.toml:9:17
+   |
+ 9 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+12 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore-custom-node-id` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> tests/Cargo.toml:13:17
+   |
+13 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `tests` (manifest) generated 1 warning
+   Compiling openraft v0.10.0-alpha.21 (/work/current/.specula-output/fixcheck-source/openraft)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.71s
+     Running unittests src/lib.rs (/work/.cache/cargo-target-fixcheck-source/debug/build/openraft/b9c0447496c92d35/out/openraft-b9c0447496c92d35)
+
+running 1 test
+pre-vote response delivered by runtime filter: true
+after late pre-vote response: is_voter=false server_state=Learner vote=<T3-N1:-> candidate=false leader=false
+
+thread 'engine::tests::specula_repro_removed_leader_pre_vote_test::specula_repro_removed_leader_pre_vote_does_not_elect_non_voter' (33026) panicked at openraft/src/engine/tests/specula_repro_removed_leader_pre_vote_test.rs:88:5:
+assertion `left == right` failed
+  left: Vote { leader_id: LeaderId { term: 2, node_id: 1 }, committed: true }
+ right: Vote { leader_id: LeaderId { term: 3, node_id: 1 }, committed: false }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test engine::tests::specula_repro_removed_leader_pre_vote_test::specula_repro_removed_leader_pre_vote_does_not_elect_non_voter ... FAILED
+
+failures:
+
+failures:
+    engine::tests::specula_repro_removed_leader_pre_vote_test::specula_repro_removed_leader_pre_vote_does_not_elect_non_voter
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 487 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p openraft --lib`
+# exit=101

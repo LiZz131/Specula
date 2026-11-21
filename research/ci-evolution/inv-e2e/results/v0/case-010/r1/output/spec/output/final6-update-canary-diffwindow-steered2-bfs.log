@@ -1,0 +1,114 @@
+# cmd: timeout 10m java -XX:+UseParallelGC -Xmx6g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/final6-update-canary-diffwindow-steered2-bfs.PwiC -config Update-canary-diffwindow-steered2.cfg -workers 4 -checkpoint 0 Update
+# started: 2026-11-19T23:35:55Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 26 and seed -4607548095577967417 with 4 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 23069] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-13103545682833935495/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13103545682833935495/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13103545682833935495/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13103545682833935495/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13103545682833935495/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13103545682833935495/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13103545682833935495/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 23:35:56)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 23:35:57.
+Progress(15) at 2026-11-19 23:36:00: 28,250 states generated (28,250 s/min), 6,801 distinct states found (6,801 ds/min), 2,232 states left on queue.
+Progress(30) at 2026-11-19 23:37:00: 2,215,090 states generated (2,186,840 s/min), 464,161 distinct states found (457,360 ds/min), 80,756 states left on queue.
+Progress(34) at 2026-11-19 23:38:00: 4,435,253 states generated (2,220,163 s/min), 934,577 distinct states found (470,416 ds/min), 154,302 states left on queue.
+Error: Invariant NeverDiffAbortAfterNewLeader is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s1,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 4: <MCBeginElection line 30, col 5 to line 33, col 13 of module MC>
+
+State 5: <MCCastVote(s1,s2) line 35, col 21 to line 35, col 66 of module MC>
+
+State 6: <MCCastVote(s2,s2) line 35, col 21 to line 35, col 66 of module MC>
+
+State 7: <MCFinishElection(s1,s2) line 38, col 5 to line 41, col 36 of module MC>
+
+State 8: <MCFinishElection(s2,s2) line 38, col 5 to line 41, col 36 of module MC>
+
+State 9: <MCFinishElection(s3,s2) line 38, col 5 to line 41, col 36 of module MC>
+
+State 10: <MCEnterDiscovery(s2) line 43, col 24 to line 43, col 72 of module MC>
+
+State 11: <MCEnterDiscovery(s1) line 43, col 24 to line 43, col 72 of module MC>
+
+State 12: <MCLeaderProposeEpoch(s2) line 45, col 28 to line 45, col 80 of module MC>
+
+State 13: <MCPersistFollowerAccepted(s1) line 47, col 33 to line 47, col 95 of module MC>
+
+State 14: <MCEnterFollowerSync(s1) line 59, col 27 to line 59, col 78 of module MC>
+
+State 15: <MCRecordEpochAck(s2,s1) line 50, col 5 to line 51, col 59 of module MC>
+
+State 16: <MCChooseSync(s1,"DIFF") line 62, col 5 to line 63, col 28 of module MC>
+
+State 17: <MCPersistFollowerCurrent(s1) line 75, col 32 to line 75, col 92 of module MC>
+
+State 18: <MCNewLeaderModeNone(s1) line 76, col 27 to line 76, col 85 of module MC>
+
+State 19: <MCEnterDiscovery(s3) line 43, col 24 to line 43, col 72 of module MC>
+
+State 20: <MCPersistFollowerAccepted(s3) line 47, col 33 to line 47, col 95 of module MC>
+
+State 21: <MCAckNewLeader(s1) line 77, col 22 to line 77, col 75 of module MC>
+
+State 22: <MCLeaderEpochQuorum(s2) line 53, col 27 to line 53, col 78 of module MC>
+
+State 23: <MCLeaderStartSync(s2) line 54, col 25 to line 54, col 74 of module MC>
+
+State 24: <MCFormNewLeaderQuorum(s2) line 78, col 29 to line 78, col 82 of module MC>
+
+State 25: <MCLeaderBroadcast(s2) line 80, col 25 to line 80, col 79 of module MC>
+
+State 26: <MCLeaderPropose(s2) line 91, col 5 to line 92, col 35 of module MC>
+
+State 27: <MCEnterFollowerSync(s3) line 59, col 27 to line 59, col 78 of module MC>
+
+State 28: <MCChooseSync(s3,"DIFF") line 62, col 5 to line 63, col 28 of module MC>
+
+State 29: <MCSyncPacket(s3,1) line 67, col 23 to line 67, col 77 of module MC>
+
+State 30: <MCPersistFollowerCurrent(s3) line 75, col 32 to line 75, col 92 of module MC>
+
+State 31: <MCNewLeaderModeNone(s3) line 76, col 27 to line 76, col 85 of module MC>
+
+State 32: <MCFollowerPending(s3,1) line 94, col 28 to line 94, col 88 of module MC>
+
+State 33: <MCQueue(s3,1) line 95, col 18 to line 95, col 67 of module MC>
+
+State 34: <MCAckNewLeader(s3) line 77, col 22 to line 77, col 75 of module MC>
+
+State 35: <MCFlush(s3,1) line 96, col 18 to line 96, col 66 of module MC>
+
+State 36: <MCLearnerShutdown(s3) line 132, col 5 to line 147, col 57 of module MC>
+
+6326459 states generated, 1328953 distinct states found, 221707 states left on queue.
+The depth of the complete state graph search is 36.
+Finished in 02min 55s at (2026-11-19 23:38:51)
+Trace exploration spec path: ./Update_TTrace_1795131355.tla
+# exit: 12 finished: 2026-11-19T23:38:51Z

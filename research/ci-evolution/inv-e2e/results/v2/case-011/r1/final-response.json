@@ -1,0 +1,23 @@
+{
+ "decision": "MODEL_UPDATED",
+ "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "summary": "The update adds an optional Pre-Vote phase (pre_candidate state, PreVote RPC/notification, timer/operator pre_elect, handle_pre_vote_req/resp, pre_candidate clearing in do_elect/become_following), so the model changed (MODEL_CHANGE_REQUIRED). The reference suite (base/MC/Trace), a new Update.tla/UpdateProps.tla lens with full, focused, open and discharge configs, and the prior harness were updated; two prior-model defects were repaired (LogLE treated absent logs as unequal, which made every 3-voter election unreachable; leader-lease effects of HandleVoteResponse), plus a Case B timing repair (timer rounds drop timed-out earlier Pre-Vote traffic). 16 fresh traces from the updated implementation (7 rebased prior scenarios + 9 Pre-Vote scenarios) pass TLC trace validation with TraceConsumed and full pre/post-state checks. Bounded model checking (all runs budget-limited) found two update-introduced defects, both reproduced end-to-end through RaftCore: MC-1 (High) a timer-started Pre-Vote round survives the node's own leader establishment and a late Pre-Vote quorum calls elect() on the healthy leader, which steps down to term+1 while keeping its Leader object (RaftCore panics on leader.vote >= state.vote); MC-2 (Medium) Pre-Vote responses are correlated only by the probed leader id, so a later round with the same probe counts an earlier round's grant, and after a membership change Candidate::grant_by panics ('target not in quorum set'). All prior safety invariants and the remaining update properties showed no violation within budget.",
+ "findings_paths": [
+  "/work/current/.specula-output/spec/findings.json",
+  "/work/current/.specula-output/spec/bug-report.md",
+  "/work/current/.specula-output/spec/final-result.json",
+  "/work/current/.specula-output/spec/confirmation-MC-1.md",
+  "/work/current/.specula-output/spec/confirmation-MC-2.md",
+  "/work/current/.specula-output/spec/output/MC-1_TimerPreVoteElectsOnlyNonLeader_cex.out",
+  "/work/current/.specula-output/spec/output/MC-1_TimerPreVoteElectsOnlyNonLeader_fullMCNext_cex.out",
+  "/work/current/.specula-output/spec/output/MC-2_StalePreVoteResponseIgnored_cex.out",
+  "/work/current/.specula-output/spec/output/MC-2_StalePreVoteResponseIgnored_fullMCNext_cex.out",
+  "/work/current/.specula-output/spec/output/MC-2_PreVoteResponseNeverPanics_cex.out",
+  "/work/current/.specula-output/harness/src/t90_specula_repro_stale_prevote_leader.rs",
+  "/work/current/.specula-output/harness/src/t91_specula_repro_prevote_stale_round_panic.rs"
+ ],
+ "blockers": [
+  "The `specula` CLI is not installed, so `specula ci-result` (generated ci-report.md / ci-verdict.json / persistent-finding records) could not be run; spec/final-result.json and spec/issue-input/*.json were written for it.",
+  "The Part 4 controller tool (request_bug_confirmation) is not available; confirmation was performed in-run with end-to-end reproduction tests (spec/confirmation-MC-*.md)."
+ ]
+}

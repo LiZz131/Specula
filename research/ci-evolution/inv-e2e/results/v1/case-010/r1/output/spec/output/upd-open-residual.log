@@ -1,0 +1,73 @@
+CMD: timeout 1620s java -XX:+UseParallelGC -Xmx12g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 6 -metadir /dev/shm/specula-e2e-case-010/upd-open-residual-29554 -config Update-open-residual.cfg  Update  (TLC wall limit 25m via outer timeout)
+START: 2026-11-20T01:19:25Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 85 and seed 5187100643648599969 with 6 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 29571] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-13303036025895592504/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13303036025895592504/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13303036025895592504/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13303036025895592504/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13303036025895592504/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13303036025895592504/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13303036025895592504/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 01:19:26)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 01:19:26.
+Progress(10) at 2026-11-20 01:19:29: 36,337 states generated (36,337 s/min), 12,056 distinct states found (12,056 ds/min), 6,560 states left on queue.
+Error: Invariant OrderedHistoriesMem is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCLeaderPropose(s1) line 183, col 5 to line 186, col 28 of module MC>
+
+State 3: <MCFollowerLog(s2,1) line 189, col 5 to line 191, col 38 of module MC>
+
+State 4: <EnvUpdate line 87, col 14 to line 87, col 61 of module Update>
+
+State 5: <MCLearnerExit(s2) line 261, col 5 to line 264, col 90 of module MC>
+
+State 6: <MCFinishElection(s2,s1) line 55, col 5 to line 57, col 29 of module MC>
+
+State 7: <MCEnterDiscovery(s2) line 60, col 5 to line 64, col 26 of module MC>
+
+State 8: <MCEnterFollowerSync(s2) line 98, col 5 to line 105, col 26 of module MC>
+
+State 9: <MCChooseSync(s2,"DIFF") line 108, col 5 to line 111, col 85 of module MC>
+
+State 10: <MCLearnerNewLeader(s2) line 152, col 5 to line 154, col 31 of module MC>
+
+State 11: <MCFollowerLog(s2,1) line 189, col 5 to line 191, col 38 of module MC>
+
+State 12: <MCFlush(s2,1) line 194, col 5 to line 196, col 26 of module MC>
+
+State 13: <InteractionActions line 51, col 26 to line 51, col 97 of module Update>
+
+State 14: <MCCrash(s2) line 237, col 5 to line 241, col 20 of module MC>
+
+State 15: <MCRestart(s2) line 244, col 5 to line 247, col 34 of module MC>
+
+1995009 states generated, 562854 distinct states found, 242134 states left on queue.
+The depth of the complete state graph search is 16.
+Finished in 59s at (2026-11-20 01:20:25)
+Trace exploration spec path: ./Update_TTrace_1795137565.tla
+END: 2026-11-20T01:20:25Z exit=12

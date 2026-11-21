@@ -1,0 +1,1996 @@
+source: d7176ef916c7d2e3f2a0eed612875d7ce3e646b1 (update)
+cargo 1.100.0 (3acc79c0c 2026-11-05)
+=== core scenario t14-transfer-leader (t14_transfer_leader::transfer_leader)
+warning: unused workspace dependency `bytes`
+  --> Cargo.toml:22:1
+   |
+22 | bytes = "1.0"
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `bytes`
+warning: workspace (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/sledstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-sledstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> tests/Cargo.toml:13:17
+   |
+13 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `tests` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> macros/Cargo.toml:10:17
+   |
+10 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+13 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-macros` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/rocksstore/Cargo.toml:13:12
+   |
+13 | homepage = "https://github.com/datafuselabs/openraft"
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository = "https://github.com/datafuselabs/openraft"
+   |              ------------------------------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-rocksstore` (manifest) generated 1 warning
+   Compiling openraft v0.10.0 (/work/current/.specula-output/artifact/openraft)
+warning: unnecessary parentheses around closure body
+   --> openraft/src/raft/mod.rs:662:39
+    |
+662 |         let ok = |m: &RaftMetrics<C>| (from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index());
+    |                                       ^                                                                           ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+662 -         let ok = |m: &RaftMetrics<C>| (from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index());
+662 +         let ok = |m: &RaftMetrics<C>| from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index();
+    |
+
+warning: unused import: `maplit::btreeset`
+ --> openraft/src/testing/suite.rs:8:5
+  |
+8 | use maplit::btreeset;
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> openraft/src/core/tick.rs:88:41
+   |
+88 |     pub(crate) async fn tick_loop(self, mut cancel_rx: OneshotReceiverOf<C, ()>) {
+   |                                         ----^^^^^^^^^
+   |                                         |
+   |                                         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> openraft/src/core/tick.rs:95:17
+   |
+95 |             let mut sleep_fut = C::sleep_until(at);
+   |                 ----^^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> openraft/src/network/snapshot_transport.rs:104:9
+    |
+104 |         mut cancel: impl Future<Output = ReplicationClosed> + OptionalSend + 'static,
+    |         ----^^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: method `reject_with_forward_to_leader` is never used
+   --> openraft/src/core/raft_core.rs:672:19
+    |
+217 | / impl<C, NF, LS> RaftCore<C, NF, LS>
+218 | | where
+219 | |     C: RaftTypeConfig,
+220 | |     NF: RaftNetworkFactory<C>,
+221 | |     LS: RaftLogStorage<C>,
+    | |__________________________- method in this implementation
+...
+672 |       pub(crate) fn reject_with_forward_to_leader<T: OptionalSend, E>(&self, tx: ResultSender<C, T, E>)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_btreemap_opt_value.rs:38:16
+   |
+38 |     fn display(&self) -> DisplayBTreeMapOptValue<K, V> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+   = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default
+help: use `'_` for type paths
+   |
+38 |     fn display(&self) -> DisplayBTreeMapOptValue<'_, K, V> {
+   |                                                  +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_instant.rs:84:16
+   |
+84 |     fn display(&self) -> DisplayInstant<T, true> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+84 |     fn display(&self) -> DisplayInstant<'_, T, true> {
+   |                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_option.rs:27:16
+   |
+27 |     fn display(&self) -> DisplayOption<T> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+27 |     fn display(&self) -> DisplayOption<'_, T> {
+   |                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_result.rs:34:16
+   |
+34 |     fn display(&self) -> DisplayResult<T, E> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+34 |     fn display(&self) -> DisplayResult<'_, T, E> {
+   |                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_slice.rs:51:16
+   |
+51 |     fn display(&self) -> DisplaySlice<T> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+51 |     fn display(&self) -> DisplaySlice<'_, T> {
+   |                                       +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/progress/mod.rs:92:13
+   |
+92 |     fn iter(&self) -> Iter<(ID, V)>;
+   |             ^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+   |             |
+   |             the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+92 |     fn iter(&self) -> Iter<'_, (ID, V)>;
+   |                            +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:261:28
+    |
+261 |     pub(crate) fn iter_mut(&mut self) -> IterMut<(ID, V)> {
+    |                            ^^^^^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                            |
+    |                            the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+261 |     pub(crate) fn iter_mut(&mut self) -> IterMut<'_, (ID, V)> {
+    |                                                  +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:274:37
+    |
+274 |     pub(crate) fn display_with<Fmt>(&self, f: Fmt) -> DisplayVecProgress<ID, V, P, QS, Fmt>
+    |                                     ^^^^^             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+274 |     pub(crate) fn display_with<Fmt>(&self, f: Fmt) -> DisplayVecProgress<'_, ID, V, P, QS, Fmt>
+    |                                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:413:13
+    |
+413 |     fn iter(&self) -> Iter<(ID, V)> {
+    |             ^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |             |
+    |             the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+413 |     fn iter(&self) -> Iter<'_, (ID, V)> {
+    |                            +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:273:9
+    |
+273 |         &mut self,
+    |         ^^^^^^^^^ the lifetime is elided here
+274 |         tx: Option<ResponderOf<C>>,
+275 |     ) -> Option<(LeaderHandler<C>, Option<ResponderOf<C>>)> {
+    |                  ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+275 |     ) -> Option<(LeaderHandler<'_, C>, Option<ResponderOf<C>>)> {
+    |                                +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:730:32
+    |
+730 |     pub(crate) fn vote_handler(&mut self) -> VoteHandler<C> {
+    |                                ^^^^^^^^^     ^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                |
+    |                                the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+730 |     pub(crate) fn vote_handler(&mut self) -> VoteHandler<'_, C> {
+    |                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:741:31
+    |
+741 |     pub(crate) fn log_handler(&mut self) -> LogHandler<C> {
+    |                               ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                               |
+    |                               the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+741 |     pub(crate) fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:749:36
+    |
+749 |     pub(crate) fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                                    ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                                    |
+    |                                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+749 |     pub(crate) fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                                  +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:756:34
+    |
+756 |     pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<C>, ForwardToLeader<C>> {
+    |                                  ^^^^^^^^^            ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+756 |     pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<'_, C>, ForwardToLeader<C>> {
+    |                                                                     +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:780:39
+    |
+780 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+780 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:796:37
+    |
+796 |     pub(crate) fn following_handler(&mut self) -> FollowingHandler<C> {
+    |                                     ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+796 |     pub(crate) fn following_handler(&mut self) -> FollowingHandler<'_, C> {
+    |                                                                    +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:814:40
+    |
+814 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                                        ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                        |
+    |                                        the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+814 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:820:37
+    |
+820 |     pub(crate) fn establish_handler(&mut self) -> EstablishHandler<C> {
+    |                                     ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+820 |     pub(crate) fn establish_handler(&mut self) -> EstablishHandler<'_, C> {
+    |                                                                    +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:353:20
+    |
+353 |     fn log_handler(&mut self) -> LogHandler<C> {
+    |                    ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                    |
+    |                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+353 |     fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                             +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:361:25
+    |
+361 |     fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                         ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                         |
+    |                         the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+361 |     fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                       +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:368:29
+    |
+368 |     fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                             ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                             |
+    |                             the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+368 |     fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                              +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/leader_handler/mod.rs:110:39
+    |
+110 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+110 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/replication_handler/mod.rs:460:31
+    |
+460 |     pub(crate) fn log_handler(&mut self) -> LogHandler<C> {
+    |                               ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                               |
+    |                               the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+460 |     pub(crate) fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/replication_handler/mod.rs:468:25
+    |
+468 |     fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                         ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                         |
+    |                         the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+468 |     fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                       +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:257:40
+    |
+257 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                                        ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                        |
+    |                                        the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+257 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:264:39
+    |
+264 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+264 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:275:34
+    |
+275 |     pub(crate) fn leader_handler(&mut self) -> LeaderHandler<C> {
+    |                                  ^^^^^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+275 |     pub(crate) fn leader_handler(&mut self) -> LeaderHandler<'_, C> {
+    |                                                              +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft_state/membership_state/mod.rs:213:34
+    |
+213 |     pub(crate) fn change_handler(&self) -> ChangeHandler<C> {
+    |                                  ^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+213 |     pub(crate) fn change_handler(&self) -> ChangeHandler<'_, C> {
+    |                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft/mod.rs:344:27
+    |
+344 |     pub fn runtime_config(&self) -> RuntimeConfigHandle<C> {
+    |                           ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                           |
+    |                           the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+344 |     pub fn runtime_config(&self) -> RuntimeConfigHandle<'_, C> {
+    |                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft/mod.rs:360:20
+    |
+360 |     pub fn trigger(&self) -> Trigger<C> {
+    |                    ^^^^^     ^^^^^^^^^^ the same lifetime is hidden here
+    |                    |
+    |                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+360 |     pub fn trigger(&self) -> Trigger<'_, C> {
+    |                                      +++
+
+   Compiling openraft-memstore v0.10.0 (/work/current/.specula-output/artifact/stores/memstore)
+warning: unexpected `cfg` condition value: `serde`
+  --> stores/memstore/src/lib.rs:76:1
+   |
+76 | / openraft::declare_raft_types!(
+77 | |     /// Declare the type configuration for `MemStore`.
+78 | |     pub TypeConfig:
+79 | |         D = ClientRequest,
+80 | |         R = ClientResponse,
+81 | |         Node = (),
+82 | | );
+   | |_^
+   |
+   = note: no expected values for `feature`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `openraft::declare_raft_types` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `openraft::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `openraft-memstore` (lib) generated 1 warning
+warning: `openraft` (lib) generated 36 warnings (run `cargo fix --lib -p openraft` to apply 35 suggestions)
+   Compiling tests v0.10.0 (/work/current/.specula-output/artifact/tests)
+warning: use of deprecated type alias `std::panic::PanicInfo`: use `PanicHookInfo` instead
+  --> tests/tests/client_api/../fixtures/mod.rs:12:17
+   |
+12 | use std::panic::PanicInfo;
+   |                 ^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated type alias `std::panic::PanicInfo`: use `PanicHookInfo` instead
+   --> tests/tests/client_api/../fixtures/mod.rs:142:26
+    |
+142 | pub fn log_panic(panic: &PanicInfo) {
+    |                          ^^^^^^^^^
+
+warning: `tests` (test "client_api") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.74s
+     Running tests/client_api/main.rs (/work/.cache/cargo-target/debug/build/tests/d166ccc234c70043/out/client_api-d166ccc234c70043)
+
+running 1 test
+test t14_transfer_leader::transfer_leader ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 1.24s
+
+=== core scenario transfer-all-nodes (t99_specula_transfer::specula_transfer_all_nodes)
+warning: unused workspace dependency `bytes`
+  --> Cargo.toml:22:1
+   |
+22 | bytes = "1.0"
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `bytes`
+warning: workspace (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/sledstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-sledstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> tests/Cargo.toml:13:17
+   |
+13 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `tests` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> macros/Cargo.toml:10:17
+   |
+10 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+13 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-macros` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/rocksstore/Cargo.toml:13:12
+   |
+13 | homepage = "https://github.com/datafuselabs/openraft"
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository = "https://github.com/datafuselabs/openraft"
+   |              ------------------------------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-rocksstore` (manifest) generated 1 warning
+warning: unnecessary parentheses around closure body
+   --> openraft/src/raft/mod.rs:662:39
+    |
+662 |         let ok = |m: &RaftMetrics<C>| (from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index());
+    |                                       ^                                                                           ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+662 -         let ok = |m: &RaftMetrics<C>| (from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index());
+662 +         let ok = |m: &RaftMetrics<C>| from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index();
+    |
+
+warning: unused import: `maplit::btreeset`
+ --> openraft/src/testing/suite.rs:8:5
+  |
+8 | use maplit::btreeset;
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> openraft/src/core/tick.rs:88:41
+   |
+88 |     pub(crate) async fn tick_loop(self, mut cancel_rx: OneshotReceiverOf<C, ()>) {
+   |                                         ----^^^^^^^^^
+   |                                         |
+   |                                         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> openraft/src/core/tick.rs:95:17
+   |
+95 |             let mut sleep_fut = C::sleep_until(at);
+   |                 ----^^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> openraft/src/network/snapshot_transport.rs:104:9
+    |
+104 |         mut cancel: impl Future<Output = ReplicationClosed> + OptionalSend + 'static,
+    |         ----^^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: method `reject_with_forward_to_leader` is never used
+   --> openraft/src/core/raft_core.rs:672:19
+    |
+217 | / impl<C, NF, LS> RaftCore<C, NF, LS>
+218 | | where
+219 | |     C: RaftTypeConfig,
+220 | |     NF: RaftNetworkFactory<C>,
+221 | |     LS: RaftLogStorage<C>,
+    | |__________________________- method in this implementation
+...
+672 |       pub(crate) fn reject_with_forward_to_leader<T: OptionalSend, E>(&self, tx: ResultSender<C, T, E>)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_btreemap_opt_value.rs:38:16
+   |
+38 |     fn display(&self) -> DisplayBTreeMapOptValue<K, V> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+   = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default
+help: use `'_` for type paths
+   |
+38 |     fn display(&self) -> DisplayBTreeMapOptValue<'_, K, V> {
+   |                                                  +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_instant.rs:84:16
+   |
+84 |     fn display(&self) -> DisplayInstant<T, true> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+84 |     fn display(&self) -> DisplayInstant<'_, T, true> {
+   |                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_option.rs:27:16
+   |
+27 |     fn display(&self) -> DisplayOption<T> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+27 |     fn display(&self) -> DisplayOption<'_, T> {
+   |                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_result.rs:34:16
+   |
+34 |     fn display(&self) -> DisplayResult<T, E> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+34 |     fn display(&self) -> DisplayResult<'_, T, E> {
+   |                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_slice.rs:51:16
+   |
+51 |     fn display(&self) -> DisplaySlice<T> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+51 |     fn display(&self) -> DisplaySlice<'_, T> {
+   |                                       +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/progress/mod.rs:92:13
+   |
+92 |     fn iter(&self) -> Iter<(ID, V)>;
+   |             ^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+   |             |
+   |             the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+92 |     fn iter(&self) -> Iter<'_, (ID, V)>;
+   |                            +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:261:28
+    |
+261 |     pub(crate) fn iter_mut(&mut self) -> IterMut<(ID, V)> {
+    |                            ^^^^^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                            |
+    |                            the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+261 |     pub(crate) fn iter_mut(&mut self) -> IterMut<'_, (ID, V)> {
+    |                                                  +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:274:37
+    |
+274 |     pub(crate) fn display_with<Fmt>(&self, f: Fmt) -> DisplayVecProgress<ID, V, P, QS, Fmt>
+    |                                     ^^^^^             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+274 |     pub(crate) fn display_with<Fmt>(&self, f: Fmt) -> DisplayVecProgress<'_, ID, V, P, QS, Fmt>
+    |                                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:413:13
+    |
+413 |     fn iter(&self) -> Iter<(ID, V)> {
+    |             ^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |             |
+    |             the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+413 |     fn iter(&self) -> Iter<'_, (ID, V)> {
+    |                            +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:273:9
+    |
+273 |         &mut self,
+    |         ^^^^^^^^^ the lifetime is elided here
+274 |         tx: Option<ResponderOf<C>>,
+275 |     ) -> Option<(LeaderHandler<C>, Option<ResponderOf<C>>)> {
+    |                  ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+275 |     ) -> Option<(LeaderHandler<'_, C>, Option<ResponderOf<C>>)> {
+    |                                +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:730:32
+    |
+730 |     pub(crate) fn vote_handler(&mut self) -> VoteHandler<C> {
+    |                                ^^^^^^^^^     ^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                |
+    |                                the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+730 |     pub(crate) fn vote_handler(&mut self) -> VoteHandler<'_, C> {
+    |                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:741:31
+    |
+741 |     pub(crate) fn log_handler(&mut self) -> LogHandler<C> {
+    |                               ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                               |
+    |                               the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+741 |     pub(crate) fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:749:36
+    |
+749 |     pub(crate) fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                                    ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                                    |
+    |                                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+749 |     pub(crate) fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                                  +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:756:34
+    |
+756 |     pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<C>, ForwardToLeader<C>> {
+    |                                  ^^^^^^^^^            ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+756 |     pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<'_, C>, ForwardToLeader<C>> {
+    |                                                                     +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:780:39
+    |
+780 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+780 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:796:37
+    |
+796 |     pub(crate) fn following_handler(&mut self) -> FollowingHandler<C> {
+    |                                     ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+796 |     pub(crate) fn following_handler(&mut self) -> FollowingHandler<'_, C> {
+    |                                                                    +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:814:40
+    |
+814 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                                        ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                        |
+    |                                        the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+814 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:820:37
+    |
+820 |     pub(crate) fn establish_handler(&mut self) -> EstablishHandler<C> {
+    |                                     ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+820 |     pub(crate) fn establish_handler(&mut self) -> EstablishHandler<'_, C> {
+    |                                                                    +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:353:20
+    |
+353 |     fn log_handler(&mut self) -> LogHandler<C> {
+    |                    ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                    |
+    |                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+353 |     fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                             +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:361:25
+    |
+361 |     fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                         ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                         |
+    |                         the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+361 |     fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                       +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:368:29
+    |
+368 |     fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                             ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                             |
+    |                             the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+368 |     fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                              +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/leader_handler/mod.rs:110:39
+    |
+110 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+110 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/replication_handler/mod.rs:460:31
+    |
+460 |     pub(crate) fn log_handler(&mut self) -> LogHandler<C> {
+    |                               ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                               |
+    |                               the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+460 |     pub(crate) fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/replication_handler/mod.rs:468:25
+    |
+468 |     fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                         ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                         |
+    |                         the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+468 |     fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                       +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:257:40
+    |
+257 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                                        ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                        |
+    |                                        the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+257 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:264:39
+    |
+264 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+264 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:275:34
+    |
+275 |     pub(crate) fn leader_handler(&mut self) -> LeaderHandler<C> {
+    |                                  ^^^^^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+275 |     pub(crate) fn leader_handler(&mut self) -> LeaderHandler<'_, C> {
+    |                                                              +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft_state/membership_state/mod.rs:213:34
+    |
+213 |     pub(crate) fn change_handler(&self) -> ChangeHandler<C> {
+    |                                  ^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+213 |     pub(crate) fn change_handler(&self) -> ChangeHandler<'_, C> {
+    |                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft/mod.rs:344:27
+    |
+344 |     pub fn runtime_config(&self) -> RuntimeConfigHandle<C> {
+    |                           ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                           |
+    |                           the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+344 |     pub fn runtime_config(&self) -> RuntimeConfigHandle<'_, C> {
+    |                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft/mod.rs:360:20
+    |
+360 |     pub fn trigger(&self) -> Trigger<C> {
+    |                    ^^^^^     ^^^^^^^^^^ the same lifetime is hidden here
+    |                    |
+    |                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+360 |     pub fn trigger(&self) -> Trigger<'_, C> {
+    |                                      +++
+
+warning: `openraft` (lib) generated 36 warnings (run `cargo fix --lib -p openraft` to apply 35 suggestions)
+warning: unexpected `cfg` condition value: `serde`
+  --> stores/memstore/src/lib.rs:76:1
+   |
+76 | / openraft::declare_raft_types!(
+77 | |     /// Declare the type configuration for `MemStore`.
+78 | |     pub TypeConfig:
+79 | |         D = ClientRequest,
+80 | |         R = ClientResponse,
+81 | |         Node = (),
+82 | | );
+   | |_^
+   |
+   = note: no expected values for `feature`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `openraft::declare_raft_types` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `openraft::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `openraft-memstore` (lib) generated 1 warning
+warning: use of deprecated type alias `std::panic::PanicInfo`: use `PanicHookInfo` instead
+  --> tests/tests/client_api/../fixtures/mod.rs:12:17
+   |
+12 | use std::panic::PanicInfo;
+   |                 ^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated type alias `std::panic::PanicInfo`: use `PanicHookInfo` instead
+   --> tests/tests/client_api/../fixtures/mod.rs:142:26
+    |
+142 | pub fn log_panic(panic: &PanicInfo) {
+    |                          ^^^^^^^^^
+
+warning: `tests` (test "client_api") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/client_api/main.rs (/work/.cache/cargo-target/debug/build/tests/d166ccc234c70043/out/client_api-d166ccc234c70043)
+
+running 1 test
+test t99_specula_transfer::specula_transfer_all_nodes ... SPECULA_OBS n1_became_leader "result":"true"
+SPECULA_OBS n0_became_follower "result":"true"
+SPECULA_OBS write_via_new_leader "result":"ok log_id=T2-N1.7"
+SPECULA_OBS final "node":0,"state":"Follower","current_leader":"Some(1)","vote":"<T2-N1:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS final "node":1,"state":"Leader","current_leader":"Some(1)","vote":"<T2-N1:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS final "node":2,"state":"Follower","current_leader":"Some(1)","vote":"<T2-N1:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 0.27s
+
+=== core scenario transfer-to-learner (t99_specula_transfer::specula_transfer_to_learner)
+warning: unused workspace dependency `bytes`
+  --> Cargo.toml:22:1
+   |
+22 | bytes = "1.0"
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `bytes`
+warning: workspace (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/sledstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-sledstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> tests/Cargo.toml:13:17
+   |
+13 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `tests` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> macros/Cargo.toml:10:17
+   |
+10 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+13 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-macros` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/rocksstore/Cargo.toml:13:12
+   |
+13 | homepage = "https://github.com/datafuselabs/openraft"
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository = "https://github.com/datafuselabs/openraft"
+   |              ------------------------------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-rocksstore` (manifest) generated 1 warning
+warning: unnecessary parentheses around closure body
+   --> openraft/src/raft/mod.rs:662:39
+    |
+662 |         let ok = |m: &RaftMetrics<C>| (from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index());
+    |                                       ^                                                                           ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+662 -         let ok = |m: &RaftMetrics<C>| (from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index());
+662 +         let ok = |m: &RaftMetrics<C>| from == m.vote && m.last_log_index.next_index() >= flushed_log.next_index();
+    |
+
+warning: unused import: `maplit::btreeset`
+ --> openraft/src/testing/suite.rs:8:5
+  |
+8 | use maplit::btreeset;
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> openraft/src/core/tick.rs:88:41
+   |
+88 |     pub(crate) async fn tick_loop(self, mut cancel_rx: OneshotReceiverOf<C, ()>) {
+   |                                         ----^^^^^^^^^
+   |                                         |
+   |                                         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> openraft/src/core/tick.rs:95:17
+   |
+95 |             let mut sleep_fut = C::sleep_until(at);
+   |                 ----^^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> openraft/src/network/snapshot_transport.rs:104:9
+    |
+104 |         mut cancel: impl Future<Output = ReplicationClosed> + OptionalSend + 'static,
+    |         ----^^^^^^
+    |         |
+    |         help: remove this `mut`
+
+warning: method `reject_with_forward_to_leader` is never used
+   --> openraft/src/core/raft_core.rs:672:19
+    |
+217 | / impl<C, NF, LS> RaftCore<C, NF, LS>
+218 | | where
+219 | |     C: RaftTypeConfig,
+220 | |     NF: RaftNetworkFactory<C>,
+221 | |     LS: RaftLogStorage<C>,
+    | |__________________________- method in this implementation
+...
+672 |       pub(crate) fn reject_with_forward_to_leader<T: OptionalSend, E>(&self, tx: ResultSender<C, T, E>)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_btreemap_opt_value.rs:38:16
+   |
+38 |     fn display(&self) -> DisplayBTreeMapOptValue<K, V> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+   = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default
+help: use `'_` for type paths
+   |
+38 |     fn display(&self) -> DisplayBTreeMapOptValue<'_, K, V> {
+   |                                                  +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_instant.rs:84:16
+   |
+84 |     fn display(&self) -> DisplayInstant<T, true> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+84 |     fn display(&self) -> DisplayInstant<'_, T, true> {
+   |                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_option.rs:27:16
+   |
+27 |     fn display(&self) -> DisplayOption<T> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+27 |     fn display(&self) -> DisplayOption<'_, T> {
+   |                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_result.rs:34:16
+   |
+34 |     fn display(&self) -> DisplayResult<T, E> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+34 |     fn display(&self) -> DisplayResult<'_, T, E> {
+   |                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/display_ext/display_slice.rs:51:16
+   |
+51 |     fn display(&self) -> DisplaySlice<T> {
+   |                ^^^^^     ^^^^^^^^^^^^^^^ the same lifetime is hidden here
+   |                |
+   |                the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+51 |     fn display(&self) -> DisplaySlice<'_, T> {
+   |                                       +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> openraft/src/progress/mod.rs:92:13
+   |
+92 |     fn iter(&self) -> Iter<(ID, V)>;
+   |             ^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+   |             |
+   |             the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+   |
+92 |     fn iter(&self) -> Iter<'_, (ID, V)>;
+   |                            +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:261:28
+    |
+261 |     pub(crate) fn iter_mut(&mut self) -> IterMut<(ID, V)> {
+    |                            ^^^^^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                            |
+    |                            the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+261 |     pub(crate) fn iter_mut(&mut self) -> IterMut<'_, (ID, V)> {
+    |                                                  +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:274:37
+    |
+274 |     pub(crate) fn display_with<Fmt>(&self, f: Fmt) -> DisplayVecProgress<ID, V, P, QS, Fmt>
+    |                                     ^^^^^             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+274 |     pub(crate) fn display_with<Fmt>(&self, f: Fmt) -> DisplayVecProgress<'_, ID, V, P, QS, Fmt>
+    |                                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/progress/mod.rs:413:13
+    |
+413 |     fn iter(&self) -> Iter<(ID, V)> {
+    |             ^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |             |
+    |             the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+413 |     fn iter(&self) -> Iter<'_, (ID, V)> {
+    |                            +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:273:9
+    |
+273 |         &mut self,
+    |         ^^^^^^^^^ the lifetime is elided here
+274 |         tx: Option<ResponderOf<C>>,
+275 |     ) -> Option<(LeaderHandler<C>, Option<ResponderOf<C>>)> {
+    |                  ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+275 |     ) -> Option<(LeaderHandler<'_, C>, Option<ResponderOf<C>>)> {
+    |                                +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:730:32
+    |
+730 |     pub(crate) fn vote_handler(&mut self) -> VoteHandler<C> {
+    |                                ^^^^^^^^^     ^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                |
+    |                                the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+730 |     pub(crate) fn vote_handler(&mut self) -> VoteHandler<'_, C> {
+    |                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:741:31
+    |
+741 |     pub(crate) fn log_handler(&mut self) -> LogHandler<C> {
+    |                               ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                               |
+    |                               the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+741 |     pub(crate) fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:749:36
+    |
+749 |     pub(crate) fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                                    ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                                    |
+    |                                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+749 |     pub(crate) fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                                  +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:756:34
+    |
+756 |     pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<C>, ForwardToLeader<C>> {
+    |                                  ^^^^^^^^^            ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+756 |     pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<'_, C>, ForwardToLeader<C>> {
+    |                                                                     +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:780:39
+    |
+780 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+780 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:796:37
+    |
+796 |     pub(crate) fn following_handler(&mut self) -> FollowingHandler<C> {
+    |                                     ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+796 |     pub(crate) fn following_handler(&mut self) -> FollowingHandler<'_, C> {
+    |                                                                    +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:814:40
+    |
+814 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                                        ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                        |
+    |                                        the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+814 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/engine_impl.rs:820:37
+    |
+820 |     pub(crate) fn establish_handler(&mut self) -> EstablishHandler<C> {
+    |                                     ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                     |
+    |                                     the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+820 |     pub(crate) fn establish_handler(&mut self) -> EstablishHandler<'_, C> {
+    |                                                                    +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:353:20
+    |
+353 |     fn log_handler(&mut self) -> LogHandler<C> {
+    |                    ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                    |
+    |                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+353 |     fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                             +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:361:25
+    |
+361 |     fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                         ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                         |
+    |                         the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+361 |     fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                       +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/following_handler/mod.rs:368:29
+    |
+368 |     fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                             ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                             |
+    |                             the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+368 |     fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                              +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/leader_handler/mod.rs:110:39
+    |
+110 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+110 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/replication_handler/mod.rs:460:31
+    |
+460 |     pub(crate) fn log_handler(&mut self) -> LogHandler<C> {
+    |                               ^^^^^^^^^     ^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                               |
+    |                               the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+460 |     pub(crate) fn log_handler(&mut self) -> LogHandler<'_, C> {
+    |                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/replication_handler/mod.rs:468:25
+    |
+468 |     fn snapshot_handler(&mut self) -> SnapshotHandler<C> {
+    |                         ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^ the same lifetimes are hidden here
+    |                         |
+    |                         the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+468 |     fn snapshot_handler(&mut self) -> SnapshotHandler<'_, '_, C> {
+    |                                                       +++++++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:257:40
+    |
+257 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<C> {
+    |                                        ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                        |
+    |                                        the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+257 |     pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {
+    |                                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:264:39
+    |
+264 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {
+    |                                       ^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                       |
+    |                                       the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+264 |     pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<'_, C> {
+    |                                                                        +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/engine/handler/vote_handler/mod.rs:275:34
+    |
+275 |     pub(crate) fn leader_handler(&mut self) -> LeaderHandler<C> {
+    |                                  ^^^^^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+275 |     pub(crate) fn leader_handler(&mut self) -> LeaderHandler<'_, C> {
+    |                                                              +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft_state/membership_state/mod.rs:213:34
+    |
+213 |     pub(crate) fn change_handler(&self) -> ChangeHandler<C> {
+    |                                  ^^^^^     ^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                                  |
+    |                                  the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+213 |     pub(crate) fn change_handler(&self) -> ChangeHandler<'_, C> {
+    |                                                          +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft/mod.rs:344:27
+    |
+344 |     pub fn runtime_config(&self) -> RuntimeConfigHandle<C> {
+    |                           ^^^^^     ^^^^^^^^^^^^^^^^^^^^^^ the same lifetime is hidden here
+    |                           |
+    |                           the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+344 |     pub fn runtime_config(&self) -> RuntimeConfigHandle<'_, C> {
+    |                                                         +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+   --> openraft/src/raft/mod.rs:360:20
+    |
+360 |     pub fn trigger(&self) -> Trigger<C> {
+    |                    ^^^^^     ^^^^^^^^^^ the same lifetime is hidden here
+    |                    |
+    |                    the lifetime is elided here
+    |
+    = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+help: use `'_` for type paths
+    |
+360 |     pub fn trigger(&self) -> Trigger<'_, C> {
+    |                                      +++
+
+warning: `openraft` (lib) generated 36 warnings (run `cargo fix --lib -p openraft` to apply 35 suggestions)
+warning: unexpected `cfg` condition value: `serde`
+  --> stores/memstore/src/lib.rs:76:1
+   |
+76 | / openraft::declare_raft_types!(
+77 | |     /// Declare the type configuration for `MemStore`.
+78 | |     pub TypeConfig:
+79 | |         D = ClientRequest,
+80 | |         R = ClientResponse,
+81 | |         Node = (),
+82 | | );
+   | |_^
+   |
+   = note: no expected values for `feature`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `openraft::declare_raft_types` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `openraft::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `openraft-memstore` (lib) generated 1 warning
+warning: use of deprecated type alias `std::panic::PanicInfo`: use `PanicHookInfo` instead
+  --> tests/tests/client_api/../fixtures/mod.rs:12:17
+   |
+12 | use std::panic::PanicInfo;
+   |                 ^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated type alias `std::panic::PanicInfo`: use `PanicHookInfo` instead
+   --> tests/tests/client_api/../fixtures/mod.rs:142:26
+    |
+142 | pub fn log_panic(panic: &PanicInfo) {
+    |                          ^^^^^^^^^
+
+warning: `tests` (test "client_api") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/client_api/main.rs (/work/.cache/cargo-target/debug/build/tests/d166ccc234c70043/out/client_api-d166ccc234c70043)
+
+running 1 test
+test t99_specula_transfer::specula_transfer_to_learner ... SPECULA_OBS before "node":0,"state":"Leader","current_leader":"Some(0)","vote":"<T1-N0:Q>","last_log_index":"Some(6)","voters":"[0, 1, 2]"
+SPECULA_OBS before "node":1,"state":"Follower","current_leader":"Some(0)","vote":"<T1-N0:Q>","last_log_index":"Some(6)","voters":"[0, 1, 2]"
+SPECULA_OBS before "node":2,"state":"Follower","current_leader":"Some(0)","vote":"<T1-N0:Q>","last_log_index":"Some(6)","voters":"[0, 1, 2]"
+SPECULA_OBS before "node":3,"state":"Learner","current_leader":"Some(0)","vote":"<T1-N0:Q>","last_log_index":"Some(6)","voters":"[0, 1, 2]"
+
+thread 'tokio-rt-worker' (7529) panicked at openraft/src/proposer/candidate.rs:92:59:
+target not in quorum set: false
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:676:5
+   1: core::panicking::panic_fmt
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:1870:5
+   3: <core::result::Result<&bool, &bool>>::expect
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:1184:23
+   4: <openraft::proposer::candidate::Candidate<openraft_memstore::TypeConfig, openraft::quorum::joint::Joint<u64, alloc::vec::Vec<u64>, alloc::vec::Vec<alloc::vec::Vec<u64>>>>>::grant_by
+             at /work/current/.specula-output/artifact/openraft/src/proposer/candidate.rs:92:59
+   5: <openraft::engine::engine_impl::Engine<openraft_memstore::TypeConfig>>::handle_vote_resp
+             at /work/current/.specula-output/artifact/openraft/src/engine/engine_impl.rs:375:44
+   6: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::handle_notification
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:1286:33
+   7: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::process_notification::{closure#0}
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:1030:18
+   8: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::runtime_loop::{closure#0}::{closure#0}
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:951:87
+   9: <tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::runtime_loop::{closure#0}::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+  10: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::runtime_loop::{closure#0}
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:894:5
+  11: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::do_main::{closure#0}::{closure#0}
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:265:40
+  12: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::do_main::{closure#0}
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:254:5
+  13: <tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::do_main::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+  14: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}
+             at /work/current/.specula-output/artifact/openraft/src/core/raft_core.rs:226:62
+  15: <tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+  16: <core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>> as core::future::future::Future>::poll
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/future/future.rs:133:9
+  17: <tokio::runtime::task::core::Core<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:380:24
+  18: <tokio::loom::std::unsafe_cell::UnsafeCell<tokio::runtime::task::core::Stage<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>>>>::with_mut::<core::task::poll::Poll<core::result::Result<openraft::error::Infallible, openraft::error::Fatal<openraft_memstore::TypeConfig>>>, <tokio::runtime::task::core::Core<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/loom/std/unsafe_cell.rs:16:9
+  19: <tokio::runtime::task::core::Core<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:369:30
+  20: tokio::runtime::task::harness::poll_future::<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:537:30
+  21: <core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panic/unwind_safe.rs:275:9
+  22: std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}>, core::task::poll::Poll<core::result::Result<openraft::error::Infallible, openraft::error::Fatal<openraft_memstore::TypeConfig>>>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573:43
+  23: __rust_try
+  24: std::panicking::catch_unwind::<core::task::poll::Poll<core::result::Result<openraft::error::Infallible, openraft::error::Fatal<openraft_memstore::TypeConfig>>>, core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:541:19
+  25: std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}>, core::task::poll::Poll<core::result::Result<openraft::error::Infallible, openraft::error::Fatal<openraft_memstore::TypeConfig>>>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panic.rs:359:14
+  26: tokio::runtime::task::harness::poll_future::<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:525:18
+  27: <tokio::runtime::task::harness::Harness<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll_inner
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:210:27
+  28: <tokio::runtime::task::harness::Harness<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:155:20
+  29: tokio::runtime::task::raw::poll::<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, client_api::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:337:13
+  30: <tokio::runtime::task::raw::RawTask>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:267:18
+  31: <tokio::runtime::task::LocalNotified<alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/mod.rs:523:13
+  32: <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:705:18
+  33: tokio::task::coop::with_budget::<core::ops::control_flow::ControlFlow<(), alloc::boxed::Box<tokio::runtime::scheduler::multi_thread::worker::Core>>, <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/task/coop/mod.rs:167:5
+  34: tokio::task::coop::budget::<core::ops::control_flow::ControlFlow<(), alloc::boxed::Box<tokio::runtime::scheduler::multi_thread::worker::Core>>, <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/task/coop/mod.rs:133:5
+  35: <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:696:9
+  36: <tokio::runtime::scheduler::multi_thread::worker::Context>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:595:35
+  37: tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:560:16
+  38: <tokio::runtime::context::scoped::Scoped<tokio::runtime::scheduler::Context>>::set::<tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}, ()>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context/scoped.rs:40:9
+  39: tokio::runtime::context::set_scheduler::<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context.rs:186:38
+  40: <std::thread::local::LocalKey<tokio::runtime::context::Context>>::try_with::<tokio::runtime::context::set_scheduler<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>::{closure#0}, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/local.rs:463:12
+  41: <std::thread::local::LocalKey<tokio::runtime::context::Context>>::with::<tokio::runtime::context::set_scheduler<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>::{closure#0}, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/local.rs:427:20
+  42: tokio::runtime::context::set_scheduler::<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context.rs:186:17
+  43: tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:557:9
+  44: tokio::runtime::context::runtime::enter_runtime::<tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}, ()>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context/runtime.rs:65:16
+  45: tokio::runtime::scheduler::multi_thread::worker::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:549:5
+  46: <tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:515:45
+  47: <tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/task.rs:42:21
+  48: <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:380:24
+  49: <tokio::loom::std::unsafe_cell::UnsafeCell<tokio::runtime::task::core::Stage<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>>>>::with_mut::<core::task::poll::Poll<()>, <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/loom/std/unsafe_cell.rs:16:9
+  50: <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:369:30
+  51: tokio::runtime::task::harness::poll_future::<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:537:30
+  52: <core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panic/unwind_safe.rs:275:9
+  53: std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}>, core::task::poll::Poll<()>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573:43
+  54: __rust_try
+  55: std::panicking::catch_unwind::<core::task::poll::Poll<()>, core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:541:19
+  56: std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}>, core::task::poll::Poll<()>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panic.rs:359:14
+  57: tokio::runtime::task::harness::poll_future::<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:525:18
+  58: <tokio::runtime::task::harness::Harness<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll_inner
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:210:27
+  59: <tokio::runtime::task::harness::Harness<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:155:20
+  60: tokio::runtime::task::raw::poll::<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:337:13
+  61: <tokio::runtime::task::raw::RawTask>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:267:18
+  62: <tokio::runtime::task::UnownedTask<tokio::runtime::blocking::schedule::BlockingSchedule>>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/mod.rs:560:13
+  63: <tokio::runtime::blocking::pool::Task>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:220:19
+  64: <tokio::runtime::blocking::pool::LockedImpl>::run_worker
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:660:22
+  65: <tokio::runtime::blocking::pool::InnerImpl>::run_worker
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:571:39
+  66: <tokio::runtime::blocking::pool::Inner>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:764:18
+  67: <tokio::runtime::blocking::pool::Spawner>::spawn_thread::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:525:47
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+SPECULA_OBS n3_became_leader "result":"false"
+SPECULA_OBS after "node":0,"state":"Leader","current_leader":"Some(0)","vote":"<T3-N0:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS after "node":1,"state":"Follower","current_leader":"Some(0)","vote":"<T3-N0:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS after "node":2,"state":"Follower","current_leader":"Some(0)","vote":"<T3-N0:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS after "node":3,"state":"Learner","current_leader":"Some(0)","vote":"<T1-N0:Q>","last_log_index":"Some(6)","voters":"[0, 1, 2]"
+SPECULA_OBS write_via_n1 "result":"err has to forward request to: Some(0), Some(())"
+SPECULA_OBS write_via_n3 "result":"err panicked"
+SPECULA_OBS final "node":0,"state":"Leader","current_leader":"Some(0)","vote":"<T3-N0:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS final "node":1,"state":"Follower","current_leader":"Some(0)","vote":"<T3-N0:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS final "node":2,"state":"Follower","current_leader":"Some(0)","vote":"<T3-N0:Q>","last_log_index":"Some(7)","voters":"[0, 1, 2]"
+SPECULA_OBS final "node":3,"state":"Learner","current_leader":"Some(0)","vote":"<T1-N0:Q>","last_log_index":"Some(6)","voters":"[0, 1, 2]"
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 17 filtered out; finished in 1.44s
+
+collected 8 unit traces and 10 RaftCore session traces

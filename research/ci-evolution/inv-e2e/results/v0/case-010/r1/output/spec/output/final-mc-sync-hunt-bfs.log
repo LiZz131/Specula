@@ -1,0 +1,80 @@
+# cmd: timeout 10m java -XX:+UseParallelGC -Xmx6g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/final-mc-sync-hunt-bfs.H3pD -config MC-sync-hunt.cfg -workers 2 -checkpoint 0 MC
+# started: 2026-11-19T22:18:36Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 108 and seed 4166484905630708281 with 2 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 17455] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-15440406067198332833/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-15440406067198332833/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-15440406067198332833/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-15440406067198332833/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-15440406067198332833/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-15440406067198332833/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-15440406067198332833/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-19 22:18:39)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 22:18:39.
+Progress(12) at 2026-11-19 22:18:42: 14,896 states generated (14,896 s/min), 5,216 distinct states found (5,216 ds/min), 1,941 states left on queue.
+Progress(21) at 2026-11-19 22:19:42: 556,375 states generated (541,479 s/min), 170,999 distinct states found (165,783 ds/min), 50,647 states left on queue.
+Error: Invariant NeverCompleteSync is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s1,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 4: <MCFinishElection(s2,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 5: <MCFinishElection(s1,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 6: <MCEnterDiscovery(s1) line 43, col 24 to line 43, col 72 of module MC>
+
+State 7: <MCEnterDiscovery(s2) line 43, col 24 to line 43, col 72 of module MC>
+
+State 8: <MCLeaderProposeEpoch(s1) line 45, col 28 to line 45, col 80 of module MC>
+
+State 9: <MCPersistFollowerAccepted(s2) line 47, col 33 to line 47, col 95 of module MC>
+
+State 10: <MCRecordEpochAck(s1,s2) line 50, col 5 to line 51, col 59 of module MC>
+
+State 11: <MCLeaderEpochQuorum(s1) line 53, col 27 to line 53, col 78 of module MC>
+
+State 12: <MCLeaderStartSync(s1) line 54, col 25 to line 54, col 74 of module MC>
+
+State 13: <MCEnterFollowerSync(s2) line 59, col 27 to line 59, col 78 of module MC>
+
+State 14: <MCChooseSync(s2,"DIFF") line 62, col 5 to line 63, col 28 of module MC>
+
+State 15: <MCPersistFollowerCurrent(s2) line 75, col 32 to line 75, col 92 of module MC>
+
+State 16: <MCNewLeaderModeNone(s2) line 76, col 27 to line 76, col 85 of module MC>
+
+State 17: <MCAckNewLeader(s2) line 77, col 22 to line 77, col 75 of module MC>
+
+State 18: <MCFormNewLeaderQuorum(s1) line 78, col 29 to line 78, col 82 of module MC>
+
+State 19: <MCLeaderBroadcast(s1) line 80, col 25 to line 80, col 79 of module MC>
+
+State 20: <MCUpToDate(s2) line 82, col 18 to line 82, col 67 of module MC>
+
+State 21: <MCCompleteSync(s2) line 83, col 22 to line 83, col 91 of module MC>
+
+574019 states generated, 176340 distinct states found, 52039 states left on queue.
+The depth of the complete state graph search is 21.
+Finished in 01min 07s at (2026-11-19 22:19:44)
+Trace exploration spec path: ./MC_TTrace_1795126717.tla
+# exit: 12 finished: 2026-11-19T22:19:45Z

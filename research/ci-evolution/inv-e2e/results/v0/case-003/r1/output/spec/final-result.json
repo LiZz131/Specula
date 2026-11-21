@@ -1,0 +1,79 @@
+{
+ "version": 1,
+ "run_id": "case-003",
+ "summary": "Model updated for the rewritten ValidateUpdate; one update-introduced chain-halt defect (MC-1) reproduced.",
+ "validation_limits": [
+  "Bounded TLC exploration (height <= 2 for standard/full checks, <= 4 deep BFS, <= 6 in a 30-minute simulation); not a proof.",
+  "Runtime traces come from 20 deterministic single-process scenarios with in-memory stores; crash cuts are emulated by restart and one injected state-save failure.",
+  "Consumers of the enable height outside the scoped subsystem are checked only abstractly (P-U3).",
+  "specula ci-result and the bug-confirmation controller were unavailable; confirmation was done directly."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Updated ValidateUpdate rejects an unchanged VoteExtensionsEnableHeight once vote extensions are enabled, halting the chain",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "The update removed ValidateUpdate's equality short-circuit; row 6 rejects any present Abci enable height <= the block height, including the unchanged, already-reached value.",
+   "trigger": "With vote extensions enabled, the application's FinalizeBlockResponse re-sends its unchanged Abci.VoteExtensionsEnableHeight (e.g. a full ConsensusParams echo with a Block change).",
+   "consequence": "ApplyBlock fails before Commit, consensus logs CONSENSUS FAILURE and stops, and the restart replay rejects the same block again: every node halts at that height.",
+   "severity": "High",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/mc-v1-MC-1-cex.log",
+    "spec/repro/output-MC-1-update.log",
+    "spec/repro/output-MC-1-baseline.log",
+    "spec/output/harness-replay-ve-unchanged-restart.log"
+   ],
+   "persistence": {
+    "sites": [
+     "types/params.go:ValidateUpdate",
+     "internal/state/execution.go:updateState",
+     "internal/consensus/state.go:finalizeCommit",
+     "internal/consensus/replay.go:ReplayBlocks"
+    ],
+    "actions": [
+     "UpdateStateRejected",
+     "FinalizeBlock",
+     "AbortRejectedApply",
+     "SelectRealReplay"
+    ],
+    "invariants": [
+     "ContractLegalUpdateAccepted"
+    ],
+    "premises": [
+     "Vote extensions are enabled at the executed height (0 < VoteExtensionsEnableHeight <= header.Height).",
+     "The application returns ConsensusParamUpdates with a non-nil Abci sub-record equal to the current VoteExtensionsEnableHeight, which the ABCI contract permits (abci++_app_requirements.md:776-789).",
+     "Any ApplyBlock error is fatal in consensus and the restart replays the block through the real application deterministically."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "types/params.go",
+      "start": "func (params ConsensusParams) ValidateUpdate(updated *cmtproto.ConsensusParams, h int64) error {",
+      "end": "// Hash returns a hash of a subset of the parameters to store in the block header."
+     },
+     {
+      "root": "source",
+      "path": "internal/state/execution.go",
+      "start": "func updateState(",
+      "end": "// Fire NewBlock, NewBlockHeader."
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update_full.cfg"
+     }
+    ]
+   }
+  }
+ ]
+}

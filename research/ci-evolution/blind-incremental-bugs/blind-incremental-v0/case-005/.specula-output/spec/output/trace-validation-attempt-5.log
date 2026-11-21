@@ -1,0 +1,2445 @@
+TLC2 Version 2.20 of Day Month 20?? (rev: ${git.shortRevision})
+Running breadth-first search Model-Checking with fp 45 and seed 4599285811878420198 with 1 worker on 96 cores with 1963MB heap and 64MB offheap memory [pid: 10663] (Linux 6.8.0-1044-azure amd64, Ubuntu 21.0.11 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/prior/.specula-output/spec/Trace.tla
+Parsing file /work/prior/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-4788635181331779226/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-4788635181331779226/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-4788635181331779226/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-4788635181331779226/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-4788635181331779226/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-4788635181331779226/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-4788635181331779226/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-4788635181331779226/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-4788635181331779226/SequencesExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/SequencesExt.tla)
+Parsing file /tmp/tlc-4788635181331779226/FiniteSetsExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/FiniteSetsExt.tla)
+Parsing file /tmp/tlc-4788635181331779226/Folds.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Folds.tla)
+Parsing file /tmp/tlc-4788635181331779226/Functions.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Functions.tla)
+Parsing file /tmp/tlc-4788635181331779226/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module FiniteSetsExt
+Semantic processing of module SequencesExt
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module Folds
+Linting of module Functions
+Linting of module FiniteSetsExt
+Linting of module SequencesExt
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Trace
+Starting... (2026-09-04 17:38:01)
+Warning: Temporal properties (PROPERTY or PROPERTIES) are being verified without a behavior specification (SPECIFICATION). Only INIT and NEXT have been provided. This is likely to result in (trivial) counterexamples showing infinite stuttering following the initial state. It is recommended to use SPECIFICATION Spec, with Spec asserting a suitable fairness constraint (compare Chapter 8, page 87ff of Specifying Systems at https://lamport.azurewebsites.net/tla/book.html).
+(Use the -nowarning option to disable this warning.)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-04 17:38:02.
+Progress(31) at 2026-09-04 17:38:02: 33 states generated, 31 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 31 total distinct states at (2026-09-04 17:38:02)
+Error: Temporal properties were violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 1
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "Init"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "DOWN", s1 |-> "DOWN", s2 |-> "DOWN"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 2: <TraceStart line 70, col 5 to line 74, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 2
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "StartServer"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "DOWN", s1 |-> "DOWN", s2 |-> "LOOKING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 3: <TraceStart line 70, col 5 to line 74, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 3
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "StartServer"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> FALSE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "DOWN", s1 |-> "LOOKING", s2 |-> "LOOKING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 4: <TraceStart line 70, col 5 to line 74, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 4
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "StartServer"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "LOOKING", s1 |-> "LOOKING", s2 |-> "LOOKING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 5: <TraceElection line 77, col 5 to line 80, col 67 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 5
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "ElectionDecision"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "none", s2 |-> "none"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "LOOKING", s2 |-> "LOOKING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 6: <TraceElection line 77, col 5 to line 80, col 67 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 6
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "ElectionDecision"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "none"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LOOKING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 7: <TraceElection line 77, col 5 to line 80, col 67 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 7
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "ElectionDecision"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 8: <TraceEpochSupport line 83, col 5 to line 89, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 8
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "ReceiveEpochSupport"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 9: <TraceEpochSupport line 83, col 5 to line 89, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 9
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "ReceiveEpochSupport"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 10: <TraceAcceptedMemory line 92, col 5 to line 97, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 10
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "LeaderAcceptedEpochMemory"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 11: <TraceAcceptedPersist line 100, col 5 to line 103, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 11
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "PersistAcceptedEpoch"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 12: <TraceEpochSupport line 83, col 5 to line 89, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 12
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "ReceiveEpochSupport"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 13: <TraceLeaderInfo line 106, col 5 to line 111, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 13
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "LeaderInfoSent"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 14: <TraceAcceptedMemory line 92, col 5 to line 97, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 14
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "LearnerAcceptedEpochMemory"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 15: <TraceAcceptedMemory line 92, col 5 to line 97, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 15
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "LearnerAcceptedEpochMemory"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 16: <TraceLeaderInfo line 106, col 5 to line 111, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 16
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "LeaderInfoSent"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 17: <TraceAcceptedPersist line 100, col 5 to line 103, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 17
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "PersistAcceptedEpoch"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 18: <TraceAckEpochSent line 114, col 5 to line 119, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 18
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "AckEpochSent"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 19: <TraceEpochAck line 122, col 5 to line 126, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 19
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "RecordEpochAck"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 20: <TraceEpochAck line 122, col 5 to line 126, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 20
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ lastAction = "RecordEpochAck"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 21: <TraceCurrentMemory line 129, col 5 to line 132, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 21
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "CurrentEpochMemory"
+/\ durableAccepted = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 22: <TraceAcceptedPersist line 100, col 5 to line 103, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 22
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "PersistAcceptedEpoch"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 23: <TraceAckEpochSent line 114, col 5 to line 119, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 23
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "AckEpochSent"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 24: <TraceSyncSelected line 141, col 5 to line 145, col 47 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 24
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "SelectSync"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "NONE", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 25: <TraceSyncSelected line 141, col 5 to line 145, col 47 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 25
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "SelectSync"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 26: <TraceNewLeaderSent line 148, col 5 to line 153, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 26
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "NewLeaderSent"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 27: <TraceNewLeaderSent line 148, col 5 to line 153, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 27
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "NewLeaderSent"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 28: <TraceSyncApplied line 156, col 5 to line 160, col 36 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 28
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "ApplySync"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 29: <TraceSyncApplied line 156, col 5 to line 160, col 36 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 29
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "ApplySync"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 30: <TraceCurrentPersist line 135, col 5 to line 138, col 62 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ l = 30
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "PersistCurrentEpoch"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 31: <TraceNewLeaderAck line 184, col 5 to line 188, col 40 of module Trace>
+/\ broadcastReady = {}
+/\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ globalCommitted = {}
+/\ durableLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ syncTarget = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+/\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s2"}]
+/\ l = 31
+/\ upToDate = {}
+/\ appliedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ proposedBy = ( 101 :> "none" @@
+  102 :> "none" @@
+  103 :> "none" @@
+  104 :> "none" @@
+  105 :> "none" @@
+  106 :> "none" @@
+  107 :> "none" @@
+  201 :> "none" @@
+  202 :> "none" @@
+  203 :> "none" )
+/\ currentEpoch = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ lastAction = "RecordNewLeaderAck"
+/\ durableAccepted = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ volatileLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ supportAtAccepted = [s0 |-> {}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+/\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+/\ ackers = ( 101 :> {} @@
+  102 :> {} @@
+  103 :> {} @@
+  104 :> {} @@
+  105 :> {} @@
+  106 :> {} @@
+  107 :> {} @@
+  201 :> {} @@
+  202 :> {} @@
+  203 :> {} )
+/\ committedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ durableCurrent = [s0 |-> 0, s1 |-> 0, s2 |-> 1]
+/\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+/\ epochSupport = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+/\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+/\ syncMode = [s0 |-> "DIFF", s1 |-> "DIFF", s2 |-> "NONE"]
+/\ queuedLog = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ snapshotZxid = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+
+State 32: Stuttering
+Finished checking temporal properties in 00s at 2026-09-04 17:38:02
+The coverage statistics at 2026-09-04 17:38:02 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<broadcastReady line 26, col 5 to line 26, col 18 of module base>: 1
+<epochAcks line 22, col 19 to line 22, col 27 of module base>: 3
+<globalCommitted line 25, col 52 to line 25, col 66 of module base>: 1
+<durableLog line 24, col 29 to line 24, col 38 of module base>: 1
+<syncTarget line 23, col 30 to line 23, col 39 of module base>: 1
+<newLeaderAcks line 23, col 5 to line 23, col 17 of module base>: 2
+<l line 38, col 10 to line 38, col 10 of module Trace>: 30
+<upToDate line 23, col 42 to line 23, col 49 of module base>: 1
+<appliedLog line 24, col 55 to line 24, col 64 of module base>: 1
+<proposedBy line 25, col 32 to line 25, col 41 of module base>: 1
+<currentEpoch line 20, col 40 to line 20, col 51 of module base>: 2
+<lastAction line 26, col 21 to line 26, col 30 of module base>: 15
+<durableAccepted line 21, col 5 to line 21, col 19 of module base>: 4
+<volatileLog line 24, col 16 to line 24, col 26 of module base>: 1
+<supportAtAccepted line 22, col 30 to line 22, col 46 of module base>: 2
+<acceptedEpoch line 20, col 25 to line 20, col 37 of module base>: 4
+<ackers line 25, col 44 to line 25, col 49 of module base>: 1
+<committedLog line 24, col 41 to line 24, col 52 of module base>: 1
+<snapshotLog line 25, col 5 to line 25, col 15 of module base>: 1
+<up line 20, col 5 to line 20, col 6 of module base>: 3
+<durableCurrent line 21, col 22 to line 21, col 35 of module base>: 2
+<leaderOf line 20, col 15 to line 20, col 22 of module base>: 4
+<epochSupport line 22, col 5 to line 22, col 16 of module base>: 4
+<role line 20, col 9 to line 20, col 12 of module base>: 6
+<syncMode line 23, col 20 to line 23, col 27 of module base>: 3
+<queuedLog line 24, col 5 to line 24, col 13 of module base>: 1
+<snapshotZxid line 25, col 18 to line 25, col 29 of module base>: 1
+<TraceInit line 277, col 1 to line 277, col 9 of module Trace>: 2:2
+  line 60, col 13 to line 60, col 36 of module base: 2:6
+  |line 60, col 20 to line 60, col 25 of module base: 2
+  line 61, col 15 to line 61, col 39 of module base: 2:6
+  |line 61, col 22 to line 61, col 27 of module base: 2
+  line 62, col 19 to line 62, col 43 of module base: 2:6
+  |line 62, col 26 to line 62, col 31 of module base: 2
+  line 63, col 24 to line 63, col 43 of module base: 2:6
+  |line 63, col 31 to line 63, col 36 of module base: 2
+  line 64, col 23 to line 64, col 42 of module base: 2:6
+  |line 64, col 30 to line 64, col 35 of module base: 2
+  line 65, col 26 to line 65, col 45 of module base: 2:6
+  |line 65, col 33 to line 65, col 38 of module base: 2
+  line 66, col 25 to line 66, col 44 of module base: 2:6
+  |line 66, col 32 to line 66, col 37 of module base: 2
+  line 67, col 23 to line 67, col 43 of module base: 2:6
+  |line 67, col 30 to line 67, col 35 of module base: 2
+  line 68, col 20 to line 68, col 40 of module base: 2:6
+  |line 68, col 27 to line 68, col 32 of module base: 2
+  line 69, col 28 to line 69, col 48 of module base: 2:6
+  |line 69, col 35 to line 69, col 40 of module base: 2
+  line 70, col 24 to line 70, col 44 of module base: 2:6
+  |line 70, col 31 to line 70, col 36 of module base: 2
+  line 71, col 19 to line 71, col 43 of module base: 2:6
+  |line 71, col 26 to line 71, col 31 of module base: 2
+  line 72, col 21 to line 72, col 44 of module base: 2:6
+  |line 72, col 28 to line 72, col 33 of module base: 2
+  line 73, col 8 to line 73, col 20 of module base: 2:31
+  line 74, col 20 to line 74, col 40 of module base: 2:6
+  |line 74, col 27 to line 74, col 32 of module base: 2
+  line 75, col 22 to line 75, col 42 of module base: 2:6
+  |line 75, col 29 to line 75, col 34 of module base: 2
+  line 76, col 21 to line 76, col 41 of module base: 2:6
+  |line 76, col 28 to line 76, col 33 of module base: 2
+  line 77, col 23 to line 77, col 43 of module base: 2:6
+  |line 77, col 30 to line 77, col 35 of module base: 2
+  line 78, col 21 to line 78, col 41 of module base: 2:6
+  |line 78, col 28 to line 78, col 33 of module base: 2
+  line 79, col 22 to line 79, col 42 of module base: 2:6
+  |line 79, col 29 to line 79, col 34 of module base: 2
+  line 80, col 23 to line 80, col 46 of module base: 2:6
+  |line 80, col 30 to line 80, col 35 of module base: 2
+  line 81, col 21 to line 81, col 42 of module base: 2:20
+  |line 81, col 28 to line 81, col 30 of module base: 2
+  line 82, col 17 to line 82, col 34 of module base: 2:20
+  |line 82, col 24 to line 82, col 26 of module base: 2
+  line 83, col 8 to line 83, col 27 of module base: 2:62
+  line 84, col 8 to line 84, col 26 of module base: 2:155
+  line 277, col 25 to line 277, col 29 of module Trace: 2
+<TraceStart line 69, col 1 to line 69, col 10 of module Trace>: 3:6
+  line 57, col 18 to line 57, col 35 of module Trace: 6
+  |line 57, col 18 to line 57, col 18 of module Trace: 61
+  |line 57, col 23 to line 57, col 35 of module Trace: 61
+  line 57, col 40 to line 57, col 47 of module Trace: 67
+  |line 57, col 40 to line 57, col 43 of module Trace: 61
+  |line 57, col 47 to line 57, col 47 of module Trace: 61
+  line 90, col 8 to line 90, col 19 of module base: 12
+  |line 90, col 8 to line 90, col 8 of module base: 6
+  |line 90, col 14 to line 90, col 19 of module base: 6
+  line 90, col 24 to line 90, col 29 of module base: 12
+  |line 90, col 25 to line 90, col 29 of module base: 6
+  line 91, col 8 to line 91, col 36 of module base: 6
+  line 92, col 8 to line 92, col 45 of module base: 6
+  line 93, col 8 to line 93, col 50 of module base: 6
+  line 94, col 8 to line 94, col 72 of module base: 6
+  line 95, col 8 to line 95, col 69 of module base: 6
+  line 96, col 8 to line 96, col 57 of module base: 6
+  line 97, col 8 to line 97, col 61 of module base: 6
+  line 98, col 8 to line 98, col 63 of module base: 6
+  line 99, col 8 to line 99, col 59 of module base: 6
+  line 100, col 8 to line 100, col 45 of module base: 6
+  line 101, col 8 to line 101, col 50 of module base: 6
+  line 102, col 8 to line 102, col 53 of module base: 6
+  line 103, col 8 to line 103, col 54 of module base: 6
+  |line 103, col 24 to line 103, col 54 of module base: 6
+  ||line 103, col 25 to line 103, col 36 of module base: 6
+  ||line 103, col 45 to line 103, col 53 of module base: 6
+  ||line 103, col 52 to line 103, col 53 of module base: 6:63
+  line 104, col 8 to line 104, col 48 of module base: 6
+  |line 104, col 21 to line 104, col 48 of module base: 6
+  ||line 104, col 22 to line 104, col 30 of module base: 6
+  ||line 104, col 39 to line 104, col 47 of module base: 6
+  ||line 104, col 46 to line 104, col 47 of module base: 6:74
+  line 105, col 8 to line 105, col 56 of module base: 6
+  |line 105, col 25 to line 105, col 56 of module base: 6
+  ||line 105, col 26 to line 105, col 38 of module base: 6
+  ||line 105, col 47 to line 105, col 55 of module base: 6
+  ||line 105, col 54 to line 105, col 55 of module base: 6:86
+  line 106, col 8 to line 106, col 34 of module base: 6
+  line 107, col 8 to line 109, col 57 of module base: 6
+  line 71, col 20 to line 71, col 23 of module Trace: 6
+  line 60, col 20 to line 60, col 51 of module Trace: 12
+  |line 60, col 20 to line 60, col 27 of module Trace: 6
+  |line 60, col 31 to line 60, col 51 of module Trace: 6
+  line 72, col 21 to line 72, col 24 of module Trace: 6
+  line 62, col 23 to line 62, col 31 of module Trace: 6
+  line 62, col 36 to line 62, col 59 of module Trace: 12
+  |line 62, col 36 to line 62, col 51 of module Trace: 6
+  |line 62, col 55 to line 62, col 59 of module Trace: 6
+  line 72, col 46 to line 72, col 49 of module Trace: 6
+  line 61, col 24 to line 61, col 35 of module Trace: 6
+  line 61, col 40 to line 61, col 67 of module Trace: 12
+  |line 61, col 40 to line 61, col 56 of module Trace: 6
+  |line 61, col 60 to line 61, col 67 of module Trace: 6
+  line 72, col 72 to line 72, col 75 of module Trace: 6
+  line 73, col 8 to line 73, col 64 of module Trace: 12
+  |line 73, col 8 to line 73, col 59 of module Trace: 6
+  |line 73, col 63 to line 73, col 64 of module Trace: 6
+  line 63, col 25 to line 63, col 41 of module Trace: 12
+  |line 63, col 25 to line 63, col 32 of module Trace: 6
+  line 74, col 32 to line 74, col 40 of module Trace: 6
+<TraceElection line 76, col 1 to line 76, col 13 of module Trace>: 3:10
+  line 57, col 18 to line 57, col 35 of module Trace: 6
+  |line 57, col 18 to line 57, col 18 of module Trace: 58
+  |line 57, col 23 to line 57, col 35 of module Trace: 58
+  line 57, col 40 to line 57, col 47 of module Trace: 64
+  |line 57, col 40 to line 57, col 43 of module Trace: 58
+  |line 57, col 47 to line 57, col 47 of module Trace: 58
+  line 113, col 8 to line 113, col 19 of module base: 12
+  |line 113, col 8 to line 113, col 8 of module base: 6
+  |line 113, col 14 to line 113, col 19 of module base: 6
+  line 113, col 24 to line 113, col 35 of module base: 12
+  |line 113, col 24 to line 113, col 24 of module base: 6
+  |line 113, col 30 to line 113, col 35 of module base: 6
+  line 113, col 40 to line 113, col 44 of module base: 6
+  line 114, col 8 to line 114, col 60 of module base: 12
+  |line 114, col 8 to line 114, col 18 of module base: 6
+  |line 114, col 24 to line 114, col 60 of module base: 6
+  line 115, col 8 to line 115, col 24 of module base: 12
+  |line 115, col 8 to line 115, col 8 of module base: 6
+  |line 115, col 14 to line 115, col 24 of module base: 6
+  line 116, col 8 to line 116, col 72 of module base: 12
+  |line 116, col 8 to line 116, col 48 of module base: 6
+  |line 116, col 52 to line 116, col 72 of module base: 6
+  line 117, col 8 to line 117, col 30 of module base: 10
+  |line 117, col 8 to line 117, col 18 of module base: 6
+  line 118, col 8 to line 118, col 89 of module base: 12
+  |line 118, col 8 to line 118, col 75 of module base: 6:6
+  ||line 118, col 24 to line 118, col 74 of module base: 18
+  ||line 118, col 15 to line 118, col 20 of module base: 6
+  |line 118, col 87 to line 118, col 89 of module base: 6
+  line 119, col 8 to line 119, col 47 of module base: 10
+  line 120, col 8 to line 120, col 45 of module base: 10
+  line 121, col 8 to line 121, col 53 of module base: 10
+  line 122, col 8 to line 122, col 39 of module base: 10
+  line 123, col 8 to line 128, col 36 of module base: 10
+  line 78, col 25 to line 78, col 28 of module Trace: 6
+  line 78, col 31 to line 78, col 34 of module Trace: 6
+  line 78, col 37 to line 78, col 41 of module Trace: 6
+  line 78, col 44 to line 78, col 64 of module Trace: 6
+  line 60, col 20 to line 60, col 51 of module Trace: 20
+  |line 60, col 20 to line 60, col 27 of module Trace: 10
+  |line 60, col 31 to line 60, col 51 of module Trace: 10
+  line 79, col 21 to line 79, col 24 of module Trace: 10
+  line 62, col 23 to line 62, col 31 of module Trace: 10
+  line 62, col 36 to line 62, col 59 of module Trace: 20
+  |line 62, col 36 to line 62, col 51 of module Trace: 10
+  |line 62, col 55 to line 62, col 59 of module Trace: 10
+  line 79, col 46 to line 79, col 49 of module Trace: 10
+  line 61, col 24 to line 61, col 35 of module Trace: 10
+  line 61, col 40 to line 61, col 67 of module Trace: 20
+  |line 61, col 40 to line 61, col 56 of module Trace: 10
+  |line 61, col 60 to line 61, col 67 of module Trace: 10
+  line 79, col 72 to line 79, col 75 of module Trace: 10
+  line 80, col 8 to line 80, col 30 of module Trace: 20
+  |line 80, col 8 to line 80, col 9 of module Trace: 10
+  |line 80, col 15 to line 80, col 30 of module Trace: 10
+  ||line 80, col 15 to line 80, col 17 of module Trace: 10
+  ||line 80, col 24 to line 80, col 30 of module Trace: 10:20
+  |||line 80, col 25 to line 80, col 29 of module Trace: 10
+  line 63, col 25 to line 63, col 41 of module Trace: 20
+  |line 63, col 25 to line 63, col 32 of module Trace: 10
+  line 80, col 59 to line 80, col 67 of module Trace: 10
+<TraceEpochSupport line 82, col 1 to line 82, col 17 of module Trace>: 3:6
+  line 57, col 18 to line 57, col 35 of module Trace: 6
+  |line 57, col 18 to line 57, col 18 of module Trace: 55
+  |line 57, col 23 to line 57, col 35 of module Trace: 55
+  line 57, col 40 to line 57, col 47 of module Trace: 61
+  |line 57, col 40 to line 57, col 43 of module Trace: 55
+  |line 57, col 47 to line 57, col 47 of module Trace: 55
+  line 131, col 8 to line 131, col 19 of module base: 12
+  |line 131, col 8 to line 131, col 8 of module base: 6
+  |line 131, col 14 to line 131, col 19 of module base: 6
+  line 131, col 24 to line 131, col 35 of module base: 12
+  |line 131, col 24 to line 131, col 24 of module base: 6
+  |line 131, col 30 to line 131, col 35 of module base: 6
+  line 131, col 40 to line 131, col 44 of module base: 6
+  line 131, col 49 to line 131, col 67 of module base: 12
+  |line 131, col 49 to line 131, col 55 of module base: 6
+  line 132, col 8 to line 132, col 31 of module base: 12
+  |line 132, col 8 to line 132, col 8 of module base: 6
+  |line 132, col 17 to line 132, col 31 of module base: 6
+  line 133, col 8 to line 133, col 62 of module base: 6
+  |line 133, col 24 to line 133, col 62 of module base: 6
+  ||line 133, col 25 to line 133, col 36 of module base: 6
+  ||line 133, col 45 to line 133, col 61 of module base: 6
+  ||line 133, col 52 to line 133, col 61 of module base: 6
+  |||line 133, col 59 to line 133, col 61 of module base: 6:10
+  ||||line 133, col 60 to line 133, col 60 of module base: 6
+  line 134, col 8 to line 134, col 42 of module base: 6
+  line 135, col 8 to line 140, col 53 of module base: 6
+  line 84, col 28 to line 84, col 31 of module Trace: 6
+  line 84, col 34 to line 84, col 37 of module Trace: 6
+  line 85, col 8 to line 85, col 35 of module Trace: 12
+  |line 85, col 8 to line 85, col 11 of module Trace: 6
+  |line 85, col 17 to line 85, col 35 of module Trace: 6
+  line 60, col 20 to line 60, col 51 of module Trace: 12
+  |line 60, col 20 to line 60, col 27 of module Trace: 6
+  |line 60, col 31 to line 60, col 51 of module Trace: 6
+  line 86, col 21 to line 86, col 24 of module Trace: 6
+  line 86, col 30 to line 86, col 61 of module Trace: 6
+  line 87, col 9 to line 87, col 17 of module Trace: 2
+  |line 87, col 9 to line 87, col 13 of module Trace: 6
+  line 87, col 25 to line 87, col 53 of module Trace: 4
+  |line 87, col 25 to line 87, col 29 of module Trace: 6
+  |line 87, col 34 to line 87, col 53 of module Trace: 6
+  line 88, col 25 to line 88, col 57 of module Trace: 4
+  line 63, col 25 to line 63, col 41 of module Trace: 12
+  |line 63, col 25 to line 63, col 32 of module Trace: 6
+  line 89, col 32 to line 89, col 40 of module Trace: 6
+<TraceAcceptedMemory line 91, col 1 to line 91, col 19 of module Trace>: 3:6
+  line 57, col 18 to line 57, col 35 of module Trace: 6
+  |line 57, col 18 to line 57, col 18 of module Trace: 52
+  |line 57, col 23 to line 57, col 35 of module Trace: 52
+  line 57, col 40 to line 57, col 47 of module Trace: 58
+  |line 57, col 40 to line 57, col 43 of module Trace: 52
+  |line 57, col 47 to line 57, col 47 of module Trace: 52
+  line 93, col 11 to line 93, col 30 of module Trace: 6
+  line 143, col 8 to line 143, col 19 of module base: 4
+  |line 143, col 8 to line 143, col 8 of module base: 2
+  |line 143, col 14 to line 143, col 19 of module base: 2
+  line 143, col 24 to line 143, col 28 of module base: 2
+  line 143, col 33 to line 143, col 51 of module base: 4
+  |line 143, col 33 to line 143, col 39 of module base: 2
+  line 144, col 8 to line 144, col 38 of module base: 2
+  line 145, col 8 to line 145, col 24 of module base: 4
+  |line 145, col 8 to line 145, col 8 of module base: 2
+  |line 145, col 14 to line 145, col 24 of module base: 2
+  line 145, col 29 to line 145, col 48 of module base: 2
+  line 146, col 8 to line 146, col 55 of module base: 2
+  line 147, col 8 to line 147, col 77 of module base: 2
+  line 148, col 8 to line 148, col 48 of module base: 2
+  line 149, col 8 to line 154, col 36 of module base: 2
+  line 94, col 39 to line 94, col 42 of module Trace: 2
+  line 94, col 45 to line 94, col 52 of module Trace: 2
+  line 157, col 8 to line 157, col 19 of module base: 8
+  |line 157, col 8 to line 157, col 8 of module base: 4
+  |line 157, col 14 to line 157, col 19 of module base: 4
+  line 157, col 24 to line 157, col 28 of module base: 4
+  line 157, col 33 to line 157, col 70 of module base: 8
+  |line 157, col 33 to line 157, col 39 of module base: 4
+  |line 157, col 45 to line 157, col 70 of module base: 4
+  line 158, col 8 to line 158, col 24 of module base: 8
+  |line 158, col 8 to line 158, col 8 of module base: 4
+  |line 158, col 14 to line 158, col 24 of module base: 4
+  line 158, col 29 to line 158, col 48 of module base: 4
+  line 159, col 8 to line 159, col 55 of module base: 4
+  line 160, col 8 to line 160, col 49 of module base: 4
+  line 161, col 8 to line 166, col 53 of module base: 4
+  line 95, col 40 to line 95, col 43 of module Trace: 4
+  line 95, col 46 to line 95, col 53 of module Trace: 4
+  line 96, col 8 to line 96, col 38 of module Trace: 12
+  |line 96, col 8 to line 96, col 27 of module Trace: 6
+  |line 96, col 31 to line 96, col 38 of module Trace: 6
+  line 96, col 43 to line 96, col 69 of module Trace: 12
+  |line 96, col 43 to line 96, col 61 of module Trace: 6
+  |line 96, col 65 to line 96, col 69 of module Trace: 6
+  line 60, col 20 to line 60, col 51 of module Trace: 12
+  |line 60, col 20 to line 60, col 27 of module Trace: 6
+  |line 60, col 31 to line 60, col 51 of module Trace: 6
+  line 97, col 21 to line 97, col 24 of module Trace: 6
+  line 63, col 25 to line 63, col 41 of module Trace: 12
+  |line 63, col 25 to line 63, col 32 of module Trace: 6
+  line 97, col 54 to line 97, col 62 of module Trace: 6
+<TraceAcceptedPersist line 99, col 1 to line 99, col 20 of module Trace>: 3:6
+  line 57, col 18 to line 57, col 35 of module Trace: 6
+  |line 57, col 18 to line 57, col 18 of module Trace: 49
+  |line 57, col 23 to line 57, col 35 of module Trace: 49
+  line 57, col 40 to line 57, col 47 of module Trace: 55
+  |line 57, col 40 to line 57, col 43 of module Trace: 49
+  |line 57, col 47 to line 57, col 47 of module Trace: 49
+  line 169, col 8 to line 169, col 19 of module base: 12
+  |line 169, col 8 to line 169, col 8 of module base: 6
+  |line 169, col 14 to line 169, col 19 of module base: 6
+  line 169, col 24 to line 169, col 28 of module base: 6
+  line 170, col 8 to line 170, col 44 of module base: 12
+  |line 170, col 8 to line 170, col 25 of module base: 6
+  |line 170, col 29 to line 170, col 44 of module base: 6
+  line 171, col 8 to line 171, col 74 of module base: 6
+  line 172, col 8 to line 172, col 43 of module base: 6
+  line 173, col 8 to line 178, col 53 of module base: 6
+  line 101, col 29 to line 101, col 32 of module Trace: 6
+  line 102, col 8 to line 102, col 40 of module Trace: 12
+  |line 102, col 8 to line 102, col 29 of module Trace: 6
+  |line 102, col 33 to line 102, col 40 of module Trace: 6
+  line 102, col 45 to line 102, col 71 of module Trace: 12
+  |line 102, col 45 to line 102, col 63 of module Trace: 6
+  |line 102, col 67 to line 102, col 71 of module Trace: 6
+  line 60, col 20 to line 60, col 51 of module Trace: 12
+  |line 60, col 20 to line 60, col 27 of module Trace: 6
+  |line 60, col 31 to line 60, col 51 of module Trace: 6
+  line 103, col 21 to line 103, col 24 of module Trace: 6
+  line 63, col 25 to line 63, col 41 of module Trace: 12
+  |line 63, col 25 to line 63, col 32 of module Trace: 6
+  line 103, col 54 to line 103, col 62 of module Trace: 6
+<TraceLeaderInfo line 105, col 1 to line 105, col 15 of module Trace>: 2:4
+  line 57, col 18 to line 57, col 35 of module Trace: 4
+  |line 57, col 18 to line 57, col 18 of module Trace: 46
+  |line 57, col 23 to line 57, col 35 of module Trace: 46
+  line 57, col 40 to line 57, col 47 of module Trace: 50
+  |line 57, col 40 to line 57, col 43 of module Trace: 46
+  |line 57, col 47 to line 57, col 47 of module Trace: 46
+  line 107, col 8 to line 107, col 27 of module Trace: 4
+  line 107, col 32 to line 107, col 53 of module Trace: 8
+  |line 107, col 32 to line 107, col 41 of module Trace: 4
+  line 108, col 8 to line 108, col 37 of module Trace: 8
+  |line 108, col 8 to line 108, col 26 of module Trace: 4
+  |line 108, col 30 to line 108, col 37 of module Trace: 4
+  line 108, col 42 to line 108, col 65 of module Trace: 8
+  |line 108, col 42 to line 108, col 54 of module Trace: 4
+  |line 108, col 58 to line 108, col 65 of module Trace: 4
+  line 44, col 21 to line 44, col 38 of module base: 4
+  line 44, col 43 to line 44, col 61 of module base: 4
+  line 60, col 20 to line 60, col 51 of module Trace: 8
+  |line 60, col 20 to line 60, col 27 of module Trace: 4
+  |line 60, col 31 to line 60, col 51 of module Trace: 4
+  line 110, col 21 to line 110, col 24 of module Trace: 4
+  line 61, col 24 to line 61, col 35 of module Trace: 4
+  line 61, col 40 to line 61, col 67 of module Trace: 8
+  |line 61, col 40 to line 61, col 56 of module Trace: 4
+  |line 61, col 60 to line 61, col 67 of module Trace: 4
+  line 110, col 47 to line 110, col 50 of module Trace: 4
+  line 63, col 25 to line 63, col 41 of module Trace: 8
+  |line 63, col 25 to line 63, col 32 of module Trace: 4
+  line 111, col 32 to line 111, col 40 of module Trace: 4
+<TraceAckEpochSent line 113, col 1 to line 113, col 17 of module Trace>: 2:4
+  line 57, col 18 to line 57, col 35 of module Trace: 4
+  |line 57, col 18 to line 57, col 18 of module Trace: 44
+  |line 57, col 23 to line 57, col 35 of module Trace: 44
+  line 57, col 40 to line 57, col 47 of module Trace: 48
+  |line 57, col 40 to line 57, col 43 of module Trace: 44
+  |line 57, col 47 to line 57, col 47 of module Trace: 44
+  line 115, col 8 to line 115, col 27 of module Trace: 4
+  line 115, col 32 to line 115, col 52 of module Trace: 8
+  |line 115, col 32 to line 115, col 45 of module Trace: 4
+  |line 115, col 49 to line 115, col 52 of module Trace: 4
+  line 116, col 8 to line 116, col 39 of module Trace: 8
+  |line 116, col 8 to line 116, col 28 of module Trace: 4
+  |line 116, col 32 to line 116, col 39 of module Trace: 4
+  line 116, col 44 to line 116, col 59 of module Trace: 8
+  |line 116, col 44 to line 116, col 48 of module Trace: 4
+  |line 116, col 52 to line 116, col 59 of module Trace: 4
+  line 44, col 21 to line 44, col 38 of module base: 4
+  line 44, col 43 to line 44, col 61 of module base: 4
+  line 60, col 20 to line 60, col 51 of module Trace: 8
+  |line 60, col 20 to line 60, col 27 of module Trace: 4
+  |line 60, col 31 to line 60, col 51 of module Trace: 4
+  line 118, col 21 to line 118, col 24 of module Trace: 4
+  line 61, col 24 to line 61, col 35 of module Trace: 4
+  line 61, col 40 to line 61, col 67 of module Trace: 8
+  |line 61, col 40 to line 61, col 56 of module Trace: 4
+  |line 61, col 60 to line 61, col 67 of module Trace: 4
+  line 118, col 47 to line 118, col 50 of module Trace: 4
+  line 63, col 25 to line 63, col 41 of module Trace: 8
+  |line 63, col 25 to line 63, col 32 of module Trace: 4
+  line 119, col 32 to line 119, col 40 of module Trace: 4
+<TraceEpochAck line 121, col 1 to line 121, col 13 of module Trace>: 2:4
+  line 57, col 18 to line 57, col 35 of module Trace: 4
+  |line 57, col 18 to line 57, col 18 of module Trace: 42
+  |line 57, col 23 to line 57, col 35 of module Trace: 42
+  line 57, col 40 to line 57, col 47 of module Trace: 46
+  |line 57, col 40 to line 57, col 43 of module Trace: 42
+  |line 57, col 47 to line 57, col 47 of module Trace: 42
+  line 181, col 8 to line 181, col 19 of module base: 8
+  |line 181, col 8 to line 181, col 8 of module base: 4
+  |line 181, col 14 to line 181, col 19 of module base: 4
+  line 181, col 24 to line 181, col 35 of module base: 8
+  |line 181, col 24 to line 181, col 24 of module base: 4
+  |line 181, col 30 to line 181, col 35 of module base: 4
+  line 181, col 40 to line 181, col 44 of module base: 4
+  line 181, col 49 to line 181, col 67 of module base: 8
+  |line 181, col 49 to line 181, col 55 of module base: 4
+  line 182, col 8 to line 182, col 28 of module base: 8
+  |line 182, col 8 to line 182, col 8 of module base: 4
+  |line 182, col 17 to line 182, col 28 of module base: 4
+  line 183, col 8 to line 183, col 56 of module base: 4
+  |line 183, col 21 to line 183, col 56 of module base: 4
+  ||line 183, col 22 to line 183, col 30 of module base: 4
+  ||line 183, col 39 to line 183, col 55 of module base: 4
+  ||line 183, col 46 to line 183, col 55 of module base: 4
+  |||line 183, col 53 to line 183, col 55 of module base: 4:6
+  ||||line 183, col 54 to line 183, col 54 of module base: 4
+  line 184, col 8 to line 184, col 37 of module base: 4
+  line 185, col 8 to line 190, col 53 of module base: 4
+  line 123, col 23 to line 123, col 26 of module Trace: 4
+  line 123, col 29 to line 123, col 32 of module Trace: 4
+  line 124, col 8 to line 124, col 32 of module Trace: 8
+  |line 124, col 8 to line 124, col 11 of module Trace: 4
+  |line 124, col 17 to line 124, col 32 of module Trace: 4
+  line 60, col 20 to line 60, col 51 of module Trace: 8
+  |line 60, col 20 to line 60, col 27 of module Trace: 4
+  |line 60, col 31 to line 60, col 51 of module Trace: 4
+  line 125, col 21 to line 125, col 24 of module Trace: 4
+  line 61, col 24 to line 61, col 35 of module Trace: 4
+  line 61, col 40 to line 61, col 67 of module Trace: 8
+  |line 61, col 40 to line 61, col 56 of module Trace: 4
+  |line 61, col 60 to line 61, col 67 of module Trace: 4
+  line 125, col 47 to line 125, col 50 of module Trace: 4
+  line 63, col 25 to line 63, col 41 of module Trace: 8
+  |line 63, col 25 to line 63, col 32 of module Trace: 4
+  line 126, col 32 to line 126, col 40 of module Trace: 4
+<TraceCurrentMemory line 128, col 1 to line 128, col 18 of module Trace>: 1:2
+  line 57, col 18 to line 57, col 35 of module Trace: 2
+  |line 57, col 18 to line 57, col 18 of module Trace: 40
+  |line 57, col 23 to line 57, col 35 of module Trace: 40
+  line 57, col 40 to line 57, col 47 of module Trace: 42
+  |line 57, col 40 to line 57, col 43 of module Trace: 40
+  |line 57, col 47 to line 57, col 47 of module Trace: 40
+  line 193, col 8 to line 193, col 19 of module base: 4
+  |line 193, col 8 to line 193, col 8 of module base: 2
+  |line 193, col 14 to line 193, col 19 of module base: 2
+  line 193, col 24 to line 193, col 28 of module base: 2
+  line 193, col 33 to line 193, col 49 of module base: 4
+  |line 193, col 33 to line 193, col 33 of module base: 2
+  |line 193, col 39 to line 193, col 49 of module base: 2
+  line 194, col 8 to line 194, col 27 of module base: 4
+  |line 194, col 8 to line 194, col 8 of module base: 2
+  |line 194, col 12 to line 194, col 27 of module base: 2
+  line 194, col 32 to line 194, col 51 of module base: 2
+  line 195, col 8 to line 195, col 58 of module base: 2
+  line 196, col 8 to line 196, col 53 of module base: 2
+  line 197, col 8 to line 197, col 41 of module base: 2
+  line 198, col 8 to line 203, col 53 of module base: 2
+  line 130, col 27 to line 130, col 30 of module Trace: 2
+  line 130, col 33 to line 130, col 37 of module Trace: 2
+  line 131, col 8 to line 131, col 34 of module Trace: 4
+  |line 131, col 8 to line 131, col 26 of module Trace: 2
+  |line 131, col 30 to line 131, col 34 of module Trace: 2
+  line 131, col 39 to line 131, col 69 of module Trace: 4
+  |line 131, col 39 to line 131, col 58 of module Trace: 2
+  |line 131, col 62 to line 131, col 69 of module Trace: 2
+  line 60, col 20 to line 60, col 51 of module Trace: 4
+  |line 60, col 20 to line 60, col 27 of module Trace: 2
+  |line 60, col 31 to line 60, col 51 of module Trace: 2
+  line 132, col 21 to line 132, col 24 of module Trace: 2
+  line 63, col 25 to line 63, col 41 of module Trace: 4
+  |line 63, col 25 to line 63, col 32 of module Trace: 2
+  line 132, col 54 to line 132, col 62 of module Trace: 2
+<TraceCurrentPersist line 134, col 1 to line 134, col 19 of module Trace>: 1:2
+  line 57, col 18 to line 57, col 35 of module Trace: 2
+  |line 57, col 18 to line 57, col 18 of module Trace: 39
+  |line 57, col 23 to line 57, col 35 of module Trace: 39
+  line 57, col 40 to line 57, col 47 of module Trace: 41
+  |line 57, col 40 to line 57, col 43 of module Trace: 39
+  |line 57, col 47 to line 57, col 47 of module Trace: 39
+  line 206, col 8 to line 206, col 19 of module base: 4
+  |line 206, col 8 to line 206, col 8 of module base: 2
+  |line 206, col 14 to line 206, col 19 of module base: 2
+  line 206, col 24 to line 206, col 28 of module base: 2
+  line 207, col 8 to line 207, col 71 of module base: 2
+  line 208, col 8 to line 208, col 42 of module base: 2
+  line 209, col 8 to line 214, col 53 of module base: 2
+  line 136, col 28 to line 136, col 31 of module Trace: 2
+  line 137, col 8 to line 137, col 36 of module Trace: 4
+  |line 137, col 8 to line 137, col 28 of module Trace: 2
+  |line 137, col 32 to line 137, col 36 of module Trace: 2
+  line 137, col 41 to line 137, col 71 of module Trace: 4
+  |line 137, col 41 to line 137, col 60 of module Trace: 2
+  |line 137, col 64 to line 137, col 71 of module Trace: 2
+  line 60, col 20 to line 60, col 51 of module Trace: 4
+  |line 60, col 20 to line 60, col 27 of module Trace: 2
+  |line 60, col 31 to line 60, col 51 of module Trace: 2
+  line 138, col 21 to line 138, col 24 of module Trace: 2
+  line 63, col 25 to line 63, col 41 of module Trace: 4
+  |line 63, col 25 to line 63, col 32 of module Trace: 2
+  line 138, col 54 to line 138, col 62 of module Trace: 2
+<TraceSyncSelected line 140, col 1 to line 140, col 17 of module Trace>: 2:4
+  line 57, col 18 to line 57, col 35 of module Trace: 4
+  |line 57, col 18 to line 57, col 18 of module Trace: 38
+  |line 57, col 23 to line 57, col 35 of module Trace: 38
+  line 57, col 40 to line 57, col 47 of module Trace: 42
+  |line 57, col 40 to line 57, col 43 of module Trace: 38
+  |line 57, col 47 to line 57, col 47 of module Trace: 38
+  line 218, col 8 to line 218, col 19 of module base: 8
+  |line 218, col 8 to line 218, col 8 of module base: 4
+  |line 218, col 14 to line 218, col 19 of module base: 4
+  line 218, col 24 to line 218, col 35 of module base: 8
+  |line 218, col 24 to line 218, col 24 of module base: 4
+  |line 218, col 30 to line 218, col 35 of module base: 4
+  line 218, col 40 to line 218, col 44 of module base: 4
+  line 218, col 49 to line 218, col 53 of module base: 4
+  line 219, col 8 to line 219, col 26 of module base: 8
+  |line 219, col 8 to line 219, col 14 of module base: 4
+  line 219, col 31 to line 219, col 64 of module base: 8
+  |line 219, col 31 to line 219, col 34 of module base: 4
+  |line 219, col 40 to line 219, col 64 of module base: 4
+  line 220, col 8 to line 220, col 34 of module base: 8
+  |line 220, col 8 to line 220, col 13 of module base: 4
+  |line 220, col 19 to line 220, col 34 of module base: 4
+  ||line 220, col 19 to line 220, col 21 of module base: 4
+  |||line 24, col 13 to line 28, col 30 of module Trace: 4
+  ||||line 24, col 21 to line 28, col 29 of module Trace: 4
+  |||||line 24, col 27 to line 28, col 29 of module Trace: 4
+  ||||||line 25, col 5 to line 27, col 47 of module Trace: 1144
+  |||||||line 25, col 8 to line 26, col 42 of module Trace: 1144
+  ||||||||line 25, col 8 to line 25, col 47 of module Trace: 1144
+  ||||||||line 26, col 11 to line 26, col 42 of module Trace: 728
+  |||||||line 27, col 10 to line 27, col 39 of module Trace: 728
+  |||||||line 27, col 46 to line 27, col 47 of module Trace: 416
+  ||||||line 28, col 13 to line 28, col 28 of module Trace: 4
+  ||line 220, col 28 to line 220, col 34 of module base: 4:8
+  |||line 220, col 29 to line 220, col 33 of module base: 4
+  line 221, col 8 to line 221, col 25 of module base: 8
+  |line 221, col 8 to line 221, col 18 of module base: 4
+  |line 221, col 22 to line 221, col 25 of module base: 4
+  line 221, col 30 to line 221, col 51 of module base: 4
+  line 222, col 8 to line 222, col 48 of module base: 4
+  line 223, col 8 to line 223, col 54 of module base: 4
+  line 224, col 8 to line 224, col 45 of module base: 4
+  line 225, col 8 to line 225, col 33 of module base: 4
+  line 226, col 8 to line 230, col 73 of module base: 4
+  line 142, col 19 to line 142, col 22 of module Trace: 4
+  line 142, col 25 to line 142, col 28 of module Trace: 4
+  line 142, col 31 to line 142, col 38 of module Trace: 4
+  line 142, col 41 to line 142, col 42 of module Trace: 4
+  line 143, col 8 to line 143, col 29 of module Trace: 8
+  |line 143, col 8 to line 143, col 24 of module Trace: 4
+  |line 143, col 28 to line 143, col 29 of module Trace: 4
+  line 64, col 24 to line 64, col 46 of module Trace: 8
+  |line 64, col 24 to line 64, col 35 of module Trace: 4
+  |line 64, col 39 to line 64, col 46 of module Trace: 4
+  line 143, col 51 to line 143, col 54 of module Trace: 4
+  line 60, col 20 to line 60, col 51 of module Trace: 8
+  |line 60, col 20 to line 60, col 27 of module Trace: 4
+  |line 60, col 31 to line 60, col 51 of module Trace: 4
+  line 144, col 21 to line 144, col 24 of module Trace: 4
+  line 61, col 24 to line 61, col 35 of module Trace: 4
+  line 61, col 40 to line 61, col 67 of module Trace: 8
+  |line 61, col 40 to line 61, col 56 of module Trace: 4
+  |line 61, col 60 to line 61, col 67 of module Trace: 4
+  line 144, col 47 to line 144, col 50 of module Trace: 4
+  line 145, col 8 to line 145, col 34 of module Trace: 8
+  |line 145, col 8 to line 145, col 26 of module Trace: 4
+  |line 145, col 30 to line 145, col 34 of module Trace: 4
+  line 145, col 39 to line 145, col 47 of module Trace: 4
+<TraceNewLeaderSent line 147, col 1 to line 147, col 18 of module Trace>: 2:4
+  line 57, col 18 to line 57, col 35 of module Trace: 4
+  |line 57, col 18 to line 57, col 18 of module Trace: 36
+  |line 57, col 23 to line 57, col 35 of module Trace: 36
+  line 57, col 40 to line 57, col 47 of module Trace: 40
+  |line 57, col 40 to line 57, col 43 of module Trace: 36
+  |line 57, col 47 to line 57, col 47 of module Trace: 36
+  line 149, col 8 to line 149, col 27 of module Trace: 4
+  line 149, col 32 to line 149, col 53 of module Trace: 8
+  |line 149, col 32 to line 149, col 41 of module Trace: 4
+  line 150, col 8 to line 150, col 28 of module Trace: 8
+  |line 150, col 8 to line 150, col 20 of module Trace: 4
+  |line 150, col 24 to line 150, col 28 of module Trace: 4
+  line 150, col 33 to line 150, col 62 of module Trace: 8
+  |line 150, col 33 to line 150, col 51 of module Trace: 4
+  |line 150, col 55 to line 150, col 62 of module Trace: 4
+  line 44, col 21 to line 44, col 38 of module base: 4
+  line 44, col 43 to line 44, col 61 of module base: 4
+  line 60, col 20 to line 60, col 51 of module Trace: 8
+  |line 60, col 20 to line 60, col 27 of module Trace: 4
+  |line 60, col 31 to line 60, col 51 of module Trace: 4
+  line 152, col 21 to line 152, col 24 of module Trace: 4
+  line 61, col 24 to line 61, col 35 of module Trace: 4
+  line 61, col 40 to line 61, col 67 of module Trace: 8
+  |line 61, col 40 to line 61, col 56 of module Trace: 4
+  |line 61, col 60 to line 61, col 67 of module Trace: 4
+  line 152, col 47 to line 152, col 50 of module Trace: 4
+  line 62, col 23 to line 62, col 31 of module Trace: 4
+  line 62, col 36 to line 62, col 59 of module Trace: 8
+  |line 62, col 36 to line 62, col 51 of module Trace: 4
+  |line 62, col 55 to line 62, col 59 of module Trace: 4
+  line 152, col 72 to line 152, col 75 of module Trace: 4
+  line 63, col 25 to line 63, col 41 of module Trace: 8
+  |line 63, col 25 to line 63, col 32 of module Trace: 4
+  line 153, col 32 to line 153, col 40 of module Trace: 4
+<TraceSyncApplied line 155, col 1 to line 155, col 16 of module Trace>: 2:4
+  line 57, col 18 to line 57, col 35 of module Trace: 4
+  |line 57, col 18 to line 57, col 18 of module Trace: 34
+  |line 57, col 23 to line 57, col 35 of module Trace: 34
+  line 57, col 40 to line 57, col 47 of module Trace: 38
+  |line 57, col 40 to line 57, col 43 of module Trace: 34
+  |line 57, col 47 to line 57, col 47 of module Trace: 34
+  line 233, col 8 to line 233, col 19 of module base: 8
+  |line 233, col 8 to line 233, col 8 of module base: 4
+  |line 233, col 14 to line 233, col 19 of module base: 4
+  line 233, col 24 to line 233, col 35 of module base: 8
+  |line 233, col 24 to line 233, col 24 of module base: 4
+  |line 233, col 30 to line 233, col 35 of module base: 4
+  line 233, col 40 to line 233, col 44 of module base: 4
+  line 233, col 49 to line 233, col 53 of module base: 4
+  line 234, col 8 to line 234, col 25 of module base: 8
+  |line 234, col 8 to line 234, col 18 of module base: 4
+  |line 234, col 22 to line 234, col 25 of module base: 4
+  line 234, col 30 to line 234, col 51 of module base: 8
+  |line 234, col 30 to line 234, col 42 of module base: 4
+  |line 234, col 46 to line 234, col 51 of module base: 4
+  line 235, col 8 to line 235, col 41 of module base: 8
+  |line 235, col 8 to line 235, col 11 of module base: 4
+  |line 235, col 17 to line 235, col 41 of module base: 4
+  line 236, col 8 to line 238, col 60 of module base: 4
+  line 239, col 8 to line 241, col 60 of module base: 4
+  line 242, col 8 to line 243, col 66 of module base: 4
+  line 244, col 8 to line 246, col 60 of module base: 4
+  line 247, col 8 to line 249, col 60 of module base: 4
+  line 250, col 8 to line 250, col 32 of module base: 4
+  line 251, col 8 to line 255, col 53 of module base: 4
+  line 157, col 18 to line 157, col 21 of module Trace: 4
+  line 157, col 24 to line 157, col 27 of module Trace: 4
+  line 157, col 30 to line 157, col 37 of module Trace: 4
+  line 157, col 40 to line 157, col 41 of module Trace: 4
+  line 64, col 24 to line 64, col 46 of module Trace: 8
+  |line 64, col 24 to line 64, col 35 of module Trace: 4
+  |line 64, col 39 to line 64, col 46 of module Trace: 4
+  line 158, col 25 to line 158, col 28 of module Trace: 4
+  line 158, col 34 to line 158, col 55 of module Trace: 8
+  |line 158, col 34 to line 158, col 50 of module Trace: 4
+  |line 158, col 54 to line 158, col 55 of module Trace: 4
+  line 60, col 20 to line 60, col 51 of module Trace: 8
+  |line 60, col 20 to line 60, col 27 of module Trace: 4
+  |line 60, col 31 to line 60, col 51 of module Trace: 4
+  line 159, col 21 to line 159, col 24 of module Trace: 4
+  line 159, col 30 to line 159, col 60 of module Trace: 8
+  |line 159, col 30 to line 159, col 49 of module Trace: 4
+  |line 159, col 53 to line 159, col 60 of module Trace: 4
+  line 160, col 8 to line 160, col 23 of module Trace: 8
+  |line 160, col 8 to line 160, col 12 of module Trace: 4
+  |line 160, col 16 to line 160, col 23 of module Trace: 4
+  line 160, col 28 to line 160, col 36 of module Trace: 4
+<TraceSyncProposal line 162, col 1 to line 162, col 17 of module Trace>: 0:0
+  line 163, col 8 to line 163, col 38 of module Trace: 32
+  line 260, col 8 to line 260, col 56 of module base: 0
+  line 261, col 8 to line 261, col 60 of module base: 0
+  line 262, col 8 to line 262, col 45 of module base: 0
+  line 263, col 8 to line 263, col 42 of module base: 0
+  line 264, col 8 to line 268, col 73 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceSyncCommit line 169, col 1 to line 169, col 15 of module Trace>: 0:0
+  line 170, col 8 to line 170, col 35 of module Trace: 32
+  line 273, col 8 to line 273, col 62 of module base: 0
+  line 274, col 8 to line 274, col 58 of module base: 0
+  line 275, col 8 to line 275, col 38 of module base: 0
+  line 276, col 8 to line 281, col 36 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceBootstrapSnapshot line 176, col 1 to line 176, col 22 of module Trace>: 0:0
+  line 177, col 8 to line 177, col 35 of module Trace: 32
+  line 286, col 8 to line 286, col 28 of module base: 1
+  line 286, col 33 to line 286, col 59 of module base: 1
+  |line 286, col 33 to line 286, col 38 of module base: 1
+  |line 286, col 44 to line 286, col 59 of module base: 1
+  ||line 286, col 44 to line 286, col 46 of module base: 1
+  |||line 24, col 13 to line 28, col 30 of module Trace: 1
+  ||||line 24, col 21 to line 28, col 29 of module Trace: 1
+  |||||line 24, col 27 to line 28, col 29 of module Trace: 1
+  ||||||line 25, col 5 to line 27, col 47 of module Trace: 286
+  |||||||line 25, col 8 to line 26, col 42 of module Trace: 286
+  ||||||||line 25, col 8 to line 25, col 47 of module Trace: 286
+  ||||||||line 26, col 11 to line 26, col 42 of module Trace: 182
+  |||||||line 27, col 10 to line 27, col 39 of module Trace: 182
+  |||||||line 27, col 46 to line 27, col 47 of module Trace: 104
+  ||||||line 28, col 13 to line 28, col 28 of module Trace: 1
+  ||line 286, col 53 to line 286, col 59 of module base: 1:2
+  |||line 286, col 54 to line 286, col 58 of module base: 1
+  line 287, col 8 to line 287, col 29 of module base: 1
+  line 288, col 8 to line 288, col 65 of module base: 1
+  line 289, col 8 to line 289, col 63 of module base: 0
+  line 290, col 8 to line 290, col 58 of module base: 0
+  line 291, col 8 to line 291, col 40 of module base: 0
+  line 292, col 8 to line 297, col 36 of module base: 0
+  line 178, col 26 to line 178, col 29 of module Trace: 1
+  line 178, col 32 to line 178, col 33 of module Trace: 1
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceNewLeaderAck line 183, col 1 to line 183, col 17 of module Trace>: 1:2
+  line 57, col 18 to line 57, col 35 of module Trace: 2
+  |line 57, col 18 to line 57, col 18 of module Trace: 32
+  |line 57, col 23 to line 57, col 35 of module Trace: 32
+  line 57, col 40 to line 57, col 47 of module Trace: 34
+  |line 57, col 40 to line 57, col 43 of module Trace: 32
+  |line 57, col 47 to line 57, col 47 of module Trace: 32
+  line 300, col 8 to line 300, col 19 of module base: 4
+  |line 300, col 8 to line 300, col 8 of module base: 2
+  |line 300, col 14 to line 300, col 19 of module base: 2
+  line 300, col 24 to line 300, col 35 of module base: 4
+  |line 300, col 24 to line 300, col 24 of module base: 2
+  |line 300, col 30 to line 300, col 35 of module base: 2
+  line 300, col 40 to line 300, col 44 of module base: 2
+  line 300, col 49 to line 300, col 67 of module base: 4
+  |line 300, col 49 to line 300, col 55 of module base: 2
+  line 301, col 8 to line 301, col 32 of module base: 4
+  |line 301, col 8 to line 301, col 8 of module base: 2
+  |line 301, col 17 to line 301, col 32 of module base: 2
+  line 302, col 8 to line 302, col 64 of module base: 2
+  |line 302, col 25 to line 302, col 64 of module base: 2
+  ||line 302, col 26 to line 302, col 38 of module base: 2
+  ||line 302, col 47 to line 302, col 63 of module base: 2
+  ||line 302, col 54 to line 302, col 63 of module base: 2
+  |||line 302, col 61 to line 302, col 63 of module base: 2:2
+  ||||line 302, col 62 to line 302, col 62 of module base: 2
+  line 303, col 8 to line 303, col 41 of module base: 2
+  line 304, col 8 to line 309, col 53 of module base: 2
+  line 185, col 27 to line 185, col 30 of module Trace: 2
+  line 185, col 33 to line 185, col 36 of module Trace: 2
+  line 186, col 8 to line 186, col 36 of module Trace: 4
+  |line 186, col 8 to line 186, col 11 of module Trace: 2
+  |line 186, col 17 to line 186, col 36 of module Trace: 2
+  line 60, col 20 to line 60, col 51 of module Trace: 4
+  |line 60, col 20 to line 60, col 27 of module Trace: 2
+  |line 60, col 31 to line 60, col 51 of module Trace: 2
+  line 187, col 21 to line 187, col 24 of module Trace: 2
+  line 61, col 24 to line 61, col 35 of module Trace: 2
+  line 61, col 40 to line 61, col 67 of module Trace: 4
+  |line 61, col 40 to line 61, col 56 of module Trace: 2
+  |line 61, col 60 to line 61, col 67 of module Trace: 2
+  line 187, col 47 to line 187, col 50 of module Trace: 2
+  line 62, col 23 to line 62, col 31 of module Trace: 2
+  line 62, col 36 to line 62, col 59 of module Trace: 4
+  |line 62, col 36 to line 62, col 51 of module Trace: 2
+  |line 62, col 55 to line 62, col 59 of module Trace: 2
+  line 187, col 72 to line 187, col 75 of module Trace: 2
+  line 63, col 25 to line 63, col 41 of module Trace: 4
+  |line 63, col 25 to line 63, col 32 of module Trace: 2
+  line 188, col 32 to line 188, col 40 of module Trace: 2
+<TraceLeaderReady line 190, col 1 to line 190, col 16 of module Trace>: 0:0
+  line 191, col 8 to line 191, col 38 of module Trace: 31
+  line 316, col 8 to line 316, col 48 of module base: 0
+  line 317, col 8 to line 317, col 34 of module base: 0
+  line 318, col 8 to line 323, col 37 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceUpToDate line 197, col 1 to line 197, col 13 of module Trace>: 0:0
+  line 198, col 8 to line 198, col 30 of module Trace: 31
+  line 328, col 8 to line 328, col 43 of module base: 0
+  line 329, col 8 to line 329, col 35 of module base: 0
+  line 330, col 8 to line 335, col 53 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceFollowerReady line 204, col 1 to line 204, col 18 of module Trace>: 0:0
+  line 205, col 8 to line 205, col 40 of module Trace: 31
+  line 341, col 8 to line 341, col 48 of module base: 0
+  line 342, col 8 to line 342, col 36 of module base: 0
+  line 343, col 8 to line 348, col 37 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceProposal line 212, col 1 to line 212, col 13 of module Trace>: 0:0
+  line 213, col 8 to line 213, col 26 of module Trace: 31
+  line 357, col 8 to line 357, col 49 of module base: 0
+  line 358, col 8 to line 358, col 56 of module base: 0
+  line 359, col 8 to line 359, col 30 of module base: 0
+  line 360, col 8 to line 365, col 36 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceProposalReceived line 219, col 1 to line 219, col 21 of module Trace>: 0:0
+  line 220, col 8 to line 220, col 34 of module Trace: 31
+  line 371, col 8 to line 371, col 56 of module base: 0
+  line 372, col 8 to line 372, col 45 of module base: 0
+  line 373, col 8 to line 373, col 38 of module base: 0
+  line 374, col 8 to line 379, col 36 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceAppend line 226, col 1 to line 226, col 11 of module Trace>: 0:0
+  line 227, col 8 to line 227, col 27 of module Trace: 31
+  line 384, col 8 to line 384, col 60 of module base: 0
+  line 385, col 8 to line 385, col 32 of module base: 0
+  line 386, col 8 to line 391, col 53 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceDurable line 232, col 1 to line 232, col 12 of module Trace>: 0:0
+  line 233, col 8 to line 233, col 28 of module Trace: 31
+  line 396, col 8 to line 396, col 58 of module base: 0
+  line 397, col 8 to line 397, col 31 of module base: 0
+  line 398, col 8 to line 403, col 53 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceAckSent line 238, col 1 to line 238, col 12 of module Trace>: 0:0
+  line 239, col 8 to line 239, col 25 of module Trace: 31
+  line 44, col 21 to line 44, col 38 of module base: 0
+  line 44, col 43 to line 44, col 61 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceAckReceived line 246, col 1 to line 246, col 16 of module Trace>: 0:0
+  line 247, col 8 to line 247, col 29 of module Trace: 31
+  line 410, col 8 to line 410, col 64 of module base: 0
+  line 411, col 8 to line 411, col 33 of module base: 0
+  line 412, col 8 to line 417, col 53 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceCommit line 253, col 1 to line 253, col 11 of module Trace>: 0:0
+  line 254, col 8 to line 254, col 24 of module Trace: 31
+  line 424, col 8 to line 424, col 50 of module base: 0
+  line 425, col 8 to line 425, col 62 of module base: 0
+  line 426, col 8 to line 426, col 37 of module base: 0
+  line 427, col 8 to line 432, col 36 of module base: 0
+  line 438, col 8 to line 438, col 62 of module base: 0
+  line 439, col 8 to line 439, col 36 of module base: 0
+  line 440, col 8 to line 445, col 53 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceApply line 263, col 1 to line 263, col 10 of module Trace>: 0:0
+  line 264, col 8 to line 264, col 23 of module Trace: 31
+  line 450, col 8 to line 450, col 58 of module base: 0
+  line 451, col 8 to line 451, col 31 of module base: 0
+  line 452, col 8 to line 457, col 53 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceCrash line 269, col 1 to line 269, col 10 of module Trace>: 0:0
+  line 270, col 8 to line 270, col 29 of module Trace: 31
+  line 463, col 8 to line 463, col 37 of module base: 0
+  line 464, col 8 to line 464, col 42 of module base: 0
+  line 465, col 8 to line 465, col 50 of module base: 0
+  line 466, col 8 to line 466, col 45 of module base: 0
+  line 467, col 8 to line 467, col 48 of module base: 0
+  line 468, col 8 to line 468, col 52 of module base: 0
+  line 469, col 8 to line 469, col 54 of module base: 0
+  line 470, col 8 to line 470, col 50 of module base: 0
+  line 471, col 8 to line 471, col 28 of module base: 0
+  line 472, col 8 to line 476, col 37 of module base: 0
+  line 58, col 14 to line 58, col 23 of module Trace: 0
+<TraceNext line 279, col 1 to line 279, col 9 of module Trace (290 8 290 50)>: 0:0
+  line 290, col 11 to line 290, col 27 of module Trace: 31
+  line 290, col 32 to line 290, col 50 of module Trace: 0
+<TypeOK line 511, col 1 to line 511, col 6 of module base>
+  line 512, col 5 to line 536, col 38 of module base: 31
+  |line 512, col 8 to line 512, col 33 of module base: 31
+  |line 513, col 8 to line 513, col 33 of module base: 31
+  |line 514, col 8 to line 514, col 52 of module base: 31
+  ||line 514, col 8 to line 514, col 15 of module base: 31
+  ||line 514, col 21 to line 514, col 52 of module base: 31
+  |||line 514, col 22 to line 514, col 27 of module base: 31
+  |||line 514, col 32 to line 514, col 51 of module base: 31
+  ||||line 514, col 32 to line 514, col 37 of module base: 31
+  ||||line 514, col 44 to line 514, col 51 of module base: 31:62
+  |||||line 514, col 45 to line 514, col 50 of module base: 31
+  |line 515, col 8 to line 515, col 48 of module base: 31
+  |line 516, col 8 to line 516, col 47 of module base: 31
+  |line 517, col 8 to line 517, col 50 of module base: 31
+  |line 518, col 8 to line 518, col 49 of module base: 31
+  |line 519, col 8 to line 519, col 49 of module base: 31
+  |line 520, col 8 to line 520, col 46 of module base: 31
+  |line 521, col 8 to line 521, col 54 of module base: 31
+  |line 522, col 8 to line 522, col 50 of module base: 31
+  |line 523, col 8 to line 523, col 37 of module base: 31
+  |line 524, col 8 to line 524, col 50 of module base: 31
+  ||line 524, col 8 to line 524, col 17 of module base: 31
+  ||line 524, col 23 to line 524, col 50 of module base: 31
+  |||line 524, col 24 to line 524, col 29 of module base: 31
+  |||line 524, col 34 to line 524, col 49 of module base: 31
+  ||||line 524, col 34 to line 524, col 36 of module base: 31
+  ||||line 524, col 43 to line 524, col 49 of module base: 31:62
+  |||||line 524, col 44 to line 524, col 48 of module base: 31
+  |line 525, col 8 to line 525, col 44 of module base: 31
+  |line 526, col 8 to line 526, col 43 of module base: 31
+  |line 527, col 8 to line 527, col 45 of module base: 31
+  |line 528, col 8 to line 528, col 44 of module base: 31
+  |line 529, col 8 to line 529, col 46 of module base: 31
+  |line 530, col 8 to line 530, col 44 of module base: 31
+  |line 531, col 8 to line 531, col 45 of module base: 31
+  |line 532, col 8 to line 532, col 52 of module base: 31
+  ||line 532, col 8 to line 532, col 19 of module base: 31
+  ||line 532, col 25 to line 532, col 52 of module base: 31
+  |||line 532, col 26 to line 532, col 31 of module base: 31
+  |||line 532, col 36 to line 532, col 51 of module base: 31
+  ||||line 532, col 36 to line 532, col 38 of module base: 31
+  ||||line 532, col 45 to line 532, col 51 of module base: 31:62
+  |||||line 532, col 46 to line 532, col 50 of module base: 31
+  |line 533, col 8 to line 533, col 51 of module base: 31
+  ||line 533, col 8 to line 533, col 17 of module base: 31
+  ||line 533, col 23 to line 533, col 51 of module base: 31
+  |||line 533, col 24 to line 533, col 26 of module base: 31
+  |||line 533, col 31 to line 533, col 50 of module base: 31
+  ||||line 533, col 31 to line 533, col 36 of module base: 31
+  ||||line 533, col 43 to line 533, col 50 of module base: 31:62
+  |||||line 533, col 44 to line 533, col 49 of module base: 31
+  |line 534, col 8 to line 534, col 40 of module base: 31
+  |line 535, col 8 to line 535, col 36 of module base: 31
+  |line 536, col 8 to line 536, col 38 of module base: 31
+<EpochConsistency line 538, col 1 to line 538, col 16 of module base>
+  line 539, col 5 to line 542, col 49 of module base: 31
+  |line 540, col 9 to line 542, col 49 of module base: 93
+  |line 539, col 14 to line 539, col 19 of module base: 31
+<PipelineOrdering line 544, col 1 to line 544, col 16 of module base>
+  line 545, col 5 to line 548, col 50 of module base: 31
+  |line 546, col 9 to line 548, col 50 of module base: 93
+  ||line 546, col 12 to line 546, col 57 of module base: 93
+  |||line 546, col 12 to line 546, col 16 of module base: 93
+  |||line 546, col 21 to line 546, col 57 of module base: 87
+  ||line 547, col 12 to line 547, col 78 of module base: 93
+  |||line 547, col 12 to line 547, col 16 of module base: 93
+  |||line 547, col 21 to line 547, col 78 of module base: 87
+  ||line 548, col 12 to line 548, col 50 of module base: 93
+  |line 545, col 14 to line 545, col 19 of module base: 31
+<GlobalCommitHasVotingDurability line 550, col 1 to line 550, col 31 of module base>
+  line 551, col 5 to line 551, col 79 of module base: 31
+<CommittedHistoriesArePrefixes line 553, col 1 to line 553, col 29 of module base>
+  line 554, col 5 to line 555, col 95 of module base: 31
+  |line 555, col 10 to line 555, col 95 of module base: 279
+  |line 554, col 16 to line 554, col 21 of module base: 31
+<SingleReadyLeaderPerEpoch line 557, col 1 to line 557, col 25 of module base>
+  line 558, col 5 to line 559, col 91 of module base: 31
+  |line 559, col 7 to line 559, col 91 of module base: 93
+  |line 558, col 14 to line 558, col 24 of module base: 31
+<ServingEpochDurable line 561, col 1 to line 561, col 19 of module base>
+  line 562, col 5 to line 562, col 65 of module base: 31
+<AppliedWasGloballyCommitted line 564, col 1 to line 564, col 27 of module base>
+  line 565, col 5 to line 565, col 61 of module base: 31
+  |line 565, col 23 to line 565, col 61 of module base: 93
+  |line 565, col 14 to line 565, col 19 of module base: 31
+End of statistics.
+33 states generated, 31 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 31.
+Finished in 01s at (2026-09-04 17:38:02)
+Trace exploration spec path: ./Trace_TTrace_1788543481.tla

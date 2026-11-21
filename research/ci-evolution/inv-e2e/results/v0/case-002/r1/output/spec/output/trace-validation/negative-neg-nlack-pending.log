@@ -1,0 +1,79 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 300s env JSON=../traces/negative/neg-nlack-pending.ndjson java -Xmx4g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-validation/negative-neg-nlack-pending.10121 Trace.tla 
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 112 and seed 441913135286148240 with 2 workers on 40 cores with 3641MB heap and 64MB offheap memory [pid: 10143] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Trace.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-651750761386091898/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-651750761386091898/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-651750761386091898/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-651750761386091898/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-651750761386091898/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-651750761386091898/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-651750761386091898/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-651750761386091898/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-651750761386091898/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Trace
+Starting... (2026-11-18 13:57:35)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 13:57:35.
+Progress(16) at 2026-11-18 13:57:35: 16 states generated, 16 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 16 total distinct states at (2026-11-18 13:57:35)
+Error: Temporal property TraceMatched was violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+
+State 2: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 3: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 4: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 5: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 6: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 7: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 8: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 9: <TraceDeliverPacket line 169, col 5 to line 178, col 36 of module Trace>
+
+State 10: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 11: <TraceDeliverPacket line 169, col 5 to line 178, col 36 of module Trace>
+
+State 12: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 13: <TraceDeliverPacket line 169, col 5 to line 178, col 36 of module Trace>
+
+State 14: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 15: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 16: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+
+State 17: Stuttering
+Finished checking temporal properties in 00s at 2026-11-18 13:57:35
+16 states generated, 16 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 16.
+Finished in 01s at (2026-11-18 13:57:35)
+Trace exploration spec path: ./Trace_TTrace_1795010254.tla

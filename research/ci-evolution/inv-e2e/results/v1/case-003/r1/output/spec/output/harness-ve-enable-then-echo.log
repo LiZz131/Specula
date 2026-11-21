@@ -1,0 +1,13 @@
+# command: (cd /work/current/.specula-output/artifact && timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/ve_enable_then_echo.ndjson  go test -mod=readonly ./internal/state -run '^TestSpeculaTraceVEEnableThenEcho$' -count=1 -v)
+=== RUN   TestSpeculaTraceVEEnableThenEcho
+I[2026-11-18|19:02:21.949] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|19:02:21.949] executed block                               height=1 app_hash=
+I[2026-11-18|19:02:21.974] committed state                              height=1 block_app_hash=
+    specula_trace_test.go:274: SPECULA_OBSERVED height=1 outcome=accepted veh=2 lastParamChange=2
+I[2026-11-18|19:02:22.034] finalized block                              height=2 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|19:02:22.034] executed block                               height=2 app_hash=
+    specula_trace_test.go:274: SPECULA_OBSERVED height=2 outcome=rejected err=commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 2, current height 2
+--- PASS: TestSpeculaTraceVEEnableThenEcho (0.17s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.187s
+# exit: 0

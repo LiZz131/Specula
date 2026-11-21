@@ -1,0 +1,25 @@
+{
+  "schema_version": "2",
+  "system": "CometBFT state execution and recovery (V1 incremental, source 401753b)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Unchanged, already-reached VoteExtensionsEnableHeight update is rejected — permanent chain halt",
+      "source": "model-checking",
+      "scenario": "U2 (re-sent unchanged enable height after it is reached); U7 (enable, then re-send)",
+      "severity": "High",
+      "invariant": "UnchangedVENotRejected",
+      "config": "Update_full.cfg",
+      "counterexample": "spec/output/MC-1_counterexample_Update_full.log",
+      "affected_code": [
+        "types/params.go:243-248",
+        "types/params.go:219-261",
+        "internal/state/execution.go:612-625",
+        "internal/consensus/state.go:1834-1836",
+        "internal/consensus/replay.go:409-415"
+      ],
+      "summary": "The updated ConsensusParams.ValidateUpdate dropped the old 'unchanged value -> nil' short-cut, so an application update whose Abci sub-record repeats the current VoteExtensionsEnableHeight P is rejected by row 6 (upd <= h) once P <= h, although rows 3 and 9 still accept unchanged values. updateState runs after the FinalizeBlock response is durable; the error makes ApplyBlock fail, consensus/blocksync panic, and every restart replays the stored block through the real app and is rejected again, so the chain halts permanently. TLC counterexample: genesis VEH=1, block 1 returns the unchanged parameter set, UpdateStateRejectedVE (6 states). Reproduced on 401753b (instrumented and clean) by harness/repro_MC-1.sh; the exact-old 9dd6e50 control accepts the same input."
+    }
+  ]
+}

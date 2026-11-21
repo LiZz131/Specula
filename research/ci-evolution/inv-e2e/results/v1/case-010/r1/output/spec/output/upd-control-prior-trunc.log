@@ -1,0 +1,75 @@
+CMD: timeout 720s java -XX:+UseParallelGC -Xmx10g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 2 -metadir /dev/shm/specula-e2e-case-010/upd-control-prior-trunc-24574 -config Update-control-prior-trunc.cfg  Update  (TLC wall limit 10m via outer timeout)
+START: 2026-11-20T01:14:02Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 69 and seed -8951555339613983959 with 2 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 24647] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-11143299625746570776/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-11143299625746570776/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-11143299625746570776/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-11143299625746570776/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-11143299625746570776/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-11143299625746570776/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-11143299625746570776/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 01:14:05)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 01:14:06.
+Progress(12) at 2026-11-20 01:14:09: 11,965 states generated (11,965 s/min), 3,594 distinct states found (3,594 ds/min), 1,379 states left on queue.
+Error: Invariant ExitedLearnerMemoryBackedByLog is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCLeaderPropose(s1) line 183, col 5 to line 186, col 28 of module MC>
+
+State 3: <MCFollowerLog(s2,1) line 189, col 5 to line 191, col 38 of module MC>
+
+State 4: <MCFlush(s1,1) line 194, col 5 to line 196, col 26 of module MC>
+
+State 5: <MCFlush(s2,1) line 194, col 5 to line 196, col 26 of module MC>
+
+State 6: <MCAck(s1,s1,1) line 205, col 5 to line 207, col 32 of module MC>
+
+State 7: <MCLearnerExit(s2) line 261, col 5 to line 264, col 90 of module MC>
+
+State 8: <MCFinishElection(s2,s1) line 55, col 5 to line 57, col 29 of module MC>
+
+State 9: <MCEnterDiscovery(s2) line 60, col 5 to line 64, col 26 of module MC>
+
+State 10: <MCEnterFollowerSync(s2) line 98, col 5 to line 105, col 26 of module MC>
+
+State 11: <MCAck(s1,s2,1) line 205, col 5 to line 207, col 32 of module MC>
+
+State 12: <MCCommit(s1,1) line 210, col 5 to line 212, col 29 of module MC>
+
+State 13: <MCChooseSync(s2,"TRUNC") line 108, col 5 to line 111, col 85 of module MC>
+
+State 14: <MCTruncateLog(s2) line 119, col 5 to line 121, col 26 of module MC>
+
+State 15: <MCApplySyncCommit(s2,1) line 124, col 5 to line 126, col 30 of module MC>
+
+State 16: <MCLearnerExit(s2) line 261, col 5 to line 264, col 90 of module MC>
+
+75186 states generated, 19720 distinct states found, 6584 states left on queue.
+The depth of the complete state graph search is 16.
+Finished in 11s at (2026-11-20 01:14:14)
+Trace exploration spec path: ./Update_TTrace_1795137242.tla
+END: 2026-11-20T01:14:14Z exit=12

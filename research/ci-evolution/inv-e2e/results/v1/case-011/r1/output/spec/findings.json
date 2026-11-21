@@ -1,0 +1,30 @@
+{
+  "schema_version": "2",
+  "system": "openraft (election/pre-vote, V1 incremental)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Stale Pre-Vote round survives leader establishment and makes the new Leader start a real election",
+      "source": "model-checking",
+      "scenario": "U-S4 (Pre-Vote round x leader establishment)",
+      "severity": "Medium",
+      "invariant": "PreVoteNeverDemotesLeader",
+      "config": "spec/Update-hunt-stale-precandidate.cfg",
+      "counterexample": "spec/output/v1-mc-hunt-stale-precandidate-bfs.log",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:855-881",
+        "openraft/src/engine/handler/vote_handler/mod.rs:166-231",
+        "openraft/src/engine/engine_impl.rs:516-554",
+        "openraft/src/engine/engine_impl.rs:298-322",
+        "openraft/src/core/raft_core.rs:1959-2035",
+        "openraft/src/engine/engine_impl.rs:968-982"
+      ],
+      "summary": "With Pre-Vote enabled, the election timer of a node that is still a Candidate starts a Pre-Vote round for term T+1 while its term-T candidacy stays live (pre_elect does not end it; the tick skips only Leaders). If a delayed term-T grant then makes it Leader, establish_leader/become_leader leave Engine.pre_candidate in place. When the stale round's granted pre-vote responses reach quorum, handle_pre_vote_resp calls elect() on the established Leader: the vote becomes (T+1, self, uncommitted) and server_state Candidate while the term-T Engine.leader object remains, violating try_leader_handler's debug assertion leader.committed_vote >= state.vote (observed panicking on the real Engine in traces/candidate_pre_vote_then_leader.ndjson.observation.json) and disrupting a healthy, freshly elected leader, contrary to the Pre-Vote contract (pre_vote.md:3-5,14-20; trigger.rs:47-56). TLC found it with Pre-Vote always on, no administrative election, no crash and no message loss; the violation is also reached over the complete MCNext (spec/output/v1-mc-update-full-U4.log, 13 states) and its precursor (Leader holding a pre-candidate) in spec/output/v1-mc-update-full.log.",
+      "additional_counterexamples": [
+        "spec/output/v1-mc-update-full-U4.log",
+        "spec/output/v1-mc-update-full.log"
+      ]
+    }
+  ]
+}

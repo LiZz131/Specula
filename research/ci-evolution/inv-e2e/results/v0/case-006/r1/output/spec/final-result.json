@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "run_id": "case-006-v1-incremental",
+  "summary": "MODEL_CHANGE_REQUIRED: the read_only.go delete-key update frees released ReadIndex entries; the reference, trace harness and Update view were updated and validated on fresh traces. Model checking found one update-attributed defect: a reused RequestCtx can be released by a heartbeat response generated before the request, giving a stale linearizable read when a newer leader has committed.",
+  "validation_limits": [
+    "All BFS model-checking campaigns except reachability canaries stopped at planned time budgets with non-empty queues (LIMITED_COVERAGE); see spec/output/campaign-summary.md.",
+    "The inherited VIEW MCView omits fault counters, so bounded BFS runs that use it can miss paths needing the remaining counter budget; the S6b guided hunt runs without the VIEW.",
+    "Crash, Restart, LoseMessage and ReadyAdvance are not observable in the in-process harness and are covered only by model checking.",
+    "The specula CLI is not installed in this environment; specula ci-result could not be run and Part 4 confirmation was not delegated."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Reused ReadIndex context is released by an acknowledgement that predates it (stale linearizable read)",
+      "status": "NEEDS MORE INFO",
+      "source": "model-checking",
+      "cause": "readOnly.advance now deletes released requests (read_only.go:103), so addRequest accepts a previously used RequestCtx, while recvAck still matches heartbeat responses only by context and counts a response generated for the earlier use.",
+      "trigger": "Leader serves a read for ctx; one follower's response to that heartbeat is delayed; the caller reuses ctx after its ReadState is produced; the delayed response is delivered (stale value if a newer leader committed during a partition in between).",
+      "consequence": "The leader releases the new read without any acknowledgement generated after it was accepted; with a newer committed leader the ReadState index is below an index committed before the read began (stale linearizable read).",
+      "severity": "Medium",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/hunt-s6-linearizable-guided-v2.log",
+        "spec/output/hunt-s6-stale-ack.log",
+        "spec/output/trace-stale-read-reuse-witness.log",
+        "spec/output/s6-stale-read-controls.log",
+        "harness/src/specula_s6_stale_read_test.go"
+      ],
+      "persistence": {
+        "sites": [
+          "read_only.go:advance",
+          "read_only.go:addRequest",
+          "read_only.go:recvAck",
+          "raft.go:stepLeader"
+        ],
+        "premises": [
+          "A caller may reuse a RequestCtx after the ReadState for its previous use was produced (read_only.go:19-23 asks callers to differentiate states, e.g. with unique ids).",
+          "Heartbeat responses can be delayed and reordered."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "read_only.go"
+          },
+          {
+            "root": "source",
+            "path": "raft.go"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/UpdateProps.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC_hunt_s6_stale_ack.cfg"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC_hunt_s6_linearizable_guided_v2.cfg"
+          }
+        ]
+      }
+    }
+  ]
+}

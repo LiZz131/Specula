@@ -1,0 +1,631 @@
+diff --git a/openraft/src/lib.rs b/openraft/src/lib.rs
+index b11b68b..df8ba5b 100644
+--- a/openraft/src/lib.rs
++++ b/openraft/src/lib.rs
+@@ -45,6 +45,7 @@ mod raft_types;
+ mod replication;
+ mod runtime;
+ mod summary;
++mod tla_trace;
+ mod try_as_ref;
+ 
+ pub(crate) mod engine;
+diff --git a/openraft/src/raft/stream_append.rs b/openraft/src/raft/stream_append.rs
+index a4e7bd8..4abf374 100644
+--- a/openraft/src/raft/stream_append.rs
++++ b/openraft/src/raft/stream_append.rs
+@@ -65,6 +65,12 @@ where
+                 log_id_range,
+             };
+ 
++            crate::tla_trace::emit(
++                crate::tla_trace::Event::new("StreamEnqueue", inner_clone.id(), inner_clone.id(), "stream")
++                    .msg_int("prev", crate::tla_trace::log_index(&pending.log_id_range.prev))
++                    .msg_int("last", crate::tla_trace::log_index(&pending.log_id_range.last)),
++            );
++
+             if MpscSender::send(&tx, pending).await.is_err() {
+                 break;
+             }
+@@ -77,8 +83,22 @@ where
+ 
+         let resp = inner.recv_msg(p.response_rx).await.ok()?;
+         let range = p.log_id_range;
++        let (outcome, value) = match &resp {
++            AppendEntriesResponse::Success => ("success", crate::tla_trace::log_index(&range.last)),
++            AppendEntriesResponse::PartialSuccess(matching) => ("partial", crate::tla_trace::log_index(matching)),
++            AppendEntriesResponse::Conflict => ("conflict", crate::tla_trace::log_index(&range.prev)),
++            AppendEntriesResponse::HigherVote(_) => ("higher", -1),
++        };
+         let result = resp.into_stream_result(range.prev, range.last);
+ 
++        crate::tla_trace::emit(
++            crate::tla_trace::Event::new("StreamResult", inner.id(), inner.id(), "stream")
++                .msg_str("outcome", outcome)
++                .msg_int("value", value)
++                .state_bool("stream_stopped", result.is_err())
++                .state_str("last_stream_outcome", outcome),
++        );
++
+         if result.is_err() {
+             return Some((result, None));
+         }
+diff --git a/openraft/src/replication/mod.rs b/openraft/src/replication/mod.rs
+index 1f572f1..f8b1d0b 100644
+--- a/openraft/src/replication/mod.rs
++++ b/openraft/src/replication/mod.rs
+@@ -108,6 +108,15 @@ where
+ 
+     /// Next replication action to run.
+     next_action: Option<Data<C>>,
++
++    // Specula observation-only state. It is inert unless SPECULA_TRACE_FILE is set.
++    trace_active: bool,
++    trace_rpc_pending: bool,
++    trace_last_outcome: &'static str,
++    trace_attempt_count: u64,
++    trace_wait_count: u64,
++    trace_partial_count: u64,
++    trace_waiting: bool,
+ }
+ 
+ impl<C, N, LS> ReplicationCore<C, N, LS>
+@@ -168,8 +177,32 @@ where
+             },
+             rx_event,
+             next_action: None,
++            trace_active: true,
++            trace_rpc_pending: false,
++            trace_last_outcome: "none",
++            trace_attempt_count: 0,
++            trace_wait_count: 0,
++            trace_partial_count: 0,
++            trace_waiting: false,
+         };
+ 
++        crate::tla_trace::emit(
++            this.trace_event("TaskSpawn")
++                .state_bool("active", this.trace_active)
++                .state_int(
++                    "local_commit",
++                    crate::tla_trace::log_index(&this.replication_sate.local.committed),
++                )
++                .state_int(
++                    "remote_match",
++                    crate::tla_trace::log_index(&this.replication_sate.remote.last),
++                )
++                .state_int(
++                    "core_match",
++                    crate::tla_trace::log_index(&this.replication_sate.remote.last),
++                ),
++        );
++
+         let join_handle = C::spawn(this.main().instrument(span));
+ 
+         ReplicationHandle {
+@@ -186,7 +219,10 @@ where
+             let action = self.next_action.take();
+ 
+             let Some(d) = action else {
+-                self.drain_events_with_backoff().await?;
++                if let Err(closed) = self.drain_events_with_backoff().await {
++                    self.trace_close();
++                    return Err(closed);
++                }
+                 continue;
+             };
+ 
+@@ -218,7 +254,11 @@ where
+             match res {
+                 Ok(_) => {
+                     // reset backoff at once if replication succeeds
++                    let was_backing_off = self.backoff.is_some();
+                     self.backoff = None;
++                    if was_backing_off {
++                        crate::tla_trace::emit(self.trace_event("BackoffReset").state_bool("backoff_active", false));
++                    }
+                 }
+                 Err(err) => {
+                     tracing::warn!(error=%err, "error replication to target={}", self.task_state.target);
+@@ -231,12 +271,20 @@ where
+                             self.task_state
+                                 .tx_notify
+                                 .send(Notification::HigherVote {
+-                                    target: self.task_state.target,
++                                    target: self.task_state.target.clone(),
+                                     higher: h.higher,
+                                     leader_vote: self.task_state.session_id.committed_vote(),
+                                 })
+                                 .await
+                                 .ok();
++                            self.trace_active = false;
++                            self.trace_last_outcome = "higher";
++                            crate::tla_trace::emit(
++                                self.trace_event("AppendHigherVote")
++                                    .state_bool("active", self.trace_active)
++                                    .state_bool("rpc_pending", self.trace_rpc_pending)
++                                    .state_str("last_outcome", self.trace_last_outcome),
++                            );
+                             return Ok(());
+                         }
+                         ReplicationError::StorageError(error) => {
+@@ -248,6 +296,13 @@ where
+                         ReplicationError::RPCError(err) => {
+                             tracing::error!(err = display(&err), "RPCError");
+ 
++                            let error_kind = match &err {
++                                RPCError::Timeout(_) => "timeout",
++                                RPCError::Unreachable(_) => "unreachable",
++                                RPCError::Network(_) => "network",
++                                RPCError::RemoteError(_) => "remote",
++                            };
++
+                             match &err {
+                                 RPCError::Timeout(_) => {}
+                                 RPCError::Unreachable(_unreachable) => {
+@@ -268,12 +323,24 @@ where
+                             } else {
+                                 tracing::warn!("heartbeat RPC failed, do not send any response to RaftCore");
+                             };
++
++                            self.trace_last_outcome = error_kind;
++                            crate::tla_trace::emit(
++                                self.trace_event("AppendRpcError")
++                                    .msg_str("error_kind", error_kind)
++                                    .state_bool("rpc_pending", self.trace_rpc_pending)
++                                    .state_bool("backoff_active", self.backoff.is_some())
++                                    .state_str("last_outcome", self.trace_last_outcome),
++                            );
+                         }
+                     };
+                 }
+             };
+ 
+-            self.drain_events_with_backoff().await?;
++            if let Err(closed) = self.drain_events_with_backoff().await {
++                self.trace_close();
++                return Err(closed);
++            }
+         }
+     }
+ 
+@@ -362,7 +429,26 @@ where
+ 
+         let the_timeout = Duration::from_millis(self.task_state.config.heartbeat_interval);
+         let option = RPCOption::new(the_timeout);
++
++        self.trace_attempt_count += 1;
++        self.trace_rpc_pending = true;
++        let sent_kind = if self.inflight_id.is_some() {
++            "logs"
++        } else {
++            "committed"
++        };
++        crate::tla_trace::emit(
++            self.trace_event("SendAppend")
++                .msg_int("last", crate::tla_trace::log_index(&sending_range.last))
++                .state_bool("rpc_pending", self.trace_rpc_pending)
++                .state_str("sent_kind", sent_kind)
++                .state_int("sent_prev", crate::tla_trace::log_index(&sending_range.prev))
++                .state_int("sent_last", crate::tla_trace::log_index(&sending_range.last))
++                .state_int("sent_inflight", self.inflight_id.map(|x| i128::from(*x)).unwrap_or(-1))
++                .state_int("attempt_count", self.trace_attempt_count as i128),
++        );
+         let res = C::timeout(the_timeout, self.network.append_entries(payload, option)).await;
++        self.trace_rpc_pending = false;
+ 
+         tracing::debug!("append_entries res: {:?}", res);
+ 
+@@ -395,6 +481,9 @@ where
+                     self.notify_progress(ReplicationResult(Ok(matching.clone()))).await;
+                     self.update_next_action_to_send(matching.clone(), log_id_range);
+                 }
++                self.trace_last_outcome = "success";
++                let event = self.trace_pending_state(self.trace_response_state("AppendSuccess"));
++                crate::tla_trace::emit(event);
+                 Ok(())
+             }
+             AppendEntriesResponse::PartialSuccess(matching) => {
+@@ -407,6 +496,13 @@ where
+                     self.notify_progress(ReplicationResult(Ok(matching.clone()))).await;
+                     self.update_next_action_to_send(matching.clone(), log_id_range);
+                 }
++                self.trace_last_outcome = "partial";
++                self.trace_partial_count += 1;
++                let event = self
++                    .trace_pending_state(self.trace_response_state("AppendPartial"))
++                    .msg_int("matching", crate::tla_trace::log_index(&matching))
++                    .state_int("partial_count", self.trace_partial_count as i128);
++                crate::tla_trace::emit(event);
+                 Ok(())
+             }
+             AppendEntriesResponse::HigherVote(vote) => {
+@@ -436,6 +532,13 @@ where
+                 // because a heartbeat could also cause a conflict if the follower's state reverts.
+                 self.notify_progress(ReplicationResult(Err(conflict))).await;
+ 
++                self.trace_last_outcome = "conflict";
++                crate::tla_trace::emit(
++                    self.trace_event("AppendConflict")
++                        .state_bool("rpc_pending", self.trace_rpc_pending)
++                        .state_str("last_outcome", self.trace_last_outcome),
++                );
++
+                 Ok(())
+             }
+         }
+@@ -527,6 +630,14 @@ where
+             func_name!()
+         );
+ 
++        self.trace_wait_count += 1;
++        self.trace_waiting = true;
++        crate::tla_trace::emit(
++            self.trace_event("BackoffBegin")
++                .state_bool("waiting", self.trace_waiting)
++                .state_int("wait_count", self.trace_wait_count as i128),
++        );
++
+         loop {
+             let sleep_duration = until - C::now();
+             let sleep = C::sleep(sleep_duration);
+@@ -538,6 +649,10 @@ where
+             futures::select! {
+                 _ = sleep.fuse() => {
+                     tracing::debug!("backoff timeout");
++                    self.trace_waiting = false;
++                    crate::tla_trace::emit(
++                        self.trace_event("BackoffEnd").state_bool("waiting", self.trace_waiting),
++                    );
+                     return Ok(());
+                 }
+                 recv_res = recv.fuse() => {
+@@ -611,6 +726,18 @@ where
+                 if self.next_action.is_none() {
+                     self.next_action = Some(Data::new_committed());
+                 }
++
++                let event = self
++                    .trace_pending_state(self.trace_event("ReceiveCommitted"))
++                    .msg_int(
++                        "committed",
++                        crate::tla_trace::log_index(&self.replication_sate.local.committed),
++                    )
++                    .state_int(
++                        "local_commit",
++                        crate::tla_trace::log_index(&self.replication_sate.local.committed),
++                    );
++                crate::tla_trace::emit(event);
+             }
+             Replicate::Data { data: d } => {
+                 // TODO: Currently there is at most 1 in flight data. But in future RaftCore may send next data
+@@ -622,10 +749,72 @@ where
+                 );
+ 
+                 self.next_action = Some(d);
++
++                let (kind, prev, last, inflight) = self.trace_pending_values();
++                debug_assert_eq!(kind, "logs");
++                let event = self
++                    .trace_pending_state(self.trace_event("ReceiveLogs"))
++                    .msg_int("prev", prev)
++                    .msg_int("last", last)
++                    .msg_int("inflight", inflight);
++                crate::tla_trace::emit(event);
+             }
+         }
+     }
+ 
++    fn trace_event(&self, name: &'static str) -> crate::tla_trace::Event {
++        crate::tla_trace::Event::new(
++            name,
++            &self.task_state.id,
++            &self.task_state.target,
++            &self.task_state.session_id,
++        )
++    }
++
++    fn trace_pending_values(&self) -> (&'static str, i128, i128, i128) {
++        match &self.next_action {
++            None => ("none", -1, -1, -1),
++            Some(Data::Committed) => {
++                let matching = crate::tla_trace::log_index(&self.replication_sate.remote.last);
++                ("committed", matching, matching, -1)
++            }
++            Some(Data::Logs {
++                inflight_id,
++                log_id_range,
++            }) => (
++                "logs",
++                crate::tla_trace::log_index(&log_id_range.prev),
++                crate::tla_trace::log_index(&log_id_range.last),
++                i128::from(**inflight_id),
++            ),
++        }
++    }
++
++    fn trace_pending_state(&self, event: crate::tla_trace::Event) -> crate::tla_trace::Event {
++        let (kind, prev, last, inflight) = self.trace_pending_values();
++        event
++            .state_str("pending_kind", kind)
++            .state_int("pending_prev", prev)
++            .state_int("pending_last", last)
++            .state_int("pending_inflight", inflight)
++    }
++
++    fn trace_response_state(&self, name: &'static str) -> crate::tla_trace::Event {
++        self.trace_event(name)
++            .state_bool("rpc_pending", self.trace_rpc_pending)
++            .state_int(
++                "remote_match",
++                crate::tla_trace::log_index(&self.replication_sate.remote.last),
++            )
++            .state_str("last_outcome", self.trace_last_outcome)
++    }
++
++    fn trace_close(&mut self) {
++        self.trace_active = false;
++        self.trace_rpc_pending = false;
++        crate::tla_trace::emit(self.trace_event("TaskClose").state_bool("active", self.trace_active));
++    }
++
+     /// If there are more logs to send, it returns a new `Some(Data::Logs)` to send.
+     fn update_next_action_to_send(&mut self, matching: Option<LogIdOf<C>>, log_ids: LogIdRange<C>) {
+         let next = if matching < log_ids.last {
+diff --git a/openraft/src/replication/snapshot_transmitter.rs b/openraft/src/replication/snapshot_transmitter.rs
+index ec2a818..9f3836e 100644
+--- a/openraft/src/replication/snapshot_transmitter.rs
++++ b/openraft/src/replication/snapshot_transmitter.rs
+@@ -57,6 +57,10 @@ where
+ 
+     /// The handle to get a snapshot directly from the state machine.
+     snapshot_reader: SnapshotReader<C>,
++
++    // Specula observation-only counters.
++    trace_attempt_count: u64,
++    trace_wait_count: u64,
+ }
+ 
+ impl<C, N> SnapshotTransmitter<C, N>
+@@ -78,8 +82,19 @@ where
+             network,
+             backoff: None,
+             snapshot_reader,
++            trace_attempt_count: 0,
++            trace_wait_count: 0,
+         };
+ 
++        crate::tla_trace::emit(
++            snapshot_transmit
++                .trace_event("SnapshotStart")
++                .msg_int("inflight", i128::from(*snapshot_transmit.inflight_id))
++                .state_bool("snapshot_active", true)
++                .state_str("core_inflight_kind", "snapshot")
++                .state_int("core_inflight_id", i128::from(*snapshot_transmit.inflight_id)),
++        );
++
+         let join_handle = C::spawn(snapshot_transmit.stream_snapshot());
+ 
+         SnapshotTransmitterHandle {
+@@ -132,6 +147,12 @@ where
+                     return;
+                 }
+                 ReplicationError::RPCError(err) => {
++                    let error_kind = match &err {
++                        RPCError::Timeout(_) => "timeout",
++                        RPCError::Unreachable(_) => "unreachable",
++                        RPCError::Network(_) => "network",
++                        RPCError::RemoteError(_) => "remote",
++                    };
+                     match &err {
+                         RPCError::Unreachable(_unreachable) => {
+                             // If there is an [`Unreachable`] error, we will backoff for a
+@@ -146,12 +167,24 @@ where
+                         }
+                     };
+ 
++                    crate::tla_trace::emit(
++                        self.trace_event("SnapshotRpcError")
++                            .msg_str("error_kind", error_kind)
++                            .state_bool("snapshot_backoff", self.backoff.is_some()),
++                    );
++
+                     if let Some(b) = &mut self.backoff {
+                         let duration = b.next().unwrap_or_else(|| {
+                             tracing::warn!("backoff exhausted, using default");
+                             Duration::from_millis(500)
+                         });
+ 
++                        self.trace_wait_count += 1;
++                        crate::tla_trace::emit(
++                            self.trace_event("SnapshotBackoff")
++                                .state_int("snapshot_wait_count", self.trace_wait_count as i128),
++                        );
++
+                         let sleep = C::sleep(duration);
+                         let recv = self.rx_cancel.changed();
+ 
+@@ -171,6 +204,12 @@ where
+     }
+ 
+     async fn read_and_send_snapshot(&mut self, ith: i32) -> Result<(), ReplicationError<C>> {
++        self.trace_attempt_count += 1;
++        crate::tla_trace::emit(
++            self.trace_event("SnapshotAttempt")
++                .state_int("snapshot_attempt_count", self.trace_attempt_count as i128),
++        );
++
+         let snapshot = self.snapshot_reader.get_snapshot().await.map_err(|reason| {
+             tracing::warn!(error = display(&reason), "failed to get snapshot from state machine");
+             ReplicationClosed::new(reason)
+@@ -223,10 +262,25 @@ where
+         }
+ 
+         self.notify_heartbeat_progress(start_time).await;
+-        self.notify_progress(ReplicationResult(Ok(meta.last_log_id))).await;
++        self.notify_progress(ReplicationResult(Ok(meta.last_log_id.clone()))).await;
++        crate::tla_trace::emit(
++            self.trace_event("SnapshotSuccess")
++                .msg_int("matching", crate::tla_trace::log_index(&meta.last_log_id))
++                .state_bool("snapshot_active", false)
++                .state_bool("snapshot_backoff", false),
++        );
+         Ok(())
+     }
+ 
++    fn trace_event(&self, name: &'static str) -> crate::tla_trace::Event {
++        crate::tla_trace::Event::new(
++            name,
++            &self.replication_context.id,
++            &self.replication_context.target,
++            &self.replication_context.session_id,
++        )
++    }
++
+     async fn notify_heartbeat_progress(&mut self, sending_time: InstantOf<C>) {
+         self.replication_context
+             .tx_notify
+diff --git a/openraft/src/tla_trace.rs b/openraft/src/tla_trace.rs
+new file mode 100644
+index 0000000..d6e3bdf
+--- /dev/null
++++ b/openraft/src/tla_trace.rs
+@@ -0,0 +1,138 @@
++//! Disabled-by-default trace emission used by the Specula validation harness.
++
++use std::env;
++use std::fmt::Display;
++use std::fmt::Write as _;
++use std::fs::File;
++use std::fs::OpenOptions;
++use std::io::Write as _;
++use std::sync::Mutex;
++use std::sync::OnceLock;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use crate::LogId;
++use crate::RaftTypeConfig;
++
++static WRITER: OnceLock<Option<Mutex<File>>> = OnceLock::new();
++
++fn writer() -> Option<&'static Mutex<File>> {
++    WRITER
++        .get_or_init(|| {
++            let path = env::var("SPECULA_TRACE_FILE").ok()?;
++            let file = OpenOptions::new().create(true).truncate(true).write(true).open(path).ok()?;
++            Some(Mutex::new(file))
++        })
++        .as_ref()
++}
++
++fn escape(value: &str) -> String {
++    let mut out = String::with_capacity(value.len() + 2);
++    for ch in value.chars() {
++        match ch {
++            '"' => out.push_str("\\\""),
++            '\\' => out.push_str("\\\\"),
++            '\n' => out.push_str("\\n"),
++            '\r' => out.push_str("\\r"),
++            '\t' => out.push_str("\\t"),
++            c if c.is_control() => {
++                let _ = write!(out, "\\u{:04x}", c as u32);
++            }
++            c => out.push(c),
++        }
++    }
++    out
++}
++
++pub(crate) fn log_index<C: RaftTypeConfig>(value: &Option<LogId<C>>) -> i128 {
++    value.as_ref().map(|x| x.index as i128).unwrap_or(-1)
++}
++
++pub(crate) struct Event {
++    name: &'static str,
++    nid: String,
++    target: String,
++    session: String,
++    msg: Vec<(&'static str, String)>,
++    state: Vec<(&'static str, String)>,
++}
++
++impl Event {
++    pub(crate) fn new(name: &'static str, nid: impl Display, target: impl Display, session: impl Display) -> Self {
++        Self {
++            name,
++            nid: nid.to_string(),
++            target: target.to_string(),
++            session: session.to_string(),
++            msg: vec![],
++            state: vec![],
++        }
++    }
++
++    pub(crate) fn msg_int(mut self, key: &'static str, value: i128) -> Self {
++        self.msg.push((key, value.to_string()));
++        self
++    }
++
++    pub(crate) fn msg_str(mut self, key: &'static str, value: impl Display) -> Self {
++        self.msg.push((key, format!("\"{}\"", escape(&value.to_string()))));
++        self
++    }
++
++    pub(crate) fn state_int(mut self, key: &'static str, value: i128) -> Self {
++        self.state.push((key, value.to_string()));
++        self
++    }
++
++    pub(crate) fn state_bool(mut self, key: &'static str, value: bool) -> Self {
++        self.state.push((key, value.to_string()));
++        self
++    }
++
++    pub(crate) fn state_str(mut self, key: &'static str, value: impl Display) -> Self {
++        self.state.push((key, format!("\"{}\"", escape(&value.to_string()))));
++        self
++    }
++}
++
++fn object(fields: &[(&'static str, String)]) -> String {
++    let mut out = String::from("{");
++    for (i, (key, value)) in fields.iter().enumerate() {
++        if i > 0 {
++            out.push(',');
++        }
++        let _ = write!(out, "\"{}\":{}", key, value);
++    }
++    out.push('}');
++    out
++}
++
++pub(crate) fn emit(event: Event) {
++    let Some(writer) = writer() else {
++        return;
++    };
++
++    if let Ok(filter) = env::var("SPECULA_TRACE_TARGET")
++        && filter != event.target
++    {
++        return;
++    }
++
++    let ts = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
++
++    let line = format!(
++        "{{\"tag\":\"trace\",\"ts\":\"{}\",\"event\":{{\"name\":\"{}\",\"nid\":\"{}\",\"target\":\"{}\",\"session\":\"{}\",\"msg\":{},\"state\":{}}}}}\n",
++        ts,
++        event.name,
++        escape(&event.nid),
++        escape(&event.target),
++        escape(&event.session),
++        object(&event.msg),
++        object(&event.state),
++    );
++
++    if let Ok(mut file) = writer.lock() {
++        let _ = file.write_all(line.as_bytes());
++        let _ = file.flush();
++    }
++}

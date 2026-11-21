@@ -1,0 +1,1023 @@
+rev: baseline (commit 9dd6e50860f6f96fd0e05a8b961843dfc4a56bac)
+types/params.go sha256: d2333af689b9b426fb9266b9d7f37bdd2a272e43561de5b15c0c5067c447edf8
+cmd: cd <export of baseline> && timeout 10m go test -mod=readonly ./internal/consensus -run '^(TestSpeculaReproMC1UnchangedEnableHeight|TestSpeculaReproControlEnableFromZero)$' -count=1 -v
+=== RUN   TestSpeculaReproMC1UnchangedEnableHeight
+I[2026-11-18|18:09:24.876] service start                                module=events msg="Starting EventBus service" impl=EventBus
+I[2026-11-18|18:09:24.876] service start                                module=pubsub msg="Starting PubSub service" impl=PubSub
+I[2026-11-18|18:09:24.878] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.878] executed block                               height=1 app_hash=0000000000000000
+I[2026-11-18|18:09:24.878] committed state                              height=1 block_app_hash=
+I[2026-11-18|18:09:24.880] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.880] executed block                               height=2 app_hash=0000000000000000
+I[2026-11-18|18:09:24.880] committed state                              height=2 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.883] finalized block                              height=3 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.883] executed block                               height=3 app_hash=0000000000000000
+I[2026-11-18|18:09:24.883] committed state                              height=3 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.886] finalized block                              height=4 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.886] executed block                               height=4 app_hash=0000000000000000
+I[2026-11-18|18:09:24.886] committed state                              height=4 block_app_hash=0000000000000000
+    specula_repro_mc1_test.go:113: MC-1 unchanged-after-enable: highest committed height=4 (target 4); CONSENSUS FAILURE logged=false
+    specula_repro_mc1_test.go:113: MC-1 unchanged-after-enable: OUTCOME=CHAIN_PROGRESSED
+--- PASS: TestSpeculaReproMC1UnchangedEnableHeight (0.01s)
+=== RUN   TestSpeculaReproControlEnableFromZero
+I[2026-11-18|18:09:24.887] service start                                module=events msg="Starting EventBus service" impl=EventBus
+I[2026-11-18|18:09:24.887] service start                                module=pubsub msg="Starting PubSub service" impl=PubSub
+I[2026-11-18|18:09:24.889] finalized block                              height=5 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.889] executed block                               height=5 app_hash=0000000000000000
+I[2026-11-18|18:09:24.889] committed state                              height=5 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.890] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.890] executed block                               height=1 app_hash=0000000000000000
+I[2026-11-18|18:09:24.890] committed state                              height=1 block_app_hash=
+I[2026-11-18|18:09:24.892] finalized block                              height=6 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.892] executed block                               height=6 app_hash=0000000000000000
+I[2026-11-18|18:09:24.892] committed state                              height=6 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.893] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.893] executed block                               height=2 app_hash=0000000000000000
+I[2026-11-18|18:09:24.895] finalized block                              height=7 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.895] executed block                               height=7 app_hash=0000000000000000
+I[2026-11-18|18:09:24.895] committed state                              height=7 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.897] finalized block                              height=8 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.897] executed block                               height=8 app_hash=0000000000000000
+I[2026-11-18|18:09:24.897] committed state                              height=8 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.899] finalized block                              height=9 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.900] executed block                               height=9 app_hash=0000000000000000
+I[2026-11-18|18:09:24.900] committed state                              height=9 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.902] finalized block                              height=10 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.902] executed block                               height=10 app_hash=0000000000000000
+I[2026-11-18|18:09:24.902] committed state                              height=10 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.904] finalized block                              height=11 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.904] executed block                               height=11 app_hash=0000000000000000
+I[2026-11-18|18:09:24.904] committed state                              height=11 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.907] finalized block                              height=12 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.907] executed block                               height=12 app_hash=0000000000000000
+I[2026-11-18|18:09:24.907] committed state                              height=12 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.910] finalized block                              height=13 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.910] executed block                               height=13 app_hash=0000000000000000
+I[2026-11-18|18:09:24.910] committed state                              height=13 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.914] finalized block                              height=14 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.914] executed block                               height=14 app_hash=0000000000000000
+I[2026-11-18|18:09:24.914] committed state                              height=14 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.916] finalized block                              height=15 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.916] executed block                               height=15 app_hash=0000000000000000
+I[2026-11-18|18:09:24.916] committed state                              height=15 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.919] finalized block                              height=16 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.919] executed block                               height=16 app_hash=0000000000000000
+I[2026-11-18|18:09:24.919] committed state                              height=16 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.921] finalized block                              height=17 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.921] executed block                               height=17 app_hash=0000000000000000
+I[2026-11-18|18:09:24.921] committed state                              height=17 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.924] finalized block                              height=18 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.924] executed block                               height=18 app_hash=0000000000000000
+I[2026-11-18|18:09:24.924] committed state                              height=18 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.927] finalized block                              height=19 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.927] executed block                               height=19 app_hash=0000000000000000
+I[2026-11-18|18:09:24.927] committed state                              height=19 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.929] finalized block                              height=20 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.929] executed block                               height=20 app_hash=0000000000000000
+I[2026-11-18|18:09:24.929] committed state                              height=20 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.932] finalized block                              height=21 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.932] executed block                               height=21 app_hash=0000000000000000
+I[2026-11-18|18:09:24.932] committed state                              height=21 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.934] finalized block                              height=22 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.934] executed block                               height=22 app_hash=0000000000000000
+I[2026-11-18|18:09:24.935] committed state                              height=22 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.937] finalized block                              height=23 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.937] executed block                               height=23 app_hash=0000000000000000
+I[2026-11-18|18:09:24.937] committed state                              height=23 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.940] finalized block                              height=24 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.940] executed block                               height=24 app_hash=0000000000000000
+I[2026-11-18|18:09:24.940] committed state                              height=24 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.943] finalized block                              height=25 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.943] executed block                               height=25 app_hash=0000000000000000
+I[2026-11-18|18:09:24.943] committed state                              height=25 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.946] finalized block                              height=26 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.946] executed block                               height=26 app_hash=0000000000000000
+I[2026-11-18|18:09:24.946] committed state                              height=26 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.950] finalized block                              height=27 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.950] executed block                               height=27 app_hash=0000000000000000
+I[2026-11-18|18:09:24.950] committed state                              height=27 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.952] finalized block                              height=28 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.952] executed block                               height=28 app_hash=0000000000000000
+I[2026-11-18|18:09:24.952] committed state                              height=28 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.954] finalized block                              height=29 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.954] executed block                               height=29 app_hash=0000000000000000
+I[2026-11-18|18:09:24.954] committed state                              height=29 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.956] finalized block                              height=30 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.956] executed block                               height=30 app_hash=0000000000000000
+I[2026-11-18|18:09:24.956] committed state                              height=30 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.958] finalized block                              height=31 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.958] executed block                               height=31 app_hash=0000000000000000
+I[2026-11-18|18:09:24.958] committed state                              height=31 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.960] finalized block                              height=32 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.960] executed block                               height=32 app_hash=0000000000000000
+I[2026-11-18|18:09:24.961] committed state                              height=32 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.963] finalized block                              height=33 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.963] executed block                               height=33 app_hash=0000000000000000
+I[2026-11-18|18:09:24.963] committed state                              height=33 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.965] finalized block                              height=34 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.965] executed block                               height=34 app_hash=0000000000000000
+I[2026-11-18|18:09:24.965] committed state                              height=34 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.967] finalized block                              height=35 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.967] executed block                               height=35 app_hash=0000000000000000
+I[2026-11-18|18:09:24.968] committed state                              height=35 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.970] finalized block                              height=36 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.970] executed block                               height=36 app_hash=0000000000000000
+I[2026-11-18|18:09:24.970] committed state                              height=36 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.972] finalized block                              height=37 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.972] executed block                               height=37 app_hash=0000000000000000
+I[2026-11-18|18:09:24.972] committed state                              height=37 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.974] finalized block                              height=38 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.974] executed block                               height=38 app_hash=0000000000000000
+I[2026-11-18|18:09:24.974] committed state                              height=38 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.977] finalized block                              height=39 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.977] executed block                               height=39 app_hash=0000000000000000
+I[2026-11-18|18:09:24.977] committed state                              height=39 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.979] finalized block                              height=40 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.979] executed block                               height=40 app_hash=0000000000000000
+I[2026-11-18|18:09:24.979] committed state                              height=40 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.983] finalized block                              height=41 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.983] executed block                               height=41 app_hash=0000000000000000
+I[2026-11-18|18:09:24.983] committed state                              height=41 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.986] finalized block                              height=42 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.986] executed block                               height=42 app_hash=0000000000000000
+I[2026-11-18|18:09:24.986] committed state                              height=42 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.988] finalized block                              height=43 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.988] executed block                               height=43 app_hash=0000000000000000
+I[2026-11-18|18:09:24.988] committed state                              height=43 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.991] finalized block                              height=44 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.991] executed block                               height=44 app_hash=0000000000000000
+I[2026-11-18|18:09:24.991] committed state                              height=44 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.993] finalized block                              height=45 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.993] executed block                               height=45 app_hash=0000000000000000
+I[2026-11-18|18:09:24.993] committed state                              height=45 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.996] finalized block                              height=46 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.996] executed block                               height=46 app_hash=0000000000000000
+I[2026-11-18|18:09:24.996] committed state                              height=46 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.998] finalized block                              height=47 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:24.998] executed block                               height=47 app_hash=0000000000000000
+I[2026-11-18|18:09:24.998] committed state                              height=47 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.001] finalized block                              height=48 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.001] executed block                               height=48 app_hash=0000000000000000
+I[2026-11-18|18:09:25.001] committed state                              height=48 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.003] finalized block                              height=49 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.003] executed block                               height=49 app_hash=0000000000000000
+I[2026-11-18|18:09:25.003] committed state                              height=49 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.005] finalized block                              height=50 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.005] executed block                               height=50 app_hash=0000000000000000
+I[2026-11-18|18:09:25.005] committed state                              height=50 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.007] finalized block                              height=51 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.007] executed block                               height=51 app_hash=0000000000000000
+I[2026-11-18|18:09:25.007] committed state                              height=51 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.009] finalized block                              height=52 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.009] executed block                               height=52 app_hash=0000000000000000
+I[2026-11-18|18:09:25.009] committed state                              height=52 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.011] finalized block                              height=53 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.011] executed block                               height=53 app_hash=0000000000000000
+I[2026-11-18|18:09:25.011] committed state                              height=53 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.013] finalized block                              height=54 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.013] executed block                               height=54 app_hash=0000000000000000
+I[2026-11-18|18:09:25.013] committed state                              height=54 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.015] finalized block                              height=55 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.015] executed block                               height=55 app_hash=0000000000000000
+I[2026-11-18|18:09:25.015] committed state                              height=55 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.017] finalized block                              height=56 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.017] executed block                               height=56 app_hash=0000000000000000
+I[2026-11-18|18:09:25.017] committed state                              height=56 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.019] finalized block                              height=57 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.019] executed block                               height=57 app_hash=0000000000000000
+I[2026-11-18|18:09:25.019] committed state                              height=57 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.020] finalized block                              height=58 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.020] executed block                               height=58 app_hash=0000000000000000
+I[2026-11-18|18:09:25.020] committed state                              height=58 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.023] finalized block                              height=59 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.023] executed block                               height=59 app_hash=0000000000000000
+I[2026-11-18|18:09:25.023] committed state                              height=59 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.026] finalized block                              height=60 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.026] executed block                               height=60 app_hash=0000000000000000
+I[2026-11-18|18:09:25.026] committed state                              height=60 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.029] finalized block                              height=61 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.029] executed block                               height=61 app_hash=0000000000000000
+I[2026-11-18|18:09:25.029] committed state                              height=61 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.031] finalized block                              height=62 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.031] executed block                               height=62 app_hash=0000000000000000
+I[2026-11-18|18:09:25.031] committed state                              height=62 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.034] finalized block                              height=63 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.034] executed block                               height=63 app_hash=0000000000000000
+I[2026-11-18|18:09:25.034] committed state                              height=63 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.036] finalized block                              height=64 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.036] executed block                               height=64 app_hash=0000000000000000
+I[2026-11-18|18:09:25.036] committed state                              height=64 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.038] finalized block                              height=65 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.038] executed block                               height=65 app_hash=0000000000000000
+I[2026-11-18|18:09:25.038] committed state                              height=65 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.041] finalized block                              height=66 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.041] executed block                               height=66 app_hash=0000000000000000
+I[2026-11-18|18:09:25.041] committed state                              height=66 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.043] finalized block                              height=67 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.043] executed block                               height=67 app_hash=0000000000000000
+I[2026-11-18|18:09:25.043] committed state                              height=67 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.045] finalized block                              height=68 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.045] executed block                               height=68 app_hash=0000000000000000
+I[2026-11-18|18:09:25.045] committed state                              height=68 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.048] finalized block                              height=69 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.048] executed block                               height=69 app_hash=0000000000000000
+I[2026-11-18|18:09:25.048] committed state                              height=69 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.050] finalized block                              height=70 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.050] executed block                               height=70 app_hash=0000000000000000
+I[2026-11-18|18:09:25.050] committed state                              height=70 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.052] finalized block                              height=71 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.052] executed block                               height=71 app_hash=0000000000000000
+I[2026-11-18|18:09:25.052] committed state                              height=71 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.055] finalized block                              height=72 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.055] executed block                               height=72 app_hash=0000000000000000
+I[2026-11-18|18:09:25.055] committed state                              height=72 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.057] finalized block                              height=73 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.057] executed block                               height=73 app_hash=0000000000000000
+I[2026-11-18|18:09:25.057] committed state                              height=73 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.059] finalized block                              height=74 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.059] executed block                               height=74 app_hash=0000000000000000
+I[2026-11-18|18:09:25.059] committed state                              height=74 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.062] finalized block                              height=75 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.062] executed block                               height=75 app_hash=0000000000000000
+I[2026-11-18|18:09:25.062] committed state                              height=75 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.064] finalized block                              height=76 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.064] executed block                               height=76 app_hash=0000000000000000
+I[2026-11-18|18:09:25.064] committed state                              height=76 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.066] finalized block                              height=77 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.066] executed block                               height=77 app_hash=0000000000000000
+I[2026-11-18|18:09:25.066] committed state                              height=77 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.069] finalized block                              height=78 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.069] executed block                               height=78 app_hash=0000000000000000
+I[2026-11-18|18:09:25.069] committed state                              height=78 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.073] finalized block                              height=79 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.073] executed block                               height=79 app_hash=0000000000000000
+I[2026-11-18|18:09:25.073] committed state                              height=79 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.077] finalized block                              height=80 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.077] executed block                               height=80 app_hash=0000000000000000
+I[2026-11-18|18:09:25.077] committed state                              height=80 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.080] finalized block                              height=81 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.080] executed block                               height=81 app_hash=0000000000000000
+I[2026-11-18|18:09:25.080] committed state                              height=81 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.083] finalized block                              height=82 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.083] executed block                               height=82 app_hash=0000000000000000
+I[2026-11-18|18:09:25.083] committed state                              height=82 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.085] finalized block                              height=83 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.085] executed block                               height=83 app_hash=0000000000000000
+I[2026-11-18|18:09:25.085] committed state                              height=83 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.087] finalized block                              height=84 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.087] executed block                               height=84 app_hash=0000000000000000
+I[2026-11-18|18:09:25.087] committed state                              height=84 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.089] finalized block                              height=85 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.089] executed block                               height=85 app_hash=0000000000000000
+I[2026-11-18|18:09:25.089] committed state                              height=85 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.091] finalized block                              height=86 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.091] executed block                               height=86 app_hash=0000000000000000
+I[2026-11-18|18:09:25.091] committed state                              height=86 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.094] finalized block                              height=87 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.094] executed block                               height=87 app_hash=0000000000000000
+I[2026-11-18|18:09:25.094] committed state                              height=87 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.096] finalized block                              height=88 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.096] executed block                               height=88 app_hash=0000000000000000
+I[2026-11-18|18:09:25.096] committed state                              height=88 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.099] finalized block                              height=89 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.099] executed block                               height=89 app_hash=0000000000000000
+I[2026-11-18|18:09:25.099] committed state                              height=89 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.101] finalized block                              height=90 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.101] executed block                               height=90 app_hash=0000000000000000
+I[2026-11-18|18:09:25.101] committed state                              height=90 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.104] finalized block                              height=91 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.104] executed block                               height=91 app_hash=0000000000000000
+I[2026-11-18|18:09:25.104] committed state                              height=91 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.106] finalized block                              height=92 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.106] executed block                               height=92 app_hash=0000000000000000
+I[2026-11-18|18:09:25.106] committed state                              height=92 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.108] finalized block                              height=93 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.108] executed block                               height=93 app_hash=0000000000000000
+I[2026-11-18|18:09:25.108] committed state                              height=93 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.112] finalized block                              height=94 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.112] executed block                               height=94 app_hash=0000000000000000
+I[2026-11-18|18:09:25.112] committed state                              height=94 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.114] finalized block                              height=95 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.114] executed block                               height=95 app_hash=0000000000000000
+I[2026-11-18|18:09:25.114] committed state                              height=95 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.116] finalized block                              height=96 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.116] executed block                               height=96 app_hash=0000000000000000
+I[2026-11-18|18:09:25.116] committed state                              height=96 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.118] finalized block                              height=97 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.118] executed block                               height=97 app_hash=0000000000000000
+I[2026-11-18|18:09:25.118] committed state                              height=97 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.119] finalized block                              height=98 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.119] executed block                               height=98 app_hash=0000000000000000
+I[2026-11-18|18:09:25.119] committed state                              height=98 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.121] finalized block                              height=99 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.121] executed block                               height=99 app_hash=0000000000000000
+I[2026-11-18|18:09:25.121] committed state                              height=99 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.124] finalized block                              height=100 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.124] executed block                               height=100 app_hash=0000000000000000
+I[2026-11-18|18:09:25.124] committed state                              height=100 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.126] finalized block                              height=101 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.126] executed block                               height=101 app_hash=0000000000000000
+I[2026-11-18|18:09:25.126] committed state                              height=101 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.129] finalized block                              height=102 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.129] executed block                               height=102 app_hash=0000000000000000
+I[2026-11-18|18:09:25.129] committed state                              height=102 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.131] finalized block                              height=103 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.131] executed block                               height=103 app_hash=0000000000000000
+I[2026-11-18|18:09:25.131] committed state                              height=103 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.134] finalized block                              height=104 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.134] executed block                               height=104 app_hash=0000000000000000
+I[2026-11-18|18:09:25.134] committed state                              height=104 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.136] finalized block                              height=105 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.136] executed block                               height=105 app_hash=0000000000000000
+I[2026-11-18|18:09:25.136] committed state                              height=105 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.139] finalized block                              height=106 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.139] executed block                               height=106 app_hash=0000000000000000
+I[2026-11-18|18:09:25.139] committed state                              height=106 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.141] finalized block                              height=107 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.141] executed block                               height=107 app_hash=0000000000000000
+I[2026-11-18|18:09:25.141] committed state                              height=107 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.144] finalized block                              height=108 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.144] executed block                               height=108 app_hash=0000000000000000
+I[2026-11-18|18:09:25.144] committed state                              height=108 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.147] finalized block                              height=109 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.147] executed block                               height=109 app_hash=0000000000000000
+I[2026-11-18|18:09:25.147] committed state                              height=109 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.149] finalized block                              height=110 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.149] executed block                               height=110 app_hash=0000000000000000
+I[2026-11-18|18:09:25.149] committed state                              height=110 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.151] finalized block                              height=111 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.151] executed block                               height=111 app_hash=0000000000000000
+I[2026-11-18|18:09:25.151] committed state                              height=111 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.154] finalized block                              height=112 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.154] executed block                               height=112 app_hash=0000000000000000
+I[2026-11-18|18:09:25.154] committed state                              height=112 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.156] finalized block                              height=113 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.156] executed block                               height=113 app_hash=0000000000000000
+I[2026-11-18|18:09:25.156] committed state                              height=113 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.159] finalized block                              height=114 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.159] executed block                               height=114 app_hash=0000000000000000
+I[2026-11-18|18:09:25.159] committed state                              height=114 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.161] finalized block                              height=115 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.161] executed block                               height=115 app_hash=0000000000000000
+I[2026-11-18|18:09:25.161] committed state                              height=115 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.164] finalized block                              height=116 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.164] executed block                               height=116 app_hash=0000000000000000
+I[2026-11-18|18:09:25.164] committed state                              height=116 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.166] finalized block                              height=117 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.166] executed block                               height=117 app_hash=0000000000000000
+I[2026-11-18|18:09:25.166] committed state                              height=117 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.169] finalized block                              height=118 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.169] executed block                               height=118 app_hash=0000000000000000
+I[2026-11-18|18:09:25.169] committed state                              height=118 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.172] finalized block                              height=119 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.173] executed block                               height=119 app_hash=0000000000000000
+I[2026-11-18|18:09:25.173] committed state                              height=119 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.175] finalized block                              height=120 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.175] executed block                               height=120 app_hash=0000000000000000
+I[2026-11-18|18:09:25.175] committed state                              height=120 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.178] finalized block                              height=121 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.178] executed block                               height=121 app_hash=0000000000000000
+I[2026-11-18|18:09:25.178] committed state                              height=121 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.181] finalized block                              height=122 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.181] executed block                               height=122 app_hash=0000000000000000
+I[2026-11-18|18:09:25.181] committed state                              height=122 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.183] finalized block                              height=123 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.183] executed block                               height=123 app_hash=0000000000000000
+I[2026-11-18|18:09:25.183] committed state                              height=123 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.186] finalized block                              height=124 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.186] executed block                               height=124 app_hash=0000000000000000
+I[2026-11-18|18:09:25.186] committed state                              height=124 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.188] finalized block                              height=125 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.189] executed block                               height=125 app_hash=0000000000000000
+I[2026-11-18|18:09:25.189] committed state                              height=125 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.191] finalized block                              height=126 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.191] executed block                               height=126 app_hash=0000000000000000
+I[2026-11-18|18:09:25.191] committed state                              height=126 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.194] finalized block                              height=127 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.195] executed block                               height=127 app_hash=0000000000000000
+I[2026-11-18|18:09:25.195] committed state                              height=127 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.198] finalized block                              height=128 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.198] executed block                               height=128 app_hash=0000000000000000
+I[2026-11-18|18:09:25.198] committed state                              height=128 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.201] finalized block                              height=129 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.201] executed block                               height=129 app_hash=0000000000000000
+I[2026-11-18|18:09:25.201] committed state                              height=129 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.204] finalized block                              height=130 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.204] executed block                               height=130 app_hash=0000000000000000
+I[2026-11-18|18:09:25.204] committed state                              height=130 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.207] finalized block                              height=131 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.207] executed block                               height=131 app_hash=0000000000000000
+I[2026-11-18|18:09:25.207] committed state                              height=131 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.210] finalized block                              height=132 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.210] executed block                               height=132 app_hash=0000000000000000
+I[2026-11-18|18:09:25.210] committed state                              height=132 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.212] finalized block                              height=133 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.212] executed block                               height=133 app_hash=0000000000000000
+I[2026-11-18|18:09:25.212] committed state                              height=133 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.215] finalized block                              height=134 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.215] executed block                               height=134 app_hash=0000000000000000
+I[2026-11-18|18:09:25.215] committed state                              height=134 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.217] finalized block                              height=135 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.217] executed block                               height=135 app_hash=0000000000000000
+I[2026-11-18|18:09:25.217] committed state                              height=135 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.220] finalized block                              height=136 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.220] executed block                               height=136 app_hash=0000000000000000
+I[2026-11-18|18:09:25.220] committed state                              height=136 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.222] finalized block                              height=137 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.223] executed block                               height=137 app_hash=0000000000000000
+I[2026-11-18|18:09:25.223] committed state                              height=137 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.225] finalized block                              height=138 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.225] executed block                               height=138 app_hash=0000000000000000
+I[2026-11-18|18:09:25.225] committed state                              height=138 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.228] finalized block                              height=139 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.228] executed block                               height=139 app_hash=0000000000000000
+I[2026-11-18|18:09:25.228] committed state                              height=139 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.231] finalized block                              height=140 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.231] executed block                               height=140 app_hash=0000000000000000
+I[2026-11-18|18:09:25.231] committed state                              height=140 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.233] finalized block                              height=141 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.233] executed block                               height=141 app_hash=0000000000000000
+I[2026-11-18|18:09:25.234] committed state                              height=141 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.236] finalized block                              height=142 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.236] executed block                               height=142 app_hash=0000000000000000
+I[2026-11-18|18:09:25.236] committed state                              height=142 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.238] finalized block                              height=143 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.238] executed block                               height=143 app_hash=0000000000000000
+I[2026-11-18|18:09:25.238] committed state                              height=143 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.241] finalized block                              height=144 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.241] executed block                               height=144 app_hash=0000000000000000
+I[2026-11-18|18:09:25.241] committed state                              height=144 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.243] finalized block                              height=145 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.243] executed block                               height=145 app_hash=0000000000000000
+I[2026-11-18|18:09:25.243] committed state                              height=145 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.245] finalized block                              height=146 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.245] executed block                               height=146 app_hash=0000000000000000
+I[2026-11-18|18:09:25.245] committed state                              height=146 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.249] finalized block                              height=147 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.249] executed block                               height=147 app_hash=0000000000000000
+I[2026-11-18|18:09:25.249] committed state                              height=147 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.252] finalized block                              height=148 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.252] executed block                               height=148 app_hash=0000000000000000
+I[2026-11-18|18:09:25.252] committed state                              height=148 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.255] finalized block                              height=149 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.255] executed block                               height=149 app_hash=0000000000000000
+I[2026-11-18|18:09:25.255] committed state                              height=149 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.258] finalized block                              height=150 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.258] executed block                               height=150 app_hash=0000000000000000
+I[2026-11-18|18:09:25.258] committed state                              height=150 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.260] finalized block                              height=151 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.260] executed block                               height=151 app_hash=0000000000000000
+I[2026-11-18|18:09:25.260] committed state                              height=151 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.263] finalized block                              height=152 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.263] executed block                               height=152 app_hash=0000000000000000
+I[2026-11-18|18:09:25.263] committed state                              height=152 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.265] finalized block                              height=153 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.265] executed block                               height=153 app_hash=0000000000000000
+I[2026-11-18|18:09:25.265] committed state                              height=153 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.268] finalized block                              height=154 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.268] executed block                               height=154 app_hash=0000000000000000
+I[2026-11-18|18:09:25.268] committed state                              height=154 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.270] finalized block                              height=155 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.270] executed block                               height=155 app_hash=0000000000000000
+I[2026-11-18|18:09:25.270] committed state                              height=155 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.273] finalized block                              height=156 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.273] executed block                               height=156 app_hash=0000000000000000
+I[2026-11-18|18:09:25.273] committed state                              height=156 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.275] finalized block                              height=157 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.275] executed block                               height=157 app_hash=0000000000000000
+I[2026-11-18|18:09:25.275] committed state                              height=157 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.277] finalized block                              height=158 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.277] executed block                               height=158 app_hash=0000000000000000
+I[2026-11-18|18:09:25.277] committed state                              height=158 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.280] finalized block                              height=159 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.280] executed block                               height=159 app_hash=0000000000000000
+I[2026-11-18|18:09:25.280] committed state                              height=159 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.282] finalized block                              height=160 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.282] executed block                               height=160 app_hash=0000000000000000
+I[2026-11-18|18:09:25.282] committed state                              height=160 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.291] finalized block                              height=161 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.291] executed block                               height=161 app_hash=0000000000000000
+I[2026-11-18|18:09:25.291] committed state                              height=161 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.293] finalized block                              height=162 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.293] executed block                               height=162 app_hash=0000000000000000
+I[2026-11-18|18:09:25.293] committed state                              height=162 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.296] finalized block                              height=163 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.296] executed block                               height=163 app_hash=0000000000000000
+I[2026-11-18|18:09:25.296] committed state                              height=163 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.298] finalized block                              height=164 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.298] executed block                               height=164 app_hash=0000000000000000
+I[2026-11-18|18:09:25.298] committed state                              height=164 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.301] finalized block                              height=165 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.301] executed block                               height=165 app_hash=0000000000000000
+I[2026-11-18|18:09:25.301] committed state                              height=165 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.303] finalized block                              height=166 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.303] executed block                               height=166 app_hash=0000000000000000
+I[2026-11-18|18:09:25.303] committed state                              height=166 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.306] finalized block                              height=167 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.306] executed block                               height=167 app_hash=0000000000000000
+I[2026-11-18|18:09:25.306] committed state                              height=167 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.308] finalized block                              height=168 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.308] executed block                               height=168 app_hash=0000000000000000
+I[2026-11-18|18:09:25.308] committed state                              height=168 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.311] finalized block                              height=169 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.311] executed block                               height=169 app_hash=0000000000000000
+I[2026-11-18|18:09:25.311] committed state                              height=169 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.314] finalized block                              height=170 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.314] executed block                               height=170 app_hash=0000000000000000
+I[2026-11-18|18:09:25.314] committed state                              height=170 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.316] finalized block                              height=171 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.316] executed block                               height=171 app_hash=0000000000000000
+I[2026-11-18|18:09:25.316] committed state                              height=171 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.319] finalized block                              height=172 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.319] executed block                               height=172 app_hash=0000000000000000
+I[2026-11-18|18:09:25.319] committed state                              height=172 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.321] finalized block                              height=173 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.321] executed block                               height=173 app_hash=0000000000000000
+I[2026-11-18|18:09:25.321] committed state                              height=173 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.324] finalized block                              height=174 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.324] executed block                               height=174 app_hash=0000000000000000
+I[2026-11-18|18:09:25.324] committed state                              height=174 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.326] finalized block                              height=175 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.326] executed block                               height=175 app_hash=0000000000000000
+I[2026-11-18|18:09:25.326] committed state                              height=175 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.328] finalized block                              height=176 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.328] executed block                               height=176 app_hash=0000000000000000
+I[2026-11-18|18:09:25.329] committed state                              height=176 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.331] finalized block                              height=177 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.331] executed block                               height=177 app_hash=0000000000000000
+I[2026-11-18|18:09:25.331] committed state                              height=177 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.334] finalized block                              height=178 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.334] executed block                               height=178 app_hash=0000000000000000
+I[2026-11-18|18:09:25.334] committed state                              height=178 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.336] finalized block                              height=179 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.336] executed block                               height=179 app_hash=0000000000000000
+I[2026-11-18|18:09:25.336] committed state                              height=179 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.339] finalized block                              height=180 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.339] executed block                               height=180 app_hash=0000000000000000
+I[2026-11-18|18:09:25.339] committed state                              height=180 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.342] finalized block                              height=181 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.342] executed block                               height=181 app_hash=0000000000000000
+I[2026-11-18|18:09:25.342] committed state                              height=181 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.344] finalized block                              height=182 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.344] executed block                               height=182 app_hash=0000000000000000
+I[2026-11-18|18:09:25.344] committed state                              height=182 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.347] finalized block                              height=183 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.347] executed block                               height=183 app_hash=0000000000000000
+I[2026-11-18|18:09:25.347] committed state                              height=183 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.350] finalized block                              height=184 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.350] executed block                               height=184 app_hash=0000000000000000
+I[2026-11-18|18:09:25.350] committed state                              height=184 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.353] finalized block                              height=185 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.353] executed block                               height=185 app_hash=0000000000000000
+I[2026-11-18|18:09:25.353] committed state                              height=185 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.356] finalized block                              height=186 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.356] executed block                               height=186 app_hash=0000000000000000
+I[2026-11-18|18:09:25.356] committed state                              height=186 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.359] finalized block                              height=187 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.359] executed block                               height=187 app_hash=0000000000000000
+I[2026-11-18|18:09:25.359] committed state                              height=187 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.362] finalized block                              height=188 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.362] executed block                               height=188 app_hash=0000000000000000
+I[2026-11-18|18:09:25.362] committed state                              height=188 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.364] finalized block                              height=189 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.364] executed block                               height=189 app_hash=0000000000000000
+I[2026-11-18|18:09:25.364] committed state                              height=189 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.367] finalized block                              height=190 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.367] executed block                               height=190 app_hash=0000000000000000
+I[2026-11-18|18:09:25.367] committed state                              height=190 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.369] finalized block                              height=191 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.369] executed block                               height=191 app_hash=0000000000000000
+I[2026-11-18|18:09:25.370] committed state                              height=191 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.372] finalized block                              height=192 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.372] executed block                               height=192 app_hash=0000000000000000
+I[2026-11-18|18:09:25.372] committed state                              height=192 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.375] finalized block                              height=193 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.375] executed block                               height=193 app_hash=0000000000000000
+I[2026-11-18|18:09:25.375] committed state                              height=193 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.377] finalized block                              height=194 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.377] executed block                               height=194 app_hash=0000000000000000
+I[2026-11-18|18:09:25.377] committed state                              height=194 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.380] finalized block                              height=195 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.380] executed block                               height=195 app_hash=0000000000000000
+I[2026-11-18|18:09:25.380] committed state                              height=195 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.382] finalized block                              height=196 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.382] executed block                               height=196 app_hash=0000000000000000
+I[2026-11-18|18:09:25.383] committed state                              height=196 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.385] finalized block                              height=197 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.385] executed block                               height=197 app_hash=0000000000000000
+I[2026-11-18|18:09:25.385] committed state                              height=197 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.388] finalized block                              height=198 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.388] executed block                               height=198 app_hash=0000000000000000
+I[2026-11-18|18:09:25.388] committed state                              height=198 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.390] finalized block                              height=199 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.390] executed block                               height=199 app_hash=0000000000000000
+I[2026-11-18|18:09:25.390] committed state                              height=199 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.393] finalized block                              height=200 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.393] executed block                               height=200 app_hash=0000000000000000
+I[2026-11-18|18:09:25.393] committed state                              height=200 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.395] finalized block                              height=201 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.395] executed block                               height=201 app_hash=0000000000000000
+I[2026-11-18|18:09:25.395] committed state                              height=201 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.399] finalized block                              height=202 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.399] executed block                               height=202 app_hash=0000000000000000
+I[2026-11-18|18:09:25.399] committed state                              height=202 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.402] finalized block                              height=203 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.402] executed block                               height=203 app_hash=0000000000000000
+I[2026-11-18|18:09:25.402] committed state                              height=203 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.405] finalized block                              height=204 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.405] executed block                               height=204 app_hash=0000000000000000
+I[2026-11-18|18:09:25.405] committed state                              height=204 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.407] finalized block                              height=205 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.407] executed block                               height=205 app_hash=0000000000000000
+I[2026-11-18|18:09:25.407] committed state                              height=205 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.410] finalized block                              height=206 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.410] executed block                               height=206 app_hash=0000000000000000
+I[2026-11-18|18:09:25.410] committed state                              height=206 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.412] finalized block                              height=207 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.412] executed block                               height=207 app_hash=0000000000000000
+I[2026-11-18|18:09:25.413] committed state                              height=207 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.415] finalized block                              height=208 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.415] executed block                               height=208 app_hash=0000000000000000
+I[2026-11-18|18:09:25.415] committed state                              height=208 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.418] finalized block                              height=209 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.418] executed block                               height=209 app_hash=0000000000000000
+I[2026-11-18|18:09:25.418] committed state                              height=209 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.420] finalized block                              height=210 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.420] executed block                               height=210 app_hash=0000000000000000
+I[2026-11-18|18:09:25.420] committed state                              height=210 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.423] finalized block                              height=211 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.423] executed block                               height=211 app_hash=0000000000000000
+I[2026-11-18|18:09:25.423] committed state                              height=211 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.426] finalized block                              height=212 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.426] executed block                               height=212 app_hash=0000000000000000
+I[2026-11-18|18:09:25.426] committed state                              height=212 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.428] finalized block                              height=213 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.428] executed block                               height=213 app_hash=0000000000000000
+I[2026-11-18|18:09:25.429] committed state                              height=213 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.431] finalized block                              height=214 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.431] executed block                               height=214 app_hash=0000000000000000
+I[2026-11-18|18:09:25.431] committed state                              height=214 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.434] finalized block                              height=215 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.434] executed block                               height=215 app_hash=0000000000000000
+I[2026-11-18|18:09:25.434] committed state                              height=215 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.437] finalized block                              height=216 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.437] executed block                               height=216 app_hash=0000000000000000
+I[2026-11-18|18:09:25.437] committed state                              height=216 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.439] finalized block                              height=217 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.439] executed block                               height=217 app_hash=0000000000000000
+I[2026-11-18|18:09:25.439] committed state                              height=217 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.442] finalized block                              height=218 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.442] executed block                               height=218 app_hash=0000000000000000
+I[2026-11-18|18:09:25.442] committed state                              height=218 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.444] finalized block                              height=219 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.444] executed block                               height=219 app_hash=0000000000000000
+I[2026-11-18|18:09:25.444] committed state                              height=219 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.446] finalized block                              height=220 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.446] executed block                               height=220 app_hash=0000000000000000
+I[2026-11-18|18:09:25.446] committed state                              height=220 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.449] finalized block                              height=221 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.449] executed block                               height=221 app_hash=0000000000000000
+I[2026-11-18|18:09:25.449] committed state                              height=221 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.451] finalized block                              height=222 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.451] executed block                               height=222 app_hash=0000000000000000
+I[2026-11-18|18:09:25.451] committed state                              height=222 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.454] finalized block                              height=223 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.454] executed block                               height=223 app_hash=0000000000000000
+I[2026-11-18|18:09:25.454] committed state                              height=223 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.457] finalized block                              height=224 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.457] executed block                               height=224 app_hash=0000000000000000
+I[2026-11-18|18:09:25.457] committed state                              height=224 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.459] finalized block                              height=225 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.459] executed block                               height=225 app_hash=0000000000000000
+I[2026-11-18|18:09:25.459] committed state                              height=225 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.461] finalized block                              height=226 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.461] executed block                               height=226 app_hash=0000000000000000
+I[2026-11-18|18:09:25.461] committed state                              height=226 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.464] finalized block                              height=227 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.464] executed block                               height=227 app_hash=0000000000000000
+I[2026-11-18|18:09:25.464] committed state                              height=227 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.466] finalized block                              height=228 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.467] executed block                               height=228 app_hash=0000000000000000
+I[2026-11-18|18:09:25.467] committed state                              height=228 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.469] finalized block                              height=229 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.469] executed block                               height=229 app_hash=0000000000000000
+I[2026-11-18|18:09:25.469] committed state                              height=229 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.472] finalized block                              height=230 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.472] executed block                               height=230 app_hash=0000000000000000
+I[2026-11-18|18:09:25.472] committed state                              height=230 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.474] finalized block                              height=231 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.474] executed block                               height=231 app_hash=0000000000000000
+I[2026-11-18|18:09:25.474] committed state                              height=231 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.477] finalized block                              height=232 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.477] executed block                               height=232 app_hash=0000000000000000
+I[2026-11-18|18:09:25.477] committed state                              height=232 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.479] finalized block                              height=233 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.479] executed block                               height=233 app_hash=0000000000000000
+I[2026-11-18|18:09:25.479] committed state                              height=233 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.482] finalized block                              height=234 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.482] executed block                               height=234 app_hash=0000000000000000
+I[2026-11-18|18:09:25.482] committed state                              height=234 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.484] finalized block                              height=235 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.485] executed block                               height=235 app_hash=0000000000000000
+I[2026-11-18|18:09:25.485] committed state                              height=235 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.487] finalized block                              height=236 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.487] executed block                               height=236 app_hash=0000000000000000
+I[2026-11-18|18:09:25.487] committed state                              height=236 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.490] finalized block                              height=237 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.490] executed block                               height=237 app_hash=0000000000000000
+I[2026-11-18|18:09:25.490] committed state                              height=237 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.493] finalized block                              height=238 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.493] executed block                               height=238 app_hash=0000000000000000
+I[2026-11-18|18:09:25.493] committed state                              height=238 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.496] finalized block                              height=239 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.496] executed block                               height=239 app_hash=0000000000000000
+I[2026-11-18|18:09:25.496] committed state                              height=239 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.498] finalized block                              height=240 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.498] executed block                               height=240 app_hash=0000000000000000
+I[2026-11-18|18:09:25.498] committed state                              height=240 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.500] finalized block                              height=241 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.500] executed block                               height=241 app_hash=0000000000000000
+I[2026-11-18|18:09:25.500] committed state                              height=241 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.502] finalized block                              height=242 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.502] executed block                               height=242 app_hash=0000000000000000
+I[2026-11-18|18:09:25.502] committed state                              height=242 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.504] finalized block                              height=243 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.504] executed block                               height=243 app_hash=0000000000000000
+I[2026-11-18|18:09:25.504] committed state                              height=243 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.506] finalized block                              height=244 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.506] executed block                               height=244 app_hash=0000000000000000
+I[2026-11-18|18:09:25.507] committed state                              height=244 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.509] finalized block                              height=245 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.509] executed block                               height=245 app_hash=0000000000000000
+I[2026-11-18|18:09:25.509] committed state                              height=245 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.511] finalized block                              height=246 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.511] executed block                               height=246 app_hash=0000000000000000
+I[2026-11-18|18:09:25.511] committed state                              height=246 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.513] finalized block                              height=247 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.513] executed block                               height=247 app_hash=0000000000000000
+I[2026-11-18|18:09:25.513] committed state                              height=247 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.515] finalized block                              height=248 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.515] executed block                               height=248 app_hash=0000000000000000
+I[2026-11-18|18:09:25.515] committed state                              height=248 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.517] finalized block                              height=249 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.517] executed block                               height=249 app_hash=0000000000000000
+I[2026-11-18|18:09:25.518] committed state                              height=249 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.520] finalized block                              height=250 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.520] executed block                               height=250 app_hash=0000000000000000
+I[2026-11-18|18:09:25.520] committed state                              height=250 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.522] finalized block                              height=251 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.522] executed block                               height=251 app_hash=0000000000000000
+I[2026-11-18|18:09:25.522] committed state                              height=251 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.524] finalized block                              height=252 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.524] executed block                               height=252 app_hash=0000000000000000
+I[2026-11-18|18:09:25.524] committed state                              height=252 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.526] finalized block                              height=253 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.526] executed block                               height=253 app_hash=0000000000000000
+I[2026-11-18|18:09:25.526] committed state                              height=253 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.528] finalized block                              height=254 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.528] executed block                               height=254 app_hash=0000000000000000
+I[2026-11-18|18:09:25.528] committed state                              height=254 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.530] finalized block                              height=255 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.530] executed block                               height=255 app_hash=0000000000000000
+I[2026-11-18|18:09:25.530] committed state                              height=255 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.533] finalized block                              height=256 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.533] executed block                               height=256 app_hash=0000000000000000
+I[2026-11-18|18:09:25.533] committed state                              height=256 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.535] finalized block                              height=257 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.535] executed block                               height=257 app_hash=0000000000000000
+I[2026-11-18|18:09:25.535] committed state                              height=257 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.538] finalized block                              height=258 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.538] executed block                               height=258 app_hash=0000000000000000
+I[2026-11-18|18:09:25.538] committed state                              height=258 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.540] finalized block                              height=259 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.540] executed block                               height=259 app_hash=0000000000000000
+I[2026-11-18|18:09:25.540] committed state                              height=259 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.543] finalized block                              height=260 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.543] executed block                               height=260 app_hash=0000000000000000
+I[2026-11-18|18:09:25.543] committed state                              height=260 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.545] finalized block                              height=261 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.545] executed block                               height=261 app_hash=0000000000000000
+I[2026-11-18|18:09:25.545] committed state                              height=261 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.548] finalized block                              height=262 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.548] executed block                               height=262 app_hash=0000000000000000
+I[2026-11-18|18:09:25.548] committed state                              height=262 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.551] finalized block                              height=263 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.551] executed block                               height=263 app_hash=0000000000000000
+I[2026-11-18|18:09:25.551] committed state                              height=263 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.554] finalized block                              height=264 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.554] executed block                               height=264 app_hash=0000000000000000
+I[2026-11-18|18:09:25.554] committed state                              height=264 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.557] finalized block                              height=265 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.557] executed block                               height=265 app_hash=0000000000000000
+I[2026-11-18|18:09:25.557] committed state                              height=265 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.559] finalized block                              height=266 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.559] executed block                               height=266 app_hash=0000000000000000
+I[2026-11-18|18:09:25.560] committed state                              height=266 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.562] finalized block                              height=267 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.562] executed block                               height=267 app_hash=0000000000000000
+I[2026-11-18|18:09:25.562] committed state                              height=267 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.565] finalized block                              height=268 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.565] executed block                               height=268 app_hash=0000000000000000
+I[2026-11-18|18:09:25.565] committed state                              height=268 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.567] finalized block                              height=269 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.567] executed block                               height=269 app_hash=0000000000000000
+I[2026-11-18|18:09:25.567] committed state                              height=269 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.570] finalized block                              height=270 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.570] executed block                               height=270 app_hash=0000000000000000
+I[2026-11-18|18:09:25.570] committed state                              height=270 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.572] finalized block                              height=271 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.572] executed block                               height=271 app_hash=0000000000000000
+I[2026-11-18|18:09:25.573] committed state                              height=271 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.575] finalized block                              height=272 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.575] executed block                               height=272 app_hash=0000000000000000
+I[2026-11-18|18:09:25.575] committed state                              height=272 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.577] finalized block                              height=273 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.577] executed block                               height=273 app_hash=0000000000000000
+I[2026-11-18|18:09:25.577] committed state                              height=273 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.580] finalized block                              height=274 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.580] executed block                               height=274 app_hash=0000000000000000
+I[2026-11-18|18:09:25.580] committed state                              height=274 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.583] finalized block                              height=275 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.583] executed block                               height=275 app_hash=0000000000000000
+I[2026-11-18|18:09:25.583] committed state                              height=275 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.586] finalized block                              height=276 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.586] executed block                               height=276 app_hash=0000000000000000
+I[2026-11-18|18:09:25.586] committed state                              height=276 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.588] finalized block                              height=277 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.588] executed block                               height=277 app_hash=0000000000000000
+I[2026-11-18|18:09:25.588] committed state                              height=277 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.591] finalized block                              height=278 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.591] executed block                               height=278 app_hash=0000000000000000
+I[2026-11-18|18:09:25.591] committed state                              height=278 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.593] finalized block                              height=279 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.593] executed block                               height=279 app_hash=0000000000000000
+I[2026-11-18|18:09:25.594] committed state                              height=279 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.596] finalized block                              height=280 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.596] executed block                               height=280 app_hash=0000000000000000
+I[2026-11-18|18:09:25.596] committed state                              height=280 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.599] finalized block                              height=281 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.599] executed block                               height=281 app_hash=0000000000000000
+I[2026-11-18|18:09:25.599] committed state                              height=281 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.601] finalized block                              height=282 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.601] executed block                               height=282 app_hash=0000000000000000
+I[2026-11-18|18:09:25.601] committed state                              height=282 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.604] finalized block                              height=283 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.604] executed block                               height=283 app_hash=0000000000000000
+I[2026-11-18|18:09:25.604] committed state                              height=283 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.607] finalized block                              height=284 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.607] executed block                               height=284 app_hash=0000000000000000
+I[2026-11-18|18:09:25.607] committed state                              height=284 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.609] finalized block                              height=285 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.609] executed block                               height=285 app_hash=0000000000000000
+I[2026-11-18|18:09:25.609] committed state                              height=285 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.612] finalized block                              height=286 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.612] executed block                               height=286 app_hash=0000000000000000
+I[2026-11-18|18:09:25.612] committed state                              height=286 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.615] finalized block                              height=287 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.615] executed block                               height=287 app_hash=0000000000000000
+I[2026-11-18|18:09:25.615] committed state                              height=287 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.617] finalized block                              height=288 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.617] executed block                               height=288 app_hash=0000000000000000
+I[2026-11-18|18:09:25.617] committed state                              height=288 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.620] finalized block                              height=289 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.620] executed block                               height=289 app_hash=0000000000000000
+I[2026-11-18|18:09:25.620] committed state                              height=289 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.623] finalized block                              height=290 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.623] executed block                               height=290 app_hash=0000000000000000
+I[2026-11-18|18:09:25.623] committed state                              height=290 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.625] finalized block                              height=291 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.625] executed block                               height=291 app_hash=0000000000000000
+I[2026-11-18|18:09:25.625] committed state                              height=291 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.628] finalized block                              height=292 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.628] executed block                               height=292 app_hash=0000000000000000
+I[2026-11-18|18:09:25.628] committed state                              height=292 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.630] finalized block                              height=293 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.630] executed block                               height=293 app_hash=0000000000000000
+I[2026-11-18|18:09:25.631] committed state                              height=293 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.633] finalized block                              height=294 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.633] executed block                               height=294 app_hash=0000000000000000
+I[2026-11-18|18:09:25.633] committed state                              height=294 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.636] finalized block                              height=295 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.636] executed block                               height=295 app_hash=0000000000000000
+I[2026-11-18|18:09:25.636] committed state                              height=295 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.638] finalized block                              height=296 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.639] executed block                               height=296 app_hash=0000000000000000
+I[2026-11-18|18:09:25.639] committed state                              height=296 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.641] finalized block                              height=297 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.641] executed block                               height=297 app_hash=0000000000000000
+I[2026-11-18|18:09:25.641] committed state                              height=297 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.644] finalized block                              height=298 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.644] executed block                               height=298 app_hash=0000000000000000
+I[2026-11-18|18:09:25.644] committed state                              height=298 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.646] finalized block                              height=299 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.646] executed block                               height=299 app_hash=0000000000000000
+I[2026-11-18|18:09:25.646] committed state                              height=299 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.649] finalized block                              height=300 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.649] executed block                               height=300 app_hash=0000000000000000
+I[2026-11-18|18:09:25.649] committed state                              height=300 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.651] finalized block                              height=301 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.651] executed block                               height=301 app_hash=0000000000000000
+I[2026-11-18|18:09:25.651] committed state                              height=301 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.654] finalized block                              height=302 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.654] executed block                               height=302 app_hash=0000000000000000
+I[2026-11-18|18:09:25.654] committed state                              height=302 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.657] finalized block                              height=303 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.657] executed block                               height=303 app_hash=0000000000000000
+I[2026-11-18|18:09:25.657] committed state                              height=303 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.660] finalized block                              height=304 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.660] executed block                               height=304 app_hash=0000000000000000
+I[2026-11-18|18:09:25.660] committed state                              height=304 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.662] finalized block                              height=305 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.662] executed block                               height=305 app_hash=0000000000000000
+I[2026-11-18|18:09:25.663] committed state                              height=305 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.665] finalized block                              height=306 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.665] executed block                               height=306 app_hash=0000000000000000
+I[2026-11-18|18:09:25.665] committed state                              height=306 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.668] finalized block                              height=307 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.668] executed block                               height=307 app_hash=0000000000000000
+I[2026-11-18|18:09:25.668] committed state                              height=307 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.671] finalized block                              height=308 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.671] executed block                               height=308 app_hash=0000000000000000
+I[2026-11-18|18:09:25.671] committed state                              height=308 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.673] finalized block                              height=309 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.673] executed block                               height=309 app_hash=0000000000000000
+I[2026-11-18|18:09:25.673] committed state                              height=309 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.676] finalized block                              height=310 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.676] executed block                               height=310 app_hash=0000000000000000
+I[2026-11-18|18:09:25.676] committed state                              height=310 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.678] finalized block                              height=311 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.678] executed block                               height=311 app_hash=0000000000000000
+I[2026-11-18|18:09:25.678] committed state                              height=311 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.680] finalized block                              height=312 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.680] executed block                               height=312 app_hash=0000000000000000
+I[2026-11-18|18:09:25.680] committed state                              height=312 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.684] finalized block                              height=313 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.684] executed block                               height=313 app_hash=0000000000000000
+I[2026-11-18|18:09:25.684] committed state                              height=313 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.687] finalized block                              height=314 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.687] executed block                               height=314 app_hash=0000000000000000
+I[2026-11-18|18:09:25.687] committed state                              height=314 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.689] finalized block                              height=315 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.689] executed block                               height=315 app_hash=0000000000000000
+I[2026-11-18|18:09:25.689] committed state                              height=315 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.692] finalized block                              height=316 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.692] executed block                               height=316 app_hash=0000000000000000
+I[2026-11-18|18:09:25.692] committed state                              height=316 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.695] finalized block                              height=317 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.695] executed block                               height=317 app_hash=0000000000000000
+I[2026-11-18|18:09:25.695] committed state                              height=317 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.697] finalized block                              height=318 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.697] executed block                               height=318 app_hash=0000000000000000
+I[2026-11-18|18:09:25.697] committed state                              height=318 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.700] finalized block                              height=319 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.700] executed block                               height=319 app_hash=0000000000000000
+I[2026-11-18|18:09:25.700] committed state                              height=319 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.707] finalized block                              height=320 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.707] executed block                               height=320 app_hash=0000000000000000
+I[2026-11-18|18:09:25.707] committed state                              height=320 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.711] finalized block                              height=321 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.711] executed block                               height=321 app_hash=0000000000000000
+I[2026-11-18|18:09:25.711] committed state                              height=321 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.713] finalized block                              height=322 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.713] executed block                               height=322 app_hash=0000000000000000
+I[2026-11-18|18:09:25.713] committed state                              height=322 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.716] finalized block                              height=323 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.716] executed block                               height=323 app_hash=0000000000000000
+I[2026-11-18|18:09:25.716] committed state                              height=323 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.718] finalized block                              height=324 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.718] executed block                               height=324 app_hash=0000000000000000
+I[2026-11-18|18:09:25.718] committed state                              height=324 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.721] finalized block                              height=325 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.721] executed block                               height=325 app_hash=0000000000000000
+I[2026-11-18|18:09:25.721] committed state                              height=325 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.723] finalized block                              height=326 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.723] executed block                               height=326 app_hash=0000000000000000
+I[2026-11-18|18:09:25.723] committed state                              height=326 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.725] finalized block                              height=327 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.725] executed block                               height=327 app_hash=0000000000000000
+I[2026-11-18|18:09:25.725] committed state                              height=327 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.728] finalized block                              height=328 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.728] executed block                               height=328 app_hash=0000000000000000
+I[2026-11-18|18:09:25.728] committed state                              height=328 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.730] finalized block                              height=329 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.730] executed block                               height=329 app_hash=0000000000000000
+I[2026-11-18|18:09:25.730] committed state                              height=329 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.732] finalized block                              height=330 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.732] executed block                               height=330 app_hash=0000000000000000
+I[2026-11-18|18:09:25.732] committed state                              height=330 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.734] finalized block                              height=331 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.734] executed block                               height=331 app_hash=0000000000000000
+I[2026-11-18|18:09:25.734] committed state                              height=331 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.737] finalized block                              height=332 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.737] executed block                               height=332 app_hash=0000000000000000
+I[2026-11-18|18:09:25.737] committed state                              height=332 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.739] finalized block                              height=333 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:25.739] executed block                               height=333 app_hash=0000000000000000
+I[2026-11-18|18:09:25.739] committed state                              height=333 block_app_hash=0000000000000000
+    specula_repro_mc1_test.go:120: control enable-from-zero: highest committed height=1 (target 5); CONSENSUS FAILURE logged=true
+    specula_repro_mc1_test.go:120: control enable-from-zero: E[2026-11-18|18:09:24.893] CONSENSUS FAILURE!!!                         err="failed to apply block; error commit failed for application: updating consensus params: VoteExtensionsEnableHeight cannot be modified oncethe initial height has occurred, initial height: 0, current height 2" 
+    specula_repro_mc1_test.go:120: control enable-from-zero: OUTCOME=CHAIN_HALTED
+--- PASS: TestSpeculaReproControlEnableFromZero (15.01s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/consensus	15.055s
+exit=0

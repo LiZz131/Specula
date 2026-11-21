@@ -1,0 +1,25 @@
+{
+  "schema_version": "2",
+  "system": "CometBFT state execution and recovery (V1 incremental)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Updated ValidateUpdate rejects an unchanged VoteExtensionsEnableHeight once vote extensions are enabled, halting the chain",
+      "source": "model-checking",
+      "scenario": "U2 (unchanged re-send after enablement); consequence via U4 (restart/real replay)",
+      "severity": "High",
+      "invariant": "ContractLegalUpdateAccepted",
+      "config": "Update_full.cfg",
+      "counterexample": "spec/output/mc-v1-MC-1-cex.log",
+      "affected_code": [
+        "types/params.go:243-248",
+        "types/params.go:229-231",
+        "internal/state/execution.go:622-625",
+        "internal/consensus/state.go:1834-1836",
+        "internal/consensus/replay.go:408-415"
+      ],
+      "summary": "The update rewrote ConsensusParams.ValidateUpdate and removed the old short-circuit that accepted an Abci update equal to the current VoteExtensionsEnableHeight. The new rule accepts a non-nil Abci sub-record only if vote extensions are enabled at the block height under neither the current nor the proposed value, so once extensions are enabled an application that re-sends its unchanged enable height (e.g. a complete ConsensusParams echo built with ToProto, which always fills Abci, alongside a Block change) is rejected. updateState returns an error, ApplyBlock fails before Commit, consensus finalizeCommit panics (CONSENSUS FAILURE), and on restart the handshake replays the block through the real application, which returns the same response and is rejected again, so every honest node halts at that height. Reproduced at Level 0 with a single-validator consensus node; the baseline (old) tree accepts the same update and keeps committing."
+    }
+  ]
+}

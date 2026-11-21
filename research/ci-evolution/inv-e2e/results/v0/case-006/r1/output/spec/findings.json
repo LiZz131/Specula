@@ -1,0 +1,31 @@
+{
+  "schema_version": "2",
+  "system": "etcd Raft V1 (updated source, neutral commit update c780d355)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Reused ReadIndex context is released by an acknowledgement that predates it (stale linearizable read)",
+      "source": "model-checking",
+      "scenario": "Scenario 6b: delayed acknowledgement across context reuse (update-focused)",
+      "severity": "Medium",
+      "invariant": "UpdReadIndexLinearizable (mechanism: UpdReadAckAfterEnqueue)",
+      "config": "MC_hunt_s6_linearizable_guided_v2.cfg",
+      "counterexample": "spec/output/hunt-s6-linearizable-guided-v2.log",
+      "affected_code": [
+        "read_only.go:100-105",
+        "read_only.go:52-58",
+        "read_only.go:64-73",
+        "raft.go:824-853",
+        "raft.go:903-932"
+      ],
+      "summary": "The update makes readOnly.advance delete released requests by their real key (Entries[0].Data), so addRequest's duplicate guard now accepts a RequestCtx that was used before. recvAck still matches heartbeat responses only by context, so a response generated for the earlier use of the context (still in flight under message delay) is counted for the new request and stepLeader(MsgHeartbeatResp) releases it without any acknowledgement generated after the request was accepted (UpdReadAckAfterEnqueue: MC_hunt_s6_stale_ack.cfg, 21 states; also Update_full.cfg and Update_focused.cfg). With a partition in which a newer leader commits, the stale leader returns a read index below that commit: TLC counterexample MC_hunt_s6_linearizable_guided_v2.cfg (37 states, UpdReadIndexLinearizable). A real updated-code execution (traces/stale_read_reuse.ndjson) replays on the model and violates the same property, and harness/src/specula_s6_stale_read_test.go fails on the update (ReadState index 2 after index 4 was committed in term 2) and passes on the baseline, where the reused request was silently ignored.",
+      "related_counterexamples": [
+        "spec/output/hunt-s6-stale-ack.log",
+        "spec/output/update-full.log",
+        "spec/output/update-focused.log",
+        "spec/output/trace-stale-read-reuse-witness.log"
+      ]
+    }
+  ]
+}

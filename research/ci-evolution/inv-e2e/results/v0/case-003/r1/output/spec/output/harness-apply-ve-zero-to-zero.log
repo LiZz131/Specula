@@ -1,0 +1,9 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/apply_ve_zero_to_zero.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/state -run '^TestSpeculaTraceApplyVEZeroToZero$' -count=1 -v
+=== RUN   TestSpeculaTraceApplyVEZeroToZero
+I[2026-11-18|18:02:53.038] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:53.039] executed block                               height=1 app_hash=
+I[2026-11-18|18:02:53.063] committed state                              height=1 block_app_hash=
+    specula_trace_test.go:243: height 1: ApplyBlock accepted; VoteExtensionsEnableHeight=0
+--- PASS: TestSpeculaTraceApplyVEZeroToZero (0.11s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.128s

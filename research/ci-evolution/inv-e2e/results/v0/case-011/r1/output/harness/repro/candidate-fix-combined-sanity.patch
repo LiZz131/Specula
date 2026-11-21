@@ -1,0 +1,27 @@
+diff --git a/openraft/src/engine/engine_impl.rs b/openraft/src/engine/engine_impl.rs
+index 62b9bcc..079c6df 100644
+--- a/openraft/src/engine/engine_impl.rs
++++ b/openraft/src/engine/engine_impl.rs
+@@ -534,6 +534,12 @@ where C: RaftTypeConfig
+         if resp.vote_granted {
+             let quorum_granted = self.pre_candidate.as_mut().unwrap().grant_by(&target);
+             if quorum_granted {
++                // SPECULA CANDIDATE FIX (sanity control only): like every other election
++                // path, only a current voter may start the real election.
++                if !self.state.membership_state.effective().is_voter(&self.config.id) {
++                    self.pre_candidate = None;
++                    return;
++                }
+                 tracing::info!("a quorum would grant the vote; starting a real election");
+                 self.elect();
+             }
+@@ -856,6 +862,9 @@ where C: RaftTypeConfig
+         tracing::info!("{}", func_name!());
+ 
+         let candidate = self.candidate.take().unwrap();
++        // SPECULA CANDIDATE FIX (sanity control only): a Pre-Vote round started
++        // before this node became leader is superseded by the established leadership.
++        self.pre_candidate = None;
+         let leader = self.establish_handler().establish(candidate);
+ 
+         // There may already be a Leader with higher vote

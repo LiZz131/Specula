@@ -1,0 +1,612 @@
+{
+ "revision": {
+  "old": "ce863f4 (baseline)",
+  "new": "aa05a38 (update)"
+ },
+ "evaluation": "spec/evidence/gen.py generates one-state (or two-state) modules that EXTEND the V1 modules and instantiate Old == INSTANCE OldBase (previous suite base.tla, MODULE line renamed); truth values are TLC PrintT output or TLC verdicts in each tlc.log",
+ "entries": [
+  {
+   "property": "CommitWitnessSound_new",
+   "replaces": "CommitWitnessSound",
+   "decision": "modify",
+   "kind": "semantic replacement",
+   "affected_because": "matchedIndex/matchedTerm now denote Engine-owned leader progress recreated by every elect (raft_state.rs:116-118) and re-keyed by upgrade_quorum_set (progress/mod.rs:222-232); greatest_majority_value/get_match_log_ids/calc_commit_log_id deleted (watch list)",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "ledger_status": "mixed (quorum-support requirement; matched-term-kept unknown; entry-retained requirement; commit-not-below-witness requirement; witness-bookkeeping model-internal)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E1",
+    "E1mc",
+    "E1c",
+    "E1s",
+    "E1sc"
+   ]
+  },
+  {
+   "property": "LeaderProgressConfigCurrent",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new property",
+   "affected_because": "new state: the leader progress quorum set decides vote and commit quorums (leader/leader.rs:50-53, engine_impl.rs:617-647)",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "n/a (new; requirement per its REQ-EVIDENCE block)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E2",
+    "E2c"
+   ]
+  },
+  {
+   "property": "ProgressMonotonic",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new action property",
+   "affected_because": "progress moved into Engine (VecProgress::update with debug_assert value > prev, progress/mod.rs:180)",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "n/a (new; requirement per its REQ-EVIDENCE block)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E3",
+    "E3c"
+   ]
+  },
+  {
+   "property": "TypeOK",
+   "replaces": "TypeOK",
+   "decision": "modify",
+   "kind": "representation-only change",
+   "affected_because": "new variables leaderState/progressConfig",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "evidence_ids": [
+    "K1",
+    "K3",
+    "K5",
+    "K6"
+   ],
+   "note": "representation change: new variables leaderState/progressConfig/logConfig and the repaired append-message shape (ents, mcfg). K1/K3/K5 (no in-flight messages) agree TRUE/TRUE; K6 (an mc state with in-flight V1 messages) is rejected by the V0 TypeOK only because of the added message fields, as intended."
+  },
+  {
+   "property": "ElectionSafety",
+   "decision": "keep",
+   "affected_because": "watch: Engine::elect, Engine::handle_vote_resp, Leader::is_granted_by (replaced by is_vote_granted over the progress quorum set)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "unknown",
+   "watch_touched": true,
+   "evidence_ids": [
+    "K5",
+    "E1mc"
+   ]
+  },
+  {
+   "property": "ActiveLeaderHasCommittedVote",
+   "decision": "keep",
+   "affected_because": "watch: Engine::elect, Engine::handle_vote_resp",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "K1",
+    "K5"
+   ]
+  },
+  {
+   "property": "CommitWithinLocalLog",
+   "decision": "keep",
+   "affected_because": "watch: follower_commit_entries, fast_commit (removed), calc_commit_log_id/get_match_log_ids (removed)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "K1",
+    "K3",
+    "K6"
+   ],
+   "note": "Engine::update_progress commits from progress values alone; the unit fixture update_progress_test (empty log) reaches commit > last log, a fixture-only state; Trace.cfg does not enable this invariant (as in V0)"
+  },
+  {
+   "property": "CommittedLogAgreement",
+   "decision": "keep",
+   "affected_because": "watch: get_match_log_ids (removed)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "K6",
+    "E1mc"
+   ]
+  },
+  {
+   "property": "MembershipOrder",
+   "decision": "keep",
+   "affected_because": "watch: follower_commit_entries, leader_append_entries, handle_update_matched (promotion now in RaftState::update_committed)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "K2",
+    "K3",
+    "K4"
+   ]
+  },
+  {
+   "property": "OneOutstandingMembership",
+   "decision": "keep",
+   "affected_because": "watch: follower_commit_entries, leader_append_entries, handle_update_matched",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement (ledger note: restart relation unknown)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "K2",
+    "K3"
+   ],
+   "note": "kept unchanged; enabled only in crash-free cfgs: the restart path (raft_core.rs:189-193 resets the volatile commit; storage/helper.rs get_membership rebuilds a committed membership) makes the antecedent use a reset commit index (pre-existing V0 issue, Case A, see changelog Round 2)"
+  },
+  {
+   "property": "EffectiveIsLastLogMembership",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new structural property (repair validation)",
+   "affected_because": "repair of the pre-existing follower membership abstraction (logConfig, DeliverAppendEntries/RejectAppendConflict); exposes the effect of follower_update_membership/truncate_logs on the effective membership read by the update's progress quorum set at election",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "n/a (new; requirement per its REQ-EVIDENCE block)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E4",
+    "E4c"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E1",
+   "property": "CommitWitnessSound_new",
+   "role": "separating (weakening, first judgment)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1/E1.tla",
+   "how_populated": "n1 re-elected (term 2) holding a term-1 witness at index 0 supported by {n1,n2}; leader progress recreated (rows Nil)",
+   "log": "spec/evidence/E1/tlc.log",
+   "tlc_printed": "<<\"E1\", \"CommitWitnessSound\", FALSE, TRUE>> | <<\"E1\", \"LeaderProgressConfigCurrent\", TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "RaftState::new_leader recreates progress at every elect (raft_state.rs:116-118); fresh trace leader_lifecycle event 13 (second Elect) post-state has all progress values None after an earlier commit"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "raft-essentials.md:79",
+     "raft-essentials.md:84",
+     "openraft/src/progress/mod.rs:4 (constrains one progress instance only)"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E1mc",
+   "property": "CommitWitnessSound_new",
+   "role": "separating (weakening, upgraded witness)",
+   "state_source": "mc",
+   "state": "spec/evidence/E1mc/E1mc.tla",
+   "how_populated": "final state of output/upd-mc-reach_u2_reelection.trace.json (MC_reach_u2_reelection.cfg): n1 committed index 0 in term 1 with supporters {n1,n3}, stepped down, re-elected candidate in term 3 with recreated progress",
+   "log": "spec/evidence/E1mc/tlc.log",
+   "tlc_printed": "<<\"E1mc\", \"CommitWitnessSound\", FALSE, TRUE>> | <<\"E1mc\", \"LeaderProgressConfigCurrent\", TRUE>> | <<\"E1mc\", \"TypeOK\", TRUE, TRUE>> | <<\"E1mc\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"E1mc\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"E1mc\", \"MembershipOrder\", TRUE, TRUE>> | <<\"E1mc\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"E1mc\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"E1mc\", \"ElectionSafety\", TRUE, TRUE>> | <<\"E1mc\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "same as E1; path is Elect -> GrantVote -> append -> ack -> step-down -> Elect"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "raft-essentials.md:79",
+     "raft-essentials.md:84"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E1c",
+   "property": "CommitWitnessSound_new",
+   "role": "control (weakening)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1c/E1c.tla",
+   "how_populated": "E1 with supporter n2's log missing index 0",
+   "log": "spec/evidence/E1c/tlc.log",
+   "tlc_printed": "<<\"E1c\", \"CommitWitnessSound\", FALSE, FALSE>> | <<\"E1c\", \"LeaderProgressConfigCurrent\", TRUE>>",
+   "tlc_verdict": "ok",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "expected": false
+  },
+  {
+   "id": "E1s",
+   "property": "CommitWitnessSound_new",
+   "role": "separating (strengthening)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1s/E1s.tla",
+   "how_populated": "term-1 leader n1 with live progress rows reaching the witness, but supporter n2's log lacks index 0",
+   "log": "spec/evidence/E1s/tlc.log",
+   "tlc_printed": "<<\"E1s\", \"CommitWitnessSound\", TRUE, FALSE>> | <<\"E1s\", \"LeaderProgressConfigCurrent\", TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "an ok ack is produced only after the follower accepted the entries (engine_impl.rs:295-361 handle_append_entries_req; replication/mod.rs success path); committed entries are never truncated (checked by MC: CommitWitnessSound_new over Update_full/focused/open and hunts)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "raft-essentials.md:8",
+     "raft-essentials.md:84",
+     "openraft/src/raft_state.rs:48"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E1sc",
+   "property": "CommitWitnessSound_new",
+   "role": "control (strengthening)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1sc/E1sc.tla",
+   "how_populated": "E1s with n2 holding index 0 (legal)",
+   "log": "spec/evidence/E1sc/tlc.log",
+   "tlc_printed": "<<\"E1sc\", \"CommitWitnessSound\", TRUE, TRUE>> | <<\"E1sc\", \"LeaderProgressConfigCurrent\", TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  },
+  {
+   "id": "E2",
+   "property": "LeaderProgressConfigCurrent",
+   "role": "separating (added)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E2/E2.tla",
+   "how_populated": "E2c with effectiveConfig[n1] changed to {{n1,n2,n3}} without upgrading progress",
+   "log": "spec/evidence/E2/tlc.log",
+   "tlc_printed": "<<\"E2\", \"CommitWitnessSound\", TRUE, TRUE>> | <<\"E2\", \"LeaderProgressConfigCurrent\", FALSE>>",
+   "tlc_verdict": "ok",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "update_effective_membership upgrades progress (engine_impl.rs:601-604); other effective-membership writers (truncate_logs, follower_update_membership) run after internal_handle_vote_req dropped leader data (engine_impl.rs:897); RaftCore install_snapshot/revert-to-follower paths are outside the modeled Next (coverage limit)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/engine/engine_impl.rs:601",
+     "openraft/src/engine/engine_impl.rs:282",
+     "raft-essentials.md:103",
+     "openraft/src/engine/update_effective_membership_test.rs:128"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E2c",
+   "property": "LeaderProgressConfigCurrent",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/E2c/E2c.tla",
+   "how_populated": "post-state of traces/leader_lifecycle.ndjson uniform {1,2} LeaderAppend (progress quorum set upgraded)",
+   "log": "spec/evidence/E2c/tlc.log",
+   "tlc_printed": "<<\"E2c\", \"CommitWitnessSound\", TRUE, TRUE>> | <<\"E2c\", \"LeaderProgressConfigCurrent\", TRUE>>",
+   "tlc_verdict": "ok",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  },
+  {
+   "id": "E3",
+   "property": "ProgressMonotonic",
+   "role": "separating (added, transition)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E3/E3.tla",
+   "how_populated": "E1sc -> same state with leader n1's progress for n2 lowered from index 0 to None within one leadership",
+   "log": "spec/evidence/E3/tlc.log",
+   "tlc_printed": "<<\"E3\", \"ProgressMonotonicStep evaluated by PROPERTY\">>",
+   "tlc_verdict": "violated",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "replication.rs:122 assert monotonic matched; progress/mod.rs:180 debug_assert value > prev"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/progress/mod.rs:4",
+     "openraft/src/core/replication.rs:122"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E3c",
+   "property": "ProgressMonotonic",
+   "role": "control (transition)",
+   "state_source": "trace",
+   "state": "spec/evidence/E3c/E3c.tla",
+   "how_populated": "pre/post of the traces/leader_lifecycle.ndjson UpdateProgress that commits index 3",
+   "log": "spec/evidence/E3c/tlc.log",
+   "tlc_printed": "<<\"E3c\", \"ProgressMonotonicStep evaluated by PROPERTY\">>",
+   "tlc_verdict": "ok",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  },
+  {
+   "id": "K1",
+   "property": "keep: TypeOK/CommitWithinLocalLog/MembershipOrder/ActiveLeaderHasCommittedVote",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/K1/K1.tla",
+   "how_populated": "post-state of leader_lifecycle UpdateProgress committing the joint entry (index 4): leader, committed 4, committed membership = joint at 4",
+   "log": "spec/evidence/K1/tlc.log",
+   "tlc_printed": "<<\"K1\", \"TypeOK\", TRUE, TRUE>> | <<\"K1\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"K1\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"K1\", \"MembershipOrder\", TRUE, TRUE>> | <<\"K1\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"K1\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"K1\", \"ElectionSafety\", TRUE, TRUE>> | <<\"K1\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/engine/update_progress_test.rs (commit through progress)",
+     "raft-essentials.md:106"
+    ]
+   }
+  },
+  {
+   "id": "K2",
+   "property": "keep: OneOutstandingMembership/MembershipOrder",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/K2/K2.tla",
+   "how_populated": "post-state of leader_lifecycle uniform LeaderAppend: effective 5 > committed 4, committed membership 4",
+   "log": "spec/evidence/K2/tlc.log",
+   "tlc_printed": "<<\"K2\", \"TypeOK\", TRUE, TRUE>> | <<\"K2\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"K2\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"K2\", \"MembershipOrder\", TRUE, TRUE>> | <<\"K2\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"K2\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"K2\", \"ElectionSafety\", TRUE, TRUE>> | <<\"K2\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/membership/membership_state.rs:9"
+    ]
+   }
+  },
+  {
+   "id": "K3",
+   "property": "keep: CommitWithinLocalLog/MembershipOrder/OneOutstandingMembership/TypeOK",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/K3/K3.tla",
+   "how_populated": "post-state of leader_fast_commit_upto_membership: commit 4 (before the membership entry), committed membership 3, effective 5",
+   "log": "spec/evidence/K3/tlc.log",
+   "tlc_printed": "<<\"K3\", \"TypeOK\", TRUE, TRUE>> | <<\"K3\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"K3\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"K3\", \"MembershipOrder\", TRUE, TRUE>> | <<\"K3\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"K3\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"K3\", \"ElectionSafety\", TRUE, TRUE>> | <<\"K3\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/engine/leader_append_entries_test.rs:220 (fast-commit upto membership entry)",
+     "openraft/src/engine/leader_append_entries_test.rs:250"
+    ]
+   }
+  },
+  {
+   "id": "K4",
+   "property": "keep: MembershipOrder",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/K4/K4.tla",
+   "how_populated": "post-state of follower_commit_no_advance: effective 3 <= committed 3, committed membership 1 (no promotion without advance)",
+   "log": "spec/evidence/K4/tlc.log",
+   "tlc_printed": "<<\"K4\", \"TypeOK\", TRUE, TRUE>> | <<\"K4\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"K4\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"K4\", \"MembershipOrder\", TRUE, TRUE>> | <<\"K4\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"K4\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"K4\", \"ElectionSafety\", TRUE, TRUE>> | <<\"K4\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/membership/membership_state.rs:9-11"
+    ]
+   }
+  },
+  {
+   "id": "K5",
+   "property": "keep: ElectionSafety/ActiveLeaderHasCommittedVote/TypeOK",
+   "role": "keep",
+   "state_source": "mc",
+   "state": "spec/evidence/K5/K5.tla",
+   "how_populated": "final state of output/upd-mc-reach_ev_TwoLeaders.trace.json: two simultaneous leaders in different terms",
+   "log": "spec/evidence/K5/tlc.log",
+   "tlc_printed": "<<\"K5\", \"CommitWitnessSound\", TRUE, TRUE>> | <<\"K5\", \"LeaderProgressConfigCurrent\", TRUE>> | <<\"K5\", \"TypeOK\", TRUE, TRUE>> | <<\"K5\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"K5\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"K5\", \"MembershipOrder\", TRUE, TRUE>> | <<\"K5\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"K5\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"K5\", \"ElectionSafety\", TRUE, TRUE>> | <<\"K5\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/vote/leader_id.rs (leader identified by (term,node_id))"
+    ]
+   }
+  },
+  {
+   "id": "K6",
+   "property": "keep: CommittedLogAgreement/CommitWithinLocalLog",
+   "role": "keep",
+   "state_source": "mc",
+   "state": "spec/evidence/K6/K6.tla",
+   "how_populated": "final state of output/upd-mc-reach_ev_TwoCommitted.trace.json: two nodes with commits, one holding a commit witness",
+   "log": "spec/evidence/K6/tlc.log",
+   "tlc_printed": "<<\"K6\", \"CommitWitnessSound\", TRUE, TRUE>> | <<\"K6\", \"LeaderProgressConfigCurrent\", TRUE>> | <<\"K6\", \"TypeOK\", FALSE, TRUE>> | <<\"K6\", \"EffectiveIsLastLogMembership\", TRUE>> | <<\"K6\", \"CommitWithinLocalLog\", TRUE, TRUE>> | <<\"K6\", \"MembershipOrder\", TRUE, TRUE>> | <<\"K6\", \"OneOutstandingMembership\", TRUE, TRUE>> | <<\"K6\", \"ActiveLeaderHasCommittedVote\", TRUE, TRUE>> | <<\"K6\", \"ElectionSafety\", TRUE, TRUE>> | <<\"K6\", \"CommittedLogAgreement\", TRUE, TRUE>>",
+   "tlc_verdict": "ok",
+   "old": {
+    "claimed": "TypeOK FALSE (message shape), others TRUE",
+    "tlc": "TypeOK FALSE, others TRUE"
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/membership/membership_state.rs:16"
+    ]
+   }
+  },
+  {
+   "id": "E4",
+   "property": "EffectiveIsLastLogMembership",
+   "role": "separating (added)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E4/E4.tla",
+   "how_populated": "E2c (lifecycle trace post-state: membership entries at 4 and 5) with the effective membership pointing at entry 4",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E4/tlc.log",
+   "tlc_printed": "<<\"E4\", \"EffectiveIsLastLogMembership\", FALSE>>",
+   "tlc_verdict": "ok",
+   "impl_produces": {
+    "value": "no",
+    "basis": "follower_update_membership and update_effective_membership set effective to the newest membership entry; truncate_logs reverts only when the effective entry is removed (engine_impl.rs:428-485, 591-615, 671-746)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "guide/src/effective-membership.md:5",
+     "openraft/src/membership/membership_state.rs:18",
+     "openraft/src/storage/helper.rs:95"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E4c",
+   "property": "EffectiveIsLastLogMembership",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/E4c/E4c.tla",
+   "how_populated": "same as E2c (leader_lifecycle uniform LeaderAppend post-state)",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E4c/tlc.log",
+   "tlc_printed": "<<\"E4c\", \"EffectiveIsLastLogMembership\", TRUE>>",
+   "tlc_verdict": "ok"
+  }
+ ],
+ "bug_candidates": [],
+ "unresolved": [
+  {
+   "property": "OneOutstandingMembership",
+   "missing_evidence": "no non-implementation statement relates the committed-membership record to the volatile commit index after restart; until one exists the property is checked only in crash-free cfgs"
+  }
+ ],
+ "limits": [
+  "E1s/E2/E3 separating states are constructed; they are strengthening/added-property witnesses whose forbidden verdicts rest on the cited requirement text",
+  "LeaderProgressConfigCurrent: RaftCore paths that change vote/role without clearing Engine leader data (install_snapshot.rs:49-55, replication.rs handle_revert_to_follower) are outside the modeled Next"
+ ],
+ "repairs": [
+  {
+   "kind": "pre-existing model defect (Case B)",
+   "actions": [
+    "DeliverAppendEntries",
+    "RejectAppendConflict",
+    "SendAppendEntries",
+    "LeaderAppendEntries (logConfig)"
+   ],
+   "evidence": "spec/output/superseded-prerepair/upd-focused-bfs.trace.json; spec/changelog.md Round 2"
+  }
+ ]
+}

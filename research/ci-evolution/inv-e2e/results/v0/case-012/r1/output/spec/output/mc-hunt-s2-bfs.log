@@ -1,0 +1,58 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 115 and seed -7119414622419742176 with 4 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 10257] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-7605767226711829489/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-7605767226711829489/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7605767226711829489/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7605767226711829489/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7605767226711829489/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7605767226711829489/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7605767226711829489/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-20 05:18:58)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 05:18:58.
+Progress(11) at 2026-11-20 05:19:01: 30,145 states generated (30,145 s/min), 15,476 distinct states found (15,476 ds/min), 9,221 states left on queue.
+Error: Invariant CommitWitnessSound is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n2) line 38, col 5 to line 41, col 70 of module MC>
+
+State 3: <MCGrantVote(n2,n1) line 75, col 5 to line 76, col 27 of module MC>
+
+State 4: <MCLeaderWriteBlank(n2) line 71, col 5 to line 72, col 27 of module MC>
+
+State 5: <MCSendAppendEntries(n2,n1) line 79, col 5 to line 80, col 27 of module MC>
+
+State 6: <MCNext line 109, col 8 to line 109, col 51 of module MC>
+
+State 7: <MCNext line 111, col 8 to line 111, col 50 of module MC>
+
+State 8: <MCProposeMembership(n2,{n1, n3}) line 50, col 5 to line 53, col 68 of module MC>
+
+State 9: <MCSendAppendEntries(n2,n3) line 79, col 5 to line 80, col 27 of module MC>
+
+State 10: <MCNext line 109, col 8 to line 109, col 51 of module MC>
+
+State 11: <MCNext line 111, col 8 to line 111, col 50 of module MC>
+
+53971 states generated, 26698 distinct states found, 15537 states left on queue.
+The depth of the complete state graph search is 12.
+Finished in 05s at (2026-11-20 05:19:03)
+Trace exploration spec path: ./MC_TTrace_1795151937.tla
+CMD: MC.tla -config MC_hunt_s2_membership.cfg -workers 4  (outer timeout 20m)
+EXIT: rc=12 elapsed=6s

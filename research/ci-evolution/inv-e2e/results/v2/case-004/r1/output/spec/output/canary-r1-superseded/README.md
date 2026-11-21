@@ -1,0 +1,1 @@
+Round-1 canaries, run before the MCVoteResponse self-grant-order repair; superseded by round 2 (kept as evidence for the repair). CanaryTransferCommit was stopped manually before completion when the repair was identified.

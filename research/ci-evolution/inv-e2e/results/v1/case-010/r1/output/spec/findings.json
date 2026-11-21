@@ -1,0 +1,83 @@
+{
+ "schema_version": "2",
+ "system": "Apache ZooKeeper Zab (case-010 update revision)",
+ "generated_by": "validation-workflow (incremental-modeling Part 3)",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Learner exit no longer drains or stops the follower log processor (update-introduced)",
+   "source": "model-checking",
+   "scenario": "UPD-3",
+   "severity": "Medium",
+   "invariant": "RecoverableHistoryComplete",
+   "config": "Update-hunt-leak-gap.cfg",
+   "counterexample": "spec/output/counterexamples/final/MC-1_leaked-log-processor_committed-gap_UPDATED.log",
+   "additional_counterexamples": [
+    "spec/output/counterexamples/final/MC-1_leaked-log-processor_unflushed-applied_committed-gap_UPDATED.log",
+    "spec/output/counterexamples/final/MC-1_leaked-log-processor_replay-order_UPDATED.log",
+    "spec/output/counterexamples/final/MC-1_leaked-log-processor_stale-before-committed_UPDATED.log"
+   ],
+   "attribution": "introduced by the update: PRIOR control Update-control-prior-leak-gap.cfg exhaustive (238,362 states) without violation; real old revision joins its SyncThread on learner exit, new revision leaks it (spec/output/harness/upd-serving-exit-v3.surefire-output.txt vs old-control output)",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:860-865",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:154-173",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:803-858",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:156-270"
+   ],
+   "summary": "The update changed Learner.shutdown() to call zk.shutdown(boolean), which is not overridden by LearnerZooKeeperServer; the override shutdown() was the only code that shut down and drained the follower's SyncRequestProcessor. After a learner exit while serving, the old processor thread keeps running on the shared txn log (thread leak, observed in a real 3-node test: two live SyncThread per follower after one leader loss, leaked threads survive QuorumPeer shutdown), and txns queued at exit are written later, asynchronously. If a txn was already applied in memory but not yet flushed, the follower advertises it in the next sync, the leader DIFFs past it, and the follower's recoverable log misses a committed txn until the leaked thread writes it; a crash in that window, or a TRUNC that reopens the log before the stale append, leaves a committed gap or stale out-of-order records that restart replay applies.",
+   "reproduction": {
+    "status": "mechanism reproduced (new FAIL, old PASS)",
+    "command": "harness/repro-mc1.sh",
+    "evidence": [
+     "spec/confirmation-MC-1.md",
+     "spec/output/harness/repro-mc1-artifact.log",
+     "spec/output/harness/repro-mc1-artifact-old.log"
+    ]
+   }
+  },
+  {
+   "id": "MC-2",
+   "title": "TRUNC-mode learner exit before NEWLEADER keeps an unpersisted in-memory image (pre-existing; not covered by the update)",
+   "source": "model-checking",
+   "scenario": "UPD-2",
+   "severity": "Medium",
+   "invariant": "ExitedLearnerMemoryBackedByLog",
+   "config": "Update-hunt-trunc-noleak.cfg",
+   "counterexample": "spec/output/counterexamples/final/MC-2_trunc-exit_unpersisted-memory_UPDATED_noleak.log",
+   "additional_counterexamples": [
+    "spec/output/counterexamples/final/MC-2_trunc-exit_committed-gap_UPDATED_noleak.log",
+    "spec/output/counterexamples/final/MC-2_control_PRIOR_trunc-exit_committed-gap_noleak.log",
+    "spec/output/counterexamples/final/MC-2_control_PRIOR_trunc-exit_unpersisted-memory.log"
+   ],
+   "attribution": "pre-existing: same violations under PRIOR (Update-control-prior-trunc.cfg, Update-control-prior-trunc-noleak-gap.cfg); the update fixes the SNAP branch only",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:587-598",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:656-665",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:864",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:852-857",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1292-1302"
+   ],
+   "summary": "SNAP and TRUNC both keep writeToTxnLog=false until NEWLEADER, apply in-sync COMMITs directly to the in-memory DataTree and persist them only via the NEWLEADER snapshot. The update forces a full shutdown (zkDb.clear) on learner exit only when syncMode is SNAP. A follower whose log is ahead of the leader's committed log (e.g. after a crash, while the leader has committed but not applied a txn) gets TRUNC followed by PROPOSAL+COMMIT for that txn, applies it only in memory, and if it fails before NEWLEADER it keeps the unpersisted image; it re-joins by DIFF from that zxid, logs later txns, and its recoverable log misses the committed txn, so after a restart it permanently lacks it."
+  },
+  {
+   "id": "MC-3",
+   "title": "Fast-forward before drain leaves re-sent or stale records ahead of committed history in a follower log (pre-existing)",
+   "source": "model-checking",
+   "scenario": "UPD-3 (attribution control)",
+   "severity": "Medium",
+   "invariant": "DurableReplayOrdered",
+   "config": "Update-control-prior-leak.cfg",
+   "counterexample": "spec/output/counterexamples/final/MC-3_PRIOR_drain-after-fastforward_replay-order.log",
+   "additional_counterexamples": [
+    "spec/output/counterexamples/final/MC-3_PRIOR_drain-after-fastforward_stale-before-committed.log"
+   ],
+   "attribution": "pre-existing in the old revision (PRIOR); also reachable under UPDATED through the leaked processor (MC-1 variants)",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:154-173",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:841-852",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/persistence/FileTxnSnapLog.java:317-368"
+   ],
+   "summary": "On a learner exit while serving, the old LearnerZooKeeperServer.shutdown() fast-forwards the DataTree from the log before draining the sync queue, so queued txns are written to the log but are missing from the in-memory baseline advertised in the next sync. The leader re-sends them and the follower appends them again, so the log temporarily holds a record after a newer one (<<1,2,1>>) or an uncommitted record before a committed one. Restart replay applies every record in file order, so a crash in that window regresses state while lastProcessedZxid stays at the newer zxid."
+  }
+ ]
+}

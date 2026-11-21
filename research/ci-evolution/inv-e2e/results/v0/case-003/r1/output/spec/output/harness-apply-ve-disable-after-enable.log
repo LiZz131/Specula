@@ -1,0 +1,8 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/apply_ve_disable_after_enable.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/state -run '^TestSpeculaTraceApplyVEDisableAfterEnable$' -count=1 -v
+=== RUN   TestSpeculaTraceApplyVEDisableAfterEnable
+I[2026-11-18|18:02:54.570] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:54.570] executed block                               height=1 app_hash=
+    specula_trace_test.go:248: height 1: ApplyBlock rejected: commit failed for application: updating consensus params: vote extensions cannot be disabled once enabledold enable height: 1, current height 1
+--- PASS: TestSpeculaTraceApplyVEDisableAfterEnable (0.08s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.106s

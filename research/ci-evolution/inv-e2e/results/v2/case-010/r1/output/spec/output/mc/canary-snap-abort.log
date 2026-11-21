@@ -1,0 +1,92 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 78 and seed -2463453939240691431 with 2 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 17867] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-12463007891438837876/_TLAPlusCounterExample.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLAPlusCounterExample.tla)
+Parsing file /tmp/tlc-12463007891438837876/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-12463007891438837876/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-12463007891438837876/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-12463007891438837876/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-12463007891438837876/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-12463007891438837876/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-12463007891438837876/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-12463007891438837876/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-12463007891438837876/SequencesExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/SequencesExt.tla)
+Parsing file /tmp/tlc-12463007891438837876/FiniteSetsExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/FiniteSetsExt.tla)
+Parsing file /tmp/tlc-12463007891438837876/Folds.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Folds.tla)
+Parsing file /tmp/tlc-12463007891438837876/Functions.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Functions.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module FiniteSetsExt
+Semantic processing of module SequencesExt
+Semantic processing of module _TLAPlusCounterExample
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module Folds
+Linting of module Functions
+Linting of module FiniteSetsExt
+Linting of module SequencesExt
+Linting of module _TLAPlusCounterExample
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 17:03:43)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 17:03:43.
+Error: Invariant UpdSnapAbortUnreachable is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s1,s1) line 42, col 5 to line 44, col 23 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 42, col 5 to line 44, col 23 of module MC>
+
+State 4: <MCFinishElection(s1,s1) line 47, col 5 to line 49, col 29 of module MC>
+
+State 5: <MCFinishElection(s2,s1) line 47, col 5 to line 49, col 29 of module MC>
+
+State 6: <MCEnterDiscovery(s1) line 52, col 5 to line 56, col 26 of module MC>
+
+State 7: <MCEnterDiscovery(s2) line 52, col 5 to line 56, col 26 of module MC>
+
+State 8: <MCPersistLeaderAccepted(s1) line 59, col 5 to line 63, col 35 of module MC>
+
+State 9: <MCPersistFollowerAccepted(s2) line 66, col 5 to line 71, col 35 of module MC>
+
+State 10: <MCRecordEpochAck(s1,s1) line 74, col 5 to line 76, col 29 of module MC>
+
+State 11: <MCRecordEpochAck(s1,s2) line 74, col 5 to line 76, col 29 of module MC>
+
+State 12: <MCFormEpochQuorum(s1) line 79, col 5 to line 81, col 30 of module MC>
+
+State 13: <MCPersistFollowerCurrent(s2) line 84, col 5 to line 87, col 34 of module MC>
+
+State 14: <MCEnterFollowerSync(s2) line 90, col 5 to line 96, col 26 of module MC>
+
+State 15: <MCDecideSync(s2,"SNAP") line 100, col 5 to line 103, col 31 of module MC>
+
+State 16: <MCReceiveSync(s2,"SNAP") line 107, col 5 to line 112, col 30 of module MC>
+
+State 17: <MCLearnerExit(s2) line 139, col 5 to line 142, col 30 of module MC>
+
+"CounterExample written: output/mc/canary-snap-abort.cex.tla"
+85103 states generated, 15006 distinct states found, 4328 states left on queue.
+The depth of the complete state graph search is 17.
+Finished in 04s at (2026-11-19 17:03:46)
+Trace exploration spec path: ./Update_TTrace_1795107822.tla

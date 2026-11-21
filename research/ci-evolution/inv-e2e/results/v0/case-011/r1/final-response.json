@@ -1,0 +1,17 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update adds a Pre-Vote round (Engine.pre_candidate, PreVote RPC, Pre-Vote branch of the election tick, trigger().elect(true), clearing in do_elect and become_following), so the model had to change. Generation: updated base/MC/Trace, new Update.tla with affected and interaction actions, an EnvUpdate rely with discharge, focused/open/timer-only specs, properties U1-U4 plus an interaction invariant, and reachability canaries. While validating I also repaired two defects in the prior model: the absent-log encoding made every 3-voter election impossible in the prior MC.cfg, and leader establishment did not set the vote lease. Validation: I reused and rebased the prior engine-level harness (its patch no longer applied cleanly). 7 prior scenarios were rerun and 12 diff-derived scenarios added, giving 19 fresh nonempty traces (33 events). All 19 pass real TLC replay with TraceConsumed, and 25 of 25 single-field mutants are rejected; the 7 archived V0 traces are superseded. Model checking found no violation of the preserved invariants: MC-membership.cfg was exhausted, and MC.cfg reached 23.9M distinct states before its time limit, plus a simulation run. Update campaigns found two update-introduced defects, both reproduced at engine and runtime level on the updated source. MC-1 (Medium): a Pre-Vote round started while the node is still a Candidate survives leader establishment, and a late grant makes the new leader call elect() and re-elect; in debug builds its RaftCore panics on the leader.vote >= state.vote assertion. MC-2 (Low): the election triggered by a Pre-Vote quorum skips the is_voter check, so after an operator's trigger().elect(true) on the leader and the leader's self-removal, the removed node starts an election. Candidate-fix controls separate the two: with only the MC-1 fix, MC-1's tests pass and MC-2's still fail; with both fixes all tests pass and the model controls report no violation. U2, U4 and the interaction invariant showed no violation; discharge passed. All model checking is bounded and mostly stopped at time limits, so coverage is limited. The specula ci-result tool is not installed, so spec/final-result.json was written but the CI reports were not generated.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/confirmation-MC-2.md",
+    "/work/current/.specula-output/spec/output/mc-hunt-prevote-leader-tickonly.log",
+    "/work/current/.specula-output/spec/output/mc-hunt-prevote-leader.log",
+    "/work/current/.specula-output/spec/output/mc-upd-full.log",
+    "/work/current/.specula-output/spec/output/mc-hunt-prevote-membership.log",
+    "/work/current/.specula-output/spec/final-result.json"
+  ],
+  "blockers": []
+}

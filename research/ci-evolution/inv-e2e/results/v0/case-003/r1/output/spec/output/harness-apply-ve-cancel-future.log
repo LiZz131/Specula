@@ -1,0 +1,9 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/apply_ve_cancel_future.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/state -run '^TestSpeculaTraceApplyVECancelFuture$' -count=1 -v
+=== RUN   TestSpeculaTraceApplyVECancelFuture
+I[2026-11-18|18:02:46.729] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:46.729] executed block                               height=1 app_hash=
+I[2026-11-18|18:02:46.753] committed state                              height=1 block_app_hash=
+    specula_trace_test.go:201: height 1: ApplyBlock accepted; VoteExtensionsEnableHeight=0
+--- PASS: TestSpeculaTraceApplyVECancelFuture (0.12s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.140s

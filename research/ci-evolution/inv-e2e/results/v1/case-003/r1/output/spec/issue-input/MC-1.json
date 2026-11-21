@@ -1,0 +1,68 @@
+{
+ "id": "MC-1",
+ "title": "Unchanged, already-reached VoteExtensionsEnableHeight update is rejected \u2014 permanent chain halt",
+ "status": "REPRODUCED",
+ "source": "model-checking",
+ "cause": "The updated ConsensusParams.ValidateUpdate removed the old unchanged-value short-cut, so row 6 (types/params.go:243-248) rejects an Abci update whose VoteExtensionsEnableHeight equals the current, already reached value (P = U, P <= h), while rows 3 and 9 still accept unchanged values.",
+ "trigger": "With vote extensions enabled at a height P <= h (e.g. at the initial height), the application returns a FinalizeBlock ConsensusParamUpdates whose Abci sub-record repeats P, for example by forwarding its complete parameter set (ToProto always sets Abci).",
+ "consequence": "updateState fails after the response is durable, ApplyBlock errors and consensus/blocksync panic; every restart replays the stored block through the real app and is rejected again, so the handshake fails and the chain halts permanently.",
+ "sites": [
+  "types/params.go:ValidateUpdate",
+  "internal/state/execution.go:updateState",
+  "internal/consensus/replay.go:ReplayBlocks"
+ ],
+ "actions": [
+  "UpdateStateRejectedVE",
+  "AbortRejectedApply",
+  "SelectRealReplay"
+ ],
+ "invariants": [
+  "UnchangedVENotRejected"
+ ],
+ "premises": [
+  "The application may return a non-nil ConsensusParamUpdates whose Abci sub-record repeats the current VoteExtensionsEnableHeight (non-empty fields are applied in full).",
+  "Any updateState error after the response save is fatal for consensus/blocksync and recurs on handshake replay."
+ ],
+ "dependencies": [
+  {
+   "root": "source",
+   "path": "types/params.go",
+   "start": "func (params ConsensusParams) ValidateUpdate(updated *cmtproto.ConsensusParams, h int64) error {",
+   "end": "// Hash returns a hash of a subset of the parameters to store in the block header."
+  },
+  {
+   "root": "source",
+   "path": "internal/state/execution.go",
+   "start": "func updateState(",
+   "end": "// Fire NewBlock, NewBlockHeader."
+  },
+  {
+   "root": "source",
+   "path": "internal/consensus/replay.go"
+  },
+  {
+   "root": "work",
+   "path": "spec/base.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/MC.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/Update.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/Update_full.cfg"
+  }
+ ],
+ "evidence": [
+  "spec/bug-report.md",
+  "spec/output/MC-1_counterexample_Update_full.log",
+  "spec/output/repro-MC-1-updated-401753b.log",
+  "spec/output/repro-MC-1-control-baseline-9dd6e50.log",
+  "harness/repro_MC-1.sh",
+  "harness/repro/specula_mc1_repro_test.go"
+ ]
+}

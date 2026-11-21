@@ -1,0 +1,63 @@
+State fields (pre via ValidatePre, post via ValidatePost; both use StateMatches):
+  append_pending             CONSUMED by StateMatches
+  candidate_active           CONSUMED by StateMatches
+  candidate_config           CONSUMED by StateMatches
+  candidate_vote             CONSUMED by StateMatches
+  committed_config           CONSUMED by StateMatches
+  committed_config_index     CONSUMED by StateMatches
+  crashed                    CONSUMED by StateMatches
+  effective_config           CONSUMED by StateMatches
+  effective_config_index     CONSUMED by StateMatches
+  grants                     CONSUMED by StateMatches
+  last_log                   CONSUMED by StateMatches
+  leader_active              CONSUMED by StateMatches
+  lease_valid                CONSUMED by StateMatches
+  pre_candidate_active       CONSUMED by StateMatches
+  pre_candidate_config       CONSUMED by StateMatches
+  pre_candidate_vote         CONSUMED by StateMatches
+  pre_grants                 CONSUMED by StateMatches
+  role                       CONSUMED by StateMatches
+  save_vote_pending          CONSUMED by StateMatches
+  seen_greater_log           CONSUMED by StateMatches
+  send_pre_vote_pending      CONSUMED by TracePreElect
+  send_vote_pending          CONSUMED by StateMatches
+  vote                       CONSUMED by StateMatches
+Event args (per wrapper):
+  AppendJointConfig      target_config        CONSUMED via JsonSet
+  HandleAppendEntries    accepted             CONSUMED
+  HandleAppendEntries    prev_log             CONSUMED via SnapshotLog
+  HandleAppendEntries    source               CONSUMED
+  HandleAppendEntries    vote                 CONSUMED via SnapshotVote
+  HandlePreVoteRequest   commands_emitted     CONSUMED
+  HandlePreVoteRequest   last_log             CONSUMED via SnapshotLog
+  HandlePreVoteRequest   response_granted     CONSUMED
+  HandlePreVoteRequest   response_last_log    CONSUMED via SnapshotLog
+  HandlePreVoteRequest   response_vote        CONSUMED via SnapshotVote
+  HandlePreVoteRequest   source               CONSUMED
+  HandlePreVoteRequest   vote                 CONSUMED via SnapshotVote
+  HandlePreVoteResponse  candidate_vote       CONSUMED via SnapshotVote
+  HandlePreVoteResponse  granted              CONSUMED
+  HandlePreVoteResponse  last_log             CONSUMED via SnapshotLog
+  HandlePreVoteResponse  source               CONSUMED
+  HandlePreVoteResponse  vote                 NOT-CONSUMED
+  HandleVoteRequest      last_log             CONSUMED via SnapshotLog
+  HandleVoteRequest      response_granted     NOT-CONSUMED
+  HandleVoteRequest      response_vote        NOT-CONSUMED
+  HandleVoteRequest      source               CONSUMED
+  HandleVoteRequest      transfer             CONSUMED
+  HandleVoteRequest      vote                 CONSUMED via SnapshotVote
+  HandleVoteResponse     granted              CONSUMED
+  HandleVoteResponse     last_log             CONSUMED via SnapshotLog
+  HandleVoteResponse     source               CONSUMED
+  HandleVoteResponse     vote                 CONSUMED via SnapshotVote
+  PreElect               by_timer             CONSUMED
+  PreElect               send_pre_vote_req    CONSUMED via SnapshotVote
+  StartElection          transfer             CONSUMED
+
+Notes (manual review of the regex audit):
+- HandleVoteRequest response_vote/response_granted: consumed by ResponseMatches(e, i), which TraceHandleVoteRequest calls.
+- PreElect send_pre_vote_req.last_log: consumed via SnapshotLog in TracePreElect.
+- HandlePreVoteResponse vote: the responder's own vote inside the RPC body. Engine::handle_pre_vote_resp never
+  reads it (engine_impl.rs:530-533: "the grant is read from `vote_granted` rather than by comparing votes"), so the
+  model does not represent it; it is retained in the trace as diagnostic input only. The probed vote that the
+  runtime correlates on (candidate_vote) is consumed.

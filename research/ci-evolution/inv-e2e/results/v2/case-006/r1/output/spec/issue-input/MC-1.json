@@ -1,0 +1,25 @@
+{
+  "id": "MC-1",
+  "title": "Reused ReadIndex context released by a heartbeat acknowledgement produced for the earlier request",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "cause": "readOnly.advance now frees released requests, so a caller context can be registered again in the same leader term, while recvAck matches heartbeat responses only by context; a response produced for the earlier registration completes the new one.",
+  "trigger": "Release ctx with one ack while another follower's ack is delayed; reuse the same ctx for a new read at the same leader; deliver the delayed ack (optionally after a newer-term leader committed).",
+  "consequence": "The leader releases the read without any acknowledgement generated after its registration; with a newer-term commit in between, the ReadState index is below an entry committed before the read was issued (stale linearizable read).",
+  "sites": ["read_only.go:advance", "read_only.go:recvAck", "read_only.go:addRequest", "raft.go:stepLeader"],
+  "actions": ["HandleHeartbeatResponse", "ProcessReadIndex", "HandleHeartbeat"],
+  "invariants": ["UpdReadAckFresh", "UpdReadIndexLinearizable"],
+  "premises": [
+    "The application reuses a ReadIndex context after the previous request with that context completed (read_only.go:19-23 leaves the context to the caller).",
+    "A heartbeat response for the earlier request is delayed past the re-registration.",
+    "For a stale read: a newer-term leader commits before the reused request while the old leader has not stepped down (CheckQuorum optional)."
+  ],
+  "dependencies": [
+    {"root": "source", "path": "read_only.go", "start": "func (ro *readOnly) addRequest(index uint64, m pb.Message) {", "end": "func (ro *readOnly) lastPendingRequestCtx() string {"},
+    {"root": "source", "path": "raft.go", "start": "\tcase pb.MsgHeartbeatResp:", "end": "\tcase pb.MsgSnapStatus:"},
+    {"root": "work", "path": "spec/base.tla"},
+    {"root": "work", "path": "spec/Update.tla"},
+    {"root": "work", "path": "spec/Update_hunt_stale_ack.cfg"}
+  ],
+  "evidence": ["spec/confirmation-MC-1.md", "spec/output/repro.log", "harness/src/specula_repro_test.go", "spec/output/mc-upd_hunt_stale_ack.log", "traces/stale_ack_reuse.ndjson"]
+}

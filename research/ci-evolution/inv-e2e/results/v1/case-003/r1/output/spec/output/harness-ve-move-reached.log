@@ -1,0 +1,11 @@
+# command: (cd /work/current/.specula-output/artifact && timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/ve_move_reached.ndjson  go test -mod=readonly ./internal/state -run '^TestSpeculaTraceVE$/^move_reached$' -count=1 -v)
+=== RUN   TestSpeculaTraceVE
+=== RUN   TestSpeculaTraceVE/move_reached
+I[2026-11-18|19:02:17.255] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|19:02:17.255] executed block                               height=1 app_hash=
+    specula_trace_test.go:259: SPECULA_OBSERVED height=1 outcome=rejected err=commit failed for application: updating consensus params: vote extensions cannot be modified once enabledenable height: 1, current height 1
+--- PASS: TestSpeculaTraceVE (0.08s)
+    --- PASS: TestSpeculaTraceVE/move_reached (0.08s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.107s
+# exit: 0

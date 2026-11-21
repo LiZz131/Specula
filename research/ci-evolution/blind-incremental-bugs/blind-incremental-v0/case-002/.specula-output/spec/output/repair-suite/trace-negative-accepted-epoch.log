@@ -1,0 +1,179 @@
+COMMAND: cd /work/prior/.specula-output/spec && timeout 120s env JSON=output/repair-suite/.negative-accepted-epoch.ndjson java -Xmx4g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 1 -config Trace.cfg -metadir /work/prior/.specula-output/spec/.tlc-negative-state-field Trace.tla
+TLC2 Version 2.20 of Day Month 20?? (rev: ${git.shortRevision})
+Warning: Please run the Java VM, which executes TLC with a throughput optimized garbage collector, by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 24 and seed -5162974701220035803 with 1 worker on 96 cores with 4096MB heap and 64MB offheap memory [pid: 5984] (Linux 6.8.0-1044-azure amd64, Ubuntu 21.0.11 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/prior/.specula-output/spec/Trace.tla
+Parsing file /work/prior/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-11533529656374197485/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-11533529656374197485/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-11533529656374197485/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-11533529656374197485/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-11533529656374197485/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-11533529656374197485/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-11533529656374197485/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-11533529656374197485/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-11533529656374197485/SequencesExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/SequencesExt.tla)
+Parsing file /tmp/tlc-11533529656374197485/FiniteSetsExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/FiniteSetsExt.tla)
+Parsing file /tmp/tlc-11533529656374197485/Folds.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Folds.tla)
+Parsing file /tmp/tlc-11533529656374197485/Functions.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Functions.tla)
+Parsing file /tmp/tlc-11533529656374197485/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module FiniteSetsExt
+Semantic processing of module SequencesExt
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module Folds
+Linting of module Functions
+Linting of module FiniteSetsExt
+Linting of module SequencesExt
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Trace
+Starting... (2026-09-05 06:47:36)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-05 06:47:36.
+Progress(2) at 2026-09-05 06:47:36: 2 states generated, 2 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 2 total distinct states at (2026-09-05 06:47:36)
+Error: Temporal properties were violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ phase = [s0 |-> "discovery", s1 |-> "sync", s2 |-> "broadcast"]
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {"s1"} @@ 2 :> {} @@ 3 :> {})
+/\ durable = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ syncSource = [s0 |-> "s1", s1 |-> "Nil", s2 |-> "Nil"]
+/\ messages = {}
+/\ l = 1
+/\ currentEpoch = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ applied = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ appended = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ syncJustified = [s0 |-> FALSE, s1 |-> TRUE, s2 |-> TRUE]
+/\ usedTxn = {1}
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ committed = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ commitCertified = ( 0 :> FALSE @@
+  1 :> TRUE @@
+  2 :> FALSE @@
+  3 :> FALSE @@
+  4 :> FALSE @@
+  5 :> FALSE @@
+  6 :> FALSE @@
+  7 :> FALSE @@
+  1000 :> FALSE )
+/\ votes = [s0 |-> {}, s1 |-> {"s0", "s1", "s2"}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ leaderOf = [s0 |-> "s1", s1 |-> "s1", s2 |-> "s1"]
+/\ proposed = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ acked = ( 0 :> {} @@
+  1 :> {"s0", "s1", "s2"} @@
+  2 :> {} @@
+  3 :> {} @@
+  4 :> {} @@
+  5 :> {} @@
+  6 :> {} @@
+  7 :> {} @@
+  1000 :> {} )
+/\ snapshot = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ role = [s0 |-> "following", s1 |-> "leading", s2 |-> "following"]
+/\ rollbackAuthorized = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ recovered = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ queued = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+
+State 2: <TraceNext line 333, col 5 to line 335, col 29 of module Trace>
+/\ phase = [s0 |-> "discovery", s1 |-> "sync", s2 |-> "broadcast"]
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {"s1"} @@ 2 :> {} @@ 3 :> {})
+/\ durable = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ syncSource = [s0 |-> "s1", s1 |-> "Nil", s2 |-> "Nil"]
+/\ messages = {}
+/\ l = 2
+/\ currentEpoch = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ applied = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ appended = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ syncJustified = [s0 |-> FALSE, s1 |-> TRUE, s2 |-> TRUE]
+/\ usedTxn = {1}
+/\ acceptedEpoch = [s0 |-> 0, s1 |-> 1, s2 |-> 1]
+/\ committed = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ commitCertified = ( 0 :> FALSE @@
+  1 :> TRUE @@
+  2 :> FALSE @@
+  3 :> FALSE @@
+  4 :> FALSE @@
+  5 :> FALSE @@
+  6 :> FALSE @@
+  7 :> FALSE @@
+  1000 :> FALSE )
+/\ votes = [s0 |-> {}, s1 |-> {"s0", "s1", "s2"}, s2 |-> {}]
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ leaderOf = [s0 |-> "s1", s1 |-> "s1", s2 |-> "s1"]
+/\ proposed = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ acked = ( 0 :> {} @@
+  1 :> {"s0", "s1", "s2"} @@
+  2 :> {} @@
+  3 :> {} @@
+  4 :> {} @@
+  5 :> {} @@
+  6 :> {} @@
+  7 :> {} @@
+  1000 :> {} )
+/\ snapshot = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ role = [s0 |-> "following", s1 |-> "leading", s2 |-> "following"]
+/\ rollbackAuthorized = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ recovered = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+/\ queued = [ s0 |-> <<>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1]>> ]
+
+State 3: Stuttering
+Finished checking temporal properties in 00s at 2026-09-05 06:47:36
+2 states generated, 2 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 2.
+Finished in 00s at (2026-09-05 06:47:36)
+Trace exploration spec path: ./Trace_TTrace_1788590856.tla

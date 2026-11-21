@@ -1,0 +1,77 @@
+CMD: timeout 720s java -XX:+UseParallelGC -Xmx10g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 2 -metadir /dev/shm/specula-e2e-case-010/upd-hunt-leak-gap-24575 -config Update-hunt-leak-gap.cfg  Update  (TLC wall limit 10m via outer timeout)
+START: 2026-11-20T01:14:02Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 65 and seed -2470553374362104506 with 2 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 24646] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-5993828272578636562/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-5993828272578636562/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-5993828272578636562/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-5993828272578636562/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-5993828272578636562/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-5993828272578636562/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-5993828272578636562/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 01:14:04)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 01:14:05.
+Progress(13) at 2026-11-20 01:14:08: 10,131 states generated (10,131 s/min), 2,982 distinct states found (2,982 ds/min), 1,101 states left on queue.
+Error: Invariant RecoverableHistoryComplete is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCLeaderPropose(s1) line 183, col 5 to line 186, col 28 of module MC>
+
+State 3: <MCLeaderPropose(s1) line 183, col 5 to line 186, col 28 of module MC>
+
+State 4: <MCFollowerLog(s2,1) line 189, col 5 to line 191, col 38 of module MC>
+
+State 5: <MCFollowerLog(s2,2) line 189, col 5 to line 191, col 38 of module MC>
+
+State 6: <MCFlush(s1,1) line 194, col 5 to line 196, col 26 of module MC>
+
+State 7: <MCAck(s1,s1,1) line 205, col 5 to line 207, col 32 of module MC>
+
+State 8: <MCFlush(s2,1) line 194, col 5 to line 196, col 26 of module MC>
+
+State 9: <MCAck(s1,s2,1) line 205, col 5 to line 207, col 32 of module MC>
+
+State 10: <LeakScenarioNext line 170, col 26 to line 170, col 57 of module Update>
+
+State 11: <MCFinishElection(s2,s1) line 55, col 5 to line 57, col 29 of module MC>
+
+State 12: <MCCommit(s1,1) line 210, col 5 to line 212, col 29 of module MC>
+
+State 13: <MCEnterDiscovery(s2) line 60, col 5 to line 64, col 26 of module MC>
+
+State 14: <MCEnterFollowerSync(s2) line 98, col 5 to line 105, col 26 of module MC>
+
+State 15: <MCChooseSync(s2,"TRUNC") line 108, col 5 to line 111, col 85 of module MC>
+
+State 16: <MCTruncateLog(s2) line 119, col 5 to line 121, col 26 of module MC>
+
+State 17: <LeakScenarioNext line 169, col 26 to line 169, col 97 of module Update>
+
+67119 states generated, 16839 distinct states found, 5084 states left on queue.
+The depth of the complete state graph search is 17.
+Finished in 10s at (2026-11-20 01:14:13)
+Trace exploration spec path: ./Update_TTrace_1795137242.tla
+END: 2026-11-20T01:14:13Z exit=12

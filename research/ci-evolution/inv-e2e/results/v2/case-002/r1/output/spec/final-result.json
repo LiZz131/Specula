@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "run_id": "case-002",
+  "summary": "Model updated for the NEWLEADER/UPTODATE change, prior harness rebased, 7 fresh traces validated. Model checking found that the update does not make the synced history durable before the NEWLEADER ACK, and that an aborted sync in the new INITIAL window can lose a committed transaction. A code-review NPE was reproduced in a test.",
+  "validation_limits": [
+    "Standard, full-update, focused-control, open, discharge, base and simulation campaigns are budget-limited (TimeBudget ~29 min or explicit depth bound); see spec/output/update/campaign-summary.md.",
+    "Inherited observer-style Trace.tla does not call reference actions; the changed learner DIFF path is additionally replayed action-by-action by TraceSync.tla on two traces only.",
+    "The reference synchronizes learners only with a leader in its SYNCHRONIZATION phase (late join to an established leader is not modeled); CR-1 is covered by direct code observation.",
+    "Crash inside the ACK/fsync window was explored in the model only; no real process kill was injected.",
+    "The specula ci-result generator is not installed in this environment; generated CI reports were not produced.",
+    "Part 4 bug confirmation was not executed in this run (task scope: Generation, Validation, Model Checking). MC-1/MC-2 carry model counterexamples plus real-execution witnesses but no client-level reproduction; MC-1 additionally needs a process crash inside the ACK/fsync window. No persistent-findings history exists (prior findings list empty; specula CLI unavailable)."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER quorum commits a history that is not durable on a quorum",
+      "status": "NEEDS MORE INFO",
+      "source": "model-checking",
+      "cause": "Learner.syncWithLeader enqueues the buffered sync proposals to the asynchronous SyncRequestProcessor and immediately writes ACK(NEWLEADER), which the leader counts toward activation.",
+      "trigger": "DIFF/TRUNC sync with buffered proposals; leader activates on the ACK quorum; acknowledging learners crash before their SyncRequestProcessor flush.",
+      "consequence": "A transaction committed and served by the new leader can be absent from a later quorum and lost.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/update/final-focused-quorumdurable.log",
+        "spec/output/update/final-focused-ackdurable.log",
+        "traces/follower-diff.ndjson",
+        "traces/update-diff-sync-consistency.ndjson",
+        "spec/invariant-evidence.json",
+        "spec/output/update/final-sim-update-full.log",
+        "spec/output/update/final-sim-full-quorum.log"
+      ],
+      "persistence": {
+        "sites": [
+          "Learner.java:syncWithLeader",
+          "FollowerZooKeeperServer.java:logRequest",
+          "Leader.java:waitForNewLeaderAck"
+        ],
+        "premises": [
+          "logRequest only enqueues to SyncRequestProcessor",
+          "ACK(NEWLEADER) is written right after the enqueue"
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "Aborted sync after the NEWLEADER ACK lets a later-epoch leader activate without a committed transaction",
+      "status": "NEEDS MORE INFO",
+      "source": "model-checking",
+      "cause": "startupWithoutServing leaves the server INITIAL; an abort before UPTODATE makes zk.shutdown a no-op, so processors leak and the in-memory database is not fast-forwarded; elections and the next leader use the stale in-memory history.",
+      "trigger": "Learner ACKs NEWLEADER (txn queued), sync aborts before UPTODATE (timeout or leader loss), the learner is elected in the next epoch.",
+      "consequence": "A transaction committed and served in the earlier epoch is missing from the new leader's served history (rollback of a client-visible update), and the learner's log keeps it below the new epoch.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/update/final-hunt-postact-leak.log",
+        "spec/output/update/final-hunt-postact-full.log",
+        "traces/update-diff-sync-consistency.ndjson",
+        "spec/output/update/surefire/org.apache.zookeeper.server.quorum.DIFFSyncConsistencyTest-output.txt"
+      ],
+      "persistence": {
+        "sites": [
+          "ZooKeeperServer.java:startupWithoutServing",
+          "ZooKeeperServer.java:canShutdown",
+          "LearnerZooKeeperServer.java:shutdown"
+        ],
+        "premises": [
+          "shutdown is skipped while the server state is INITIAL",
+          "FLE reports the in-memory database position"
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-3",
+      "title": "Learner leave persists a proposal outside the next leader's history (pre-existing)",
+      "status": "NEEDS MORE INFO",
+      "source": "model-checking",
+      "cause": "LearnerZooKeeperServer.shutdown fast-forwards the in-memory database before flushing the learner SyncRequestProcessor; elections and sync selection use the stale in-memory zxid.",
+      "trigger": "A RUNNING learner with a queued, unflushed proposal leaves FOLLOWING and is synchronized by a new leader that never had that proposal.",
+      "consequence": "The learner's log keeps an uncommitted proposal outside its leader's history; a restart replays it (divergent state).",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/update/final-hunt-ghost.log",
+        "spec/output/update/final-hunt-ghost-full.log",
+        "spec/invariant-evidence.json"
+      ],
+      "persistence": {
+        "sites": [
+          "LearnerZooKeeperServer.java:shutdown",
+          "QuorumPeer.java:getLastLoggedZxid"
+        ],
+        "premises": [
+          "fast-forward precedes the learner sync-processor flush"
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CR-1",
+      "title": "COMMIT of a pre-NEWLEADER proposal after NEWLEADER crashes the learner with an NPE",
+      "status": "REPRODUCED",
+      "source": "code-review",
+      "cause": "packetsNotCommitted is cleared at NEWLEADER but the COMMIT case still dereferences packetsNotCommitted.peekFirst().",
+      "trigger": "Learner joins an established leader with an outstanding proposal; the leader commits it after NEWLEADER and before UPTODATE.",
+      "consequence": "Learner synchronization aborts (NullPointerException), the learner cannot rejoin under write load and the abort enters the MC-2 path. Reproduced on the updated source with SpeculaUpdateObservationTest (NPE in Learner.syncWithLeader, txn never applied); the identical test on the exact-old source completes normally.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/evidence-CR-1.md",
+        "traces/update-observe-commit-after-newleader.ndjson"
+      ]
+    }
+  ]
+}

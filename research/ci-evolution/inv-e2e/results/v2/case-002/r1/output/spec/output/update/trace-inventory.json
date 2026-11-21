@@ -1,0 +1,376 @@
+{
+  "traces": [
+    {
+      "path": "traces/follower-diff.ndjson",
+      "records": 19,
+      "sha256": "f5339f07d9a3ab3509ae7efe92002877043f3e1acc6e983c2fa8e0e017afa376",
+      "scenario": "follower-diff",
+      "events": {
+        "PhaseChanged": 3,
+        "AcceptedEpochPersisted": 1,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "SyncProposalReceived": 1,
+        "SyncCommitReceived": 1,
+        "CurrentEpochPersisted": 1,
+        "ProposalQueued": 1,
+        "NewLeaderAckSent": 1,
+        "TxnAppended": 1,
+        "NewLeaderAckWritten": 1,
+        "BroadcastReady": 1,
+        "CommitDelivered": 1,
+        "TxnApplied": 1,
+        "TxnDurable": 1
+      },
+      "detail_fields": {
+        "pending": 5,
+        "writeToTxnLog": 2,
+        "logged": 2,
+        "running": 3,
+        "durableZxid": 2,
+        "durableEpoch": 2,
+        "durableCounter": 2
+      },
+      "newleader_acks": [
+        {
+          "logged": 1,
+          "durableZxid": "-1",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-follower-diff.log",
+        "TraceSync.tla": "spec/output/update/final-tracesync-follower-diff.log"
+      }
+    },
+    {
+      "path": "traces/follower-snap.ndjson",
+      "records": 20,
+      "sha256": "5423074d9a693aff7326f78de5816dd86ca5b1ff112ffa3d0bc1c725473c564e",
+      "scenario": "follower-snap",
+      "events": {
+        "PhaseChanged": 3,
+        "AcceptedEpochPersisted": 1,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "SnapshotInstalled": 1,
+        "CurrentEpochPersisted": 1,
+        "NewLeaderAckSent": 1,
+        "NewLeaderAckWritten": 1,
+        "SyncProposalReceived": 1,
+        "SyncCommitReceived": 1,
+        "BroadcastReady": 1,
+        "ProposalQueued": 1,
+        "CommitDelivered": 1,
+        "TxnAppended": 1,
+        "TxnApplied": 1,
+        "TxnDurable": 1
+      },
+      "detail_fields": {
+        "logged": 2,
+        "pending": 5,
+        "running": 3,
+        "durableZxid": 2,
+        "durableEpoch": 2,
+        "durableCounter": 2,
+        "writeToTxnLog": 2
+      },
+      "newleader_acks": [
+        {
+          "logged": 0,
+          "durableZxid": "-1",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-follower-snap.log",
+        "TraceSync.tla": null
+      }
+    },
+    {
+      "path": "traces/leader-abandon-restart-recovery.ndjson",
+      "records": 283,
+      "sha256": "b07d7f985d9f906eef1ad4349e355db552d4e808f118fed4fa50ed8b5c3d8101",
+      "scenario": "leader-abandon-restart-recovery",
+      "events": {
+        "PeerRoleChanged": 19,
+        "ElectionWon": 9,
+        "PhaseChanged": 37,
+        "AcceptedEpochPersisted": 9,
+        "FollowerRegistered": 6,
+        "SyncModeChanged": 12,
+        "SyncSelected": 6,
+        "CurrentEpochPersisted": 9,
+        "NewLeaderAckCounted": 6,
+        "NewLeaderAckSent": 6,
+        "NewLeaderAckWritten": 6,
+        "BroadcastReady": 6,
+        "ProposalQueued": 22,
+        "TxnAppended": 36,
+        "TxnDurable": 36,
+        "CommitDelivered": 22,
+        "TxnApplied": 35,
+        "SnapshotInstalled": 1
+      },
+      "detail_fields": {
+        "peer": 6,
+        "logged": 12,
+        "pending": 18,
+        "running": 18,
+        "durableZxid": 12,
+        "durableEpoch": 12,
+        "durableCounter": 12
+      },
+      "newleader_acks": [
+        {
+          "logged": 0,
+          "durableZxid": "-1",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "-1",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "4294967299",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "4294967299",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "8589934595",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "8589934596",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-leader-abandon-restart-recovery.log",
+        "TraceSync.tla": null
+      }
+    },
+    {
+      "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+      "records": 75,
+      "sha256": "ee2d95213afad0e7ca75471449441d91a893b48e12639c7f813e393d01ce9f1c",
+      "scenario": "quorum-startup-mutation-shutdown",
+      "events": {
+        "PeerRoleChanged": 4,
+        "ElectionWon": 2,
+        "PhaseChanged": 8,
+        "AcceptedEpochPersisted": 2,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "CurrentEpochPersisted": 2,
+        "NewLeaderAckCounted": 2,
+        "NewLeaderAckSent": 1,
+        "NewLeaderAckWritten": 1,
+        "BroadcastReady": 1,
+        "TxnAppended": 12,
+        "ProposalQueued": 6,
+        "TxnDurable": 12,
+        "CommitDelivered": 6,
+        "TxnApplied": 12
+      },
+      "detail_fields": {
+        "peer": 2,
+        "logged": 2,
+        "pending": 3,
+        "running": 3,
+        "durableZxid": 2,
+        "durableEpoch": 2,
+        "durableCounter": 2
+      },
+      "newleader_acks": [
+        {
+          "logged": 0,
+          "durableZxid": "-1",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-quorum-startup-mutation-shutdown.log",
+        "TraceSync.tla": null
+      }
+    },
+    {
+      "path": "traces/update-diff-sync-consistency.ndjson",
+      "records": 161,
+      "sha256": "958920355a50e805fa96ddf18707a9a7bfbb075416ffa89c4bed4da8d27dcd60",
+      "scenario": "update-diff-sync-consistency",
+      "events": {
+        "PeerRoleChanged": 21,
+        "ElectionWon": 10,
+        "PhaseChanged": 38,
+        "AcceptedEpochPersisted": 10,
+        "FollowerRegistered": 6,
+        "SyncModeChanged": 12,
+        "SyncSelected": 6,
+        "CurrentEpochPersisted": 10,
+        "NewLeaderAckCounted": 8,
+        "NewLeaderAckSent": 6,
+        "NewLeaderAckWritten": 6,
+        "BroadcastReady": 3,
+        "ProposalQueued": 4,
+        "TxnAppended": 6,
+        "TxnDurable": 6,
+        "CommitDelivered": 2,
+        "TxnApplied": 3,
+        "SyncProposalReceived": 2,
+        "SyncCommitReceived": 2
+      },
+      "detail_fields": {
+        "peer": 8,
+        "logged": 12,
+        "pending": 19,
+        "running": 15,
+        "durableZxid": 12,
+        "durableEpoch": 12,
+        "durableCounter": 12,
+        "writeToTxnLog": 4
+      },
+      "newleader_acks": [
+        {
+          "logged": 0,
+          "durableZxid": "-1",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "-1",
+          "running": false
+        },
+        {
+          "logged": 1,
+          "durableZxid": "4294967297",
+          "running": false
+        },
+        {
+          "logged": 1,
+          "durableZxid": "4294967297",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "4294967298",
+          "running": false
+        },
+        {
+          "logged": 0,
+          "durableZxid": "4294967298",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-update-diff-sync-consistency.log",
+        "TraceSync.tla": null
+      }
+    },
+    {
+      "path": "traces/update-observe-ack-durability.ndjson",
+      "records": 19,
+      "sha256": "b7c564ef0425b8d1c4f519efe1d6656096a58eb3040532a6f33bc175a47fe533",
+      "scenario": "update-observe-ack-durability",
+      "events": {
+        "PhaseChanged": 3,
+        "AcceptedEpochPersisted": 1,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "SyncProposalReceived": 1,
+        "SyncCommitReceived": 1,
+        "CurrentEpochPersisted": 1,
+        "ProposalQueued": 1,
+        "NewLeaderAckSent": 1,
+        "NewLeaderAckWritten": 1,
+        "TxnAppended": 1,
+        "BroadcastReady": 1,
+        "CommitDelivered": 1,
+        "TxnApplied": 1,
+        "TxnDurable": 1
+      },
+      "detail_fields": {
+        "pending": 5,
+        "writeToTxnLog": 2,
+        "logged": 2,
+        "running": 3,
+        "durableZxid": 2,
+        "durableEpoch": 2,
+        "durableCounter": 2
+      },
+      "newleader_acks": [
+        {
+          "logged": 1,
+          "durableZxid": "-1",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-update-observe-ack-durability.log",
+        "TraceSync.tla": "spec/output/update/final-tracesync-update-observe-ack-durability.log"
+      }
+    },
+    {
+      "path": "traces/update-observe-commit-after-newleader.ndjson",
+      "records": 15,
+      "sha256": "e1af327720134bae9026b57639635274609eef5c2dbd716cc3c8dd72675905ec",
+      "scenario": "update-observe-commit-after-newleader",
+      "events": {
+        "PhaseChanged": 2,
+        "AcceptedEpochPersisted": 1,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "SyncProposalReceived": 1,
+        "CurrentEpochPersisted": 1,
+        "ProposalQueued": 1,
+        "NewLeaderAckSent": 1,
+        "TxnAppended": 1,
+        "NewLeaderAckWritten": 1,
+        "TxnDurable": 1,
+        "SyncCommitReceived": 1
+      },
+      "detail_fields": {
+        "pending": 4,
+        "writeToTxnLog": 2,
+        "logged": 2,
+        "running": 2,
+        "durableZxid": 2,
+        "durableEpoch": 2,
+        "durableCounter": 2
+      },
+      "newleader_acks": [
+        {
+          "logged": 1,
+          "durableZxid": "-1",
+          "running": false
+        }
+      ],
+      "validation": {
+        "Trace.tla": "spec/output/update/final-trace-update-observe-commit-after-newleader.log",
+        "TraceSync.tla": null
+      }
+    }
+  ],
+  "update_event_consumers": {
+    "SyncProposalReceived": "Trace.NextPendingSync + ValidateEventPostState(Detail.pending, last entry); TraceSync k-th stream entry",
+    "SyncCommitReceived": "Trace ValidateEventPostState(Detail.pending = buffer size); TraceSync entry in buffer",
+    "NewLeaderAckSent": "Trace (syncMode NONE, epochs equal, running=false, pending=0, logged=buffer, buffered entries queued, disk>=durable); TraceSync AckNewLeader + exact durable field",
+    "NewLeaderAckWritten": "Trace (nlAckSent, running=false, disk>=durable); TraceSync durable consistency",
+    "NewLeaderAckCounted": "Trace.NextNlAcks + peer ACK-order check",
+    "NewLeaderAckRejected": "Trace schema + peer check",
+    "BroadcastReady": "Trace (data-tree position, running=true, nlAckSent, pending); TraceSync EnterBroadcast"
+  }
+}

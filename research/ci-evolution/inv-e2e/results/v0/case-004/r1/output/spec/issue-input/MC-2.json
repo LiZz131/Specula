@@ -1,0 +1,60 @@
+{
+  "id": "MC-2",
+  "title": "A Leader that runs elect() trips the leader_handler vote-order assertion (transfer to the current leader)",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "cause": "Engine::elect() on a node that is already Leader keeps its Leader object while moving the local vote to a higher non-committed vote; Engine::leader_handler() debug-asserts leader.committed_vote >= state.vote and RaftCore calls it every loop iteration.",
+  "trigger": "Call Raft::transfer_leader(leader_vote, current_leader_id, ..) (new) or Raft::trigger().elect() on the leader (pre-existing).",
+  "consequence": "With debug assertions enabled the leader's RaftCore panics (Fatal::Panicked) and the cluster loses its leader until an election timeout; release-build behavior not verified.",
+  "sites": [
+    "openraft/src/engine/engine_impl.rs:leader_handler",
+    "openraft/src/core/raft_core.rs:RaftMsg::TransferLeader",
+    "openraft/src/core/raft_core.rs:ExternalCommand::Elect"
+  ],
+  "actions": [
+    "TransferLeader",
+    "StartElection",
+    "ElectCore"
+  ],
+  "invariants": [
+    "LeaderVoteNotSuperseded"
+  ],
+  "premises": [
+    "Builds with debug assertions (openraft's test configuration).",
+    "Neither the TransferLeader handler nor ExternalCommand::Elect rejects elect() on a Leader."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<C>, ForwardToLeader<C>> {",
+      "end": "    pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "            RaftMsg::TransferLeader {",
+      "end": "            RaftMsg::ExternalCommand { cmd } => {"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_full_LeaderVoteNotSuperseded.cfg"
+    }
+  ],
+  "evidence": [
+    "spec/confirmation-MC-2.md",
+    "spec/output/MC-2_LeaderVoteNotSuperseded_transfer.out",
+    "spec/output/MC-2_LeaderVoteNotSuperseded_preexisting.out",
+    "spec/output/probe-leader-self-elect-update.log",
+    "spec/output/probe-leader-self-elect-baseline.log",
+    "harness/repro/run_probe_leader_self_elect.sh"
+  ]
+}

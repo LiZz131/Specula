@@ -1,0 +1,247 @@
+{
+ "run": "incremental case-004, artifact d7176ef (update) vs prior V0",
+ "entries": [
+  {
+   "property": "ElectionByVoterOnly",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new-requirement",
+   "affected_because": "TransferLeader (core/raft_core.rs:1190-1202) is a new caller of Engine::elect() without the is_voter guard of ExternalCommand::Elect (raft_core.rs:1206-1214) and handle_tick_election (raft_core.rs:1454-1457); the old model enforced the guard in StartElection, so no property watched election initiation.",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "requirement (new block in Update.tla)",
+   "watch_touched": "n/a (new property)",
+   "evidence_ids": [
+    "E1",
+    "E1c"
+   ],
+   "outcome": "bug candidate MC-1 (property kept, defect recorded)"
+  },
+  {
+   "property": "NoRaftCorePanic",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new-requirement",
+   "affected_because": "Code observation of the U2 scenario showed the learner candidate's self-grant panics in Candidate::grant_by (candidate.rs:92); base gained CandidateGrantPanic to express it.",
+   "initial_decision": "not present (added after code observation)",
+   "changed_from_initial": true,
+   "ledger_status": "mixed (clause no-panic-on-vote-response: requirement)",
+   "watch_touched": "n/a (new property)",
+   "evidence_ids": [
+    "E2",
+    "E2c"
+   ],
+   "outcome": "bug candidate MC-1 consequence (property kept)"
+  },
+  {
+   "property": "CandidateGrantSound",
+   "replaces": "CandidateGrantSound",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "New leaders can now be established through a TransferLeader-initiated election (and a learner can become candidate).",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "EK1"
+   ]
+  },
+  {
+   "property": "LeaderVoteCommitted",
+   "replaces": "LeaderVoteCommitted",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "Same as CandidateGrantSound (new route to Leader role).",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "EK1"
+   ]
+  },
+  {
+   "property": "CommittedLogAgreement",
+   "replaces": "CommittedLogAgreement",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "A second leadership (transfer) can now commit entries; the full-LogId vote freshness repair is what protects it.",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "EK1",
+    "EK2"
+   ]
+  },
+  {
+   "property": "CurrentTermCommit",
+   "replaces": "CurrentTermCommit",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "Transfer leader commits entries of its own new term.",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "EK1",
+    "EK2"
+   ]
+  },
+  {
+   "property": "TypeOK",
+   "replaces": "TypeOK",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "New ghost variable panicked (not constrained by TypeOK, intentionally: model-internal ghost).",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "evidence_ids": []
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E1",
+   "property": "ElectionByVoterOnly",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceProbe.tla",
+   "log": "spec/evidence/E1/tlc.log",
+   "how_populated": "post-state of the TransferLeader event (cursor l=3) in traces/core-transfer-to-learner/transfer-n4-003.ndjson (learner node 4 campaigns; candidateConfigs[4] = {{1,2,3}})",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not defined in V0"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "fresh RaftCore trace above; spec/output/obs-transfer-to-learner.jsonl; clean repro spec/output/clean-update-specula_repro_transfer_to_learner_no_panic.log"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/data/vote.md:50-51",
+     "openraft/src/docs/cluster_control/cluster-control.md:14",
+     "openraft/src/raft_state/mod.rs:341-342"
+    ]
+   },
+   "cell": "bug candidate"
+  },
+  {
+   "id": "E1c",
+   "property": "ElectionByVoterOnly",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceProbe.tla",
+   "log": "spec/evidence/E1c/tlc.log",
+   "how_populated": "cursor l=3,4 of traces/core-t14-transfer-leader/transfer-n3-002.ndjson (voter node 3 campaigns after TransferLeader)",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   }
+  },
+  {
+   "id": "E2",
+   "property": "NoRaftCorePanic",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E2/README.md",
+   "log": "spec/output/mc-Update_hunt_U2_panic.log",
+   "how_populated": "final state (State 16) of the Update_hunt_U2_panic counterexample: MCVoteResponse(3,3) takes CandidateGrantPanic",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not defined in V0"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "spec/output/clean-update-specula_repro_transfer_to_learner_no_panic.log (panicked at candidate.rs:92:59)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/error.rs:122",
+     "openraft/src/proposer/candidate.rs:92",
+     "openraft/src/docs/data/vote.md:50-51"
+    ]
+   },
+   "cell": "bug candidate"
+  },
+  {
+   "id": "E2c",
+   "property": "NoRaftCorePanic",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceProbe.tla",
+   "log": "spec/evidence/E1c/tlc.log",
+   "how_populated": "all replayed states of traces/core-t14-transfer-leader/transfer-n3-002.ndjson",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   }
+  },
+  {
+   "id": "EK1",
+   "property": "CandidateGrantSound, LeaderVoteCommitted, CommittedLogAgreement, CurrentTermCommit",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceProbe.tla",
+   "log": "spec/evidence/EK1/tlc.log",
+   "how_populated": "cursor l=5 of traces/core-transfer-all-nodes/transfer-n2-003.ndjson: transfer target node 2 established as Leader (records: leaders={2}, commit[2]=5)",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "fresh RaftCore trace"
+   },
+   "requirement": {
+    "value": "allowed (a leader established by a quorum of exact grants with a committed vote)",
+    "citations": [
+     "see REQ-EVIDENCE blocks of each property in base.tla"
+    ]
+   },
+   "cell": "keep justified"
+  },
+  {
+   "id": "EK2",
+   "property": "CommittedLogAgreement, CurrentTermCommit",
+   "role": "keep",
+   "state_source": "mc",
+   "state": "spec/output/mc-Update_canary_CanaryTransferCommit.log (witness) + spec/output/mc-Update_full_controls.log",
+   "how_populated": "CanaryTransferCommit witnesses a transfer leader committing an own-term entry under the Update_full_controls constants; that run checks both properties on every explored state",
+   "old": {
+    "claimed": true,
+    "tlc": "same definition (unchanged text, unchanged helpers EntryAt/Min2)"
+   },
+   "new": {
+    "claimed": true,
+    "tlc": "see mc-Update_full_controls.log"
+   },
+   "cell": "keep justified (budget-limited, LIMITED_COVERAGE)"
+  }
+ ],
+ "bug_candidates": [
+  "E1",
+  "E2"
+ ],
+ "unresolved": []
+}

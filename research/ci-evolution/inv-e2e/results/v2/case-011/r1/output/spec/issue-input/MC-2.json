@@ -1,0 +1,56 @@
+{
+ "id": "MC-2",
+ "title": "Pre-Vote responses of an earlier round are counted by a later round with the same probe; after a membership change grant_by panics",
+ "status": "REPRODUCED",
+ "source": "model-checking",
+ "cause": "does_pre_candidate_vote_match correlates Pre-Vote responses only by the probed leader id, which successive rounds at the same term share.",
+ "trigger": "Two operator Pre-Vote rounds (trigger().elect(true)) at the same term while a grant of the first is in flight; for the crash, a membership change removing that responder between the rounds.",
+ "consequence": "The later round counts the earlier round's grant; with the responder removed, Candidate::grant_by panics and the RaftCore dies.",
+ "sites": [
+  "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+  "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+  "openraft/src/proposer/candidate.rs:grant_by"
+ ],
+ "actions": [
+  "ExternalPreElect",
+  "HandlePreVoteResponse"
+ ],
+ "invariants": [
+  "StalePreVoteResponseIgnored",
+  "PreVoteResponseNeverPanics"
+ ],
+ "premises": [
+  "Operator-triggered Pre-Vote rounds are not rate limited.",
+  "A Pre-Vote response can be delayed up to election_timeout_min."
+ ],
+ "dependencies": [
+  {
+   "root": "source",
+   "path": "openraft/src/core/raft_core.rs",
+   "start": "    /// If a Pre-Vote response is for a previous Pre-Vote round, it is stale and should be ignored.",
+   "end": "    /// If a message is sent by a previous Leader but is received by current Leader,"
+  },
+  {
+   "root": "source",
+   "path": "openraft/src/proposer/candidate.rs"
+  },
+  {
+   "root": "work",
+   "path": "spec/base.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/UpdateProps.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/MC_hunt_U4_prevote_stale_round.cfg"
+  }
+ ],
+ "evidence": [
+  "spec/confirmation-MC-2.md",
+  "spec/output/MC-2_StalePreVoteResponseIgnored_cex.out",
+  "spec/output/repro-MC-2-run1.log",
+  "harness/src/t91_specula_repro_prevote_stale_round_panic.rs"
+ ]
+}

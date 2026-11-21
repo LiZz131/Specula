@@ -1,0 +1,285 @@
+TLC2 Version 2.20 of Day Month 20?? (rev: ${git.shortRevision})
+Running breadth-first search Model-Checking with fp 52 and seed 2554193580787659711 with 1 worker on 96 cores with 27305MB heap and 64MB offheap memory [pid: 7153] (Linux 6.8.0-1044-azure amd64, Ubuntu 21.0.11 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/prior/.specula-output/spec/MC.tla
+Parsing file /work/prior/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-16115600334838856642/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-16115600334838856642/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-16115600334838856642/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-16115600334838856642/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-16115600334838856642/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-16115600334838856642/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-16115600334838856642/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-09-04 16:57:47)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-04 16:57:47.
+Error: Invariant NotSyncReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ role = (s1 :> "looking" @@ s2 :> "looking")
+/\ seen = {}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "election" @@ s2 :> "election")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> Nil @@ s2 :> Nil)
+
+State 2: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ role = (s1 :> "looking" @@ s2 :> "looking")
+/\ seen = {"election"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "election" @@ s2 :> "election")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> Nil @@ s2 :> Nil)
+
+State 3: <MCCastVote(s2,s1) line 20, col 21 to line 20, col 59 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ role = (s1 :> "looking" @@ s2 :> "looking")
+/\ seen = {"election"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "election" @@ s2 :> "election")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> Nil @@ s2 :> Nil)
+
+State 4: <MCWinElection(s1) line 21, col 21 to line 21, col 79 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0)
+/\ role = (s1 :> "leading" @@ s2 :> "looking")
+/\ seen = {"election", "leader"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "discovery" @@ s2 :> "election")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> s1 @@ s2 :> Nil)
+
+State 5: <MCFollowLeader(s2,s1) line 22, col 25 to line 22, col 67 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0)
+/\ role = (s1 :> "leading" @@ s2 :> "following")
+/\ seen = {"election", "leader"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1)
+
+State 6: <MCAcceptEpoch(s2) line 23, col 21 to line 23, col 59 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 1)
+/\ role = (s1 :> "leading" @@ s2 :> "following")
+/\ seen = {"election", "leader"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1)
+
+State 7: <MCFinishDiscovery(s1) line 24, col 25 to line 24, col 67 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 1)
+/\ role = (s1 :> "leading" @@ s2 :> "following")
+/\ seen = {"election", "leader"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "sync" @@ s2 :> "discovery")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1)
+
+State 8: <MCEnterSyncPhase(s2,s1) line 25, col 27 to line 25, col 71 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> s1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 1)
+/\ role = (s1 :> "leading" @@ s2 :> "following")
+/\ seen = {"election", "leader"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "sync" @@ s2 :> "sync")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1)
+
+State 9: <MCSelectSync(s2,s1,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>>)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "DIFF")
+/\ commitCertified = (t1 :> FALSE)
+/\ syncSource = (s1 :> Nil @@ s2 :> s1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>>)
+/\ durable = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acked = (t1 :> {})
+/\ usedTxn = {}
+/\ appended = (s1 :> <<>> @@ s2 :> <<>>)
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 1)
+/\ role = (s1 :> "leading" @@ s2 :> "following")
+/\ seen = {"election", "sync", "DIFF", "leader"}
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE)
+/\ phase = (s1 :> "sync" @@ s2 :> "sync")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>>)
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>>)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>>)
+/\ counters = [crash |-> 0, drop |-> 0, snapshot |-> 0]
+/\ up = (s1 :> TRUE @@ s2 :> TRUE)
+/\ messages = {}
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1)
+
+341 states generated, 99 distinct states found, 16 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 00s at (2026-09-04 16:57:47)
+Trace exploration spec path: ./MC_TTrace_1788541066.tla

@@ -1,0 +1,105 @@
+{
+ "status": "LIMITED_COVERAGE",
+ "run": "V1 incremental (Pre-Vote update)",
+ "disposition": "MODEL_CHANGE_REQUIRED",
+ "baseline_commit": "1adc857f05fc8632eca18a7ce636f9c489dd5038",
+ "update_commit": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+ "source_tree_modified": false,
+ "instrumented_tree": "work-source (update commit + harness/instrumentation.patch, test-only)",
+ "toolchain_used": "stable rustc 1.100.0 (requested nightly-2026-03-01 and V0 nightly-2025-12-31 not installed)",
+ "baseline_tests": {
+  "openraft_library": {
+   "passed": 486,
+   "failed": 0,
+   "log": "spec/output/v1-baseline-openraft-lib.log"
+  },
+  "elect_integration_incl_t12_pre_vote": {
+   "passed": 8,
+   "failed": 0,
+   "log": "spec/output/v1-baseline-elect.log"
+  }
+ },
+ "trace_validation": {
+  "status": "PASS (observed executions only)",
+  "fresh_files": 20,
+  "records": 33,
+  "all_completed_TraceConsumed": true,
+  "summary": "spec/output/v1-trace-summary.txt",
+  "mutation_controls": "11/11 rejected (spec/output/v1-trace-mutation-controls.txt)",
+  "archived_v0_traces": "traces/archive-v0 (7), superseded by fresh reruns"
+ },
+ "model_checking": {
+  "status": "LIMITED_COVERAGE",
+  "campaign_table": "spec/bug-report.md#campaign-outcomes",
+  "finding": "MC-1"
+ },
+ "prior_v0_summary": {
+  "status": "LIMITED_COVERAGE",
+  "baseline_commit": "b41ce98d43e99e8b0cc5e613e6d18429a8f82706",
+  "source_tree_modified": false,
+  "instrumented_tree_commit": "b41ce98d43e99e8b0cc5e613e6d18429a8f82706",
+  "instrumentation_patch": "harness/instrumentation.patch",
+  "toolchain_used": "nightly-2025-12-31",
+  "baseline_tests": {
+   "openraft_library": {
+    "passed": 478,
+    "failed": 0
+   },
+   "election_integration": {
+    "passed": 2,
+    "failed": 0
+   },
+   "membership_integration": {
+    "passed": 44,
+    "failed": 0
+   },
+   "lifecycle_integration": {
+    "passed": 14,
+    "failed": 0
+   }
+  },
+  "trace_validation": {
+   "status": "LIMITED_COVERAGE",
+   "fresh_files": 7,
+   "records": 7,
+   "all_records_consumed": true,
+   "all_runs_completed_without_error": true,
+   "distinct_states_per_trace": 2
+  },
+  "model_checking": {
+   "status": "LIMITED_COVERAGE",
+   "primary": {
+    "config": "spec/MC.cfg",
+    "states_generated": 5273983,
+    "distinct_states": 640830,
+    "depth": 24,
+    "queue_remaining": 0,
+    "finding": false
+   },
+   "membership_non_vacuity": {
+    "config": "spec/MC-membership.cfg",
+    "states_generated": 1558889,
+    "distinct_states": 181185,
+    "depth": 28,
+    "queue_remaining": 0,
+    "joint_append_evaluations": 2508,
+    "uniform_append_evaluations": 9288,
+    "finding": false
+   }
+  },
+  "cleanup": {
+   "tlc_state_root_removed": true,
+   "background_processes_remaining": false
+  },
+  "limitations": [
+   "Finite three-node universe",
+   "Bounded terms, log indices, messages, elections, membership changes, crashes, and drops",
+   "Seven deterministic single-transition implementation traces",
+   "No fairness or unbounded liveness claim",
+   "TLC uses probabilistic fingerprints; estimates are preserved in logs"
+  ]
+ },
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specula-e2e-case-011 (removed after every run)"
+ }
+}

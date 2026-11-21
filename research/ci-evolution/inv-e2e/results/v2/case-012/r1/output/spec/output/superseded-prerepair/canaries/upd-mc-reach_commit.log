@@ -1,0 +1,52 @@
+# cmd: java -XX:+UseParallelGC -Xmx4g -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC_reach_commit.cfg -workers 2 -metadir /dev/shm/specula-e2e-case-012/upd-mc-reach_commit-10827 -cleanup -noGenerateSpecTE -dumpTrace json /work/current/.specula-output/spec/output/upd-mc-reach_commit.trace.json MC.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 83 and seed 7136301473893831054 with 2 workers on 40 cores with 3641MB heap and 64MB offheap memory [pid: 10832] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-11330699304159629360/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-11330699304159629360/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-11330699304159629360/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-11330699304159629360/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-11330699304159629360/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-11330699304159629360/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-11330699304159629360/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-11330699304159629360/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module MC
+Starting... (2026-11-20 02:48:35)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 02:48:35.
+Error: Invariant NotReachCommitWitness is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n1) line 31, col 5 to line 34, col 70 of module MC>
+
+State 3: <MCGrantVote(n1,n2) line 63, col 5 to line 64, col 87 of module MC>
+
+State 4: <MCClientAppend(n1) line 37, col 5 to line 40, col 72 of module MC>
+
+State 5: <MCSendAppendEntries(n1,n2) line 67, col 5 to line 68, col 87 of module MC>
+
+State 6: <MCNext line 96, col 8 to line 96, col 51 of module MC>
+
+State 7: <MCNext line 98, col 8 to line 98, col 50 of module MC>
+
+"CounterExample written: /work/current/.specula-output/spec/output/upd-mc-reach_commit.trace.json"
+58 states generated, 38 distinct states found, 19 states left on queue.
+The depth of the complete state graph search is 7.
+Finished in 02s at (2026-11-20 02:48:36)
+# exit=12

@@ -1,0 +1,73 @@
+cmd: cd /work/current/.specula-output/spec && timeout --signal=TERM 32m java -XX:+UseParallelGC -Xmx8g -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update_hunt_U1_enable_from_zero.cfg -metadir /dev/shm/specula-e2e-case-003/mc-hunt-U1_enable_from_zero-36981 -workers 16 -cleanup -dumpTrace json output/cex-hunt-U1_enable_from_zero.json Update.tla
+spec sha256: base.tla=add413227a379952 MC.tla=3d94958e93491e2f Update.tla=a94c29ed9a183e89 Update_hunt_U1_enable_from_zero.cfg=4fb8ea060e398bac 
+start: 2026-11-18T18:06:14-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 97 and seed 3274150176615228228 with 16 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 36992] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-562533122687672840/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-562533122687672840/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-562533122687672840/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-562533122687672840/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-562533122687672840/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-562533122687672840/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-562533122687672840/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-562533122687672840/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-562533122687672840/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 00:06:15)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 00:06:15.
+Error: Invariant ContractLegalUpdateAccepted is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCSaveBlock line 22, col 5 to line 24, col 53 of module MC>
+
+State 3: <MCApplyBlockStart line 36, col 22 to line 36, col 58 of module MC>
+
+State 4: <MCFinalizeBlock([abci |-> 2, body |-> "b0"]) line 37, col 23 to line 37, col 60 of module MC>
+
+State 5: <MCSaveFinalizeBlockResponse line 38, col 32 to line 38, col 78 of module MC>
+
+State 6: <MCUpdateStateAccepted line 39, col 26 to line 39, col 66 of module MC>
+
+State 7: <MCCommitApp line 41, col 16 to line 41, col 46 of module MC>
+
+State 8: <MCSaveState line 42, col 16 to line 42, col 46 of module MC>
+
+State 9: <MCSaveBlock line 22, col 5 to line 24, col 53 of module MC>
+
+State 10: <MCApplyBlockStart line 36, col 22 to line 36, col 58 of module MC>
+
+State 11: <MCFinalizeBlock([abci |-> 2, body |-> "b0"]) line 37, col 23 to line 37, col 60 of module MC>
+
+State 12: <MCSaveFinalizeBlockResponse line 38, col 32 to line 38, col 78 of module MC>
+
+State 13: <MCUpdateStateRejected("update") line 40, col 29 to line 40, col 72 of module MC>
+
+"CounterExample written: output/cex-hunt-U1_enable_from_zero.json"
+1140 states generated, 989 distinct states found, 229 states left on queue.
+The depth of the complete state graph search is 18.
+Finished in 00s at (2026-11-19 00:06:15)
+Trace exploration spec path: ./Update_TTrace_1795046774.tla
+end: 2026-11-18T18:06:15-06:00 tlc exit=12

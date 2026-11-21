@@ -1,0 +1,158 @@
+{
+ "schema_version": 1,
+ "case_id": "case-002",
+ "purpose": "blind_source_derived_incremental_verification",
+ "decision": "MODEL_CHANGE_REQUIRED (reported as MODEL_UPDATED)",
+ "inputs": {
+  "model_scope_md_sha256": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+  "case_json_sha256": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+  "input_manifest_json_sha256": "a17fd8d3fbbc607b034d160a262100a1c062fba83c816fedc24deafd891417da",
+  "tla2tools_jar_sha256": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+  "community_modules_jar_sha256": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99",
+  "previous_suite": "/work/previous/.specula-output (read-only)"
+ },
+ "source": {
+  "artifact_head": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "artifact_commits": [
+   "2efbdfc3754df193bce05b9792297c813377cdaf update",
+   "1414ebfb1d16fd81abc38550a96950d919ecf805 baseline"
+  ],
+  "artifact_worktree_clean": true,
+  "old_changed_files": {
+   "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "9f7a2f68da8c1bf5db0ee1bed1bb117b419a624dd3d63d17dec14744626e3490",
+   "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "9a69113a8c5940516e39e71eab3fc99b52cd31c1c5bedf90ae23c7de48d282dc"
+  },
+  "new_changed_files": {
+   "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111",
+   "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866",
+   "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java": "dfd020c786b989e78afbe0031ba2affe7537501210751d057377a107c6a5faee"
+  },
+  "history_or_external_research_used": false
+ },
+ "harness": {
+  "run_command": "timeout 6000s /work/current/.specula-output/harness/run.sh",
+  "patch": "harness/patches/instrumentation.patch",
+  "patch_sha256": "15283e8ab857b1a025e75cbe1e97064cb2b8399372df04ea673366fe84d6b8d7",
+  "patch_used_for_traces": "harness/patches/instrumentation.patch.used-for-traces",
+  "patch_used_for_traces_sha256": "9a05eda1abf1dbd17cb2c5f29fed9a2de80c2ba01ac9e9d84e47412713a77581",
+  "results": "spec/output/harness/harness-results.ndjson",
+  "java": "OpenJDK 21 (/usr/lib/jvm/java-21-openjdk-amd64)"
+ },
+ "traces": [
+  {
+   "path": "traces/follower-diff.ndjson",
+   "records": 20,
+   "sha256": "73dcf346b7bec6f94f812d651e725b73bd44b79dcdb1df795826c26e0179037f"
+  },
+  {
+   "path": "traces/follower-snap.ndjson",
+   "records": 21,
+   "sha256": "bb95539dd5d14bf5c74ded910ad2c074ac0a8956a62277ec58142ede59b437bd"
+  },
+  {
+   "path": "traces/leader-abandon-restart-recovery.ndjson",
+   "records": 286,
+   "sha256": "1006affd0c2d9c02a19515e011d9966b1b3112983ea82823052d5bc35e395bf0"
+  },
+  {
+   "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+   "records": 75,
+   "sha256": "865eb0657cab8a84cfc8fefc7c6c881d0d8007025f7cfa052974846b71e8759b"
+  },
+  {
+   "path": "traces/update-commit-after-newleader.ndjson",
+   "records": 16,
+   "sha256": "82ed21087673887516f2728cf6ab103482da3ca9c0b28df8e5ed5a69cf8fe060"
+  },
+  {
+   "path": "traces/update-diff-sync-consistency.ndjson",
+   "records": 160,
+   "sha256": "ec03cb63fc5c338189e19a56aa2074122360ae70a54bd7e1a0636e47170131ed"
+  },
+  {
+   "path": "traces/update-newleader-ack-durability.ndjson",
+   "records": 16,
+   "sha256": "be545fc91faba0565fa79927b3a3d1513132359b7d0565afc8273e5f6017b3ec"
+  }
+ ],
+ "archived_v0_traces": [
+  {
+   "path": "traces/archived-v0/follower-diff.ndjson",
+   "sha256": "362cf547714df4c931bc8c32580b5562b30e485392fc83ea5abe7e86733814a2",
+   "disposition": "superseded"
+  },
+  {
+   "path": "traces/archived-v0/follower-snap-attempt-001.ndjson",
+   "sha256": "c8e60eb2c19cddbdf9dd1431a3c55ba7d32fb07924cedb4f37a4d3fbd87edb17",
+   "disposition": "superseded"
+  },
+  {
+   "path": "traces/archived-v0/follower-snap.ndjson",
+   "sha256": "e80733e381a4ef9edf43291a2b418345ae5cefac544da12c3aa00ca392e82ac5",
+   "disposition": "superseded"
+  },
+  {
+   "path": "traces/archived-v0/leader-abandon-restart-recovery.ndjson",
+   "sha256": "e1f446e350220c95a718549befca26e6f544b3c295840ee0a634b78c43b3f7a3",
+   "disposition": "superseded"
+  },
+  {
+   "path": "traces/archived-v0/quorum-startup-mutation-shutdown.ndjson",
+   "sha256": "a2f1825aa1580b9aed0eacb40edbd3714634e1da2c57fd97b6ad805c42c3a41d",
+   "disposition": "superseded"
+  }
+ ],
+ "spec_files": {
+  "spec/MC-hunt-election.cfg": "0cb7f9e538ea3fe399c053ec5fa1c9f3f5f27995a7bab9da6cb106819fe5557f",
+  "spec/MC-hunt-mutation.cfg": "0011114d0b30bff1826a964484f261c28a98180f31a0f4550a6f6d6228e20f29",
+  "spec/MC-hunt-recovery.cfg": "39fe7282722c6f5f4b702e3f057d65b3abe0c3ebc40d077a429803b3e35b69ae",
+  "spec/MC-hunt-sync.cfg": "ce65a0ef19815af466356b7857314652fbfcdf9712dc5746788a770d31052616",
+  "spec/MC.cfg": "3b74af47d5e48fb018598eeb5fe5c0ee9f13e2656495d82b8c92626ef1bf3b7e",
+  "spec/MC.tla": "a709c28174bb4fc4b5ef0e5991aa8f424a62439c156bbd3bb58f233ce419afdd",
+  "spec/MC_TTrace_1795010285.tla": "6d6a482dc78a8293737e85e8af3a1cf3a3824dd80cfb12413923c5dcb7626191",
+  "spec/MC_TTrace_1795010526.tla": "f961fabc9e2ac7d87731adaf13a70640e00afbdf7bdba8a490f82baa03645898",
+  "spec/Trace.cfg": "87262830f03edcb9b90dac2fdd37b0162872c94aa9bd2c7e5c49bfec0801a877",
+  "spec/Trace.tla": "0b8ba65da4f5856f7904b066a274753b7e93c633119ca5752c77dfc076f788c0",
+  "spec/Update-canary-npe.cfg": "32825f4342c2da2447c0f4e890a75ad78900aab5c87fa73fbd2e7db2b9997f47",
+  "spec/Update-discharge.cfg": "fa456b3915f15f42abf28c685ef64beb55c4bd2e99e5d09003bfa6312a592fe9",
+  "spec/Update-focused.cfg": "63c737ac6e1a34b976ffe1d13a091a948b9a8923c9067f75b2079c1c7e701205",
+  "spec/Update-full.cfg": "8a179bf1b14cf9e7909f87ab4f92d7fe206f261cb81e656aa685f97298a16137",
+  "spec/Update-hunt-dur.cfg": "375fdaff80c34808974a22cf5032601c1833b3b508254618c66bddbb41f08d82",
+  "spec/Update-hunt-epoch-nocrash.cfg": "ec90115b1c60002e44bdeb48b9ae7f6bafc15e5c7a1283fff6cacf3042454e39",
+  "spec/Update-hunt-epoch.cfg": "c0a9f5b4d8a1697af37783a35fd3d4a4a6fc8f7893b99db11361a350fec35575",
+  "spec/Update-hunt-loss-crash-tight.cfg": "b38d4d98f71c2e8a362f5f78803bb5444449363ff6bd86f9f43c23dd0ce114e0",
+  "spec/Update-hunt-loss-crash.cfg": "485343bc83d5ee6ec0394166d83215ee6ee8605effa8db1b9a68eb71ffd7c422",
+  "spec/Update-hunt-loss-nocrash.cfg": "f2304cc33fca156286a9a83f7a2c36ad2e9d02d49d762a4106da517176dcb2f6",
+  "spec/Update-hunt-loss-sim.cfg": "641cc07670b8e8009f4cc7265ac5dde1827f68f8670697524973e855fe6443c3",
+  "spec/Update-hunt-loss-tight.cfg": "b6ad10c818b52314e81fbe3edbe87b4b7fc45cfba6c61ae396a24e84671e076a",
+  "spec/Update-hunt-npe-strict.cfg": "ff6da3d9a68d7cdfe0616d14dbfa2bbf05b7392ab1e2f03d08d6e2c6e5aa9f43",
+  "spec/Update-hunt-npe.cfg": "e1fa04431cfbd21edffca090ebb2a682a50cb48653d3d369ab3aaa382e15cdbe",
+  "spec/Update-open.cfg": "02aa8cd67b363063b370ab8d1ea53bf55e3c8cbd1aeaa8b7d75033c302eeb18d",
+  "spec/Update.tla": "0c09d79c8375f326180d945d56fe061567f73501bbc103002399757143b86c5d",
+  "spec/Update_TTrace_1795010285.tla": "50b96fbc0ef8db1af5f40c254b1ac6e2aed2f4d6fc3f8609dd76e7c71beebc1b",
+  "spec/Update_TTrace_1795010517.tla": "494b365b2fa7a74e91de13fc619deb72c381b90609e4619c386327c0ff158214",
+  "spec/Update_TTrace_1795011588.tla": "85429e1fdbdfb860a5b1be9d2b904beaa0f61b60cd6672cdd158333bd0e20b22",
+  "spec/Update_TTrace_1795012060.tla": "e084c1eeb7b6ad11486e716a99704d773f4b539cea069e85f45b492a1e8010c7",
+  "spec/Update_TTrace_1795012846.tla": "b65c2e500e579585335a696275dd44c55140de20f749efe5361d6abc81b0ac58",
+  "spec/base.cfg": "feab26b27df88ca16d851446bac590c8376fd9e55ccd3dd2101a8c54d9adbd1f",
+  "spec/base.tla": "187f3f914f00233c4ddc99dd1b78fa483189b7361d10d8dc5cd1d13de7974f21"
+ },
+ "tlc_ledger": "spec/output/command-results.ndjson",
+ "mc_summary": "spec/output/mc-summary.md",
+ "validation_summary": "spec/output/validation-summary.md",
+ "reproduction": {
+  "scripts": [
+   "repro/run-repro.sh",
+   "repro/run-repro-reelection.sh",
+   "repro/run-repro-capture.sh",
+   "repro/run-repro-npe-v2.sh"
+  ],
+  "ledger": "repro/repro-results.ndjson"
+ },
+ "limits": [
+  "JDK 21 only (as V0).",
+  "TLC bounds: 3 servers, 1 txn, MaxEpoch 2-3, bounded crash/drop/snapshot; BFS runs budget-stopped with non-empty queues (LIMITED_COVERAGE).",
+  "Deep U-LOSS/U-EPOCH paths found only with guidance constraints (restrictions of full MCNext).",
+  "`specula` CLI (ci-result, findings registry) not installed: final reports generated manually."
+ ]
+}

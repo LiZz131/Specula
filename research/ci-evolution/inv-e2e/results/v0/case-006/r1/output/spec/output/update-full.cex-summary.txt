@@ -1,0 +1,69 @@
+21 states
+  1 Init
+  2
+      sent: MsgVote s1->s2 t1; MsgVote s1->s3 t1
+      role: {"s1":"Candidate"}
+      term: {"s1":1}
+      vote: {"s1":"s1"}
+  3
+      sent: MsgVote s1->s2 t2; MsgVote s1->s3 t2
+      term: {"s1":2}
+  4
+      durableTerm: {"s1":2}
+      durableVote: {"s1":"s1"}
+      readyOutstanding: {"s1":true}
+  5  consumed/lost: MsgVote s1->s2 t1
+      sent: MsgVoteResp s2->s1 t1
+      term: {"s2":1}
+      vote: {"s2":"s1"}
+  6  consumed/lost: MsgVote s1->s2 t2
+      sent: MsgVoteResp s2->s1 t2
+      term: {"s2":2}
+  7
+      durableTerm: {"s2":2}
+      durableVote: {"s2":"s1"}
+      readyOutstanding: {"s2":true}
+  8  consumed/lost: MsgVoteResp s2->s1 t2
+  9
+      sent: MsgApp s1->s2 t2 prev=0 ent=2 commit=0; MsgApp s1->s3 t2 prev=0 ent=2 commit=0
+      role: {"s1":"Leader"}
+      logs: {"s1":[{"term":2,"value":"Nil"}]}
+      leaderHistory: [{"term":2,"node":"s1"}]
+ 10
+      readyOutstanding: {"s1":false}
+ 11
+      durableLogs: {"s1":[{"term":2,"value":"Nil"}]}
+      readyOutstanding: {"s1":true}
+ 12  consumed/lost: MsgApp s1->s3 t2 prev=0 ent=2 commit=0
+      sent: MsgAppResp s3->s1 t2 idx=1
+      term: {"s3":2}
+      logs: {"s3":[{"term":2,"value":"Nil"}]}
+ 13
+      durableTerm: {"s3":2}
+      durableLogs: {"s3":[{"term":2,"value":"Nil"}]}
+      readyOutstanding: {"s3":true}
+ 14  consumed/lost: MsgAppResp s3->s1 t2 idx=1
+      commitIndex: {"s1":1}
+      commitHistory: [{"index":1,"entry":{"term":2,"value":"Nil"},"commitTerm":2}]
+ 15
+      sent: MsgHeartbeat s1->s2 t2 commit=0 ctx=ctx1 rinc=0; MsgHeartbeat s1->s3 t2 commit=1 ctx=ctx1 rinc=0
+      readQueue: {"s1":["ctx1"]}
+      readInc: {"s1":{"ctx1":1}}
+ 16  consumed/lost: MsgHeartbeat s1->s2 t2 commit=0 ctx=ctx1 rinc=0
+      sent: MsgHeartbeatResp s2->s1 t2 ctx=ctx1 rinc=1
+ 17
+      sent: MsgHeartbeat s1->s2 t2 commit=0 ctx=ctx1 rinc=0
+ 18  consumed/lost: MsgHeartbeatResp s2->s1 t2 ctx=ctx1 rinc=1
+      readQueue: {"s1":[]}
+      readReleases: [{"leader":"s1","term":2,"freshAcks":["s1","s2"],"index":1,"bound":1,"owner":"s1","ctx":"ctx1","inc":1,"acks":["s1","s2"]}]
+      producedReads: {"s1":[{"leader":"s1","index":1,"owner":"s1","ctx":"ctx1","acks":["s1","s2"],"justificationCtx":"ctx1"}]}
+ 19  consumed/lost: MsgHeartbeat s1->s2 t2 commit=0 ctx=ctx1 rinc=0
+      sent: MsgHeartbeatResp s2->s1 t2 ctx=ctx1 rinc=1
+ 20
+      sent: MsgHeartbeat s1->s2 t2 commit=0 ctx=ctx1 rinc=0
+      readQueue: {"s1":["ctx1"]}
+      readInc: {"s1":{"ctx1":2}}
+ 21  consumed/lost: MsgHeartbeatResp s2->s1 t2 ctx=ctx1 rinc=1
+      readQueue: {"s1":[]}
+      readReleases: [{"leader":"s1","term":2,"freshAcks":["s1"],"index":1,"bound":1,"owner":"s1","ctx":"ctx1","inc":2,"acks":["s1","s2"]},{"leader":"s1","term":2,"freshAcks":["s1","s2"],"index":1,"bound":1,"owner":"s1","ctx":"ctx1","inc":1,"acks":["s1","s2"]}]
+      producedReads: {"s1":[{"leader":"s1","index":1,"owner":"s1","ctx":"ctx1","acks":["s1","s2"],"justificationCtx":"ctx1"},{"leader":"s1","index":1,"owner":"s1","ctx":"ctx1","acks":["s1","s2"],"justificationCtx":"ctx1"}]}

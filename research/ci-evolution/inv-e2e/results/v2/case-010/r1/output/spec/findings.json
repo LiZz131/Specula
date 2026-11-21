@@ -1,0 +1,42 @@
+{
+ "schema_version": "2",
+ "system": "Apache ZooKeeper (Zab) \u2014 incremental case-010",
+ "generated_by": "validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Unfinished TRUNC sync keeps unlogged committed transactions in the reused in-memory database (SNAP-only fix misses TRUNC)",
+   "source": "model-checking",
+   "scenario": "U2",
+   "severity": "High",
+   "invariant": "UpdIdleDbBackedByDisk",
+   "config": "Update-focused-txn1.cfg",
+   "counterexample": "spec/output/counterexamples/MC-1-trunc-abort-update-focused-txn1.log",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:864",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:614",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:663",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:740",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:804"
+   ],
+   "summary": "TRUNC sync keeps snapshotNeeded=true, so writeToTxnLog is false and COMMITs forwarded before NEWLEADER (e.g. toBeApplied entries queued by Leader.startForwarding) are applied only in memory after the TRUNC cut the follower's log. If the sync fails before the NEWLEADER takeSnapshot, Learner.shutdown passes fullyShutDown=(syncMode==SNAP)=false, ZooKeeperServer.shutdown returns early without clearing, and the follower reuses an in-memory database that its disk does not back. It reports that zxid, receives an empty DIFF, appends later transactions on a log missing the committed one, and loses it after a restart from disk. Reproduced deterministically on both revisions with harness/repro/SpeculaTruncAbortReproTest (node1AfterRestart=false while node1OnLeader=true)."
+  },
+  {
+   "id": "MC-2",
+   "title": "Learner.shutdown now bypasses LearnerZooKeeperServer.shutdown(); the learner SyncRequestProcessor is never stopped or drained",
+   "source": "model-checking",
+   "scenario": "U3",
+   "severity": "Medium",
+   "invariant": "OrderedHistories",
+   "config": "Update-focused.cfg",
+   "counterexample": "spec/output/counterexamples/MC-2-leaked-sync-processor-update-focused.log",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:864",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/ObserverZooKeeperServer.java:131",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:803"
+   ],
+   "summary": "The update replaced zk.shutdown() with zk.shutdown(boolean). LearnerZooKeeperServer and ObserverZooKeeperServer override only shutdown(), which was the sole caller of syncProcessor.shutdown() (drain, flush, join). ZooKeeperServer.shutdown(boolean) is not overridden, so a serving learner's SyncRequestProcessor survives every Learner.shutdown: real new-code traces report syncAlive=true after each serving shutdown (old code: false). The thread leaks (blocked on queuedRequests.take()) and any still-queued proposal is appended later to the shared transaction log; the model shows it landing after a TRUNC cut, leaving txn 2 logged without txn 1. The log-gap consequence was not reproduced on the real system (needs a delayed flush). The old-code control reaches a pre-existing variant (session failure after NEWLEADER but before UPTODATE also leaves the processor running in the old code); the update extends the leak to every serving learner shutdown."
+  }
+ ]
+}

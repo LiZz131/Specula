@@ -1,0 +1,177 @@
+# run=update-discharge module=Update.tla cfg=Update_discharge.cfg budget=20m workers=8 extra=-coverage 5 start=2026-11-18T05:21:05Z
+# cmd: timeout 20m java -Xmx20g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 8 -metadir /dev/shm/specula-e2e-case-006/update-discharge -noGenerateSpecTE -dumpTrace json output/update-discharge.cex.json -config Update_discharge.cfg -coverage 5 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 88 and seed -3301266745049058811 with 8 workers on 40 cores with 18204MB heap and 64MB offheap memory [pid: 13725] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-7072563841011231493/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-7072563841011231493/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7072563841011231493/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7072563841011231493/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7072563841011231493/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7072563841011231493/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7072563841011231493/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-7072563841011231493/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module Update
+line 182, col 44 to line 182, col 49 of module base
+
+The field name "leader" in the record constructor is identical to the existing definition or declaration
+named leader, located at line 67, col 23 to line 67, col 28 of module base.
+The field in the record will not take the value of the leader definition or declaration.
+In TLA+, field names in records are strings, regardless of any similarly named declarations or definitions.
+Therefore, DOMAIN [leader |-> ...] = {"leader"} holds true.
+
+
+
+Starting... (2026-11-18 05:21:06)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 05:21:07.
+Progress(8) at 2026-11-18 05:21:10: 11,129 states generated (11,129 s/min), 4,141 distinct states found (4,141 ds/min), 2,733 states left on queue.
+Progress(14) at 2026-11-18 05:22:10: 1,185,575 states generated (1,174,446 s/min), 294,275 distinct states found (290,134 ds/min), 141,435 states left on queue.
+Progress(14) at 2026-11-18 05:23:10: 2,416,873 states generated (1,231,298 s/min), 597,118 distinct states found (302,843 ds/min), 307,074 states left on queue.
+Progress(15) at 2026-11-18 05:24:10: 3,596,661 states generated (1,179,788 s/min), 873,490 distinct states found (276,372 ds/min), 462,897 states left on queue.
+Progress(15) at 2026-11-18 05:25:10: 4,810,386 states generated (1,213,725 s/min), 1,175,577 distinct states found (302,087 ds/min), 642,079 states left on queue.
+Progress(16) at 2026-11-18 05:26:10: 5,943,553 states generated (1,133,167 s/min), 1,438,449 distinct states found (262,872 ds/min), 795,248 states left on queue.
+The coverage statistics at 2026-11-18 05:26:10 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<durableCommit line 68, col 44 to line 68, col 56 of module base>: 4
+<leader line 67, col 23 to line 67, col 28 of module base>: 25
+<vote line 67, col 11 to line 67, col 14 of module base>: 34
+<durableVote line 68, col 18 to line 68, col 28 of module base>: 34
+<readReleases line 72, col 28 to line 72, col 39 of module base>: 1
+<logs line 67, col 31 to line 67, col 34 of module base>: 21
+<durableLogs line 68, col 31 to line 68, col 41 of module base>: 15
+<readQueue line 70, col 29 to line 70, col 37 of module base>: 4
+<pendingReads line 70, col 15 to line 70, col 26 of module base>: 10
+<recentActive line 69, col 42 to line 69, col 53 of module base>: 10
+<role line 67, col 17 to line 67, col 20 of module base>: 17
+<commitHistory line 71, col 45 to line 71, col 57 of module base>: 3
+<publishedReads line 70, col 55 to line 70, col 68 of module base>: 1
+<nextIndex line 69, col 17 to line 69, col 25 of module base>: 13
+<scenarioSeen line 72, col 5 to line 72, col 16 of module base>: 115
+<producedReads line 70, col 40 to line 70, col 52 of module base>: 1
+<matchIndex line 69, col 5 to line 69, col 14 of module base>: 13
+<leaderHistory line 71, col 30 to line 71, col 42 of module base>: 13
+<readyOutstanding line 71, col 5 to line 71, col 20 of module base>: 8
+<appliedIndex line 67, col 50 to line 67, col 61 of module base>: 4
+<commitIndex line 67, col 37 to line 67, col 47 of module base>: 4
+<term line 67, col 5 to line 67, col 8 of module base>: 27
+<durableTerm line 68, col 5 to line 68, col 15 of module base>: 27
+<faultCounters line 10, col 10 to line 10, col 22 of module MC>: 309
+<readInc line 72, col 19 to line 72, col 25 of module base>: 4
+<messages line 70, col 5 to line 70, col 12 of module base>: 49598
+<votesGranted line 69, col 28 to line 69, col 39 of module base>: 43
+<alive line 71, col 23 to line 71, col 27 of module base>: 4
+<MCInit line 14, col 1 to line 14, col 6 of module MC>: 1:1
+<MCNext line 117, col 1 to line 117, col 6 of module MC>: 1438539:5944148
+<MCTypeOK line 143, col 1 to line 143, col 8 of module MC>
+<StateConstraint line 154, col 1 to line 154, col 15 of module MC>: 5947868:5949124
+<Action line 174, col 23 to line 174, col 62 of module Update>
+End of statistics (please note that for performance reasons large models
+are best checked with coverage and cost statistics disabled).
+Progress(16) at 2026-11-18 05:27:10: 7,066,285 states generated (1,122,732 s/min), 1,685,644 distinct states found (247,195 ds/min), 936,436 states left on queue.
+Progress(16) at 2026-11-18 05:28:10: 8,190,441 states generated (1,124,156 s/min), 1,932,464 distinct states found (246,820 ds/min), 1,076,022 states left on queue.
+Progress(16) at 2026-11-18 05:29:10: 9,365,599 states generated (1,175,158 s/min), 2,216,094 distinct states found (283,630 ds/min), 1,245,820 states left on queue.
+Progress(16) at 2026-11-18 05:30:10: 10,545,929 states generated (1,180,330 s/min), 2,499,869 distinct states found (283,775 ds/min), 1,414,336 states left on queue.
+Progress(16) at 2026-11-18 05:31:10: 11,716,569 states generated (1,170,640 s/min), 2,771,758 distinct states found (271,889 ds/min), 1,573,429 states left on queue.
+Progress(16) at 2026-11-18 05:32:10: 12,827,916 states generated (1,111,347 s/min), 3,017,363 distinct states found (245,605 ds/min), 1,715,590 states left on queue.
+The coverage statistics at 2026-11-18 05:32:10 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<durableCommit line 68, col 44 to line 68, col 56 of module base>: 4
+<leader line 67, col 23 to line 67, col 28 of module base>: 25
+<vote line 67, col 11 to line 67, col 14 of module base>: 34
+<durableVote line 68, col 18 to line 68, col 28 of module base>: 34
+<readReleases line 72, col 28 to line 72, col 39 of module base>: 19
+<logs line 67, col 31 to line 67, col 34 of module base>: 24
+<durableLogs line 68, col 31 to line 68, col 41 of module base>: 15
+<readQueue line 70, col 29 to line 70, col 37 of module base>: 4
+<pendingReads line 70, col 15 to line 70, col 26 of module base>: 10
+<recentActive line 69, col 42 to line 69, col 53 of module base>: 10
+<role line 67, col 17 to line 67, col 20 of module base>: 17
+<commitHistory line 71, col 45 to line 71, col 57 of module base>: 3
+<publishedReads line 70, col 55 to line 70, col 68 of module base>: 1
+<nextIndex line 69, col 17 to line 69, col 25 of module base>: 16
+<scenarioSeen line 72, col 5 to line 72, col 16 of module base>: 131
+<producedReads line 70, col 40 to line 70, col 52 of module base>: 7
+<matchIndex line 69, col 5 to line 69, col 14 of module base>: 16
+<leaderHistory line 71, col 30 to line 71, col 42 of module base>: 16
+<readyOutstanding line 71, col 5 to line 71, col 20 of module base>: 8
+<appliedIndex line 67, col 50 to line 67, col 61 of module base>: 4
+<commitIndex line 67, col 37 to line 67, col 47 of module base>: 4
+<term line 67, col 5 to line 67, col 8 of module base>: 27
+<durableTerm line 68, col 5 to line 68, col 15 of module base>: 27
+<faultCounters line 10, col 10 to line 10, col 22 of module MC>: 380
+<readInc line 72, col 19 to line 72, col 25 of module base>: 4
+<messages line 70, col 5 to line 70, col 12 of module base>: 88209
+<votesGranted line 69, col 28 to line 69, col 39 of module base>: 43
+<alive line 71, col 23 to line 71, col 27 of module base>: 4
+<MCInit line 14, col 1 to line 14, col 6 of module MC>: 1:1
+<MCNext line 117, col 1 to line 117, col 6 of module MC>: 3017378:12828005
+<MCTypeOK line 143, col 1 to line 143, col 8 of module MC>
+<StateConstraint line 154, col 1 to line 154, col 15 of module MC>: 12824996:12829690
+<Action line 174, col 23 to line 174, col 62 of module Update>
+End of statistics (please note that for performance reasons large models
+are best checked with coverage and cost statistics disabled).
+Progress(17) at 2026-11-18 05:33:10: 13,920,512 states generated (1,092,596 s/min), 3,247,621 distinct states found (230,258 ds/min), 1,845,972 states left on queue.
+Progress(17) at 2026-11-18 05:34:10: 15,012,169 states generated (1,091,657 s/min), 3,481,553 distinct states found (233,932 ds/min), 1,980,710 states left on queue.
+Progress(17) at 2026-11-18 05:35:10: 16,110,531 states generated (1,098,362 s/min), 3,700,099 distinct states found (218,546 ds/min), 2,098,995 states left on queue.
+Progress(17) at 2026-11-18 05:36:10: 17,272,156 states generated (1,161,625 s/min), 3,940,000 distinct states found (239,901 ds/min), 2,230,135 states left on queue.
+Progress(17) at 2026-11-18 05:37:10: 18,358,853 states generated (1,086,697 s/min), 4,166,957 distinct states found (226,957 ds/min), 2,356,976 states left on queue.
+Progress(17) at 2026-11-18 05:38:10: 19,454,720 states generated (1,095,867 s/min), 4,387,648 distinct states found (220,691 ds/min), 2,476,087 states left on queue.
+The coverage statistics at 2026-11-18 05:38:10 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<durableCommit line 68, col 44 to line 68, col 56 of module base>: 4
+<leader line 67, col 23 to line 67, col 28 of module base>: 25
+<vote line 67, col 11 to line 67, col 14 of module base>: 34
+<durableVote line 68, col 18 to line 68, col 28 of module base>: 34
+<readReleases line 72, col 28 to line 72, col 39 of module base>: 37
+<logs line 67, col 31 to line 67, col 34 of module base>: 24
+<durableLogs line 68, col 31 to line 68, col 41 of module base>: 15
+<readQueue line 70, col 29 to line 70, col 37 of module base>: 4
+<pendingReads line 70, col 15 to line 70, col 26 of module base>: 13
+<recentActive line 69, col 42 to line 69, col 53 of module base>: 10
+<role line 67, col 17 to line 67, col 20 of module base>: 17
+<commitHistory line 71, col 45 to line 71, col 57 of module base>: 3
+<publishedReads line 70, col 55 to line 70, col 68 of module base>: 1
+<nextIndex line 69, col 17 to line 69, col 25 of module base>: 17
+<scenarioSeen line 72, col 5 to line 72, col 16 of module base>: 141
+<producedReads line 70, col 40 to line 70, col 52 of module base>: 11
+<matchIndex line 69, col 5 to line 69, col 14 of module base>: 17
+<leaderHistory line 71, col 30 to line 71, col 42 of module base>: 16
+<readyOutstanding line 71, col 5 to line 71, col 20 of module base>: 8
+<appliedIndex line 67, col 50 to line 67, col 61 of module base>: 4
+<commitIndex line 67, col 37 to line 67, col 47 of module base>: 6
+<term line 67, col 5 to line 67, col 8 of module base>: 27
+<durableTerm line 68, col 5 to line 68, col 15 of module base>: 27
+<faultCounters line 10, col 10 to line 10, col 22 of module MC>: 429
+<readInc line 72, col 19 to line 72, col 25 of module base>: 5
+<messages line 70, col 5 to line 70, col 12 of module base>: 105654
+<votesGranted line 69, col 28 to line 69, col 39 of module base>: 43
+<alive line 71, col 23 to line 71, col 27 of module base>: 4
+<MCInit line 14, col 1 to line 14, col 6 of module MC>: 1:1
+<MCNext line 117, col 1 to line 117, col 6 of module MC>: 4387687:19454858
+<MCTypeOK line 143, col 1 to line 143, col 8 of module MC>
+<StateConstraint line 154, col 1 to line 154, col 15 of module MC>: 19445950:19456036
+<Action line 174, col 23 to line 174, col 62 of module Update>
+End of statistics (please note that for performance reasons large models
+are best checked with coverage and cost statistics disabled).
+Progress(17) at 2026-11-18 05:39:10: 20,655,606 states generated (1,200,886 s/min), 4,674,372 distinct states found (286,724 ds/min), 2,650,165 states left on queue.
+Progress(17) at 2026-11-18 05:40:10: 21,802,400 states generated (1,146,794 s/min), 4,934,124 distinct states found (259,752 ds/min), 2,801,407 states left on queue.
+# end=2026-11-18T05:41:06Z rc=124 outcome=LIMITED_COVERAGE (planned 20m budget reached; queue not exhausted)

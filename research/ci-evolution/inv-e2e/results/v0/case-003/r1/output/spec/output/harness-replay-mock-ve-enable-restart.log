@@ -1,0 +1,10 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/replay_mock_ve_enable_restart.ndjson SPECULA_TRACE_PREFIX_FILE=/work/current/.specula-output/traces/replay_mock_ve_enable_prefix.ndjson go test -mod=readonly ./internal/consensus -run '^TestSpeculaTraceReplayMockVEEnable$' -count=1 -v
+=== RUN   TestSpeculaTraceReplayMockVEEnable
+I[2026-11-18|18:03:00.950] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=5C01
+I[2026-11-18|18:03:00.950] executed block                               height=1 app_hash=5C01
+I[2026-11-18|18:03:00.974] committed state                              height=1 block_app_hash=
+    specula_trace_test.go:156: block 1 ApplyBlock error: specula: injected state-save failure (crash cut) (production consensus panics on error, state.go:1834-1836)
+    specula_trace_test.go:156: restart Handshake error: <nil>
+--- PASS: TestSpeculaTraceReplayMockVEEnable (0.27s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/consensus	0.294s

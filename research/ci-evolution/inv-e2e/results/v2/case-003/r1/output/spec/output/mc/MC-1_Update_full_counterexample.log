@@ -1,0 +1,96 @@
++ cd /work/current/.specula-output/spec
++ timeout 35m java -XX:+UseParallelGC -Xmx40g -DTLA-Library=/work/current/.specula-output/spec:/work/current/.specula-output/spec/evidence -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update_full.cfg -metadir /dev/shm/specula-e2e-case-003/mc_Update_full-37263 -workers 12 -dumpTrace json output/mc/Update_full.cex.json -dumpTrace tla output/mc/Update_full.cex.tla Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 108 and seed -5187790463301964076 with 12 workers on 40 cores with 36409MB heap and 64MB offheap memory [pid: 37277] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-10165635925514883091/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-10165635925514883091/_TLAPlusCounterExample.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLAPlusCounterExample.tla)
+Parsing file /tmp/tlc-10165635925514883091/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-10165635925514883091/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-10165635925514883091/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-10165635925514883091/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-10165635925514883091/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-10165635925514883091/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-10165635925514883091/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-10165635925514883091/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-10165635925514883091/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-10165635925514883091/SequencesExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/SequencesExt.tla)
+Parsing file /tmp/tlc-10165635925514883091/FiniteSetsExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/FiniteSetsExt.tla)
+Parsing file /tmp/tlc-10165635925514883091/Folds.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Folds.tla)
+Parsing file /tmp/tlc-10165635925514883091/Functions.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Functions.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module IOUtils
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module FiniteSetsExt
+Semantic processing of module SequencesExt
+Semantic processing of module _TLAPlusCounterExample
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module IOUtils
+Linting of module Folds
+Linting of module Functions
+Linting of module FiniteSetsExt
+Linting of module SequencesExt
+Linting of module _TLAPlusCounterExample
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 23:06:05)
+Computing initial states...
+Finished computing initial states: 2 distinct states generated at 2026-11-18 23:06:05.
+Error: Invariant UnchangedVEUpdateNotRejected is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 3: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 4: <MCFinalizeBlock([rest |-> "r0", abciPresent |-> FALSE, abci |-> 0, present |-> TRUE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 5: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 6: <MCUpdateStateAccepted line 47, col 26 to line 47, col 66 of module MC>
+
+State 7: <MCCommitApp line 49, col 16 to line 49, col 46 of module MC>
+
+State 8: <MCSaveState line 50, col 16 to line 50, col 46 of module MC>
+
+State 9: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 10: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 11: <MCFinalizeBlock([rest |-> "r0", abciPresent |-> TRUE, abci |-> 2, present |-> TRUE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 12: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 13: <MCUpdateStateRejected line 48, col 26 to line 48, col 66 of module MC>
+
+"CounterExample written: output/mc/Update_full.cex.json"
+"CounterExample written: output/mc/Update_full.cex.tla"
+4255 states generated, 3578 distinct states found, 1220 states left on queue.
+The depth of the complete state graph search is 14.
+Finished in 01s at (2026-11-18 23:06:06)
+Trace exploration spec path: ./Update_TTrace_1795043164.tla
+elapsed_seconds: 2
+exit_code: 12
+state_dir_removed: yes

@@ -1,0 +1,15 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update adds RaftMsg::TransferLeader (core/raft_core.rs:1190-1202) and Raft::transfer_leader. When a node's vote equals `from` and it is `to`, the handler calls Engine::elect(). Unlike ExternalCommand::Elect and the tick handler, it does not check that the node is a voter. Because this makes new states reachable, the decision is MODEL_CHANGE_REQUIRED, reported here as MODEL_UPDATED. The lease switch projects to a stutter on modeled state, and the metrics/Display changes are out of scope. Model changes: Elect is split from the voter-guarded StartElection, TransferLeader is added, and Update.tla defines the new properties ElectionByVoterOnly and NoRaftCorePanic. Several prior-model defects were repaired: vote freshness now compares the full LogId; the MC framing is message-faithful (grant log, published vote requests, leader-driven appends, flush-gated acks, self-grant handled first); SaveCommit respects serialized write-IO; and CandidateGrantPanic was added from code observation. Validation: the V0 harness was rebased and RaftCore probes plus update scenarios were added. All 18 fresh traces (8 Engine-level, 10 RaftCore) passed real TLC replay with TraceMatched on the final model, and 10 of 11 single-field mutations failed as expected (the 11th passes by design). Model checking found one real finding, MC-1 (Case C, introduced by the update). transfer_leader to a learner makes it campaign (ElectionByVoterOnly violated, 12-state counterexample). The voters grant the learner's vote, so the leader steps down, and the learner's own grant then panics in Candidate::grant_by (candidate.rs:92; NoRaftCorePanic, 16 states). This was reproduced on a clean d7176ef worktree; the voter-guarded trigger().elect() control does not panic on either revision. A separate pre-existing debug-assert panic (CR-2: a Leader calls elect(), then a client write arrives) is recorded as code review only. All other campaigns (standard, full, focused, open, discharge, U1/U2 hunts, BFS plus simulation) found no violation but stopped at the 30-minute budget: LIMITED_COVERAGE, not proof. Gaps: no RaftCore trace for crash/restart around a transfer (covered by MC only); lease timing is not modeled.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/output/mc-Update_full.log",
+    "/work/current/.specula-output/spec/output/ttrace-Update_full/",
+    "/work/current/.specula-output/spec/output/mc-Update_hunt_U2_panic.log",
+    "/work/current/.specula-output/spec/output/ttrace-Update_hunt_U2_panic/",
+    "/work/current/.specula-output/spec/output/clean-update-specula_repro_transfer_to_learner_no_panic.log"
+  ],
+  "blockers": []
+}

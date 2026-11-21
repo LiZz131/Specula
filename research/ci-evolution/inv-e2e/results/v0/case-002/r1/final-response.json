@@ -1,0 +1,24 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "MODEL_CHANGE_REQUIRED: the update moves logging of packetsNotCommitted, setSyncMode(NONE) and server start (new State.INITIAL via startupWithoutServing) in front of the NEWLEADER ACK and clears the buffer. V0's atomic CompleteSync was replaced by a packet-level learner sync (LearnerHandler stream, syncWithLeader buffers, INITIAL/RUNNING server state, data tree vs log), with V0 defects repaired and Update.tla (affected/interaction/EnvUpdate, full/focused/open/discharge cfgs, guided hunts) added. Validation: prior harness rebased (one hunk re-anchored, update probes added); 4 V0 scenarios plus 3 diff-derived scenarios produced 7 fresh traces, all replayed by TLC with TraceMatched (natural completion); 3 mutated traces were rejected; archived V0 traces are superseded. Model checking: standard MC.cfg (round 2, after one Case A PipelinePrefix revision), full, focused, open and discharge runs found no violation within budget (BFS depth 22-29, queues non-empty = LIMITED_COVERAGE). Update hunts over the full MCNext produced 3 real counterexamples. MC-1: the unchanged COMMIT handler dereferences the cleared buffer, so a COMMIT that crosses NEWLEADER throws NullPointerException. Reproduced 3/3 on the new code, passes 3/3 on the old control, so the update introduced it; an unguided simulation also found it. MC-2: currentEpoch is persisted and NEWLEADER is ACKed before the synchronized proposals are fsynced. The window is reproduced on old and new; it is ENV_LIMITED because the harmful outcome needs a process crash inside it. MC-3: a learner failing between NEWLEADER and UPTODATE in State.INITIAL is never shut down or fast-forwarded, so its stale tree carries the new epoch. LeaderCompleteness is violated with no crash, and a reproduction showed a committed, client-read znode missing after in-process failover (new code 3/3; the old control fails too). The specula CLI is not installed, so the CI reports were written manually.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/confirmation-MC-2.md",
+    "/work/current/.specula-output/spec/confirmation-MC-3.md",
+    "/work/current/.specula-output/spec/output/mc/hunt-update-npe-strict.log",
+    "/work/current/.specula-output/spec/output/mc/hunt-update-epoch.log",
+    "/work/current/.specula-output/spec/output/mc/hunt-update-dur.log",
+    "/work/current/.specula-output/spec/output/mc/hunt-update-loss-tight.log",
+    "/work/current/.specula-output/spec/output/mc/hunt-update-epoch-nocrash.log",
+    "/work/current/.specula-output/spec/output/mc/sim-update-full.log",
+    "/work/current/.specula-output/spec/output/cex/hunt-update-npe-strict.json",
+    "/work/current/.specula-output/spec/output/cex/hunt-update-loss-tight.json",
+    "/work/current/.specula-output/spec/output/mc-summary.md",
+    "/work/current/.specula-output/repro/repro-results.ndjson"
+  ],
+  "blockers": []
+}

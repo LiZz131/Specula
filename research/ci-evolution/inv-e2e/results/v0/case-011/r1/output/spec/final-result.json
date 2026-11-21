@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "run_id": "specula-e2e-case-011",
+  "summary": "Pre-Vote update required a model change. Reference, MC, Trace and Update suites were updated and two prior-model defects repaired; the rebased harness produced 19 fresh traces that all replay. Model checking found two update-introduced defects in the Pre-Vote round lifecycle, both reproduced at engine and runtime level: a round started while Candidate survives leader establishment and makes the new leader re-elect (MC-1), and the Pre-Vote-triggered election skips the voter check after a leader removes itself (MC-2).",
+  "validation_limits": [
+    "All model checking is bounded (3 servers, MaxTerm 2, MaxLogIndex 4, bounded elections, membership changes, crashes, drops and messages); several BFS runs stopped at their time limit with states left on the queue.",
+    "The runtime election tick (lease expiry, Pre-Vote mode, round rate limit) is not traced; engine-level traces call pre_elect/elect directly and RunCommands emulates the runtime command boundary.",
+    "The runtime reproduction uses the public trigger().elect(true) path; the purely timer-driven path is shown by the model counterexample and the engine-level test, not by a deterministic cluster test.",
+    "No liveness or fairness property is checked.",
+    "The specula ci-result command is not installed in this environment, so the generated CI reports were not produced."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Stale Pre-Vote round survives leader establishment and makes the new leader re-elect",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "establish_leader consumes only the candidate and become_leader does not clear pre_candidate, so a Pre-Vote round started by the election tick (or trigger().elect(true)) while the node was still a Candidate survives; RaftCore still delivers its responses and handle_pre_vote_resp calls elect() on quorum.",
+      "trigger": "A Candidate's election timer fires (or trigger().elect(true) is called) while its real election is in flight; the delayed vote response makes it leader; then a peer's granting Pre-Vote response for the earlier probe arrives.",
+      "consequence": "The freshly established leader increments its term and becomes Candidate while keeping its Leader object; followers holding its lease reject the new vote request, leaving the cluster without a working leader for at least a lease period; debug builds panic on the leader.vote >= state.vote assertion (writes fail with Fatal(Panicked)); after self-removal the stale grant makes a non-voter start an election.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/mc-hunt-prevote-leader-tickonly.log",
+        "spec/output/mc-upd-full.log",
+        "spec/output/repro-MC-1-engine-update.log",
+        "spec/output/repro-MC-1-runtime-update.log",
+        "harness/repro/t90_specula_stale_pre_vote.rs",
+        "harness/repro/specula_repro_stale_pre_vote_test.rs",
+        "traces/stale_pre_vote_after_establish.ndjson",
+        "spec/output/repro-MC-1-runtime-mc1-fix-only.log"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/engine/engine_impl.rs:establish_leader",
+          "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+          "openraft/src/core/raft_core.rs:handle_tick_election",
+          "openraft/src/core/raft_core.rs:Notification::PreVoteResponse"
+        ],
+        "premises": [
+          "The election tick and ExternalCommand::Elect{pre_vote:true} do not check for an in-flight candidate before pre_elect().",
+          "establish_leader/become_leader leave pre_candidate set and the PreVoteResponse filter checks only pre_candidate presence and leader id.",
+          "Pre-Vote is enabled by Config::enable_pre_vote, the runtime toggle, or a per-call trigger().elect(true)."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/handler/vote_handler/mod.rs"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC_hunt_prevote_leader_tickonly.cfg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "Pre-Vote-triggered election skips the voter check, so a leader that removed itself starts an election",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "handle_pre_vote_resp calls elect() on quorum without re-checking is_voter, and nothing cancels a Pre-Vote round when the leader removes itself; ExternalCommand::Elect{pre_vote:true} accepts a leader and checks is_voter only at round start.",
+      "trigger": "Operator calls trigger().elect(true) on the leader while follower leases have expired; the leader removes itself with change_membership (removed_leader_step_down = Never or within the After window); a delayed granting Pre-Vote response arrives.",
+      "consequence": "The removed, non-voter node persists an inflated term and sends RequestVote at that term to the new configuration (observed term 1 -> 2 on the removed node), the disruption Pre-Vote is meant to prevent.",
+      "severity": "Low",
+      "evidence": [
+        "spec/confirmation-MC-2.md",
+        "spec/bug-report.md",
+        "spec/output/mc-hunt-prevote-membership.log",
+        "spec/output/repro-MC-2-engine-update.log",
+        "spec/output/repro-MC-2-runtime-update.log",
+        "spec/output/repro-MC-2-runtime-mc1-fix-only.log",
+        "spec/output/repro-MC-2-runtime-candidate-fix-combined.log",
+        "harness/repro/t91_specula_removed_leader_pre_vote.rs",
+        "harness/repro/specula_repro_removed_leader_pre_vote_test.rs"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+          "openraft/src/core/raft_core.rs:ExternalCommand::Elect"
+        ],
+        "premises": [
+          "The Pre-Vote-triggered elect() has no voter check while the tick and external elect paths check is_voter.",
+          "A leader keeps leading after self-removal under removed_leader_step_down = Never or until the After(ms) countdown.",
+          "trigger().elect(true) is accepted on a leader."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC_hunt_prevote_membership.cfg"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 2100s env JSON= java -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -metadir /dev/shm/specula-e2e-case-002/final-hunt-ghost -config Update-hunt-ghost.cfg -workers 3 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 124 and seed 3990620339763054377 with 3 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 16571] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-13062857110640205851/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13062857110640205851/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13062857110640205851/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13062857110640205851/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13062857110640205851/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13062857110640205851/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13062857110640205851/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 11:45:39)
+Computing initial states...
+Computed 2 initial states...
+Computed 4 initial states...
+Finished computing initial states: 6 states generated, with 1 of them distinct at 2026-11-18 11:45:39.
+Progress(9) at 2026-11-18 11:45:42: 42,887 states generated (42,887 s/min), 9,351 distinct states found (9,351 ds/min), 5,144 states left on queue.
+Progress(16) at 2026-11-18 11:46:42: 1,581,855 states generated (1,538,968 s/min), 263,901 distinct states found (254,550 ds/min), 81,294 states left on queue.
+Progress(18) at 2026-11-18 11:47:42: 3,056,028 states generated (1,474,173 s/min), 554,399 distinct states found (290,498 ds/min), 173,208 states left on queue.
+Progress(19) at 2026-11-18 11:48:42: 4,478,652 states generated (1,422,624 s/min), 858,095 distinct states found (303,696 ds/min), 274,393 states left on queue.
+Progress(20) at 2026-11-18 11:49:42: 5,923,829 states generated (1,445,177 s/min), 1,169,714 distinct states found (311,619 ds/min), 372,229 states left on queue.
+Progress(20) at 2026-11-18 11:50:42: 7,280,950 states generated (1,357,121 s/min), 1,475,118 distinct states found (305,404 ds/min), 464,263 states left on queue.
+Error: Invariant SyncedLogMatchesLeader is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCEnterBroadcast(s2) line 45, col 24 to line 45, col 87 of module MC>
+
+State 3: <MCBeginElection(s2) line 19, col 23 to line 19, col 85 of module MC>
+
+State 4: <MCPropose(s3,t2) line 52, col 20 to line 52, col 79 of module MC>
+
+State 5: <MCBeginElection(s3) line 19, col 23 to line 19, col 85 of module MC>
+
+State 6: <MCCastVote(s2,s3) line 20, col 21 to line 20, col 59 of module MC>
+
+State 7: <MCWinElection(s3) line 21, col 21 to line 21, col 79 of module MC>
+
+State 8: <MCFollowLeader(s2,s3) line 22, col 25 to line 22, col 67 of module MC>
+
+State 9: <MCAcceptEpoch(s2) line 23, col 21 to line 23, col 59 of module MC>
+
+State 10: <MCFinishDiscovery(s3) line 24, col 25 to line 24, col 67 of module MC>
+
+State 11: <MCEnterSyncPhase(s2,s3) line 25, col 27 to line 25, col 71 of module MC>
+
+State 12: <MCSelectSync(s2,s3,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 13: <MCReceiveSyncPayload(s2) line 32, col 5 to line 34, col 25 of module MC>
+
+State 14: <MCPersistCurrentEpoch(s2) line 35, col 29 to line 35, col 75 of module MC>
+
+State 15: <MCClearSyncMode(s2) line 37, col 23 to line 37, col 63 of module MC>
+
+State 16: <MCAckNewLeader(s2) line 40, col 5 to line 43, col 25 of module MC>
+
+State 17: <MCLeaderBroadcast(s3) line 48, col 5 to line 51, col 25 of module MC>
+
+State 18: <MCEnterBroadcast(s2) line 45, col 24 to line 45, col 87 of module MC>
+
+State 19: <MCAppendOne(s2) line 54, col 19 to line 54, col 55 of module MC>
+
+State 20: <MCFsyncOne(s2) line 55, col 18 to line 55, col 74 of module MC>
+
+7608164 states generated, 1548440 distinct states found, 481010 states left on queue.
+The depth of the complete state graph search is 20.
+Finished in 05min 19s at (2026-11-18 11:50:57)
+Trace exploration spec path: ./Update_TTrace_1795002338.tla

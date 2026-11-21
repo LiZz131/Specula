@@ -1,0 +1,27 @@
+{
+  "schema_version": "2",
+  "system": "OpenRaft 0.6.4 (incremental: baseline ce863f4 -> update aa05a38)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Leader commits a joint-membership entry without a quorum of the joint configuration (VecProgress cached commit)",
+      "source": "model-checking",
+      "scenario": "U1 (cached VecProgress commit) x U3 (membership change rebuilds progress)",
+      "severity": "Critical",
+      "invariant": "CommitWitnessSound",
+      "config": "Update_hunt_u1_consequence.cfg",
+      "counterexample": "spec/output/upd-hunt-u1-consequence-final.log",
+      "affected_code": [
+        "openraft/src/progress/mod.rs:182",
+        "openraft/src/progress/mod.rs:184-201",
+        "openraft/src/progress/mod.rs:222-232",
+        "openraft/src/engine/engine_impl.rs:270-287",
+        "openraft/src/engine/engine_impl.rs:603",
+        "openraft/src/engine/engine_impl.rs:618-648",
+        "openraft/src/core/replication.rs:133-138"
+      ],
+      "summary": "The update routes leader commit through VecProgress::update, which re-derives its cached committed value only when an updated value crosses it and otherwise raises the value in place without re-sorting, while its prefix scan assumes values above committed are sorted. upgrade_quorum_set (run on every effective-membership change) replays old ids in ascending id order, so a caught-up lower-id follower tied with the leader precedes it; if that tied prefix is not a quorum of the new joint set, the leader's next in-place raise leaves the vector unsorted, and a later crossing acknowledgement makes the scan accept a prefix containing a node that has not reached the value. In a 3-node cluster where leader n3 removes itself (joint [{1,2,3},{1,2}]) the leader commits and applies the joint entry acknowledged only by {2,3}; the {1,2} component has no majority. Reproduced through the real runtime (harness/repro/t90_specula_joint_commit_repro.rs, 5/5); the identical schedule on the baseline revision does not commit the entry. With 5 voters (harness/repro/t91_specula_joint_commit_divergence.rs) the falsely committed joint entry is later overwritten by a leader elected from an old-config majority that never received it: node 3 applied (term 1, index 9) while node 1 applied a term-2+ entry at index 9 (6/6 runs; baseline passes)."
+    }
+  ]
+}

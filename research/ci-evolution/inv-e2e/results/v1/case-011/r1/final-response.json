@@ -1,0 +1,16 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update adds an optional Pre-Vote round (pre_elect, handle_pre_vote_req/resp, SendPreVote, a runtime enable_pre_vote flag, and Elect{pre_vote}). That changes modelled election behaviour, so the disposition is MODEL_CHANGE_REQUIRED. The base/MC/Trace suite was updated, Update.tla was added with full, focused, open, discharge and hunt cfgs, and three prior-model defects were repaired: absent-log ordering (V0 never granted a 3-voter remote vote), the establishment lease, and the seen_greater_log reset. The V0 harness was rebased onto the new tree. It collected 20 fresh real-Engine traces (7 V0 regression and 13 update scenarios), and all 20 pass TLC trace validation with TraceConsumed and pre/post checks; all 11 field mutants are rejected. Model checking found MC-1: a Pre-Vote round started while the node is Candidate survives leader establishment (establish_leader does not clear pre_candidate). Its quorum then makes the new Leader call elect(), bumping its term while the old leader object remains. TLC found this over the complete MCNext and in a hunt with Pre-Vote always on and no faults. The real Engine reproduces the sequence in a validated trace and trips try_leader_handler's debug assertion. No other property was violated, but every campaign that found no violation stopped at its time budget (30 minutes; 10 for canaries) with states still queued (LIMITED_COVERAGE, not proof). Reproduction (Part 4) was not run, and the specula ci-result CLI is not installed.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/output/v1-mc-hunt-stale-precandidate-bfs.log",
+    "/work/current/.specula-output/spec/output/v1-mc-update-full-U4.log",
+    "/work/current/.specula-output/spec/output/v1-mc-update-full.log",
+    "/work/current/.specula-output/traces/candidate_pre_vote_then_leader.ndjson",
+    "/work/current/.specula-output/traces/candidate_pre_vote_then_leader.ndjson.observation.json",
+    "/work/current/.specula-output/spec/final-result.json"
+  ],
+  "blockers": []
+}

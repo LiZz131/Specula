@@ -1,0 +1,78 @@
+{
+  "status": "LIMITED_COVERAGE",
+  "run": "incremental (Pre-Vote update)",
+  "decision": "MODEL_CHANGE_REQUIRED",
+  "source": {
+    "baseline_commit": "1adc857f05fc8632eca18a7ce636f9c489dd5038",
+    "update_commit": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+    "matches_old_and_new_snapshots": true
+  },
+  "toolchain_used": "stable 1.100.0 (requested nightly-2026-03-01 unavailable)",
+  "baseline_tests": {
+    "openraft_library": {
+      "passed": 486,
+      "failed": 0,
+      "note": "19 Specula harness tests excluded (need SPECULA_TRACE_PATH)"
+    },
+    "elect_integration": {
+      "passed": 8,
+      "failed": 0
+    },
+    "membership_integration": {
+      "passed": 44,
+      "failed": 0
+    },
+    "lifecycle_integration": {
+      "passed": 14,
+      "failed": 0
+    }
+  },
+  "harness": {
+    "reused_prior": true,
+    "rebase": "V0 patch hunk no longer applies (engine/mod.rs drift); module copied and registered",
+    "scenarios_prior_rerun": 7,
+    "scenarios_update": 12
+  },
+  "trace_validation": {
+    "status": "PASS",
+    "fresh_files": 19,
+    "events_total": 33,
+    "all_consumed": true,
+    "mutants_rejected": "25/25",
+    "final_log": "spec/output/trace-validation-full-run2.log",
+    "archived_v0_traces": "superseded (schema lacks mandatory Pre-Vote fields; scenarios rerun fresh)"
+  },
+  "model_repairs": [
+    "NoLog canonical (prior 3-voter elections impossible)",
+    "lease installed on leader establishment",
+    "greater-log reset moved to tick; tick guards"
+  ],
+  "model_checking": {
+    "status": "LIMITED_COVERAGE",
+    "table": "spec/bug-report.md#campaigns",
+    "raw": "spec/output/campaign-summary.txt"
+  },
+  "findings": [
+    {
+      "id": "MC-1",
+      "status": "REPRODUCED",
+      "severity": "Medium"
+    },
+    {
+      "id": "MC-2",
+      "status": "REPRODUCED",
+      "severity": "Low"
+    }
+  ],
+  "cleanup": {
+    "tlc_state_root_removed": true,
+    "background_processes_remaining": false
+  },
+  "limitations": [
+    "3 servers, MaxTerm 2, MaxLogIndex 4, bounded elections/membership/crash/drop/messages",
+    "most BFS runs stopped at their time limit with states queued",
+    "runtime tick not traced; RunCommands emulates the runtime command boundary",
+    "no liveness/fairness",
+    "specula ci-result tool unavailable"
+  ]
+}

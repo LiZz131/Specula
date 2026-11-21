@@ -1,0 +1,54 @@
+    /\ snapshotImage = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+    /\ syncMode = [s0 |-> "TRUNC", s1 |-> "NONE", s2 |-> "NONE"]
+    /\ acks = <<{"s1", "s2"}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}>>
+    /\ globalCommitted = <<1>>
+    /\ nextTxn = 2
+    /\ prepared = [s0 |-> <<1>>, s1 |-> <<1>>, s2 |-> <<1>>]
+    /\ applied = [s0 |-> <<>>, s1 |-> <<1>>, s2 |-> <<1>>]
+    /\ newLeaderReady = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> TRUE]
+    /\ durable = [s0 |-> <<1>>, s1 |-> <<1>>, s2 |-> <<1>>]
+    /\ epochProposal = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+    /\ syncComplete = [s0 |-> FALSE, s1 |-> TRUE, s2 |-> FALSE]
+    /\ pending = [s0 |-> <<>>, s1 |-> <<1>>, s2 |-> <<>>]
+    /\ acceptedEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+    /\ role = [s0 |-> "FOLLOWING", s1 |-> "FOLLOWING", s2 |-> "LEADING"]
+    /\ logCursor = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+    /\ phase = [s0 |-> "SYNCHRONIZATION", s1 |-> "BROADCAST", s2 |-> "BROADCAST"]
+    /\ electionVotes = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+    /\ currentEpoch = [s0 |-> 1, s1 |-> 1, s2 |-> 1]
+    /\ votedFor = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+    /\ running = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+    /\ epochAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+    /\ newLeaderAcks = [s0 |-> {}, s1 |-> {}, s2 |-> {"s0", "s1", "s2"}]
+    /\ syncQueued = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+    /\ durabilityEvidence = << {"s0", "s1", "s2"},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {},
+       {} >>
+    /\ leakedQueued = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+    /\ committed = [s0 |-> <<>>, s1 |-> <<1>>, s2 |-> <<1>>]
+    /\ snapshotPublished = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+    /\ syncPlan = [ s0 |-> [mode |-> "TRUNC", z |-> 0, cut |-> 1],
+      s1 |-> [mode |-> "NONE", z |-> 0, cut |-> 0],
+      s2 |-> [mode |-> "NONE", z |-> 0, cut |-> 0] ]
+    /\ recoveryVisible = [s0 |-> <<1>>, s1 |-> <<>>, s2 |-> <<>>]
+    /\ dbInitialized = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+    /\ electionRound = 0
+    /\ learnerStage = [s0 |-> "IDLE", s1 |-> "NEWLEADER", s2 |-> "IDLE"]
+    /\ sessionMode = [s0 |-> "NONE", s1 |-> "DIFF", s2 |-> "NONE"]
+    /\ syncCommitCut = [s0 |-> 0, s1 |-> 0, s2 |-> 0]
+    /\ commitWitness = <<{"s1", "s2"}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}>>
+    /\ leaderOf = [s0 |-> "s2", s1 |-> "s2", s2 |-> "s2"]
+    /\ snapshotBusy = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]

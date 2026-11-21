@@ -1,0 +1,1374 @@
+TLC2 Version 2.20 of Day Month 20?? (rev: ${git.shortRevision})
+Running breadth-first search Model-Checking with fp 58 and seed 49513759602194571 with 2 workers on 96 cores with 27305MB heap and 64MB offheap memory [pid: 7851] (Linux 6.8.0-1044-azure amd64, Ubuntu 21.0.11 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/prior/.specula-output/spec/MC.tla
+Parsing file /work/prior/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-1647083846331649870/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-1647083846331649870/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1647083846331649870/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1647083846331649870/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1647083846331649870/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1647083846331649870/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-1647083846331649870/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-09-04 17:44:13)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-04 17:44:13.
+Error: Invariant HuntQuorumCheck is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ durableVote = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Follower @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> FALSE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 0,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 0,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = {}
+/\ votesGranted = (s1 :> {} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 2: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ durableVote = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 0,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s2,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 3: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 1,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s2,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 4: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 1,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgVoteResp,
+    from |-> s2,
+    reject |-> FALSE,
+    to |-> s1,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 5: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgVoteResp,
+    from |-> s2,
+    reject |-> FALSE,
+    to |-> s1,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 6: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 7: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ logs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgApp,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s2,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgApp,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 8: <MCNext line 139, col 5 to line 157, col 46 of module MC>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ logs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s2 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) @@
+  s3 :>
+      ( ctx1 :>
+            [index |-> 0, active |-> FALSE, requester |-> Nil, acks |-> {}] ) )
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Follower @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> TRUE,
+  crash |-> FALSE,
+  commit |-> FALSE,
+  leader |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE,
+  restart |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 1,
+  crash |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ term |-> 1,
+    mtype |-> MsgVote,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgApp,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s2,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    value |-> Nil,
+    ctx |-> Nil ],
+  [ term |-> 1,
+    mtype |-> MsgApp,
+    from |-> s1,
+    reject |-> FALSE,
+    to |-> s3,
+    commit |-> 0,
+    index |-> 0,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    value |-> Nil,
+    ctx |-> Nil ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+The coverage statistics at 2026-09-04 17:44:14 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<durableCommit line 34, col 44 to line 34, col 56 of module base>: 1
+<leader line 33, col 23 to line 33, col 28 of module base>: 2
+<vote line 33, col 11 to line 33, col 14 of module base>: 4
+<durableVote line 34, col 18 to line 34, col 28 of module base>: 4
+<logs line 33, col 31 to line 33, col 34 of module base>: 2
+<durableLogs line 34, col 31 to line 34, col 41 of module base>: 1
+<readQueue line 36, col 29 to line 36, col 37 of module base>: 1
+<pendingReads line 36, col 15 to line 36, col 26 of module base>: 1
+<recentActive line 35, col 42 to line 35, col 53 of module base>: 1
+<role line 33, col 17 to line 33, col 20 of module base>: 2
+<commitHistory line 37, col 45 to line 37, col 57 of module base>: 1
+<publishedReads line 36, col 55 to line 36, col 68 of module base>: 1
+<nextIndex line 35, col 17 to line 35, col 25 of module base>: 2
+<scenarioSeen line 38, col 5 to line 38, col 16 of module base>: 6
+<producedReads line 36, col 40 to line 36, col 52 of module base>: 1
+<matchIndex line 35, col 5 to line 35, col 14 of module base>: 2
+<leaderHistory line 37, col 30 to line 37, col 42 of module base>: 2
+<readyOutstanding line 37, col 5 to line 37, col 20 of module base>: 6
+<appliedIndex line 33, col 50 to line 33, col 61 of module base>: 1
+<commitIndex line 33, col 37 to line 33, col 47 of module base>: 1
+<term line 33, col 5 to line 33, col 8 of module base>: 4
+<durableTerm line 34, col 5 to line 34, col 15 of module base>: 4
+<faultCounters line 10, col 10 to line 10, col 22 of module MC>: 11
+<messages line 36, col 5 to line 36, col 12 of module base>: 12
+<votesGranted line 35, col 28 to line 35, col 39 of module base>: 3
+<alive line 37, col 23 to line 37, col 27 of module base>: 1
+<MCInit line 14, col 1 to line 14, col 6 of module MC>: 4:4
+  line 78, col 15 to line 78, col 34 of module base: 4:12
+  |line 78, col 22 to line 78, col 27 of module base: 4
+  line 79, col 15 to line 79, col 36 of module base: 4:12
+  |line 79, col 22 to line 79, col 27 of module base: 4
+  line 80, col 15 to line 80, col 41 of module base: 4:12
+  |line 80, col 22 to line 80, col 27 of module base: 4
+  line 81, col 17 to line 81, col 38 of module base: 4:12
+  |line 81, col 24 to line 81, col 29 of module base: 4
+  line 82, col 15 to line 82, col 37 of module base: 4:12
+  |line 82, col 22 to line 82, col 27 of module base: 4
+  line 83, col 22 to line 83, col 41 of module base: 4:12
+  |line 83, col 29 to line 83, col 34 of module base: 4
+  line 84, col 23 to line 84, col 42 of module base: 4:12
+  |line 84, col 30 to line 84, col 35 of module base: 4
+  line 85, col 22 to line 85, col 41 of module base: 4:12
+  |line 85, col 29 to line 85, col 34 of module base: 4
+  line 86, col 22 to line 86, col 43 of module base: 4:12
+  |line 86, col 29 to line 86, col 34 of module base: 4
+  line 87, col 22 to line 87, col 44 of module base: 4:12
+  |line 87, col 29 to line 87, col 34 of module base: 4
+  line 88, col 24 to line 88, col 43 of module base: 4:12
+  |line 88, col 31 to line 88, col 36 of module base: 4
+  line 89, col 21 to line 89, col 59 of module base: 4:12
+  |line 89, col 28 to line 89, col 33 of module base: 4
+  line 90, col 20 to line 90, col 58 of module base: 4:12
+  |line 90, col 27 to line 90, col 32 of module base: 4
+  line 91, col 23 to line 91, col 43 of module base: 4:12
+  |line 91, col 30 to line 91, col 35 of module base: 4
+  line 92, col 23 to line 92, col 65 of module base: 4:12
+  |line 92, col 30 to line 92, col 35 of module base: 4
+  line 93, col 8 to line 93, col 20 of module base: 4:30
+  line 94, col 23 to line 94, col 78 of module base: 4:12
+  |line 94, col 30 to line 94, col 35 of module base: 4
+  line 95, col 20 to line 95, col 42 of module base: 4:12
+  |line 95, col 27 to line 95, col 32 of module base: 4
+  line 96, col 24 to line 96, col 46 of module base: 4:12
+  |line 96, col 31 to line 96, col 36 of module base: 4
+  line 97, col 8 to line 97, col 28 of module base: 4
+  line 98, col 27 to line 98, col 50 of module base: 4:12
+  |line 98, col 34 to line 98, col 39 of module base: 4
+  line 99, col 16 to line 99, col 38 of module base: 4:12
+  |line 99, col 23 to line 99, col 28 of module base: 4
+  line 100, col 8 to line 100, col 25 of module base: 4
+  line 101, col 8 to line 101, col 25 of module base: 4
+  line 102, col 8 to line 107, col 76 of module base: 4
+  line 16, col 8 to line 18, col 68 of module MC: 4
+<MCNext line 138, col 1 to line 138, col 6 of module MC>: 71:283
+  line 139, col 8 to line 139, col 49 of module MC: 65
+  |line 139, col 8 to line 139, col 28 of module MC: 68
+  |line 139, col 33 to line 139, col 49 of module MC: 68
+  line 21, col 8 to line 21, col 48 of module MC: 12
+  |line 21, col 8 to line 21, col 29 of module MC: 204
+  |line 21, col 33 to line 21, col 48 of module MC: 204
+  line 113, col 8 to line 113, col 15 of module base: 12
+  line 114, col 8 to line 114, col 24 of module base: 24
+  |line 114, col 8 to line 114, col 14 of module base: 12
+  |line 114, col 19 to line 114, col 24 of module base: 12
+  line 115, col 8 to line 115, col 24 of module base: 12
+  line 116, col 8 to line 116, col 41 of module base: 12
+  line 117, col 8 to line 117, col 37 of module base: 12
+  line 118, col 8 to line 118, col 45 of module base: 12
+  line 119, col 8 to line 119, col 43 of module base: 12
+  line 120, col 8 to line 120, col 55 of module base: 12
+  |line 120, col 24 to line 120, col 55 of module base: 12
+  ||line 120, col 25 to line 120, col 36 of module base: 12
+  ||line 120, col 45 to line 120, col 54 of module base: 12
+  ||line 120, col 52 to line 120, col 54 of module base: 12:98
+  |||line 120, col 53 to line 120, col 53 of module base: 12
+  line 121, col 8 to line 123, col 58 of module base: 12
+  |line 121, col 20 to line 123, col 58 of module base: 12
+  ||line 121, col 20 to line 121, col 27 of module base: 12
+  ||line 122, col 10 to line 123, col 58 of module base: 12:295
+  |||line 122, col 11 to line 123, col 36 of module base: 24
+  |||line 123, col 46 to line 123, col 57 of module base: 12
+  line 124, col 8 to line 124, col 62 of module base: 12
+  line 125, col 8 to line 127, col 72 of module base: 12
+  line 22, col 22 to line 22, col 22 of module MC: 12
+  line 23, col 8 to line 23, col 65 of module MC: 12
+  line 140, col 40 to line 140, col 40 of module MC: 12
+  line 140, col 20 to line 140, col 25 of module MC: 68
+  line 72, col 10 to line 72, col 26 of module MC: 258
+  line 73, col 15 to line 73, col 43 of module MC: 34
+  |line 73, col 15 to line 73, col 33 of module MC: 132
+  |line 73, col 38 to line 73, col 43 of module MC: 132
+  line 74, col 15 to line 74, col 42 of module MC: 136
+  |line 74, col 15 to line 74, col 33 of module MC: 102
+  |line 74, col 37 to line 74, col 42 of module MC: 102
+  line 75, col 10 to line 75, col 30 of module MC: 126
+  line 76, col 15 to line 76, col 43 of module MC: 96
+  line 77, col 16 to line 77, col 53 of module MC: 42
+  line 78, col 10 to line 86, col 67 of module MC: 30
+  line 97, col 26 to line 97, col 26 of module MC: 258
+  line 141, col 8 to line 141, col 15 of module base: 34
+  |line 141, col 8 to line 141, col 12 of module base: 144
+  |line 141, col 14 to line 141, col 14 of module base: 144
+  line 142, col 8 to line 142, col 24 of module base: 178
+  |line 142, col 8 to line 142, col 14 of module base: 144
+  |line 142, col 18 to line 142, col 24 of module base: 144
+  line 143, col 8 to line 143, col 15 of module base: 136
+  |line 143, col 8 to line 143, col 11 of module base: 102
+  |line 143, col 15 to line 143, col 15 of module base: 102
+  line 144, col 8 to line 144, col 28 of module base: 68
+  |line 144, col 8 to line 144, col 13 of module base: 34
+  |line 144, col 19 to line 144, col 28 of module base: 34
+  line 145, col 8 to line 145, col 38 of module base: 34
+  line 146, col 8 to line 146, col 64 of module base: 34
+  line 147, col 8 to line 147, col 76 of module base: 34
+  line 148, col 8 to line 148, col 75 of module base: 34
+  line 149, col 8 to line 149, col 47 of module base: 34
+  |line 149, col 20 to line 149, col 47 of module base: 34
+  ||line 149, col 21 to line 149, col 34 of module base: 34
+  ||line 149, col 42 to line 149, col 47 of module base: 34:215
+  |||line 149, col 43 to line 149, col 46 of module base: 34
+  line 150, col 8 to line 151, col 65 of module base: 34
+  line 98, col 31 to line 98, col 31 of module MC: 144
+  line 98, col 34 to line 98, col 34 of module MC: 144
+  line 99, col 8 to line 99, col 26 of module MC: 34
+  line 141, col 65 to line 141, col 65 of module MC: 144
+  line 141, col 68 to line 141, col 68 of module MC: 258
+  line 141, col 20 to line 141, col 25 of module MC: 68
+  line 141, col 34 to line 141, col 41 of module MC: 68
+  line 72, col 10 to line 72, col 26 of module MC: 258
+  line 73, col 15 to line 73, col 43 of module MC: 132
+  line 74, col 15 to line 74, col 42 of module MC: 102
+  line 75, col 10 to line 75, col 30 of module MC: 126
+  line 76, col 15 to line 76, col 43 of module MC: 14
+  |line 76, col 15 to line 76, col 33 of module MC: 96
+  |line 76, col 38 to line 76, col 43 of module MC: 96
+  line 77, col 16 to line 77, col 23 of module MC: 42
+  line 77, col 28 to line 77, col 53 of module MC: 56
+  |line 77, col 28 to line 77, col 46 of module MC: 42
+  |line 77, col 50 to line 77, col 53 of module MC: 42
+  line 78, col 10 to line 86, col 67 of module MC: 30
+  line 102, col 26 to line 102, col 26 of module MC: 258
+  line 157, col 8 to line 157, col 15 of module base: 14
+  |line 157, col 8 to line 157, col 12 of module base: 144
+  |line 157, col 14 to line 157, col 14 of module base: 144
+  line 158, col 8 to line 158, col 26 of module base: 158
+  |line 158, col 8 to line 158, col 14 of module base: 144
+  |line 158, col 18 to line 158, col 26 of module base: 144
+  line 159, col 8 to line 159, col 28 of module base: 59
+  |line 159, col 8 to line 159, col 14 of module base: 45
+  |line 159, col 18 to line 159, col 28 of module base: 45
+  line 160, col 8 to line 160, col 15 of module base: 28
+  |line 160, col 8 to line 160, col 11 of module base: 14
+  |line 160, col 15 to line 160, col 15 of module base: 14
+  line 161, col 8 to line 161, col 23 of module base: 28
+  |line 161, col 8 to line 161, col 13 of module base: 14
+  |line 161, col 17 to line 161, col 23 of module base: 14
+  line 162, col 8 to line 163, col 73 of module base: 14
+  |line 162, col 24 to line 163, col 73 of module base: 14
+  ||line 162, col 25 to line 162, col 36 of module base: 14
+  ||line 163, col 27 to line 163, col 72 of module base: 14
+  ||line 163, col 34 to line 163, col 72 of module base: 14
+  |||line 163, col 37 to line 163, col 44 of module base: 14
+  |||line 163, col 58 to line 163, col 72 of module base: 14
+  ||||line 163, col 65 to line 163, col 72 of module base: 14:28
+  |||||line 163, col 66 to line 163, col 71 of module base: 14
+  line 164, col 8 to line 164, col 33 of module base: 14
+  line 165, col 8 to line 166, col 79 of module base: 14
+  line 103, col 32 to line 103, col 32 of module MC: 144
+  line 103, col 35 to line 103, col 35 of module MC: 45
+  line 104, col 8 to line 104, col 26 of module MC: 14
+  line 142, col 66 to line 142, col 66 of module MC: 144
+  line 142, col 69 to line 142, col 69 of module MC: 258
+  line 142, col 20 to line 142, col 25 of module MC: 68
+  line 142, col 34 to line 142, col 41 of module MC: 68
+  line 175, col 8 to line 175, col 15 of module base: 8
+  |line 175, col 8 to line 175, col 12 of module base: 204
+  |line 175, col 14 to line 175, col 14 of module base: 204
+  line 176, col 8 to line 176, col 26 of module base: 212
+  |line 176, col 8 to line 176, col 14 of module base: 204
+  |line 176, col 18 to line 176, col 26 of module base: 204
+  line 177, col 8 to line 177, col 45 of module base: 8
+  |line 177, col 8 to line 177, col 35 of module base: 59
+  |line 177, col 40 to line 177, col 45 of module base: 59
+  line 178, col 8 to line 178, col 31 of module base: 8
+  line 179, col 8 to line 179, col 42 of module base: 8
+  line 180, col 8 to line 180, col 41 of module base: 8
+  line 181, col 8 to line 181, col 38 of module base: 8
+  line 182, col 8 to line 182, col 53 of module base: 8
+  line 183, col 8 to line 183, col 71 of module base: 8
+  |line 183, col 21 to line 183, col 71 of module base: 8
+  ||line 183, col 22 to line 183, col 30 of module base: 8
+  ||line 183, col 39 to line 183, col 70 of module base: 8
+  ||line 183, col 46 to line 183, col 70 of module base: 8:24
+  |||line 183, col 53 to line 183, col 58 of module base: 8
+  line 184, col 8 to line 188, col 31 of module base: 8
+  |line 184, col 20 to line 188, col 31 of module base: 8
+  ||line 184, col 20 to line 184, col 27 of module base: 8
+  ||line 185, col 10 to line 188, col 31 of module base: 8:81
+  |||line 185, col 11 to line 187, col 55 of module base: 16
+  |||line 188, col 19 to line 188, col 30 of module base: 8
+  line 189, col 8 to line 189, col 75 of module base: 8
+  line 190, col 8 to line 190, col 60 of module base: 8
+  line 191, col 8 to line 193, col 42 of module base: 8
+  line 107, col 26 to line 107, col 26 of module MC: 204
+  line 108, col 8 to line 108, col 26 of module MC: 8
+  line 143, col 44 to line 143, col 44 of module MC: 204
+  line 143, col 20 to line 143, col 25 of module MC: 68
+  line 26, col 8 to line 26, col 48 of module MC: 204
+  line 206, col 8 to line 206, col 38 of module base: 0
+  line 207, col 8 to line 207, col 53 of module base: 0
+  line 208, col 8 to line 212, col 31 of module base: 0
+  line 213, col 8 to line 213, col 62 of module base: 0
+  line 214, col 8 to line 217, col 35 of module base: 0
+  line 28, col 8 to line 28, col 65 of module MC: 0
+  line 144, col 20 to line 144, col 25 of module MC: 68
+  line 144, col 34 to line 144, col 39 of module MC: 68
+  line 72, col 10 to line 72, col 26 of module MC: 258
+  line 73, col 15 to line 73, col 43 of module MC: 132
+  line 74, col 15 to line 74, col 42 of module MC: 102
+  line 75, col 10 to line 75, col 30 of module MC: 126
+  line 76, col 15 to line 76, col 43 of module MC: 96
+  line 77, col 16 to line 77, col 53 of module MC: 42
+  line 78, col 10 to line 86, col 67 of module MC: 30
+  line 111, col 26 to line 111, col 26 of module MC: 258
+  line 240, col 8 to line 240, col 15 of module base: 144
+  line 241, col 8 to line 241, col 23 of module base: 144
+  line 243, col 8 to line 243, col 68 of module base: 0
+  line 244, col 8 to line 244, col 71 of module base: 0
+  line 245, col 8 to line 245, col 66 of module base: 0
+  line 246, col 8 to line 246, col 68 of module base: 0
+  line 247, col 8 to line 247, col 38 of module base: 0
+  line 248, col 8 to line 248, col 52 of module base: 0
+  line 249, col 8 to line 249, col 47 of module base: 0
+  line 250, col 8 to line 250, col 60 of module base: 0
+  line 251, col 8 to line 252, col 72 of module base: 0
+  line 112, col 33 to line 112, col 33 of module MC: 144
+  line 112, col 36 to line 112, col 36 of module MC: 144
+  line 113, col 8 to line 113, col 26 of module MC: 0
+  line 145, col 67 to line 145, col 67 of module MC: 144
+  line 145, col 70 to line 145, col 70 of module MC: 258
+  line 145, col 20 to line 145, col 25 of module MC: 68
+  line 145, col 34 to line 145, col 41 of module MC: 68
+  line 72, col 10 to line 72, col 26 of module MC: 258
+  line 73, col 15 to line 73, col 43 of module MC: 132
+  line 74, col 15 to line 74, col 42 of module MC: 102
+  line 75, col 10 to line 75, col 30 of module MC: 126
+  line 76, col 15 to line 76, col 43 of module MC: 96
+  line 77, col 16 to line 77, col 53 of module MC: 42
+  line 78, col 10 to line 86, col 67 of module MC: 30
+  line 116, col 26 to line 116, col 26 of module MC: 258
+  line 273, col 8 to line 273, col 15 of module base: 144
+  line 274, col 8 to line 274, col 23 of module base: 144
+  line 275, col 8 to line 275, col 27 of module base: 3
+  line 278, col 8 to line 278, col 50 of module base: 0
+  line 279, col 8 to line 280, col 67 of module base: 0
+  line 281, col 8 to line 281, col 64 of module base: 0
+  line 282, col 8 to line 282, col 52 of module base: 0
+  line 283, col 8 to line 283, col 48 of module base: 0
+  line 284, col 8 to line 284, col 33 of module base: 0
+  line 285, col 8 to line 286, col 64 of module base: 0
+  line 287, col 8 to line 289, col 42 of module base: 0
+  line 117, col 34 to line 117, col 34 of module MC: 144
+  line 117, col 37 to line 117, col 37 of module MC: 3
+  line 118, col 8 to line 118, col 26 of module MC: 0
+  line 146, col 68 to line 146, col 68 of module MC: 144
+  line 146, col 71 to line 146, col 71 of module MC: 258
+  line 146, col 20 to line 146, col 25 of module MC: 68
+  line 146, col 34 to line 146, col 41 of module MC: 68
+  line 31, col 8 to line 31, col 50 of module MC: 5
+  |line 31, col 8 to line 31, col 30 of module MC: 204
+  |line 31, col 34 to line 31, col 50 of module MC: 204
+  line 295, col 8 to line 295, col 15 of module base: 5
+  |line 295, col 8 to line 295, col 12 of module base: 204
+  |line 295, col 14 to line 295, col 14 of module base: 204
+  line 296, col 8 to line 296, col 23 of module base: 209
+  |line 296, col 8 to line 296, col 14 of module base: 204
+  |line 296, col 18 to line 296, col 23 of module base: 204
+  line 297, col 8 to line 300, col 61 of module base: 5
+  |line 297, col 20 to line 300, col 61 of module base: 5
+  ||line 297, col 20 to line 297, col 27 of module base: 5
+  ||line 298, col 10 to line 300, col 61 of module base: 5:15
+  |||line 298, col 11 to line 300, col 39 of module base: 10
+  |||line 300, col 49 to line 300, col 60 of module base: 5
+  line 301, col 8 to line 301, col 63 of module base: 5
+  line 302, col 8 to line 303, col 72 of module base: 5
+  line 32, col 32 to line 32, col 32 of module MC: 204
+  line 33, col 8 to line 33, col 66 of module MC: 5
+  line 147, col 50 to line 147, col 50 of module MC: 204
+  line 147, col 20 to line 147, col 25 of module MC: 68
+  line 72, col 10 to line 72, col 26 of module MC: 258
+  line 73, col 15 to line 73, col 43 of module MC: 132
+  line 74, col 15 to line 74, col 42 of module MC: 102
+  line 75, col 10 to line 75, col 30 of module MC: 126
+  line 76, col 15 to line 76, col 43 of module MC: 96
+  line 77, col 16 to line 77, col 53 of module MC: 42
+  line 78, col 10 to line 86, col 67 of module MC: 30
+  line 121, col 26 to line 121, col 26 of module MC: 258
+  line 313, col 8 to line 313, col 15 of module base: 144
+  line 314, col 8 to line 314, col 29 of module base: 144
+  line 316, col 8 to line 316, col 38 of module base: 0
+  line 317, col 8 to line 317, col 71 of module base: 0
+  line 318, col 8 to line 318, col 66 of module base: 0
+  line 319, col 8 to line 319, col 68 of module base: 0
+  line 320, col 8 to line 320, col 52 of module base: 0
+  line 321, col 8 to line 321, col 47 of module base: 0
+  line 322, col 8 to line 323, col 55 of module base: 0
+  line 122, col 29 to line 122, col 29 of module MC: 144
+  line 122, col 32 to line 122, col 32 of module MC: 144
+  line 123, col 8 to line 123, col 26 of module MC: 0
+  line 148, col 63 to line 148, col 63 of module MC: 144
+  line 148, col 66 to line 148, col 66 of module MC: 258
+  line 148, col 20 to line 148, col 25 of module MC: 68
+  line 148, col 34 to line 148, col 41 of module MC: 68
+  line 36, col 8 to line 36, col 40 of module MC: 612
+  line 349, col 8 to line 349, col 25 of module base: 0
+  line 350, col 8 to line 350, col 22 of module base: 0
+  line 351, col 8 to line 352, col 78 of module base: 0
+  line 353, col 8 to line 358, col 22 of module base: 0
+  line 359, col 8 to line 359, col 65 of module base: 0
+  line 360, col 8 to line 361, col 72 of module base: 0
+  line 38, col 8 to line 38, col 61 of module MC: 0
+  line 149, col 20 to line 149, col 25 of module MC: 68
+  line 149, col 34 to line 149, col 45 of module MC: 68
+  line 149, col 54 to line 149, col 59 of module MC: 68
+  line 72, col 10 to line 72, col 26 of module MC: 258
+  line 73, col 15 to line 73, col 43 of module MC: 132
+  line 74, col 15 to line 74, col 42 of module MC: 102
+  line 75, col 10 to line 75, col 30 of module MC: 126
+  line 76, col 15 to line 76, col 43 of module MC: 96
+  line 77, col 16 to line 77, col 53 of module MC: 42
+  line 78, col 10 to line 86, col 67 of module MC: 30
+  line 126, col 26 to line 126, col 26 of module MC: 258
+  line 391, col 8 to line 391, col 15 of module base: 144
+  line 392, col 8 to line 392, col 23 of module base: 144
+  line 393, col 8 to line 393, col 33 of module base: 3
+  line 396, col 8 to line 396, col 64 of module base: 0
+  line 399, col 8 to line 399, col 54 of module base: 0
+  line 400, col 8 to line 401, col 72 of module base: 0
+  line 402, col 8 to line 404, col 16 of module base: 0
+  line 405, col 8 to line 405, col 33 of module base: 0
+  line 406, col 8 to line 407, col 53 of module base: 0
+  line 408, col 8 to line 410, col 50 of module base: 0
+  line 127, col 37 to line 127, col 37 of module MC: 144
+  line 127, col 40 to line 127, col 40 of module MC: 3
+  line 128, col 8 to line 128, col 26 of module MC: 0
+  line 151, col 71 to line 151, col 71 of module MC: 144
+  line 151, col 74 to line 151, col 74 of module MC: 258
+  line 151, col 20 to line 151, col 25 of module MC: 68
+  line 151, col 34 to line 151, col 41 of module MC: 68
+  line 41, col 8 to line 41, col 42 of module MC: 28
+  |line 41, col 8 to line 41, col 26 of module MC: 204
+  |line 41, col 30 to line 41, col 42 of module MC: 204
+  line 416, col 8 to line 416, col 15 of module base: 28
+  |line 416, col 8 to line 416, col 12 of module base: 108
+  |line 416, col 14 to line 416, col 14 of module base: 108
+  line 417, col 8 to line 417, col 27 of module base: 136
+  |line 417, col 9 to line 417, col 27 of module base: 108
+  line 418, col 11 to line 418, col 35 of module base: 120
+  |line 418, col 11 to line 418, col 24 of module base: 92
+  |line 418, col 29 to line 418, col 35 of module base: 92
+  line 419, col 11 to line 419, col 35 of module base: 120
+  |line 419, col 11 to line 419, col 24 of module base: 92
+  |line 419, col 29 to line 419, col 35 of module base: 92
+  line 420, col 11 to line 420, col 35 of module base: 92
+  line 421, col 11 to line 421, col 44 of module base: 92
+  line 422, col 11 to line 422, col 35 of module base: 92
+  line 423, col 8 to line 423, col 57 of module base: 56
+  line 424, col 8 to line 424, col 57 of module base: 56
+  line 425, col 8 to line 425, col 57 of module base: 56
+  line 426, col 8 to line 426, col 68 of module base: 56
+  line 427, col 8 to line 427, col 59 of module base: 56
+  line 428, col 8 to line 428, col 58 of module base: 56
+  line 429, col 8 to line 429, col 64 of module base: 56
+  line 430, col 8 to line 431, col 73 of module base: 56
+  line 432, col 8 to line 433, col 68 of module base: 56
+  line 42, col 26 to line 42, col 26 of module MC: 108
+  line 43, col 8 to line 43, col 62 of module MC: 56
+  line 152, col 44 to line 152, col 44 of module MC: 108
+  line 152, col 20 to line 152, col 25 of module MC: 68
+  line 436, col 8 to line 436, col 15 of module base: 68
+  |line 436, col 8 to line 436, col 12 of module base: 204
+  |line 436, col 14 to line 436, col 14 of module base: 204
+  line 437, col 8 to line 437, col 26 of module base: 68
+  |line 437, col 8 to line 437, col 23 of module base: 204
+  |line 437, col 25 to line 437, col 25 of module base: 204
+  line 438, col 8 to line 438, col 66 of module base: 68
+  line 439, col 8 to line 439, col 65 of module base: 68
+  line 440, col 8 to line 442, col 33 of module base: 68
+  line 131, col 26 to line 131, col 26 of module MC: 204
+  line 132, col 8 to line 132, col 26 of module MC: 68
+  line 153, col 44 to line 153, col 44 of module MC: 204
+  line 153, col 20 to line 153, col 25 of module MC: 68
+  line 46, col 8 to line 46, col 54 of module MC: 3
+  |line 46, col 8 to line 46, col 32 of module MC: 200
+  |line 46, col 36 to line 46, col 54 of module MC: 200
+  line 450, col 8 to line 450, col 15 of module base: 3
+  |line 450, col 8 to line 450, col 12 of module base: 200
+  |line 450, col 14 to line 450, col 14 of module base: 200
+  line 451, col 8 to line 451, col 23 of module base: 203
+  |line 451, col 8 to line 451, col 14 of module base: 200
+  |line 451, col 18 to line 451, col 23 of module base: 200
+  line 452, col 8 to line 452, col 66 of module base: 3
+  |line 452, col 16 to line 452, col 66 of module base: 5
+  ||line 452, col 17 to line 452, col 20 of module base: 5
+  ||line 452, col 29 to line 452, col 65 of module base: 5
+  ||line 452, col 36 to line 452, col 65 of module base: 5
+  |||line 452, col 39 to line 452, col 44 of module base: 5
+  ||||line 448, col 19 to line 448, col 42 of module base: 5
+  |||||line 448, col 19 to line 448, col 32 of module base: 5
+  ||||||line 62, col 5 to line 62, col 61 of module base: 5
+  |||||||line 62, col 17 to line 62, col 60 of module base: 5
+  ||||||||line 62, col 33 to line 62, col 59 of module base: 15
+  |||||||||line 62, col 33 to line 62, col 37 of module base: 15
+  |||||||||line 62, col 42 to line 62, col 59 of module base: 10
+  ||||||||line 62, col 24 to line 62, col 29 of module base: 5
+  ||||||line 448, col 31 to line 448, col 31 of module base: 5
+  |||||line 448, col 37 to line 448, col 42 of module base: 5
+  |||line 452, col 58 to line 452, col 65 of module base: 5
+  line 453, col 8 to line 453, col 65 of module base: 3
+  |line 453, col 18 to line 453, col 65 of module base: 5
+  ||line 453, col 19 to line 453, col 24 of module base: 5
+  ||line 453, col 33 to line 453, col 64 of module base: 5
+  ||line 453, col 40 to line 453, col 64 of module base: 5
+  |||line 453, col 43 to line 453, col 48 of module base: 5
+  ||||line 448, col 19 to line 448, col 42 of module base: 5
+  |||||line 448, col 19 to line 448, col 32 of module base: 5
+  ||||||line 62, col 5 to line 62, col 61 of module base: 5
+  |||||||line 62, col 17 to line 62, col 60 of module base: 5
+  ||||||||line 62, col 33 to line 62, col 59 of module base: 15
+  |||||||||line 62, col 33 to line 62, col 37 of module base: 15
+  |||||||||line 62, col 42 to line 62, col 59 of module base: 10
+  ||||||||line 62, col 24 to line 62, col 29 of module base: 5
+  ||||||line 448, col 31 to line 448, col 31 of module base: 5
+  |||||line 448, col 37 to line 448, col 42 of module base: 5
+  |||line 453, col 62 to line 453, col 64 of module base: 5
+  line 454, col 8 to line 455, col 58 of module base: 3
+  |line 454, col 24 to line 455, col 58 of module base: 5
+  ||line 454, col 25 to line 454, col 36 of module base: 5
+  ||line 455, col 27 to line 455, col 57 of module base: 5
+  ||line 455, col 34 to line 455, col 57 of module base: 5:15
+  |||line 455, col 41 to line 455, col 46 of module base: 5
+  line 456, col 8 to line 456, col 65 of module base: 3
+  |line 456, col 24 to line 456, col 65 of module base: 5
+  line 457, col 8 to line 460, col 50 of module base: 3
+  line 47, col 25 to line 47, col 25 of module MC: 200
+  line 48, col 8 to line 48, col 68 of module MC: 3
+  |line 48, col 25 to line 48, col 68 of module MC: 5
+  line 154, col 43 to line 154, col 43 of module MC: 200
+  line 154, col 20 to line 154, col 25 of module MC: 68
+  line 51, col 8 to line 51, col 42 of module MC: 198
+  line 467, col 8 to line 467, col 43 of module base: 0
+  line 468, col 8 to line 468, col 59 of module base: 0
+  line 469, col 8 to line 470, col 65 of module base: 0
+  line 53, col 8 to line 53, col 62 of module MC: 0
+  line 155, col 20 to line 155, col 25 of module MC: 66
+  line 473, col 8 to line 473, col 16 of module base: 198
+  line 474, col 8 to line 474, col 42 of module base: 0
+  line 475, col 8 to line 475, col 50 of module base: 0
+  line 476, col 8 to line 476, col 50 of module base: 0
+  line 477, col 8 to line 477, col 44 of module base: 0
+  line 478, col 8 to line 478, col 43 of module base: 0
+  line 479, col 8 to line 479, col 50 of module base: 0
+  line 480, col 8 to line 480, col 66 of module base: 0
+  line 481, col 8 to line 481, col 77 of module base: 0
+  line 482, col 8 to line 482, col 54 of module base: 0
+  line 483, col 8 to line 483, col 76 of module base: 0
+  line 484, col 8 to line 485, col 71 of module base: 0
+  line 486, col 8 to line 486, col 50 of module base: 0
+  line 487, col 8 to line 487, col 58 of module base: 0
+  line 488, col 8 to line 488, col 65 of module base: 0
+  line 489, col 8 to line 489, col 61 of module base: 0
+  line 490, col 8 to line 491, col 66 of module base: 0
+  line 135, col 21 to line 135, col 21 of module MC: 198
+  line 136, col 8 to line 136, col 26 of module MC: 0
+  line 156, col 39 to line 156, col 39 of module MC: 198
+  line 156, col 20 to line 156, col 25 of module MC: 66
+  line 56, col 8 to line 56, col 40 of module MC: 81
+  line 4, col 1 to line 4, col 21 of module MC: 8
+  line 4, col 1 to line 4, col 21 of module MC: 117
+  line 4, col 1 to line 4, col 21 of module MC: 148
+  line 4, col 1 to line 4, col 21 of module MC: 148
+  line 4, col 1 to line 4, col 21 of module MC: 1111
+  line 4, col 1 to line 4, col 21 of module MC: 638
+  line 4, col 1 to line 4, col 21 of module MC: 260
+  line 4, col 1 to line 4, col 21 of module MC: 85
+  line 4, col 1 to line 4, col 21 of module MC: 488
+  line 4, col 1 to line 4, col 21 of module MC: 160
+  line 4, col 1 to line 4, col 21 of module MC: 8
+  line 4, col 1 to line 4, col 21 of module MC: 148
+  line 4, col 1 to line 4, col 21 of module MC: 360
+  line 4, col 1 to line 4, col 21 of module MC: 168
+  line 4, col 1 to line 4, col 21 of module MC: 242
+  line 4, col 1 to line 4, col 21 of module MC: 68
+  line 4, col 1 to line 4, col 21 of module MC: 194
+  line 4, col 1 to line 4, col 21 of module MC: 436
+  line 4, col 1 to line 4, col 21 of module MC: 79
+  line 4, col 1 to line 4, col 21 of module MC: 10
+  line 4, col 1 to line 4, col 21 of module MC: 427
+  line 4, col 1 to line 4, col 21 of module MC: 154
+  line 4, col 1 to line 4, col 21 of module MC: 3
+  line 4, col 1 to line 4, col 21 of module MC: 167
+  line 4, col 1 to line 4, col 21 of module MC: 56
+  line 4, col 1 to line 4, col 21 of module MC: 46
+  line 4, col 1 to line 4, col 21 of module MC: 8
+  line 4, col 1 to line 4, col 21 of module MC: 712
+  line 4, col 1 to line 4, col 21 of module MC: 18
+  line 4, col 1 to line 4, col 21 of module MC: 1994
+  line 4, col 1 to line 4, col 21 of module MC: 148
+  line 4, col 1 to line 4, col 21 of module MC: 3
+  line 4, col 1 to line 4, col 21 of module MC: 235
+  line 4, col 1 to line 4, col 21 of module MC: 39
+  line 4, col 1 to line 4, col 21 of module MC: 25
+  line 4, col 1 to line 4, col 21 of module MC: 59
+  line 494, col 8 to line 494, col 21 of module base: 162
+  |line 494, col 8 to line 494, col 8 of module base: 81
+  |line 494, col 14 to line 494, col 21 of module base: 81
+  line 495, col 8 to line 495, col 33 of module base: 81
+  line 496, col 8 to line 496, col 58 of module base: 81
+  line 497, col 8 to line 498, col 72 of module base: 81
+  line 57, col 25 to line 57, col 25 of module MC: 81
+  line 58, col 8 to line 58, col 61 of module MC: 81
+  line 157, col 45 to line 157, col 45 of module MC: 81
+  line 157, col 20 to line 157, col 27 of module MC: 66
+<MCTypeOK line 161, col 1 to line 161, col 8 of module MC>
+  line 162, col 5 to line 170, col 51 of module MC: 72
+  |line 162, col 8 to line 162, col 13 of module MC: 72
+  ||line 523, col 5 to line 564, col 36 of module base: 72
+  |||line 523, col 8 to line 523, col 38 of module base: 72
+  |||line 524, col 8 to line 524, col 45 of module base: 72
+  ||||line 524, col 8 to line 524, col 11 of module base: 72
+  ||||line 524, col 17 to line 524, col 45 of module base: 72
+  |||||line 524, col 18 to line 524, col 23 of module base: 72
+  |||||line 524, col 28 to line 524, col 44 of module base: 72
+  ||||||line 524, col 28 to line 524, col 33 of module base: 72
+  ||||||line 524, col 40 to line 524, col 44 of module base: 72:144
+  |||||||line 524, col 41 to line 524, col 43 of module base: 72
+  |||line 525, col 8 to line 525, col 33 of module base: 72
+  |||line 526, col 8 to line 526, col 47 of module base: 72
+  ||||line 526, col 8 to line 526, col 13 of module base: 72
+  ||||line 526, col 19 to line 526, col 47 of module base: 72
+  |||||line 526, col 20 to line 526, col 25 of module base: 72
+  |||||line 526, col 30 to line 526, col 46 of module base: 72
+  ||||||line 526, col 30 to line 526, col 35 of module base: 72
+  ||||||line 526, col 42 to line 526, col 46 of module base: 72:144
+  |||||||line 526, col 43 to line 526, col 45 of module base: 72
+  |||line 527, col 8 to line 528, col 62 of module base: 72
+  ||||line 527, col 8 to line 527, col 11 of module base: 72
+  ||||line 527, col 17 to line 528, col 62 of module base: 72
+  |||||line 527, col 18 to line 527, col 23 of module base: 72
+  |||||line 527, col 28 to line 528, col 61 of module base: 72
+  ||||||line 527, col 32 to line 528, col 60 of module base: 72
+  |||||||line 527, col 33 to line 527, col 49 of module base: 72
+  |||||||line 528, col 43 to line 528, col 59 of module base: 72
+  ||||||||line 528, col 43 to line 528, col 48 of module base: 72
+  ||||||||line 528, col 55 to line 528, col 59 of module base: 72:144
+  |||||||||line 528, col 56 to line 528, col 58 of module base: 72
+  |||line 529, col 8 to line 529, col 50 of module base: 72
+  ||||line 529, col 26 to line 529, col 50 of module base: 216
+  ||||line 529, col 17 to line 529, col 22 of module base: 72
+  |||line 530, col 8 to line 530, col 47 of module base: 72
+  |||line 531, col 8 to line 531, col 48 of module base: 72
+  |||line 532, col 8 to line 532, col 45 of module base: 72
+  |||line 533, col 8 to line 533, col 52 of module base: 72
+  ||||line 533, col 8 to line 533, col 18 of module base: 72
+  ||||line 533, col 24 to line 533, col 52 of module base: 72
+  |||||line 533, col 25 to line 533, col 30 of module base: 72
+  |||||line 533, col 35 to line 533, col 51 of module base: 72
+  ||||||line 533, col 35 to line 533, col 40 of module base: 72
+  ||||||line 533, col 47 to line 533, col 51 of module base: 72:144
+  |||||||line 533, col 48 to line 533, col 50 of module base: 72
+  |||line 534, col 8 to line 535, col 69 of module base: 72
+  ||||line 534, col 8 to line 534, col 18 of module base: 72
+  ||||line 534, col 24 to line 535, col 69 of module base: 72
+  |||||line 534, col 25 to line 534, col 30 of module base: 72
+  |||||line 534, col 35 to line 535, col 68 of module base: 72
+  ||||||line 534, col 39 to line 535, col 67 of module base: 72
+  |||||||line 534, col 40 to line 534, col 56 of module base: 72
+  |||||||line 535, col 50 to line 535, col 66 of module base: 72
+  ||||||||line 535, col 50 to line 535, col 55 of module base: 72
+  ||||||||line 535, col 62 to line 535, col 66 of module base: 72:144
+  |||||||||line 535, col 63 to line 535, col 65 of module base: 72
+  |||line 536, col 8 to line 536, col 49 of module base: 72
+  |||line 537, col 8 to line 537, col 58 of module base: 72
+  |||line 538, col 8 to line 538, col 61 of module base: 72
+  |||line 539, col 8 to line 539, col 49 of module base: 72
+  |||line 540, col 8 to line 540, col 55 of module base: 72
+  |||line 541, col 8 to line 550, col 74 of module base: 72
+  ||||line 541, col 8 to line 541, col 15 of module base: 72
+  ||||line 541, col 27 to line 550, col 74 of module base: 72
+  |||||line 541, col 34 to line 550, col 54 of module base: 72
+  ||||||line 541, col 35 to line 541, col 54 of module base: 72
+  ||||||line 542, col 38 to line 542, col 50 of module base: 72
+  ||||||line 542, col 53 to line 542, col 63 of module base: 72
+  ||||||line 543, col 38 to line 543, col 54 of module base: 72
+  ||||||line 544, col 38 to line 544, col 57 of module base: 72
+  ||||||line 545, col 38 to line 545, col 57 of module base: 72
+  ||||||line 546, col 38 to line 546, col 58 of module base: 72
+  ||||||line 547, col 38 to line 547, col 59 of module base: 72
+  ||||||line 548, col 46 to line 548, col 62 of module base: 72
+  |||||||line 548, col 46 to line 548, col 51 of module base: 72
+  |||||||line 548, col 58 to line 548, col 62 of module base: 72:144
+  ||||||||line 548, col 59 to line 548, col 61 of module base: 72
+  ||||||line 549, col 44 to line 549, col 66 of module base: 72
+  |||||||line 549, col 44 to line 549, col 55 of module base: 72
+  |||||||line 549, col 62 to line 549, col 66 of module base: 72:144
+  ||||||||line 549, col 63 to line 549, col 65 of module base: 72
+  ||||||line 550, col 38 to line 550, col 53 of module base: 72
+  |||line 551, col 8 to line 553, col 64 of module base: 72
+  ||||line 551, col 8 to line 551, col 19 of module base: 72
+  ||||line 551, col 25 to line 553, col 64 of module base: 72
+  |||||line 551, col 26 to line 551, col 31 of module base: 72
+  |||||line 551, col 36 to line 553, col 63 of module base: 72
+  ||||||line 551, col 37 to line 551, col 48 of module base: 72
+  ||||||line 552, col 10 to line 553, col 62 of module base: 72
+  |||||||line 552, col 11 to line 552, col 26 of module base: 72
+  |||||||line 552, col 29 to line 552, col 48 of module base: 72
+  |||||||line 553, col 23 to line 553, col 39 of module base: 72
+  ||||||||line 553, col 23 to line 553, col 28 of module base: 72
+  ||||||||line 553, col 35 to line 553, col 39 of module base: 72:144
+  |||||||||line 553, col 36 to line 553, col 38 of module base: 72
+  |||||||line 553, col 42 to line 553, col 61 of module base: 72
+  |||line 554, col 8 to line 554, col 50 of module base: 72
+  |||line 555, col 8 to line 558, col 32 of module base: 72
+  |||line 559, col 8 to line 562, col 31 of module base: 72
+  |||line 563, col 8 to line 563, col 47 of module base: 72
+  |||line 564, col 8 to line 564, col 36 of module base: 72
+  |line 163, col 8 to line 170, col 51 of module MC: 72
+<MCElectionSafety line 176, col 1 to line 176, col 16 of module MC>
+  line 176, col 21 to line 176, col 34 of module MC: 72
+  |line 567, col 5 to line 568, col 85 of module base: 72
+  ||line 568, col 9 to line 568, col 85 of module base: 72
+  |||line 568, col 9 to line 568, col 80 of module base: 72
+  ||||line 568, col 21 to line 568, col 79 of module base: 72
+  |||||line 568, col 37 to line 568, col 78 of module base: 216
+  |||||line 568, col 28 to line 568, col 33 of module base: 72
+  ||line 567, col 14 to line 567, col 23 of module base: 72
+<MCCommitWithinLog line 177, col 1 to line 177, col 17 of module MC>
+  line 177, col 22 to line 177, col 36 of module MC: 72
+  |line 571, col 5 to line 574, col 50 of module base: 72
+  ||line 572, col 9 to line 574, col 50 of module base: 216
+  ||line 571, col 14 to line 571, col 19 of module base: 72
+<MCMessagesWellFormed line 181, col 1 to line 181, col 20 of module MC>
+  line 181, col 25 to line 181, col 42 of module MC: 72
+  |line 592, col 23 to line 592, col 58 of module base: 72
+  ||line 592, col 43 to line 592, col 58 of module base: 92
+  |||line 65, col 5 to line 75, col 27 of module base: 92
+  ||||line 65, col 8 to line 65, col 31 of module base: 92
+  ||||line 66, col 8 to line 66, col 24 of module base: 92
+  ||||line 67, col 8 to line 67, col 22 of module base: 92
+  ||||line 68, col 8 to line 68, col 28 of module base: 92
+  ||||line 69, col 8 to line 69, col 31 of module base: 92
+  ||||line 70, col 8 to line 70, col 31 of module base: 92
+  ||||line 71, col 8 to line 71, col 32 of module base: 92
+  ||||line 72, col 8 to line 72, col 33 of module base: 92
+  ||||line 73, col 8 to line 73, col 36 of module base: 92
+  |||||line 73, col 8 to line 73, col 14 of module base: 92
+  |||||line 73, col 20 to line 73, col 36 of module base: 92
+  ||||||line 73, col 20 to line 73, col 25 of module base: 92
+  ||||||line 73, col 32 to line 73, col 36 of module base: 92:184
+  |||||||line 73, col 33 to line 73, col 35 of module base: 92
+  ||||line 74, col 8 to line 74, col 40 of module base: 92
+  |||||line 74, col 8 to line 74, col 12 of module base: 92
+  |||||line 74, col 18 to line 74, col 40 of module base: 92
+  ||||||line 74, col 18 to line 74, col 29 of module base: 92
+  ||||||line 74, col 36 to line 74, col 40 of module base: 92:184
+  |||||||line 74, col 37 to line 74, col 39 of module base: 92
+  ||||line 75, col 8 to line 75, col 27 of module base: 92
+  |||line 592, col 57 to line 592, col 57 of module base: 92
+  ||line 592, col 32 to line 592, col 39 of module base: 72
+<HuntQuorumCheck line 188, col 1 to line 188, col 15 of module MC>
+  line 188, col 20 to line 188, col 44 of module MC: 72
+<StateConstraint line 172, col 1 to line 172, col 15 of module MC>: 180:180
+  line 172, col 20 to line 172, col 61 of module MC: 180
+End of statistics.
+180 states generated, 72 distinct states found, 24 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 00s at (2026-09-04 17:44:14)
+Trace exploration spec path: ./MC_TTrace_1788543853.tla

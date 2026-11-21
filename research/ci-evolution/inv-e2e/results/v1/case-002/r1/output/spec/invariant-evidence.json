@@ -1,0 +1,517 @@
+{
+  "version": 1,
+  "notes": "Old definitions are the prior V0 suite (spec/evidence/OldBase.tla = /work/previous/.specula-output/spec/base.tla with the MODULE line renamed), instantiated with recovered <- applied (no evaluated old property reads recovered). Trace-sourced states come from TLC runs of validated new-version traces; constructed states are one-state TLC modules under spec/evidence/E-*/. All TLC evaluations were re-run on the final reference (spec/output/FINAL_MODEL_SHA256).",
+  "entries": [
+    {
+      "property": "CommittedPersistedOnQuorum",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new update property (Scenario 5)",
+      "affected_because": "Updated L:748-760 sends the NEWLEADER ACK after logRequest only enqueues the synchronized records; the leader activates (Ldr:1497-1537) on that ACK quorum.",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-A1-trace",
+        "E-A1-mc",
+        "E-A1c",
+        "E-A1-keep-trace"
+      ]
+    },
+    {
+      "property": "LeaderCompleteness",
+      "replaces": null,
+      "decision": "add",
+      "kind": "new update consequence property (Scenarios 5, 6)",
+      "affected_because": "Learner state after NEWLEADER (queued records, INITIAL server) feeds crash/restart, BeginElection fast-forward and FLE votes, which decide the next leader's history.",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-A2",
+        "E-A2-mc-initial",
+        "E-A2-mc-crash",
+        "E-A2c",
+        "E-A2-keep-trace"
+      ]
+    },
+    {
+      "property": "ServingApplyCommitted",
+      "replaces": "ApplyRequiresCommitCertificate",
+      "decision": "modify",
+      "kind": "weakening (representation: applied is now the in-memory data tree, which restore and fast-forward fill with uncommitted logged records)",
+      "affected_because": "The vote/leader-load basis had to become the data tree to express the update's INITIAL-state shutdown path (ZKS:784, ZKS:845, QP:1257-1262).",
+      "initial_decision": "modify",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-SAC-trace",
+        "E-SACc"
+      ]
+    },
+    {
+      "property": "OneActiveLeaderPerEpoch",
+      "replaces": "OneActiveLeaderPerEpoch (V0)",
+      "decision": "modify",
+      "kind": "representation migration (weakening of the literal predicate): V0 'leading' implied an atomically proposed epoch; FLE decision and getEpochToPropose are now separate steps, so the predicate quantifies over established leaders (role leading and epoch settled).",
+      "affected_because": "WinElection no longer assigns the epoch; LeaderProposeEpoch does (Ldr:1396-1430).",
+      "initial_decision": "modify",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-OAL-trace",
+        "E-OALc"
+      ]
+    },
+    {
+      "property": "SyncCompletionJustified",
+      "replaces": "SyncCompletionJustified (V0)",
+      "decision": "modify",
+      "kind": "strengthening (a broadcasting follower must also have sent its NEWLEADER ACK)",
+      "affected_because": "syncJustified now means NEWLEADER processed; the update reorders NEWLEADER work before the ACK.",
+      "initial_decision": "modify",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-SCJ",
+        "E-SCJc"
+      ]
+    },
+    {
+      "property": "PipelinePrefix",
+      "replaces": "PipelinePrefix (V0)",
+      "decision": "modify",
+      "kind": "weakening (representation: a crashed process has no data tree, so snapshot-prefix-of-applied is required only for live servers)",
+      "affected_because": "Crash now clears applied/committed (volatile) instead of resetting them to the snapshot.",
+      "initial_decision": "modify",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-PP-trace",
+        "E-PPc"
+      ]
+    },
+    {
+      "property": "CommittedHistoriesPrefix",
+      "replaces": null,
+      "decision": "keep",
+      "kind": "unaffected control kept enabled in every update cfg (UpdateControl)",
+      "affected_because": "Reads committed, whose crash/sync updates changed.",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-keep-traces"
+      ]
+    },
+    {
+      "property": "HistoryPositionsMonotonicExceptRecovery",
+      "replaces": null,
+      "decision": "keep",
+      "kind": "action property; new actions mark SyncDiff/SyncTrunc/SyncSnap/SNAP-NEWLEADER/Crash as authorized rollback",
+      "affected_because": "New sync/NEWLEADER actions write durable/committed/applied.",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-keep-traces"
+      ]
+    },
+    {
+      "property": "ElectionSafety",
+      "replaces": null,
+      "decision": "keep",
+      "kind": "leadersByEpoch now written by LeaderProposeEpoch",
+      "affected_because": "Writer moved from WinElection to LeaderProposeEpoch.",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E-keep-traces"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E-A1-trace",
+      "property": "CommittedPersistedOnQuorum",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "spec/evidence/trace-A1/TraceUpdateEvidence_TTrace_1795038953.tla (final state); final reference",
+      "how_populated": "traces/diff-sync-consistency.ndjson after event 94 (ZkStartup s2 RUNNING = LeaderActivate): leader s2 committed <0x100000001,0x100000002>; learner s1 ACKed NEWLEADER at event 91 with 0x100000002 queued/appended but not fsynced (TxnDurable at event 98); s0 lacks it.",
+      "old": {
+        "claimed": "not-checked",
+        "tlc": "not-checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/trace-A1/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "real updated-implementation trace traces/diff-sync-consistency.ndjson events 90-98; also traces/follower-diff.ndjson events 12-20 (ACK before TxnAppended/TxnDurable)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:116-119",
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:192-197",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:748"
+        ]
+      },
+      "cell": "bug candidate"
+    },
+    {
+      "id": "E-A1-mc",
+      "property": "CommittedPersistedOnQuorum",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/output/mc-Z3-update-concrete-A1.log (final state = FocusInit2); rev-B: spec/output/mc-R3-update-concrete-A1.log",
+      "how_populated": "TLC counterexample from FocusInit under Update-concrete.cfg on the final reference; FocusInit is reachable from MCInit (spec/output/mc-Z6-reach-focusinit-exact.log)",
+      "old": {
+        "claimed": "not-checked",
+        "tlc": "not-checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/output/mc-Z3-update-concrete-A1.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "same transition sequence observed in the real trace (E-A1-trace)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:116-119"
+        ]
+      },
+      "cell": "bug candidate"
+    },
+    {
+      "id": "E-A1c",
+      "property": "CommittedPersistedOnQuorum",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-A1c/E_A1c.tla",
+      "expected": false,
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E-A1c/tlc.log",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-A1-keep-trace",
+      "property": "CommittedPersistedOnQuorum",
+      "role": "control",
+      "state_source": "trace",
+      "state": "every state of traces/leader-abandon-restart-recovery.ndjson and traces/quorum-startup-mutation-shutdown.ndjson (epoch-2/3 activations with nonempty committed history already persisted on a quorum)",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/output/trace-upd-evidence-leader-abandon-restart-recovery.log"
+    },
+    {
+      "id": "E-A2",
+      "property": "LeaderCompleteness",
+      "role": "separating",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-A2/E_A2.tla",
+      "how_populated": "first judgment; upgraded by E-A2-mc-initial and E-A2-mc-crash",
+      "old": {
+        "claimed": "not-checked",
+        "tlc": "not-checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E-A2/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "see E-A2-mc-initial"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:245-250",
+          "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:212-214"
+        ]
+      },
+      "cell": "bug candidate (upgraded by E-A2-mc-initial, E-A2-mc-crash)",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-A2-mc-initial",
+      "property": "LeaderCompleteness",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/output/mc-Z3b-update-concrete2-A2-initial.log (final reference); also rev-B mc-R3b-... and rev-A mc-hunt-A2-from-focus2.log",
+      "how_populated": "TLC counterexample from FocusInit2 (the mc state E-A1-mc) under Update-concrete2-A2.cfg: learner fails while INITIAL, no fast-forward, wins FLE with its stale data tree, activates epoch 3 without t1",
+      "old": {
+        "claimed": "not-checked",
+        "tlc": "not-checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/output/mc-Z3b-update-concrete2-A2-initial.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "reproduced: harness/repro/SpeculaInitialStateFailureReproTest.java fails on the updated implementation (clients see exists(/zk2)=null on both remaining servers; spec/output/repro-surefire-update.txt); its trace traces/repro-initial-state-failure.ndjson conforms (Trace-conformance.cfg) and violates LeaderCompleteness after event 139 (spec/evidence/trace-A2/tlc.log) and CommittedHistoriesPrefix after event 211 (spec/evidence/trace-A2/tlc-CommittedHistoriesPrefix.log)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:245-250"
+        ]
+      },
+      "cell": "bug candidate"
+    },
+    {
+      "id": "E-A2-mc-crash",
+      "property": "LeaderCompleteness",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/output/mc-Z3c-update-concrete2-A2-crash.log (final reference)",
+      "how_populated": "TLC counterexample from FocusInit2 with the INITIAL-failure path excluded (Update-concrete2-A2-crash.cfg): learner crashes after UPTODATE before its SyncThread writes t1, restarts with the persisted epoch, wins FLE, activates without t1",
+      "old": {
+        "claimed": "not-checked",
+        "tlc": "not-checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/output/mc-Z3c-update-concrete2-A2-crash.log",
+      "impl_produces": {
+        "value": "unknown",
+        "basis": "needs a process crash inside the ACK-before-force window, which is observed on real traces (E-A1-trace); FileTxnLog.append buffers until commit() (FileTxnLog.java:287-288, 375-385); not reproducible in-JVM"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:245-250"
+        ]
+      },
+      "cell": "bug candidate (window observed; crash not reproduced)"
+    },
+    {
+      "id": "E-A2c",
+      "property": "LeaderCompleteness",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-A2c/E_A2c.tla",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/E-A2c/tlc.log",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-A2-keep-trace",
+      "property": "LeaderCompleteness",
+      "role": "control",
+      "state_source": "trace",
+      "state": "every state of traces/leader-abandon-restart-recovery.ndjson (three activations with certified history)",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/output/trace-upd-evidence-leader-abandon-restart-recovery.log"
+    },
+    {
+      "id": "E-SAC-trace",
+      "property": "ServingApplyCommitted",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "first violating state of OldApplyRequiresCommitCertificate on traces/leader-abandon-restart-recovery.ndjson (stopped leader s2 fast-forwarded its uncommitted 0x200000004 into the data tree; not serving)",
+      "how_populated": "TLC run of TraceOldPropsEvidence with invariant OldApplyRequiresCommitCertificate; the same state satisfies ServingApplyCommitted (Trace.cfg run of the same trace passes with it enabled)",
+      "old": {
+        "claimed": false,
+        "tlc": false
+      },
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/output/trace-ev-OldApplyRequiresCommitCertificate-leader-abandon-restart-recovery.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "traces/leader-abandon-restart-recovery.ndjson events 193-200: PeerRoleChanged/PhaseChanged report data-tree zxid 0x200000004 for the uncommitted proposal"
+      },
+      "requirement": {
+        "value": "allowed",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:117-118",
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:175-182"
+        ]
+      },
+      "cell": "weakening justified"
+    },
+    {
+      "id": "E-SACc",
+      "property": "ServingApplyCommitted",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-SACc/E_SACc.tla",
+      "expected": false,
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E-SACc/tlc.log",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-OAL-trace",
+      "property": "OneActiveLeaderPerEpoch",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "first violating state of OldOneActiveLeaderPerEpoch on traces/diff-sync-consistency.ndjson (event 116: s1 decided LEADING via FLE with accepted epoch 2 while s2 is the established epoch-2 leader)",
+      "how_populated": "TLC run of TraceOldPropsEvidence with invariant OldOneActiveLeaderPerEpoch; the same state satisfies the migrated property (Trace.cfg run passes with it enabled)",
+      "old": {
+        "claimed": false,
+        "tlc": false
+      },
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/output/trace-ev-OldOneActiveLeaderPerEpoch-diff-sync-consistency.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "real trace events 116-123"
+      },
+      "requirement": {
+        "value": "allowed",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:128-131",
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:256-259"
+        ]
+      },
+      "cell": "weakening justified"
+    },
+    {
+      "id": "E-OALc",
+      "property": "OneActiveLeaderPerEpoch",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-OALc/E_OALc.tla",
+      "expected": false,
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E-OALc/tlc.log",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-SCJ",
+      "property": "SyncCompletionJustified",
+      "role": "separating",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-SCJ/E_SCJ.tla",
+      "how_populated": "follower in broadcast with NEWLEADER processed but no NEWLEADER ACK",
+      "old": {
+        "claimed": true,
+        "tlc": true
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E-SCJ/tlc.log",
+      "impl_produces": {
+        "value": "no",
+        "basis": "F:108-110 setZabState(BROADCAST) only after syncWithLeader returns, which requires UPTODATE (L:711-725) after the NEWLEADER ACK (L:760)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:192-195"
+        ]
+      },
+      "cell": "strengthening justified",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-SCJc",
+      "property": "SyncCompletionJustified",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-SCJc/E_SCJc.tla",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/E-SCJc/tlc.log",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-PP-trace",
+      "property": "PipelinePrefix",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "first violating state of OldPipelinePrefix on traces/diff-sync-consistency.ndjson (in-JVM restart of a peer whose snapshot is nonempty: crashed process, empty data tree)",
+      "how_populated": "TLC run of TraceOldPropsEvidence with invariant OldPipelinePrefix",
+      "old": {
+        "claimed": false,
+        "tlc": false
+      },
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/output/trace-ev-OldPipelinePrefix-diff-sync-consistency.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "QuorumPeer shutdown + new QuorumPeer start in the test (events 119-126); a stopped process holds no data tree"
+      },
+      "requirement": {
+        "value": "allowed",
+        "citations": [
+          "modeling-brief.md (fail-stop assumption)",
+          "analysis-report.md#failure-assumptions"
+        ]
+      },
+      "cell": "weakening justified (representation)"
+    },
+    {
+      "id": "E-PPc",
+      "property": "PipelinePrefix",
+      "role": "control",
+      "state_source": "constructed",
+      "state": "spec/evidence/E-PPc/E_PPc.tla",
+      "expected": false,
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E-PPc/tlc.log",
+      "note": "re-evaluated on the final reference"
+    },
+    {
+      "id": "E-keep-traces",
+      "property": "CommittedHistoriesPrefix, HistoryPositionsMonotonicExceptRecovery, ElectionSafety",
+      "role": "keep",
+      "state_source": "trace",
+      "state": "all states of the five fresh traces (nonempty committed histories in quorum, leader-abandon and diff-sync traces; three epochs of leadersByEpoch)",
+      "expected": true,
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/output/trace-suite-final4.ndjson"
+    }
+  ],
+  "bug_candidates": [
+    "E-A1-trace",
+    "E-A1-mc",
+    "E-A2-mc-initial",
+    "E-A2-mc-crash"
+  ],
+  "unresolved": []
+}

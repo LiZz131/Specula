@@ -1,0 +1,62 @@
+# cmd: java tlc2.TLC -config Update_focused_cws.cfg -metadir /dev/shm/specula-e2e-case-012/upd-focused-cws-r1 -workers 2  Update.tla (outer timeout 600s+300s)
+# start: 2026-11-20T01:02:40-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 119 and seed -1844966207189100299 with 2 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 12860] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-10730294675906656024/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-10730294675906656024/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-10730294675906656024/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-10730294675906656024/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-10730294675906656024/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-10730294675906656024/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-10730294675906656024/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 07:02:41)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 07:02:42.
+Progress(8) at 2026-11-20 07:02:45: 4,377 states generated (4,377 s/min), 2,977 distinct states found (2,977 ds/min), 1,962 states left on queue.
+Error: Invariant UpdCommitWitnessSound is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n2) line 40, col 5 to line 43, col 70 of module MC>
+
+State 3: <MCGrantVote(n2,n3) line 72, col 5 to line 73, col 28 of module MC>
+
+State 4: <MCClientAppend(n2) line 46, col 5 to line 49, col 72 of module MC>
+
+State 5: <MCSendAppendEntries(n2,n1) line 76, col 5 to line 77, col 28 of module MC>
+
+State 6: <FollowerFocus line 35, col 18 to line 35, col 61 of module Update>
+
+State 7: <HandleUpdateMatchedFocus line 24, col 29 to line 24, col 71 of module Update>
+
+State 8: <MCProposeMembership(n2,{{n1, n3}, {n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+
+State 9: <MCSendAppendEntries(n2,n3) line 76, col 5 to line 77, col 28 of module MC>
+
+State 10: <FollowerFocus line 35, col 18 to line 35, col 61 of module Update>
+
+State 11: <HandleUpdateMatchedFocus line 24, col 29 to line 24, col 71 of module Update>
+
+130402 states generated, 61584 distinct states found, 34481 states left on queue.
+The depth of the complete state graph search is 11.
+Finished in 26s at (2026-11-20 07:03:07)
+Trace exploration spec path: ./Update_TTrace_1795158160.tla
+# exit: 12 end: 2026-11-20T01:03:07-06:00

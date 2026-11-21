@@ -1,0 +1,50 @@
++ cd /work/current/.specula-output/spec
++ timeout 15m java -XX:+UseParallelGC -Xmx4g -DTLA-Library=/work/current/.specula-output/spec:/work/current/.specula-output/spec/evidence -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC_reach_accepted.cfg -metadir /dev/shm/specula-e2e-case-003/reach_MC_reach_accepted-38721 -workers 2 MC.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 47 and seed -2106622680534047325 with 2 workers on 40 cores with 3641MB heap and 64MB offheap memory [pid: 38832] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-12191248143922592427/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-12191248143922592427/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-12191248143922592427/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-12191248143922592427/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-12191248143922592427/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-12191248143922592427/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-12191248143922592427/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-18 23:08:02)
+Computing initial states...
+Finished computing initial states: 2 distinct states generated at 2026-11-18 23:08:03.
+Error: Invariant NeverReachedAcceptedUpdate is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 3: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 4: <MCFinalizeBlock([rest |-> "r0", present |-> TRUE, abciPresent |-> FALSE, abci |-> 0]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 5: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 6: <MCUpdateStateAccepted line 47, col 26 to line 47, col 66 of module MC>
+
+62 states generated, 61 distinct states found, 24 states left on queue.
+The depth of the complete state graph search is 6.
+Finished in 02s at (2026-11-18 23:08:03)
+Trace exploration spec path: ./MC_TTrace_1795043281.tla
+elapsed_seconds: 2
+exit_code: 12
+state_dir_removed: yes

@@ -1,0 +1,98 @@
+# cmd: run_tlc.sh Update.tla Update_canary_CanaryTransferCommit.cfg Update_canary_CanaryTransferCommit 15  (workers=4 heap=6g)
+# started: 2026-11-19T01:51:55Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 97 and seed -671367694394438589 with 4 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 10474] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-17162703224099064389/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-17162703224099064389/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-17162703224099064389/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-17162703224099064389/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-17162703224099064389/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-17162703224099064389/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-17162703224099064389/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 01:51:56)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 01:51:57.
+Progress(16) at 2026-11-19 01:52:00: 56,383 states generated (56,383 s/min), 15,252 distinct states found (15,252 ds/min), 9,118 states left on queue.
+Progress(23) at 2026-11-19 01:53:00: 4,960,656 states generated (4,904,273 s/min), 966,156 distinct states found (950,904 ds/min), 353,576 states left on queue.
+Progress(25) at 2026-11-19 01:54:00: 9,746,609 states generated (4,785,953 s/min), 1,817,692 distinct states found (851,536 ds/min), 581,961 states left on queue.
+Progress(25) at 2026-11-19 01:55:00: 12,133,110 states generated (2,386,501 s/min), 2,234,942 distinct states found (417,250 ds/min), 673,906 states left on queue.
+Error: Invariant CanaryTransferCommit is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 78, col 5 to line 83, col 64 of module MC>
+
+State 3: <MCPersistVote(1) line 106, col 5 to line 109, col 55 of module MC>
+
+State 4: <MCSendVote(1) line 115, col 5 to line 119, col 55 of module MC>
+
+State 5: <MCVoteRequest(2,1) line 124, col 5 to line 129, col 23 of module MC>
+
+State 6: <MCPersistVote(2) line 106, col 5 to line 109, col 55 of module MC>
+
+State 7: <MCVoteResponse(1,1) line 142, col 5 to line 148, col 23 of module MC>
+
+State 8: <MCVoteResponse(1,2) line 142, col 5 to line 148, col 23 of module MC>
+
+State 9: <MCPersistVote(1) line 106, col 5 to line 109, col 55 of module MC>
+
+State 10: <MCCrash(1) line 246, col 5 to line 250, col 64 of module MC>
+
+State 11: <MCRestart(1) line 252, col 17 to line 252, col 46 of module MC>
+
+State 12: <MCTransferLeader(1) line 94, col 5 to line 101, col 51 of module MC>
+
+State 13: <MCPersistVote(1) line 106, col 5 to line 109, col 55 of module MC>
+
+State 14: <MCSendVote(1) line 115, col 5 to line 119, col 55 of module MC>
+
+State 15: <MCVoteRequest(2,1) line 124, col 5 to line 129, col 23 of module MC>
+
+State 16: <MCVoteResponse(1,1) line 142, col 5 to line 148, col 23 of module MC>
+
+State 17: <MCPersistVote(2) line 106, col 5 to line 109, col 55 of module MC>
+
+State 18: <MCVoteResponse(1,2) line 142, col 5 to line 148, col 23 of module MC>
+
+State 19: <MCSubmit(1) line 215, col 16 to line 215, col 47 of module MC>
+
+State 20: <MCPersistVote(1) line 106, col 5 to line 109, col 55 of module MC>
+
+State 21: <MCFollowerAppend(2,1) line 199, col 5 to line 213, col 23 of module MC>
+
+State 22: <MCSubmit(2) line 215, col 16 to line 215, col 47 of module MC>
+
+State 23: <MCFlush(1) line 216, col 15 to line 216, col 45 of module MC>
+
+State 24: <MCFlush(2) line 216, col 15 to line 216, col 45 of module MC>
+
+State 25: <MCAck(1,2) line 225, col 5 to line 232, col 23 of module MC>
+
+Error: Evaluating postcondition _TLCTraceSilent at line 28, col 5 to line 28, col 21 of module _TLCTrace failed.
+Attempted to apply the operator overridden by the Java method
+public static final tlc2.value.IValue tlc2.module._TLCTrace.ioSerialize(tlc2.value.IValue,tlc2.value.impl.StringValue) throws java.io.IOException,
+but it produced the following error:
+/work/current/.specula-output/spec/output/ttrace-Update_canary_CanaryTransferCommit/Update_TTrace_1795053115.bin (No such file or directory)
+13663792 states generated, 2505871 distinct states found, 739044 states left on queue.
+The depth of the complete state graph search is 26.
+Finished in 03min 57s at (2026-11-19 01:55:53)
+Trace exploration spec path: /work/current/.specula-output/spec/output/ttrace-Update_canary_CanaryTransferCommit/Update_TTrace_1795053115.tla
+# finished: 2026-11-19T01:55:54Z rc=12

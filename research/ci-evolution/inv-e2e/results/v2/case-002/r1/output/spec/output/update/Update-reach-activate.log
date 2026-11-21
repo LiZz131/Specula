@@ -1,0 +1,69 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 900s env JSON= java -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -metadir /dev/shm/specula-e2e-case-002/Update-reach-activate -config Update-reach-activate.cfg -workers 6 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 58 and seed 6439097424891281990 with 6 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 10263] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-13403888523711920569/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13403888523711920569/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13403888523711920569/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13403888523711920569/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13403888523711920569/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13403888523711920569/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13403888523711920569/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 11:28:33)
+Computing initial states...
+Computed 2 initial states...
+Computed 4 initial states...
+Computed 8 initial states...
+Finished computing initial states: 9 states generated, with 2 of them distinct at 2026-11-18 11:28:33.
+Progress(10) at 2026-11-18 11:28:36: 143,734 states generated (143,734 s/min), 33,146 distinct states found (33,146 ds/min), 15,255 states left on queue.
+Error: Invariant NotHistoryActivated is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 21, col 21 to line 21, col 79 of module MC>
+
+State 5: <MCFollowLeader(s3,s1) line 22, col 25 to line 22, col 67 of module MC>
+
+State 6: <MCAcceptEpoch(s3) line 23, col 21 to line 23, col 59 of module MC>
+
+State 7: <MCFinishDiscovery(s1) line 24, col 25 to line 24, col 67 of module MC>
+
+State 8: <MCEnterSyncPhase(s3,s1) line 25, col 27 to line 25, col 71 of module MC>
+
+State 9: <MCSelectSync(s3,s1,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 10: <MCReceiveSyncPayload(s3) line 32, col 5 to line 34, col 25 of module MC>
+
+State 11: <MCPersistCurrentEpoch(s3) line 35, col 29 to line 35, col 75 of module MC>
+
+State 12: <MCClearSyncMode(s3) line 37, col 23 to line 37, col 63 of module MC>
+
+State 13: <MCAckNewLeader(s3) line 40, col 5 to line 43, col 25 of module MC>
+
+State 14: <MCLeaderBroadcast(s1) line 48, col 5 to line 51, col 25 of module MC>
+
+2003517 states generated, 491093 distinct states found, 200205 states left on queue.
+The depth of the complete state graph search is 15.
+Finished in 25s at (2026-11-18 11:28:58)
+Trace exploration spec path: ./Update_TTrace_1795001312.tla

@@ -1,0 +1,541 @@
+{
+ "revision": "update 401753b (case-003)",
+ "prior": "V0 exact-old suite (/work/previous/.specula-output)",
+ "entries": [
+  {
+   "property": "TypeOK",
+   "replaces": "TypeOK",
+   "decision": "modify",
+   "kind": "representation-only",
+   "affected_because": "parameter records become [rest, ve], updates become update records, new variables rejectRule and veHist",
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E6"
+   ]
+  },
+  {
+   "property": "ParameterUpdateReflected",
+   "replaces": "ParameterUpdateReflected",
+   "decision": "modify",
+   "kind": "semantic replacement (weakening of the validity clause; the enable-height rules move to AcceptedVEUpdateRespectsRules)",
+   "affected_because": "its validity clause pendingParam \\in ValidParams named a fixed relation; the update makes validity depend on current enable height and block height (types/params.go:208-262, watch ConsensusParams.ValidateUpdate)",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E1",
+    "E1c",
+    "E2"
+   ]
+  },
+  {
+   "property": "RejectedUpdateDoesNotInstall",
+   "replaces": "RejectedUpdateDoesNotInstall",
+   "decision": "keep",
+   "kind": "representation-only",
+   "affected_because": "watch ConsensusParams.ValidateUpdate touched; new rejection cells (unchanged value after enable) reach phase rejected",
+   "ledger_status": "mixed (not-installed: requirement; change-height, saved-copy: unknown)",
+   "watch_touched": true,
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E3"
+   ]
+  },
+  {
+   "property": "SuccessfulApplyAdvancesExactlyOne",
+   "replaces": "SuccessfulApplyAdvancesExactlyOne",
+   "decision": "keep",
+   "kind": "unchanged formula",
+   "affected_because": "UpdateStateAccepted guard changed (new accepted cells reach phase updated)",
+   "ledger_status": "mixed (block-height: requirement; saved-base: unknown)",
+   "watch_touched": true,
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E4"
+   ]
+  },
+  {
+   "property": "NormalPhaseIsSynchronized",
+   "replaces": "NormalPhaseIsSynchronized",
+   "decision": "keep",
+   "kind": "representation-only",
+   "affected_because": "parameter equality now compares records; mock replay re-validates an enable-height update",
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E5"
+   ]
+  },
+  {
+   "property": "PersistedHeightRelationships",
+   "decision": "keep",
+   "kind": "unaffected control",
+   "affected_because": "not affected; kept enabled in Update_full/open/focused/scenario5 as the unaffected core-safety control",
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": []
+  },
+  {
+   "property": "RecoveryNormalOnlySupported",
+   "decision": "keep",
+   "kind": "unaffected",
+   "affected_because": "not affected",
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E5"
+   ]
+  },
+  {
+   "property": "VEHistoryStable",
+   "decision": "add",
+   "kind": "new interaction property (enable height vs. stored extended-commit decisions)",
+   "affected_because": "the update changes which enable-height transitions are accepted; consumers consensus/state.go:1786, :590, blocksync/reactor.go:219 read the enable height for past heights",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E7",
+    "E7c"
+   ]
+  },
+  {
+   "property": "VEEnableMonotone",
+   "decision": "add",
+   "kind": "new",
+   "affected_because": "update changes enable/disable acceptance",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E8",
+    "E7c"
+   ]
+  },
+  {
+   "property": "StartupLastCommitConsistent",
+   "decision": "add",
+   "kind": "new consumer corollary of VEHistoryStable",
+   "affected_because": "restart reconstruction (consensus/state.go:589-600) reads the enable height for LastBlockHeight",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E7",
+    "E7c"
+   ]
+  },
+  {
+   "property": "AcceptedVEUpdateRespectsRules",
+   "decision": "add",
+   "kind": "new (receives the enable-height part of V0 ParameterUpdateReflected's validity clause, stated from protocol text)",
+   "affected_because": "ValidateUpdate rewritten",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E2",
+    "E2c"
+   ]
+  },
+  {
+   "property": "PermittedVEUpdateNotRejected",
+   "decision": "add",
+   "kind": "new (detects regression to the V0 rejection of enabling from 0 / cancelling a scheduled height)",
+   "affected_because": "ValidateUpdate rewritten; changelog names validation-caused chain halts",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E9",
+    "E9c"
+   ]
+  },
+  {
+   "property": "UnchangedVEUpdateNotRejected",
+   "decision": "add",
+   "kind": "new; contested requirement for the after-reached clause",
+   "affected_because": "ValidateUpdate no longer accepts an unchanged value first (old params.go first branch removed)",
+   "ledger_status": "mixed (before-reached: requirement; after-reached: unknown -- conflicting evidence)",
+   "watch_touched": true,
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E10",
+    "E10c",
+    "E3"
+   ],
+   "outcome": "bug candidate MC-1 (not weakened; reported with the requirement conflict)"
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E6",
+   "property": "TypeOK",
+   "role": "representation",
+   "state_source": "trace",
+   "state": "spec/evidence/E6/EE6.tla",
+   "how_populated": "trace:replay_real_ve_update.ndjson event 6 (UpdateStateAccepted)",
+   "log": "spec/evidence/E6/tlc.log",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   }
+  },
+  {
+   "id": "E1",
+   "property": "ParameterUpdateReflected",
+   "role": "separating (weakening)",
+   "state_source": "trace",
+   "state": "spec/evidence/E1/EE1.tla",
+   "how_populated": "trace:ve_enable_future.ndjson event 5 (UpdateStateAccepted)",
+   "log": "spec/evidence/E1/tlc.log",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "no (old revision) / yes (updated revision)",
+    "basis": "spec/output/observe-old.log O1 REJECTED; spec/output/observe-new.log O1 ACCEPTED_ALL; traces/ve_enable_future.ndjson"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "spec/abci/abci++_app_requirements.md:1123 (enable via application logic)",
+     "spec/abci/abci++_app_requirements.md:1127-1129 (he MUST be higher than the current height; earliest hu+1)",
+     "types/params_test.go:172 (updated) 'current: 4, 0 -> 5' expectedErr=false",
+     "types/params.go:216 row 7 (comment table)"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E1c",
+   "property": "ParameterUpdateReflected",
+   "role": "control (weakening)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1c/EE1c.tla",
+   "how_populated": "constructed: E1 with activeParam.ve 2 -> 0",
+   "log": "spec/evidence/E1c/tlc.log",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "expected": false
+  },
+  {
+   "id": "E2",
+   "property": "AcceptedVEUpdateRespectsRules",
+   "role": "control for the ParameterUpdateReflected weakening (detection moved)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E2/EE2.tla",
+   "how_populated": "constructed from trace:ve_disable_after_enable.ndjson event 5: the rejected 1 -> 0 at h=1 shown as accepted",
+   "log": "spec/evidence/E2/tlc.log",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "traces/ve_disable_after_enable.ndjson (rejected, r4); observe-new O6 REJECTED"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "spec/abci/abci++_app_requirements.md:770-771 ('vote extensions cannot be disabled')",
+     "types/params_test.go:178 (updated) 'current: 5, 5 -> 0' expectedErr=true"
+    ]
+   },
+   "cell": "strengthening justified (New!ParameterUpdateReflected=TRUE on this state; New!AcceptedVEUpdateRespectsRules=FALSE keeps detection)",
+   "also_evaluated": {
+    "New!ParameterUpdateReflected": true
+   }
+  },
+  {
+   "id": "E2c",
+   "property": "AcceptedVEUpdateRespectsRules",
+   "role": "control (legal cancel of an unreached height)",
+   "state_source": "trace",
+   "state": "spec/evidence/E2c/EE2c.tla",
+   "how_populated": "trace:ve_cancel_scheduled.ndjson event 5 (UpdateStateAccepted)",
+   "log": "spec/evidence/E2c/tlc.log",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  },
+  {
+   "id": "E3",
+   "property": "RejectedUpdateDoesNotInstall",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E3/EE3.tla",
+   "how_populated": "trace:ve_unchanged_after_enable.ndjson event 12 (UpdateStateRejected)",
+   "log": "spec/evidence/E3/tlc.log",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "traces/ve_unchanged_after_enable.ndjson"
+   },
+   "requirement": {
+    "value": "required (not installed)",
+    "citations": [
+     "internal/state/execution.go:615 'NOTE: must not mutate state.ConsensusParams'",
+     "internal/consensus/state.go:1808"
+    ]
+   }
+  },
+  {
+   "id": "E4",
+   "property": "SuccessfulApplyAdvancesExactlyOne",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E4/EE4.tla",
+   "how_populated": "trace:ve_enable_future.ndjson event 5 (UpdateStateAccepted)",
+   "log": "spec/evidence/E4/tlc.log",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "traces/ve_enable_future.ndjson"
+   },
+   "requirement": {
+    "value": "required",
+    "citations": [
+     "spec/core/data_structures.md \u00a7Execution"
+    ]
+   }
+  },
+  {
+   "id": "E5",
+   "property": "NormalPhaseIsSynchronized",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E5/EE5.tla",
+   "how_populated": "trace:replay_mock_ve_update.ndjson event 9 (HandshakeComplete)",
+   "log": "spec/evidence/E5/tlc.log",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "traces/replay_mock_ve_update.ndjson"
+   },
+   "requirement": {
+    "value": "required",
+    "citations": [
+     "spec/abci/abci++_app_requirements.md \u00a7Crash Recovery"
+    ]
+   }
+  },
+  {
+   "id": "E7",
+   "property": "VEHistoryStable",
+   "role": "separating (add)",
+   "state_source": "trace-edit",
+   "state": "spec/evidence/E7/EE7.tla",
+   "how_populated": "trace:ve_enable_future.ndjson event 7 (SaveState) with activeParam.ve/persistedParam.ve 2 -> 1 (a retroactive enable at the stored height)",
+   "log": "spec/evidence/E7/tlc.log",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "row 6 rejects U <= h (traces/ve_past_height.ndjson r6); MC Update_full no violation"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "spec/abci/abci++_app_requirements.md:770-777",
+     "spec/abci/abci++_comet_expected_behavior.md:272-281",
+     "internal/consensus/state.go:585-588 (comment at 586-587)"
+    ]
+   },
+   "cell": "strengthening justified",
+   "also_evaluated": {
+    "New!StartupLastCommitConsistent": false
+   }
+  },
+  {
+   "id": "E7c",
+   "property": "VEHistoryStable",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/E7c/EE7c.tla",
+   "how_populated": "trace:ve_enable_future.ndjson event 21 (SaveState)",
+   "log": "spec/evidence/E7c/tlc.log",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true,
+   "also_evaluated": {
+    "New!VEEnableMonotone": true,
+    "New!StartupLastCommitConsistent": true
+   }
+  },
+  {
+   "id": "E8",
+   "property": "VEEnableMonotone",
+   "role": "separating (add)",
+   "state_source": "trace-edit",
+   "state": "spec/evidence/E8/EE8.tla",
+   "how_populated": "trace:ve_enable_future.ndjson event 14 (SaveState) with veHist <<0,2>> -> <<1,0>>",
+   "log": "spec/evidence/E8/tlc.log",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "rows 4/8 reject changes after enable (traces ve_disable_after_enable, ve_modify_after_enable)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "spec/abci/abci++_app_requirements.md:770-771",
+     "spec/abci/abci++_app_requirements.md:1131-1133"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E9",
+   "property": "PermittedVEUpdateNotRejected",
+   "role": "separating (add; old-behavior regression detector)",
+   "state_source": "trace-edit",
+   "state": "spec/evidence/E9/EE9.tla",
+   "how_populated": "trace:ve_enable_future.ndjson event 4 (SaveFinalizeBlockResponse) turned into a rejection (V0 behavior; spec/output/observe-old.log O1)",
+   "log": "spec/evidence/E9/tlc.log",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no (updated) / yes (old revision)",
+    "basis": "spec/output/observe-old.log O1/O2 REJECTED; spec/output/observe-new.log O1/O2 ACCEPTED_ALL"
+   },
+   "requirement": {
+    "value": "forbidden (a protocol-permitted enable must not halt the chain)",
+    "citations": [
+     "spec/abci/abci++_app_requirements.md:1123-1129",
+     ".changelog/unreleased/bug-fixes/0000-asa-2024-001-fix-validate.md",
+     "types/params_test.go:172,177 (updated) 'current: 4, 0 -> 5' and 'current: 4, 5 -> 0' expectedErr=false"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E9c",
+   "property": "PermittedVEUpdateNotRejected",
+   "role": "control (legal rejection of disable after enable)",
+   "state_source": "trace",
+   "state": "spec/evidence/E9c/EE9c.tla",
+   "how_populated": "trace:ve_disable_after_enable.ndjson event 5 (UpdateStateRejected)",
+   "log": "spec/evidence/E9c/tlc.log",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  },
+  {
+   "id": "E10",
+   "property": "UnchangedVEUpdateNotRejected",
+   "role": "separating (add)",
+   "state_source": "trace",
+   "state": "spec/evidence/E10/EE10.tla",
+   "how_populated": "trace:replay_real_ve_unchanged_rejected.ndjson event 6 (UpdateStateRejected)",
+   "log": "spec/evidence/E10/tlc.log",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "traces/replay_real_ve_unchanged_rejected.ndjson, traces/ve_unchanged_after_enable.ndjson; spec/output/trace-update-props-summary.log; observe-new O3/O11/O12 REJECTED vs observe-old O3/O11 ACCEPTED_ALL"
+   },
+   "requirement": {
+    "value": "unknown (conflicting)",
+    "citations": [
+     "for acceptance: spec/abci/abci++_app_requirements.md:776-777 ('its value must not be changed'), :785-786 ('Each field that is not empty will be applied in full'), :803 ('CometBFT will use it'); internal/state/state_test.go:1044 (complete-record ToProto updates every block); /work/old-source/types/params_test.go:196-204 'no error when unchanged'",
+     "for rejection: types/params_test.go:168-169 (updated) 'current: 100, 100 -> 100' and 'current: 300, 100 -> 100' expectedErr=true; types/params.go:215 row 6 comment; spec/abci/abci++_app_requirements.md:776 'Must always be set to a future height.' (if re-sending counts as setting)"
+    ]
+   },
+   "cell": "bug candidate with contested requirement -> not weakened; reported as MC-1"
+  },
+  {
+   "id": "E10c",
+   "property": "UnchangedVEUpdateNotRejected",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/E10c/EE10c.tla",
+   "how_populated": "trace:ve_modify_after_enable.ndjson event 5 (UpdateStateRejected)",
+   "log": "spec/evidence/E10c/tlc.log",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  }
+ ],
+ "bug_candidates": [
+  "E10"
+ ],
+ "unresolved": [
+  {
+   "property": "UnchangedVEUpdateNotRejected (after-reached clause)",
+   "missing_evidence": "a protocol statement that the Abci subrecord must be omitted unless the enable height changes, or that repeating a reached enable height is invalid application behavior; or a maintainer statement either way"
+  }
+ ],
+ "commands": "tools/gen_evidence.py; tools/tlc.sh evidence/<id> evidence/<id>/E<id>.tla evidence/<id>/E<id>.cfg (see spec/output/evidence/*.log)"
+}

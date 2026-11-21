@@ -1,0 +1,645 @@
+TLC2 Version 2.20 of Day Month 20?? (rev: ${git.shortRevision})
+Running breadth-first search Model-Checking with fp 113 and seed -7388265701987394476 with 4 workers on 96 cores with 7282MB heap and 64MB offheap memory [pid: 3655] (Linux 6.8.0-1044-azure amd64, Ubuntu 21.0.11 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/prior/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-16310539667767479482/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-16310539667767479482/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-16310539667767479482/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-16310539667767479482/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-16310539667767479482/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-16310539667767479482/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-16310539667767479482/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module base
+Starting... (2026-09-05 03:29:44)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-09-05 03:29:44.
+Progress(15) at 2026-09-05 03:29:47: 572,095 states generated (572,095 s/min), 123,159 distinct states found (123,159 ds/min), 51,824 states left on queue.
+Progress(22) at 2026-09-05 03:30:47: 16,652,820 states generated (16,080,725 s/min), 3,093,249 distinct states found (2,970,090 ds/min), 1,047,527 states left on queue.
+Progress(24) at 2026-09-05 03:31:47: 32,833,483 states generated (16,180,663 s/min), 5,949,682 distinct states found (2,856,433 ds/min), 1,944,105 states left on queue.
+Error: Invariant EpochHistoryConsistency is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ phase = (s1 :> "election" @@ s2 :> "election" @@ s3 :> "election")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "looking" @@ s3 :> "looking")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 2: <BeginElection(s1) line 76, col 5 to line 89, col 20 of module base>
+/\ phase = (s1 :> "election" @@ s2 :> "election" @@ s3 :> "election")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "looking" @@ s3 :> "looking")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 3: <CastVote(s2,s1) line 98, col 5 to line 107, col 20 of module base>
+/\ phase = (s1 :> "election" @@ s2 :> "election" @@ s3 :> "election")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "looking" @@ s3 :> "looking")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 4: <WinElection(s1) line 111, col 5 to line 126, col 20 of module base>
+/\ phase = (s1 :> "discovery" @@ s2 :> "election" @@ s3 :> "election")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "looking" @@ s3 :> "looking")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 5: <FollowLeader(s2,s1) line 130, col 5 to line 139, col 20 of module base>
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "election")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "looking")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 6: <FollowLeader(s3,s1) line 130, col 5 to line 139, col 20 of module base>
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "discovery")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 7: <AcceptEpoch(s3) line 143, col 5 to line 152, col 20 of module base>
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "discovery")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 8: <FinishDiscovery(s1) line 156, col 5 to line 165, col 20 of module base>
+/\ phase = (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "discovery")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 9: <EnterSyncPhase(s3,s1) line 172, col 5 to line 185, col 20 of module base>
+/\ phase = (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "sync")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 10: <SelectSync(s3,s1,"DIFF") line 189, col 5 to line 203, col 20 of module base>
+/\ phase = (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "sync")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 11: <CompleteSync(s3) line 207, col 5 to line 226, col 51 of module base>
+/\ phase = (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "sync")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 12: <Crash(s1) line 441, col 5 to line 458, col 29 of module base>
+/\ phase = (s1 :> "offline" @@ s2 :> "discovery" @@ s3 :> "sync")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 13: <PersistCurrentEpoch(s3) line 230, col 5 to line 239, col 20 of module base>
+/\ phase = (s1 :> "offline" @@ s2 :> "discovery" @@ s3 :> "sync")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 14: <EnterBroadcast(s3) line 243, col 5 to line 251, col 20 of module base>
+/\ phase = (s1 :> "offline" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 15: <Restart(s1) line 462, col 5 to line 470, col 20 of module base>
+/\ phase = (s1 :> "election" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> Nil @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "looking" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 16: <WinElection(s1) line 111, col 5 to line 126, col 20 of module base>
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 17: <AcceptEpoch(s2) line 143, col 5 to line 152, col 20 of module base>
+/\ phase = (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 18: <FinishDiscovery(s1) line 156, col 5 to line 165, col 20 of module base>
+/\ phase = (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 19: <LeaderBroadcast(s1) line 266, col 5 to line 275, col 20 of module base>
+/\ phase = (s1 :> "broadcast" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {}
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 20: <Propose(s1,t1) line 279, col 5 to line 293, col 20 of module base>
+/\ phase = (s1 :> "broadcast" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = { [id |-> t1, epoch |-> 2, kind |-> "proposal", from |-> s1, to |-> s2],
+  [id |-> t1, epoch |-> 2, kind |-> "proposal", from |-> s1, to |-> s3] }
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {t1}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = (s1 :> <<[id |-> t1, epoch |-> 2]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = (s1 :> <<[id |-> t1, epoch |-> 2]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+
+State 21: <Next line 497, col 8 to line 497, col 45 of module base>
+/\ phase = (s1 :> "broadcast" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {[id |-> t1, epoch |-> 2, kind |-> "proposal", from |-> s1, to |-> s2]}
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {t1}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = ( s1 :> <<[id |-> t1, epoch |-> 2]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[id |-> t1, epoch |-> 2]>> )
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = ( s1 :> <<[id |-> t1, epoch |-> 2]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[id |-> t1, epoch |-> 2]>> )
+
+State 22: <AppendOne(s3) line 341, col 5 to line 349, col 20 of module base>
+/\ phase = (s1 :> "broadcast" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = {[id |-> t1, epoch |-> 2, kind |-> "proposal", from |-> s1, to |-> s2]}
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 2]>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {t1}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = ( s1 :> <<[id |-> t1, epoch |-> 2]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[id |-> t1, epoch |-> 2]>> )
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = ( s1 :> <<[id |-> t1, epoch |-> 2]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[id |-> t1, epoch |-> 2]>> )
+
+State 23: <FsyncOne(s3) line 353, col 5 to line 369, col 20 of module base>
+/\ phase = (s1 :> "broadcast" @@ s2 :> "discovery" @@ s3 :> "broadcast")
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ durable = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 2]>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> Nil @@ s3 :> s1)
+/\ messages = { [id |-> t1, epoch |-> 2, kind |-> "proposal", from |-> s1, to |-> s2],
+  [id |-> t1, epoch |-> 2, kind |-> "ack", from |-> s3, to |-> s1] }
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 0 @@ s3 :> 1)
+/\ applied = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ appended = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 2]>>)
+/\ syncJustified = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ usedTxn = {t1}
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 2 @@ s3 :> 1)
+/\ committed = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ commitCertified = (t1 :> FALSE)
+/\ votes = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ proposed = ( s1 :> <<[id |-> t1, epoch |-> 2]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[id |-> t1, epoch |-> 2]>> )
+/\ acked = (t1 :> {})
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ queued = ( s1 :> <<[id |-> t1, epoch |-> 2]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[id |-> t1, epoch |-> 2]>> )
+
+35944293 states generated, 6490119 distinct states found, 2114885 states left on queue.
+The depth of the complete state graph search is 24.
+Finished in 02min 15s at (2026-09-05 03:31:59)
+Trace exploration spec path: ./base_TTrace_1788578983.tla

@@ -1,0 +1,678 @@
+{
+ "case": "case-010 (baseline -> update)",
+ "method": "Each evaluation is a TLC run on the actual definitions: one-state/two-state specs under spec/evidence/<id>/ (old definitions via INSTANCE OldBase = prior base.tla renamed), or the cited TLC model-checking / trace-validation log.",
+ "entries": [
+  {
+   "property": "ExitedLearnerMemoryBackedByLog",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new update property, U1)",
+   "affected_because": "Learner.shutdown now clears an unpersisted SNAP image (Learner.java:860-865; ZooKeeperServer.java:803-810)",
+   "initial_decision": "add (antecedent: running, not syncing, not cleared)",
+   "changed_from_initial": true,
+   "change_note": "antecedent restricted to non-leaders after trace evidence E_U1s (leader between Leader.propose and SyncRequestProcessor.processRequest)",
+   "evidence_ids": [
+    "E_U1",
+    "E_U1_oldtrace",
+    "E_U1s",
+    "E_U1_keep"
+   ]
+  },
+  {
+   "property": "RecoverableHistoryComplete",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (U2)",
+   "affected_because": "the update's goal is that a re-synced follower's recoverable log contains every committed txn (testDiffSyncAfterSnap)",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U2",
+    "E_U2_oldtrace",
+    "E_U2b",
+    "E_U2_keep"
+   ]
+  },
+  {
+   "property": "RecoverableCommittedPrefix",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (U3)",
+   "affected_because": "the update moves the follower log drain out of Learner.shutdown (stale records may follow a resync)",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U3",
+    "E_U3_prior",
+    "E_U3_keep"
+   ]
+  },
+  {
+   "property": "DurableReplayOrdered",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (U4)",
+   "affected_because": "leaked log processors append stale records after newer ones",
+   "initial_decision": "add (strictly increasing)",
+   "changed_from_initial": true,
+   "change_note": "after switching WAL flushes to duplicate-preserving appends, adjacent duplicates are accepted (non-decreasing); a duplicate after a newer record is still rejected (E_U4 vs E_U4c)",
+   "evidence_ids": [
+    "E_U4",
+    "E_U4c",
+    "E_U4_prior"
+   ]
+  },
+  {
+   "property": "ClearedOnlyAfterSnapExit",
+   "replaces": null,
+   "decision": "add",
+   "kind": "structural",
+   "affected_because": "new dbCleared state introduced by the update",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_CL",
+    "E_CL_keep"
+   ]
+  },
+  {
+   "property": "OrderedHistoriesV1",
+   "replaces": "OrderedHistories",
+   "decision": "modify",
+   "kind": "weakening (dense zxid prefix -> strictly increasing; durable/recoveryVisible non-decreasing)",
+   "affected_because": "commit order repair (lost proposals now representable) and duplicate-preserving WAL appends",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_OH",
+    "E_OHc",
+    "E_OH_dup"
+   ]
+  },
+  {
+   "property": "MonotoneUnlessRecoveryUpd",
+   "replaces": "MonotoneUnlessRecovery (prior) / MonotoneUnlessRecoveryV1 (split repair)",
+   "decision": "modify",
+   "kind": "weakening (explicit reconciliation steps and the update's clear step authorize retraction)",
+   "affected_because": "SNAP/TRUNC/DIFF reconciliation split into separate steps; the update adds zkDb.clear() on SNAP-mode exit",
+   "initial_decision": "modify (V1: split steps only)",
+   "changed_from_initial": true,
+   "change_note": "update clear step added after MC transition E_MON2",
+   "evidence_ids": [
+    "E_MON",
+    "E_MON2",
+    "E_MONc"
+   ]
+  },
+  {
+   "property": "SnapshotPublishedValid",
+   "replaces": null,
+   "decision": "keep",
+   "kind": "keep; SnapshotPublishedValidV1 (published snapshot is a prefix of the global commit order) additionally enabled in update cfgs",
+   "affected_because": "applied histories are now replaced by SNAP/TRUNC/clear steps",
+   "initial_decision": "modify (published prefix of globalCommitted)",
+   "changed_from_initial": true,
+   "change_note": "the only separating states came from model over-approximations later repaired (TRUNC ignoring a newer snapshot; SNAP chosen for a peer ahead of the leader's committed log, i.e. the test-only forceSnapSync path). See E_SPV for the post-repair oracle runs.",
+   "evidence_ids": [
+    "E_SPV",
+    "E_SPVc"
+   ]
+  },
+  {
+   "property": "SyncEntryJustified",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "learner exit/re-sync changes syncComplete",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "K_TRACE"
+   ]
+  },
+  {
+   "property": "ApplyHasCommitCertificate",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "applied replaced by LoadSyncSnapshot/TruncateLog/DIFF re-alignment/clear",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "K_TRACE",
+    "K_MC"
+   ]
+  },
+  {
+   "property": "CommittedPrefixAgreement",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "committed replaced by sync steps and clear",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "K_TRACE",
+    "K_MC"
+   ]
+  },
+  {
+   "property": "NormalAckHasDurabilityEvidence",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "leaked flushes append without ACK evidence",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "K_TRACE",
+    "K_MC"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E_U1",
+   "property": "ExitedLearnerMemoryBackedByLog",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U1/E_U1.tla",
+   "how_populated": "last state of spec/output/final-update-control-prior.log (PRIOR semantics: SNAP image retained after learner exit)",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_U1/tlc.log",
+   "impl_produces": {
+    "value": "yes (old revision), no (new revision)",
+    "basis": "old: traces/old-control/upd-snap-exit-diff-oldctl.ndjson event 166 replayed under PRIOR violates U1 (spec/output/trace-old-control-upd-snap-exit-diff.log); new: traces/upd-snap-exit-diff-v3d.ndjson passes with U1 enabled"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:554",
+     "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:612-613",
+     "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:862-863",
+     "new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1619-1625"
+    ]
+   },
+   "cell": "strengthening justified (behavior removed by the update)"
+  },
+  {
+   "id": "E_U1_oldtrace",
+   "property": "ExitedLearnerMemoryBackedByLog",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "traces/old-control/upd-snap-exit-diff-oldctl.ndjson event 166",
+   "how_populated": "real old-revision execution (harness/run-old-control.sh)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/trace-old-control-upd-snap-exit-diff.log"
+  },
+  {
+   "id": "E_U1s",
+   "property": "ExitedLearnerMemoryBackedByLog",
+   "role": "scope separating (initial vs revised antecedent)",
+   "state_source": "trace",
+   "state": "traces/upd-snap-exit-diff-v3.ndjson event 39 (leader after Leader.propose, before QueueForSync)",
+   "initial": {
+    "claimed": true,
+    "tlc": false
+   },
+   "revised": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-snap-exit-diff-v3.attempt1.log (initial FALSE); spec/output/trace-upd-snap-exit-diff-v3d.log (revised, whole trace TRUE)",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "real trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "ProposalRequestProcessor.processRequest proposes then queues on one thread; a peer elected leader persists its database via loadData->takeSnapshot (ZooKeeperServer.java:480-512)"
+    ]
+   },
+   "cell": "scope correction (leaders are not carrying a learner baseline)"
+  },
+  {
+   "id": "E_U1_keep",
+   "property": "ExitedLearnerMemoryBackedByLog",
+   "role": "control (new behavior accepted)",
+   "state_source": "trace",
+   "state": "traces/upd-snap-exit-diff-v3d.ndjson (SNAP exit with clear, reload, DIFF)",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-snap-exit-diff-v3d.log"
+  },
+  {
+   "id": "E_U2",
+   "property": "RecoverableHistoryComplete",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U2/E_U2.tla",
+   "how_populated": "last state of spec/output/final-update-control-prior-gap.log (PRIOR)",
+   "old": {
+    "claimed": false,
+    "tlc": false,
+    "note": "prior dense OrderedHistories also rejects (it rejects any id gap)"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_U2/tlc.log",
+   "impl_produces": {
+    "value": "yes (old revision)",
+    "basis": "old-revision test testDiffSyncAfterSnap fails 'node 0 should exist' (spec/output/harness/old-control-upd-snap-exit-diff-oldctl.log); real recovered history [11] (traces/old-control/upd-snap-exit-diff-oldctl.ndjson event 200)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1733",
+     "new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1619-1625",
+     "/work/model-scope.md: 'epoch transitions and recovered histories remain mutually consistent'"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E_U2_oldtrace",
+   "property": "RecoverableHistoryComplete",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "traces/old-control/upd-snap-exit-diff-oldctl.ndjson event 200 (RestartLoadDatabase recovered [11] while txns 1..10 committed)",
+   "new": {
+    "claimed": false,
+    "tlc": "model durable <<11>> matched the real recovered list in the PRIOR replay; spec/output/trace-old-control-upd-snap-exit-diff-core.log"
+   }
+  },
+  {
+   "id": "E_U2b",
+   "property": "RecoverableHistoryComplete",
+   "role": "separating (bug candidate in new revision)",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U2b/E_U2b.tla",
+   "how_populated": "last state of spec/output/final-update-hunt-leak-gap.log (UPDATED)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_U2b/tlc.log",
+   "impl_produces": {
+    "value": "unknown (timing race; leaked thread observed)",
+    "basis": "traces/upd-serving-exit-v3d.ndjson LearnerShutdown leakedNow=true; spec/output/harness/upd-v3d.surefire-output.txt live SyncThread counts"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1733",
+     "new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1619-1625",
+     "/work/model-scope.md: 'epoch transitions and recovered histories remain mutually consistent'"
+    ]
+   },
+   "cell": "bug candidate (F-LEAK); property kept"
+  },
+  {
+   "id": "E_U2_keep",
+   "property": "RecoverableHistoryComplete",
+   "role": "control (new behavior accepted)",
+   "state_source": "trace",
+   "state": "traces/upd-snap-exit-diff-v3d.ndjson (restart recovered 1..11)",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-snap-exit-diff-v3d.log"
+  },
+  {
+   "id": "E_U3",
+   "property": "RecoverableCommittedPrefix",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U3/E_U3.tla",
+   "how_populated": "last state of spec/output/final-update-hunt-leak-prefix.log (UPDATED)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_U3/tlc.log",
+   "impl_produces": {
+    "value": "unknown",
+    "basis": "timing race"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "/work/model-scope.md: 'committed histories agree on their common prefix'",
+     "/work/model-scope.md: 'epoch transitions and recovered histories remain mutually consistent'"
+    ]
+   },
+   "cell": "bug candidate (pre-existing class, see E_U3_prior)"
+  },
+  {
+   "id": "E_U3_prior",
+   "property": "RecoverableCommittedPrefix",
+   "role": "attribution",
+   "state_source": "mc",
+   "state": "last state of spec/output/final-update-control-prior-leak-prefix.log (PRIOR)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/final-update-control-prior-leak-prefix.log"
+  },
+  {
+   "id": "E_U3_keep",
+   "property": "RecoverableCommittedPrefix",
+   "role": "control",
+   "state_source": "trace",
+   "state": "all fresh v3d traces",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-*-v3d.log"
+  },
+  {
+   "id": "E_U4",
+   "property": "DurableReplayOrdered",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U4/E_U4.tla",
+   "how_populated": "last state of spec/output/final-update-hunt-leak-order.log (UPDATED: <<2,1>> stale append)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_U4/tlc.log",
+   "impl_produces": {
+    "value": "unknown",
+    "basis": "timing race"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "/work/model-scope.md: 'committed histories agree on their common prefix'",
+     "/work/model-scope.md: 'epoch transitions and recovered histories remain mutually consistent'"
+    ]
+   },
+   "cell": "bug candidate (class also reached under PRIOR, E_U4_prior)"
+  },
+  {
+   "id": "E_U4c",
+   "property": "DurableReplayOrdered",
+   "role": "control (adjacent duplicates accepted)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_U4c/E_U4c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E_U4c/tlc.log"
+  },
+  {
+   "id": "E_U4_prior",
+   "property": "DurableReplayOrdered",
+   "role": "attribution",
+   "state_source": "mc",
+   "state": "last state of spec/output/final-update-control-prior-leak.log (PRIOR drain after fast-forward then DIFF re-send)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/final-update-control-prior-leak.log"
+  },
+  {
+   "id": "E_CL",
+   "property": "ClearedOnlyAfterSnapExit",
+   "role": "separating (rejected state)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_CL/E_CL.tla (dbCleared with syncMode DIFF)",
+   "expected": false,
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_CL/tlc.log",
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:862-864"
+    ]
+   }
+  },
+  {
+   "id": "E_CL_keep",
+   "property": "ClearedOnlyAfterSnapExit",
+   "role": "control",
+   "state_source": "trace",
+   "state": "traces/upd-snap-exit-diff-v3d.ndjson (LearnerShutdown full=true dbInit=false)",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-snap-exit-diff-v3d.log"
+  },
+  {
+   "id": "E_OH",
+   "property": "OrderedHistoriesV1",
+   "role": "separating (weakening)",
+   "state_source": "mc",
+   "state": "spec/evidence/E_OH/E_OH.tla",
+   "how_populated": "last state of spec/output/final-evidence-oldoh.log (leader history <<2>> after lost proposal 1)",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "also": {
+    "RecoverableHistoryComplete": true
+   },
+   "log": "spec/evidence/E_OH/tlc.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "a new-epoch leader proposes after an uncommitted proposal of the failed leader is discarded"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "LearnerHandler.java:991-992 ('Peer have some proposals that the learnerMaster hasn't seen yet; it may used to be a leader') -> such proposals are truncated"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E_OHc",
+   "property": "OrderedHistoriesV1",
+   "role": "control (out-of-order history still rejected)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_OHc/E_OHc.tla",
+   "expected": false,
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_OHc/tlc.log"
+  },
+  {
+   "id": "E_OH_dup",
+   "property": "OrderedHistoriesV1 (durable non-decreasing)",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "last state of spec/output/mc-full.pre-append-model.log and the superseded MC-full run (durable <<1,1>>) (durable <<1,1>> after drained/leaked record re-sent by DIFF)",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": "not separately evaluated; covered by E_U4c (same ReplayOrdered predicate)"
+   },
+   "requirement": {
+    "value": "unknown",
+    "citations": []
+   },
+   "cell": "unresolved: adjacent duplicate WAL records are produced by both revisions; harmfulness not established (replay re-applies the same txn)"
+  },
+  {
+   "id": "E_MON",
+   "property": "MonotoneUnlessRecoveryUpd",
+   "role": "separating transition",
+   "state_source": "mc",
+   "state": "spec/evidence/E_MON/E_MON.tla (last transition of spec/output/final-evidence-oldmon.log)",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "v1": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E_MON/tlc.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "TRUNC/SNAP reconcile the DataTree (Learner.java:565-598)"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "/work/model-scope.md: positions may move backward through a source-faithful recovery action whose retained state is explicit"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E_MON2",
+   "property": "MonotoneUnlessRecoveryUpd",
+   "role": "separating transition (update clear step)",
+   "state_source": "mc",
+   "state": "spec/evidence/E_MON2/E_MON2.tla (last transition of spec/output/final-evidence-v1mon.log)",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "v1": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E_MON2/tlc.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "traces/upd-snap-exit-diff-v3d.ndjson: DataTree cleared (dbInit=false) and txns 1..10 re-applied after reload"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:862-863",
+     "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:801"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E_MONc",
+   "property": "MonotoneUnlessRecoveryUpd",
+   "role": "control (retraction outside recovery rejected)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_MONc/E_MONc.tla",
+   "expected": false,
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_MONc/tlc.log"
+  },
+  {
+   "id": "E_SPV",
+   "property": "SnapshotPublishedValid",
+   "role": "keep (post-repair oracle)",
+   "state_source": "mc",
+   "state": "oracle runs spec/output/final-evidence-oldspv.log (UPD-1 scenario, exhaustive) and spec/output/f2-ev-oldSPV-full.log (full MCNext, budget-limited)",
+   "old": {
+    "claimed": true,
+    "tlc": "see logs"
+   }
+  },
+  {
+   "id": "K_TRACE",
+   "property": "kept core properties",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "traces/upd-snap-exit-diff-v3d.ndjson, traces/upd-serving-exit-v3d.ndjson, traces/upd-snap-complete-v3d.ndjson (changed behavior; nonempty committed/applied/acks)",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-*-v3d.log",
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "/work/model-scope.md: 'committed histories agree on their common prefix'",
+     "/work/model-scope.md: 'epoch transitions and recovered histories remain mutually consistent'"
+    ]
+   }
+  },
+  {
+   "id": "K_MC",
+   "property": "kept core properties",
+   "role": "keep",
+   "state_source": "mc",
+   "state": "exhaustive UPD-1 hunt (spec/output/final-update-hunt-snap.log) and PRIOR leak-gap control (spec/output/final-update-control-prior-leak-gap.log)",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   }
+  },
+  {
+   "id": "E_SPVc",
+   "property": "SnapshotPublishedValidV1",
+   "role": "control (snapshot with an uncommitted txn rejected)",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_SPVc/E_SPVc.tla",
+   "expected": false,
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_SPVc/tlc.log"
+  }
+ ],
+ "bug_candidates": [
+  "E_U2b (F-LEAK, update-introduced)",
+  "E_U1/E_U2 under TRUNC (F-TRUNC, pre-existing; spec/output/final-update-hunt-trunc.log, upd-hunt-trunc-gap.log, upd-control-prior-trunc.log)",
+  "E_U3/E_U4 (replay-order class reached in both revisions)"
+ ],
+ "unresolved": [
+  {
+   "property": "OrderedHistoriesV1 / DurableReplayOrdered adjacent duplicates",
+   "missing_evidence": "whether replaying an adjacent duplicate WAL record can diverge (create/delete/setData idempotence under fastForwardFromEdits)"
+  }
+ ],
+ "final_verdicts_log": "spec/output/evidence-final-verdicts.txt"
+}

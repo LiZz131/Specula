@@ -1,0 +1,12 @@
+# command: (cd /work/current/.specula-output/controls/baseline-src && timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/controls-old-code/ve_echo_restart_apply.ndjson SPECULA_TRACE_FILE_RESTART=/work/current/.specula-output/traces/controls-old-code/ve_echo_restart_handshake.ndjson go test -mod=readonly ./internal/state -run '^TestSpeculaTraceVEEchoRestart$' -count=1 -v)
+=== RUN   TestSpeculaTraceVEEchoRestart
+I[2026-11-18|19:04:11.647] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|19:04:11.647] executed block                               height=1 app_hash=
+I[2026-11-18|19:04:11.672] committed state                              height=1 block_app_hash=
+    specula_trace_test.go:324: SPECULA_OBSERVED height=1 outcome=accepted veh=1 lastParamChange=2
+    specula_trace_test.go:325: SPECULA_OBSERVED apply_error=<nil>
+    specula_trace_test.go:334: SPECULA_OBSERVED restart_handshake_error=<nil>
+--- PASS: TestSpeculaTraceVEEchoRestart (0.17s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.192s
+# exit: 0

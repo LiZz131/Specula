@@ -1,0 +1,69 @@
+CMD: timeout 720s java -XX:+UseParallelGC -Xmx4g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 1 -metadir /dev/shm/specula-e2e-case-010/final-update-canary-diffreload-33661 -config Update-canary-diffreload.cfg  Update  (TLC wall limit 10m via outer timeout)
+START: 2026-11-20T01:49:03Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 77 and seed -8659540137717295116 with 1 worker on 40 cores with 3641MB heap and 64MB offheap memory [pid: 33779] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-12090020680332628792/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-12090020680332628792/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-12090020680332628792/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-12090020680332628792/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-12090020680332628792/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-12090020680332628792/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-12090020680332628792/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 01:49:07)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 01:49:09.
+Progress(9) at 2026-11-20 01:49:12: 1,044 states generated (1,044 s/min), 377 distinct states found (377 ds/min), 164 states left on queue.
+Error: Invariant DiffAfterSnapReloadUnreachable is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <SnapScenarioNext line 155, col 26 to line 155, col 60 of module Update>
+
+State 3: <MCRestart(s2) line 244, col 5 to line 247, col 34 of module MC>
+
+State 4: <MCFinishElection(s2,s1) line 55, col 5 to line 57, col 29 of module MC>
+
+State 5: <MCEnterDiscovery(s2) line 60, col 5 to line 64, col 26 of module MC>
+
+State 6: <MCEnterFollowerSync(s2) line 98, col 5 to line 105, col 26 of module MC>
+
+State 7: <MCChooseSync(s2,"SNAP") line 108, col 5 to line 111, col 85 of module MC>
+
+State 8: <SnapScenarioNext line 156, col 26 to line 156, col 58 of module Update>
+
+State 9: <MCReloadDatabase(s2) line 274, col 5 to line 276, col 75 of module MC>
+
+State 10: <MCFinishElection(s2,s1) line 55, col 5 to line 57, col 29 of module MC>
+
+State 11: <MCEnterDiscovery(s2) line 60, col 5 to line 64, col 26 of module MC>
+
+State 12: <MCEnterFollowerSync(s2) line 98, col 5 to line 105, col 26 of module MC>
+
+State 13: <MCChooseSync(s2,"DIFF") line 108, col 5 to line 111, col 85 of module MC>
+
+9828 states generated, 2731 distinct states found, 895 states left on queue.
+The depth of the complete state graph search is 13.
+Finished in 11s at (2026-11-20 01:49:15)
+Trace exploration spec path: ./Update_TTrace_1795139343.tla
+END: 2026-11-20T01:49:15Z exit=12

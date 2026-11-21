@@ -1,0 +1,1743 @@
+{
+  "schema_version": 1,
+  "case_id": "case-002",
+  "purpose": "incremental_update_verification",
+  "decision": "MODEL_CHANGE_REQUIRED",
+  "source": {
+    "artifact": "/work/current/.specula-output/artifact",
+    "baseline_commit": "1414ebfb1d16fd81abc38550a96950d919ecf805",
+    "update_commit": "2efbdfc3754df193bce05b9792297c813377cdaf",
+    "update_subject": "update",
+    "instrumented_worktree_diff_stat": [
+      " 9 files changed, 211 insertions(+)"
+    ],
+    "old_control_worktree": "/work/current/.specula-output/old-control (baseline + DIFFSyncConsistencyTest + repro test)",
+    "history_or_external_research_used": false
+  },
+  "prior_suite": "/work/previous/.specula-output (immutable; archived copies in spec/output/prior-v0)",
+  "inputs_sha256": {
+    "/work/case.json": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+    "/work/model-scope.md": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+    "/work/input-manifest.json": "a17fd8d3fbbc607b034d160a262100a1c062fba83c816fedc24deafd891417da",
+    "/work/final-schema.json": "e0c88cbc950a439a459c83bd17a5824963b690345d1f0672d892398756ba6a01",
+    "/work/lib/tla2tools.jar": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+    "/work/lib/CommunityModules-deps.jar": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99",
+    "/work/old-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "9f7a2f68da8c1bf5db0ee1bed1bb117b419a624dd3d63d17dec14744626e3490",
+    "/work/old-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "9a69113a8c5940516e39e71eab3fc99b52cd31c1c5bedf90ae23c7de48d282dc",
+    "/work/new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111",
+    "/work/new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866",
+    "/work/new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java": "dfd020c786b989e78afbe0031ba2affe7537501210751d057377a107c6a5faee"
+  },
+  "harness": {
+    "run": "harness/run.sh",
+    "patch": "harness/patches/instrumentation.patch",
+    "patch_sha256": "1188a725b126cda4ed1746429e15b5cc294fb87b2796c4f3adb5df1e9b01028f",
+    "repro_test": "harness/repro/SpeculaInitialStateFailureReproTest.java",
+    "old_control": "harness/repro/run-old-control.sh",
+    "java": "/usr/lib/jvm/java-21-openjdk-amd64 (JDK 21; same environment limitation as V0)"
+  },
+  "traces": [
+    {
+      "path": "traces/diff-sync-consistency.ndjson",
+      "events": 152,
+      "sha256": "32547d1a023aabd47dcaccdf36abf9300fc3f2ab838e07f8fe950a4bdd607fbb",
+      "event_counts": {
+        "PeerRoleChanged": 19,
+        "ElectionWon": 9,
+        "PhaseChanged": 33,
+        "AcceptedEpochPersisted": 8,
+        "FollowerRegistered": 5,
+        "SyncModeChanged": 10,
+        "SyncSelected": 5,
+        "CurrentEpochPersisted": 8,
+        "ZkStartup": 8,
+        "NewLeaderAckSent": 5,
+        "NewLeaderAckReceived": 5,
+        "UpToDateReceived": 3,
+        "BroadcastReady": 3,
+        "LeaderProposed": 2,
+        "ProposalQueued": 4,
+        "TxnAppended": 6,
+        "TxnDurable": 6,
+        "AckReceived": 3,
+        "LeaderCommitted": 1,
+        "CommitDelivered": 2,
+        "TxnApplied": 3,
+        "SyncProposalReceived": 2,
+        "SyncCommitReceived": 2
+      }
+    },
+    {
+      "path": "traces/follower-diff.ndjson",
+      "events": 20,
+      "sha256": "3529cb15d4d32c948b15d1174dc252dee71a99b35f1bf92223bdde060b709ba4",
+      "event_counts": {
+        "PhaseChanged": 3,
+        "AcceptedEpochPersisted": 1,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "SyncProposalReceived": 1,
+        "SyncCommitReceived": 1,
+        "CurrentEpochPersisted": 1,
+        "ZkStartup": 1,
+        "ProposalQueued": 1,
+        "NewLeaderAckSent": 1,
+        "UpToDateReceived": 1,
+        "BroadcastReady": 1,
+        "TxnAppended": 1,
+        "CommitDelivered": 1,
+        "TxnApplied": 1,
+        "TxnDurable": 1
+      }
+    },
+    {
+      "path": "traces/follower-snap.ndjson",
+      "events": 21,
+      "sha256": "9746c3ebf2c0aefc32fd7ff18e3aaf6c59801c2a217501a0a2089a3c7fe67aa1",
+      "event_counts": {
+        "PhaseChanged": 3,
+        "AcceptedEpochPersisted": 1,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "SnapshotInstalled": 1,
+        "CurrentEpochPersisted": 1,
+        "ZkStartup": 1,
+        "NewLeaderAckSent": 1,
+        "SyncProposalReceived": 1,
+        "SyncCommitReceived": 1,
+        "UpToDateReceived": 1,
+        "BroadcastReady": 1,
+        "ProposalQueued": 1,
+        "CommitDelivered": 1,
+        "TxnAppended": 1,
+        "TxnApplied": 1,
+        "TxnDurable": 1
+      }
+    },
+    {
+      "path": "traces/leader-abandon-restart-recovery.ndjson",
+      "events": 346,
+      "sha256": "1fb354a2dd1875da2745575cfe57f99e1a7df10f6cf2cd8918bbee0951021c0e",
+      "event_counts": {
+        "PeerRoleChanged": 19,
+        "ElectionWon": 9,
+        "PhaseChanged": 37,
+        "AcceptedEpochPersisted": 9,
+        "FollowerRegistered": 6,
+        "SyncModeChanged": 12,
+        "SyncSelected": 6,
+        "CurrentEpochPersisted": 9,
+        "ZkStartup": 9,
+        "NewLeaderAckSent": 6,
+        "NewLeaderAckReceived": 6,
+        "UpToDateReceived": 6,
+        "BroadcastReady": 6,
+        "LeaderProposed": 14,
+        "ProposalQueued": 22,
+        "TxnAppended": 36,
+        "TxnDurable": 36,
+        "AckReceived": 27,
+        "LeaderCommitted": 13,
+        "CommitDelivered": 22,
+        "TxnApplied": 35,
+        "SnapshotInstalled": 1
+      }
+    },
+    {
+      "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+      "events": 100,
+      "sha256": "3f78116d41e03720442aff2092c9bdaf8b08dabdf5907645c6b77c0617634727",
+      "event_counts": {
+        "PeerRoleChanged": 4,
+        "ElectionWon": 2,
+        "PhaseChanged": 8,
+        "AcceptedEpochPersisted": 2,
+        "FollowerRegistered": 1,
+        "SyncModeChanged": 2,
+        "SyncSelected": 1,
+        "CurrentEpochPersisted": 2,
+        "ZkStartup": 2,
+        "NewLeaderAckSent": 1,
+        "NewLeaderAckReceived": 1,
+        "UpToDateReceived": 1,
+        "BroadcastReady": 1,
+        "LeaderProposed": 6,
+        "TxnAppended": 12,
+        "ProposalQueued": 6,
+        "TxnDurable": 12,
+        "AckReceived": 12,
+        "LeaderCommitted": 6,
+        "CommitDelivered": 6,
+        "TxnApplied": 12
+      }
+    },
+    {
+      "path": "traces/repro-initial-state-failure.ndjson",
+      "events": 494,
+      "sha256": "c151eca2f86db51b3d759c92e9c9be05811c671ab8b77aca90e19db75c0f4163",
+      "event_counts": {
+        "PeerRoleChanged": 27,
+        "ElectionWon": 13,
+        "PhaseChanged": 47,
+        "AcceptedEpochPersisted": 12,
+        "FollowerRegistered": 7,
+        "SyncModeChanged": 14,
+        "SyncSelected": 7,
+        "CurrentEpochPersisted": 12,
+        "ZkStartup": 12,
+        "NewLeaderAckSent": 7,
+        "NewLeaderAckReceived": 7,
+        "UpToDateReceived": 3,
+        "BroadcastReady": 3,
+        "LeaderProposed": 27,
+        "ProposalQueued": 28,
+        "TxnAppended": 55,
+        "TxnDurable": 55,
+        "AckReceived": 52,
+        "LeaderCommitted": 25,
+        "CommitDelivered": 26,
+        "TxnApplied": 51,
+        "SyncProposalReceived": 2,
+        "SyncCommitReceived": 2
+      }
+    }
+  ],
+  "archived_v0_traces": "traces/archived-v0 (superseded: pre-update NEWLEADER ordering and V0 event schema)",
+  "superseded_run1_traces": "traces/superseded-run1 (probe-ordering defects fixed before run 2)",
+  "negative_controls": "traces/negative-controls (all rejected)",
+  "tlc_runs": [
+    {
+      "log": "spec/output/mc-C1-MC-bfs.log",
+      "command": "timeout 2100s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 10 -config MC.cfg -metadir /dev/shm/specula-e2e-case-002/mc-C1-MC-bfs-15836 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant ServingApplyCommitted is violated"
+      ],
+      "distinct_states": "21495266",
+      "depth": "38",
+      "queue_left": "3726208",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-C2a-update-full-bfs.log",
+      "command": "timeout 2100s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 10 -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-C2a-update-full-bfs-15838 Update.tla",
+      "exit": null,
+      "violations": [],
+      "distinct_states": "41,717,049",
+      "depth": null,
+      "queue_left": "9,722,099",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-C2b-update-full-sim.log",
+      "command": "timeout 2100s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-C2b-update-full-sim-15840 -simulate -depth 120 Update.tla",
+      "exit": null,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-C4a-update-open-bfs.log",
+      "command": "timeout 1200s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config Update-open.cfg -metadir /dev/shm/specula-e2e-case-002/mc-C4a-update-open-bfs-15842 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "224548",
+      "depth": "20",
+      "queue_left": "83831",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-C4b-update-discharge.log",
+      "command": "timeout 1200s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config Update-discharge.cfg -metadir /dev/shm/specula-e2e-case-002/mc-C4b-update-discharge-15845 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "7862435",
+      "depth": "32",
+      "queue_left": "1711951",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-C6-reach-focusinit-sim.log",
+      "command": "timeout 2100s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config Update-reach-focusinit.cfg -metadir /dev/shm/specula-e2e-case-002/mc-C6-reach-focusinit-sim-15847 -simulate -depth 120 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryFocusInitShape is violated"
+      ],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-F2a-update-full-bfs.log",
+      "command": "timeout 2100s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 10 -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F2a-update-full-bfs-24910 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "42034502",
+      "depth": "38",
+      "queue_left": "9769495",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-F2b-update-full-sim.log",
+      "command": "timeout 2100s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F2b-update-full-sim-24912 -simulate -depth 120 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-F4a-update-open-bfs.log",
+      "command": "timeout 1200s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config Update-open.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F4a-update-open-bfs-26340 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "208545",
+      "depth": "20",
+      "queue_left": "77597",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-F4b-update-discharge.log",
+      "command": "timeout 1500s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config Update-discharge.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F4b-update-discharge-26342 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "11210721",
+      "depth": "34",
+      "queue_left": "2251646",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-F5-update-full-focusinit.log",
+      "command": "timeout 1200s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config Update-full-focusinit.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F5-update-full-focusinit-26344 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "183282",
+      "depth": "20",
+      "queue_left": "68557",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-F6-reach-focusinit-sim.log",
+      "command": "timeout 1500s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Update-reach-focusinit.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F6-reach-focusinit-sim-26346 -simulate -depth 120 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryFocusInitShape is violated"
+      ],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-F6x-reach-focusinit-exact.log",
+      "command": "timeout 1500s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config Update-reach-focusinit-exact.cfg -metadir /dev/shm/specula-e2e-case-002/mc-F6x-reach-focusinit-exact-28634 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryFocusInitExact is violated"
+      ],
+      "distinct_states": "1742495",
+      "depth": "26",
+      "queue_left": "261071",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-H-election-bfs.log",
+      "command": "timeout 1200s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-election.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-election-bfs-25772 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6790971",
+      "depth": "31",
+      "queue_left": "1823922",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-H-election-sim.log",
+      "command": "timeout 900s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-hunt-election.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-election-sim-28311 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-H-mutation-bfs.log",
+      "command": "timeout 1200s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-mutation.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-mutation-bfs-25776 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6488908",
+      "depth": "35",
+      "queue_left": "1231409",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-H-mutation-sim.log",
+      "command": "timeout 900s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-hunt-mutation.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-mutation-sim-28315 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-H-recovery-bfs.log",
+      "command": "timeout 1200s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-recovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-recovery-bfs-25778 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "5583293",
+      "depth": "30",
+      "queue_left": "1372469",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-H-recovery-sim.log",
+      "command": "timeout 900s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-hunt-recovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-recovery-sim-28318 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-H-sync-bfs.log",
+      "command": "timeout 1200s java -Xmx10g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-sync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-sync-bfs-25774 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "5868088",
+      "depth": "31",
+      "queue_left": "1358521",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-H-sync-sim.log",
+      "command": "timeout 900s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-hunt-sync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-H-sync-sim-28313 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-R1-MC-bfs.log",
+      "command": "timeout 2100s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 12 -config MC.cfg -metadir /dev/shm/specula-e2e-case-002/mc-R1-MC-bfs-22291 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "43218375",
+      "depth": "42",
+      "queue_left": "7009587",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-R1s-MC-sim.log",
+      "command": "timeout 1200s java -Xmx16g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 10 -config MC.cfg -metadir /dev/shm/specula-e2e-case-002/mc-R1s-MC-sim-22293 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-R3-update-concrete-A1.log",
+      "command": "timeout 1200s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config Update-concrete.cfg -metadir /dev/shm/specula-e2e-case-002/mc-R3-update-concrete-A1-22295 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "118073",
+      "depth": "20",
+      "queue_left": "43262",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-R3b-update-concrete2-A2-initial.log",
+      "command": "timeout 1500s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 5 -config Update-concrete2-A2.cfg -metadir /dev/shm/specula-e2e-case-002/mc-R3b-update-concrete2-A2-initial-22299 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1069684",
+      "depth": "21",
+      "queue_left": "360523",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-R3c-update-concrete2-A2-crash.log",
+      "command": "timeout 1500s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 5 -config Update-concrete2-A2-crash.cfg -metadir /dev/shm/specula-e2e-case-002/mc-R3c-update-concrete2-A2-crash-22301 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1189593",
+      "depth": "23",
+      "queue_left": "371559",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z1-MC-bfs.log",
+      "command": "timeout 2100s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 12 -config MC.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z1-MC-bfs-31483 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "42684229",
+      "depth": "42",
+      "queue_left": "6885529",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z2a-update-full-bfs.log",
+      "command": "timeout 1500s java -Xmx20g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z2a-update-full-bfs-31485 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "23331592",
+      "depth": "35",
+      "queue_left": "5804656",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z2b-update-full-sim.log",
+      "command": "timeout 1500s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z2b-update-full-sim-31487 -simulate -depth 120 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z3-update-concrete-A1.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Update-concrete.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z3-update-concrete-A1-31489 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "110714",
+      "depth": "20",
+      "queue_left": "40568",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z3b-update-concrete2-A2-initial.log",
+      "command": "timeout 1020s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Update-concrete2-A2.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z3b-update-concrete2-A2-initial-31492 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1190305",
+      "depth": "21",
+      "queue_left": "401030",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z3c-update-concrete2-A2-crash.log",
+      "command": "timeout 1020s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Update-concrete2-A2-crash.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z3c-update-concrete2-A2-crash-31495 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "936986",
+      "depth": "22",
+      "queue_left": "295911",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z4a-update-open-bfs.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Update-open.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z4a-update-open-bfs-31498 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "201727",
+      "depth": "20",
+      "queue_left": "75340",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z4b-update-discharge.log",
+      "command": "timeout 1500s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config Update-discharge.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z4b-update-discharge-31503 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "8400778",
+      "depth": "32",
+      "queue_left": "1816363",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z5-update-full-focusinit.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Update-full-focusinit.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z5-update-full-focusinit-31507 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "180699",
+      "depth": "20",
+      "queue_left": "67393",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z6-reach-focusinit-exact.log",
+      "command": "timeout 1200s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config Update-reach-focusinit-exact.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z6-reach-focusinit-exact-31512 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryFocusInitExact is violated"
+      ],
+      "distinct_states": "1539858",
+      "depth": "25",
+      "queue_left": "249757",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z7-hunt-election-bfs.log",
+      "command": "timeout 1200s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-election.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z7-hunt-election-bfs-33501 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "7197070",
+      "depth": "31",
+      "queue_left": "1912210",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z7-hunt-mutation-bfs.log",
+      "command": "timeout 1200s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-mutation.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z7-hunt-mutation-bfs-33505 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6538255",
+      "depth": "35",
+      "queue_left": "1236742",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z7-hunt-recovery-bfs.log",
+      "command": "timeout 1200s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-recovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z7-hunt-recovery-bfs-33507 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "5901753",
+      "depth": "30",
+      "queue_left": "1436937",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z7-hunt-sync-bfs.log",
+      "command": "timeout 1200s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 3 -config MC-hunt-sync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z7-hunt-sync-bfs-33503 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6139900",
+      "depth": "31",
+      "queue_left": "1415085",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryCommittedApplied-w16.log",
+      "command": "timeout 1020s java -Xmx16g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 16 -config MC-canary-CanaryCommittedApplied.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryCommittedApplied-w16-35508 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryCommittedApplied is violated"
+      ],
+      "distinct_states": "4743944",
+      "depth": "34",
+      "queue_left": "977994",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryCommittedApplied.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryCommittedApplied.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryCommittedApplied-34418 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "3227840",
+      "depth": "31",
+      "queue_left": "723102",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryDiffAckBeforeFsync.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryDiffAckBeforeFsync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryDiffAckBeforeFsync-34416 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryDiffAckBeforeFsync is violated"
+      ],
+      "distinct_states": "439350",
+      "depth": "24",
+      "queue_left": "122586",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryFollowerBroadcast.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryFollowerBroadcast.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryFollowerBroadcast-34414 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryFollowerBroadcast is violated"
+      ],
+      "distinct_states": "157496",
+      "depth": "21",
+      "queue_left": "48719",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryLeaderActive.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryLeaderActive.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryLeaderActive-34412 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryLeaderActive is violated"
+      ],
+      "distinct_states": "76352",
+      "depth": "19",
+      "queue_left": "25705",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryLeaderEstablished.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryLeaderEstablished.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryLeaderEstablished-34410 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryLeaderEstablished is violated"
+      ],
+      "distinct_states": "2065",
+      "depth": "11",
+      "queue_left": "634",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryRecovery.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryRecovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryRecovery-34421 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryRecovery is violated"
+      ],
+      "distinct_states": "1450",
+      "depth": "8",
+      "queue_left": "700",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanarySnap.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanarySnap.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanarySnap-34427 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanarySnap is violated"
+      ],
+      "distinct_states": "5420",
+      "depth": "12",
+      "queue_left": "1591",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanarySync.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanarySync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanarySync-34424 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanarySync is violated"
+      ],
+      "distinct_states": "2742",
+      "depth": "12",
+      "queue_left": "699",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z8-canary-CanaryTrunc-tight.log",
+      "command": "timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanaryTrunc-tight.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanaryTrunc-tight-34436 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryTrunc is violated"
+      ],
+      "distinct_states": "566830",
+      "depth": "31",
+      "queue_left": "65840",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z9-hunt-election-sim.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 5 -config MC-hunt-election.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z9-hunt-election-sim-35510 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z9-hunt-mutation-sim.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 5 -config MC-hunt-mutation.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z9-hunt-mutation-sim-35514 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z9-hunt-recovery-sim.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 5 -config MC-hunt-recovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z9-hunt-recovery-sim-35517 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-Z9-hunt-sync-sim.log",
+      "command": "timeout 900s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 5 -config MC-hunt-sync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z9-hunt-sync-sim-35512 -simulate -depth 120 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryActivationCommitsOldEpoch.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryActivationCommitsOldEpoch.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryActivationCommitsOldEpoch-24464 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6985382",
+      "depth": "35",
+      "queue_left": "1294583",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryCommittedApplied.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryCommittedApplied.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryCommittedApplied-24293 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryCommittedApplied is violated"
+      ],
+      "distinct_states": "4641382",
+      "depth": "34",
+      "queue_left": "944106",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryDiffAckBeforeFsync.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryDiffAckBeforeFsync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryDiffAckBeforeFsync-24197 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryDiffAckBeforeFsync is violated"
+      ],
+      "distinct_states": "476617",
+      "depth": "25",
+      "queue_left": "130052",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryFollowerBroadcast.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryFollowerBroadcast.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryFollowerBroadcast-24109 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryFollowerBroadcast is violated"
+      ],
+      "distinct_states": "174555",
+      "depth": "22",
+      "queue_left": "52660",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryLeaderActive.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryLeaderActive.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryLeaderActive-23940 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryLeaderActive is violated"
+      ],
+      "distinct_states": "93702",
+      "depth": "20",
+      "queue_left": "30210",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryLeaderEstablished.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryLeaderEstablished.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryLeaderEstablished-23796 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryLeaderEstablished is violated"
+      ],
+      "distinct_states": "2627",
+      "depth": "12",
+      "queue_left": "629",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryRecovery.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryRecovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryRecovery-24680 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryRecovery is violated"
+      ],
+      "distinct_states": "2187",
+      "depth": "10",
+      "queue_left": "952",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanarySnap.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanarySnap.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanarySnap-25229 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanarySnap is violated"
+      ],
+      "distinct_states": "5501",
+      "depth": "12",
+      "queue_left": "1587",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanarySync.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanarySync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanarySync-24736 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanarySync is violated"
+      ],
+      "distinct_states": "3203",
+      "depth": "12",
+      "queue_left": "745",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryTrunc-tight.log",
+      "command": "timeout 1200s java -Xmx12g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-canary-CanaryTrunc-tight.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryTrunc-tight-26338 MC.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CanaryTrunc is violated"
+      ],
+      "distinct_states": "583627",
+      "depth": "31",
+      "queue_left": "66433",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-CanaryTrunc.log",
+      "command": "timeout 660s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 6 -config MC-canary-CanaryTrunc.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-CanaryTrunc-24816 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "5420062",
+      "depth": "30",
+      "queue_left": "1286497",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-canary-sim-CanaryActivationCommitsOldEpoch.log",
+      "command": "timeout 1020s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-canary-CanaryActivationCommitsOldEpoch.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-sim-CanaryActivationCommitsOldEpoch-25450 -simulate -depth 150 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-canary-sim-CanaryTrunc.log",
+      "command": "timeout 1020s java -Xmx8g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 4 -config MC-canary-CanaryTrunc.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-sim-CanaryTrunc-25448 -simulate -depth 150 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-hunt-A2-bfs.log",
+      "command": "timeout 1020s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 16 -config Update-concrete-A2.cfg -metadir /dev/shm/specula-e2e-case-002/mc-hunt-A2-bfs-13841 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "35661771",
+      "depth": "37",
+      "queue_left": "8847823",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-hunt-A2-crash-variant.log",
+      "command": "timeout 1500s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1200 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Update-concrete2-A2-crash.cfg -metadir /dev/shm/specula-e2e-case-002/mc-hunt-A2-crash-variant-15647 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1505863",
+      "depth": "25",
+      "queue_left": "454578",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-hunt-A2-from-focus2.log",
+      "command": "timeout 1200s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Update-concrete2-A2.cfg -metadir /dev/shm/specula-e2e-case-002/mc-hunt-A2-from-focus2-15037 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1259842",
+      "depth": "22",
+      "queue_left": "423388",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-hunt-A2-sim.log",
+      "command": "timeout 1020s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=720 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 16 -config Update-concrete-A2.cfg -metadir /dev/shm/specula-e2e-case-002/mc-hunt-A2-sim-13843 -simulate -depth 90 Update.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/mc-shakedown-MC.log",
+      "command": "timeout 480s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=180 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 16 -config MC.cfg -metadir /dev/shm/specula-e2e-case-002/mc-shakedown-MC-13569 MC.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "8924812",
+      "depth": "34",
+      "queue_left": "1895867",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/mc-shakedown-concrete.log",
+      "command": "timeout 600s java -Xmx24g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=300 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 16 -config Update-concrete.cfg -metadir /dev/shm/specula-e2e-case-002/mc-shakedown-concrete-13727 Update.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "137221",
+      "depth": "21",
+      "queue_left": "50104",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-dev1-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-dev1-follower-diff-4152 Trace.tla",
+      "exit": 10,
+      "violations": [],
+      "distinct_states": null,
+      "depth": null,
+      "queue_left": null,
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-dev2-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-dev2-diff-sync-consistency-4415 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "3168",
+      "depth": "168",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-dev2-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-dev2-follower-diff-4211 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "22",
+      "depth": "22",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-dev2-follower-snap.log",
+      "command": "timeout 1800s env JSON=../traces/follower-snap.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-dev2-follower-snap-4271 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "27",
+      "depth": "24",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-dev2-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-dev2-leader-abandon-restart-recovery-4515 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "1032",
+      "depth": "36",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-dev2-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-dev2-quorum-startup-mutation-shutdown-4325 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "102",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-ev-OldApplyRequiresCommitCertificate-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceOld-OldApplyRequiresCommitCertificate.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldApplyRequiresCommitCertificate-diff-sync-consistency-14199 TraceOldPropsEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant OldApplyRequiresCommitCertificate is violated"
+      ],
+      "distinct_states": "1134",
+      "depth": "71",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-ev-OldApplyRequiresCommitCertificate-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceOld-OldApplyRequiresCommitCertificate.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldApplyRequiresCommitCertificate-leader-abandon-restart-recovery-32881 TraceOldPropsEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant OldApplyRequiresCommitCertificate is violated"
+      ],
+      "distinct_states": "15121",
+      "depth": "203",
+      "queue_left": "32",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-ev-OldOneActiveLeaderPerEpoch-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceOld-OldOneActiveLeaderPerEpoch.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldOneActiveLeaderPerEpoch-diff-sync-consistency-32991 TraceOldPropsEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant OldOneActiveLeaderPerEpoch is violated"
+      ],
+      "distinct_states": "1494",
+      "depth": "123",
+      "queue_left": "2",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-ev-OldOneActiveLeaderPerEpoch-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceOld-OldOneActiveLeaderPerEpoch.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldOneActiveLeaderPerEpoch-leader-abandon-restart-recovery-14292 TraceOldPropsEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "364",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-ev-OldPipelinePrefix-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceOld-OldPipelinePrefix.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldPipelinePrefix-diff-sync-consistency-33081 TraceOldPropsEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant OldPipelinePrefix is violated"
+      ],
+      "distinct_states": "1528",
+      "depth": "133",
+      "queue_left": "8",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-ev-OldPipelinePrefix-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceOld-OldPipelinePrefix.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldPipelinePrefix-leader-abandon-restart-recovery-14525 TraceOldPropsEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "363",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-ev-OldSyncCompletionJustified-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceOld-OldSyncCompletionJustified.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldSyncCompletionJustified-diff-sync-consistency-33178 TraceOldPropsEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "167",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-ev-OldSyncCompletionJustified-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceOld-OldSyncCompletionJustified.cfg -metadir /dev/shm/specula-e2e-case-002/trace-ev-OldSyncCompletionJustified-leader-abandon-restart-recovery-14747 TraceOldPropsEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "364",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final-A1-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceUpdateEvidence.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final-A1-diff-sync-consistency-32455 TraceUpdateEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "1397",
+      "depth": "100",
+      "queue_left": "6",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-final-A2-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceUpdateEvidence-A2.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final-A2-repro-initial-state-failure-32556 TraceUpdateEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1679",
+      "depth": "149",
+      "queue_left": "2",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-final-CHP-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config Trace-safety-CHP.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final-CHP-repro-initial-state-failure-32689 Trace.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedHistoriesPrefix is violated"
+      ],
+      "distinct_states": "2365",
+      "depth": "223",
+      "queue_left": "14",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-final1-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final1-diff-sync-consistency-12606 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "168",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final1-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final1-follower-diff-12304 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "22",
+      "depth": "22",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final1-follower-snap.log",
+      "command": "timeout 1800s env JSON=../traces/follower-snap.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final1-follower-snap-12231 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "27",
+      "depth": "24",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final1-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final1-leader-abandon-restart-recovery-12468 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "363",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final1-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final1-quorum-startup-mutation-shutdown-12369 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "102",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final2-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final2-diff-sync-consistency-20073 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "167",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final2-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final2-follower-diff-19750 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "22",
+      "depth": "22",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final2-follower-snap.log",
+      "command": "timeout 1800s env JSON=../traces/follower-snap.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final2-follower-snap-19684 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "27",
+      "depth": "24",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final2-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final2-leader-abandon-restart-recovery-19922 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "364",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final2-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final2-quorum-startup-mutation-shutdown-19814 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "103",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final2-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final2-repro-initial-state-failure-20184 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2308",
+      "depth": "222",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final3-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final3-diff-sync-consistency-22024 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "169",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final3-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final3-follower-diff-21648 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "22",
+      "depth": "22",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final3-follower-snap.log",
+      "command": "timeout 1800s env JSON=../traces/follower-snap.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final3-follower-snap-21581 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "27",
+      "depth": "24",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final3-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final3-leader-abandon-restart-recovery-21827 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "363",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final3-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final3-quorum-startup-mutation-shutdown-21714 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "102",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final3-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final3-repro-initial-state-failure-22139 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2308",
+      "depth": "223",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final4-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final4-diff-sync-consistency-31217 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "170",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final4-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final4-follower-diff-30921 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "22",
+      "depth": "22",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final4-follower-snap.log",
+      "command": "timeout 1800s env JSON=../traces/follower-snap.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final4-follower-snap-30856 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "27",
+      "depth": "24",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final4-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final4-leader-abandon-restart-recovery-31086 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "365",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final4-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final4-quorum-startup-mutation-shutdown-30988 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "103",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-final4-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace-conformance.cfg -metadir /dev/shm/specula-e2e-case-002/trace-final4-repro-initial-state-failure-31334 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6868",
+      "depth": "508",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-neg-neg-ack-before-log.log",
+      "command": "timeout 1800s env JSON=../traces/negative-controls/neg-ack-before-log.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-neg-neg-ack-before-log-12764 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "12",
+      "depth": "12",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-neg-neg-ack-stale-epoch.log",
+      "command": "timeout 1800s env JSON=../traces/negative-controls/neg-ack-stale-epoch.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-neg-neg-ack-stale-epoch-12940 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "544",
+      "depth": "35",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-neg-neg-startup-running.log",
+      "command": "timeout 1800s env JSON=../traces/negative-controls/neg-startup-running.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-neg-neg-startup-running-12822 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "11",
+      "depth": "11",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-neg-neg-wrong-logged-txn.log",
+      "command": "timeout 1800s env JSON=../traces/negative-controls/neg-wrong-logged-txn.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-neg-neg-wrong-logged-txn-12881 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "12",
+      "depth": "12",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-r2-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r2-diff-sync-consistency-8664 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "2540",
+      "depth": "168",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-r2-follower-diff.log",
+      "command": "timeout 1800s env JSON=../traces/follower-diff.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r2-follower-diff-8466 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "22",
+      "depth": "22",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-r2-follower-snap.log",
+      "command": "timeout 1800s env JSON=../traces/follower-snap.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r2-follower-snap-8522 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "27",
+      "depth": "24",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-r2-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r2-leader-abandon-restart-recovery-8768 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "2211",
+      "depth": "94",
+      "queue_left": "68",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-r2-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r2-quorum-startup-mutation-shutdown-8574 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "102",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-r3-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r3-diff-sync-consistency-10909 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "167",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-r3-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r3-leader-abandon-restart-recovery-11006 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "34716",
+      "depth": "288",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-r4-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-r4-leader-abandon-restart-recovery-12099 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "363",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-repro1-repro-initial-state-failure-attempt1.log",
+      "command": "timeout 1800s env JSON=../traces/superseded-run1/repro-initial-state-failure-attempt1.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro1-repro-initial-state-failure-attempt1-17644 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "1634",
+      "depth": "178",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-repro1-upd-repro-initial-state-failure-attempt1.log",
+      "command": "timeout 1800s env JSON=../traces/superseded-run1/repro-initial-state-failure-attempt1.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceUpdateEvidence.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro1-upd-repro-initial-state-failure-attempt1-18221 TraceUpdateEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "1422",
+      "depth": "111",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-repro1b-repro-initial-state-failure-attempt1.log",
+      "command": "timeout 1800s env JSON=../traces/superseded-run1/repro-initial-state-failure-attempt1.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro1b-repro-initial-state-failure-attempt1-19552 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "1746",
+      "depth": "203",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-repro3-A2-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceUpdateEvidence-A2.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro3-A2-repro-initial-state-failure-28890 TraceUpdateEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "1674",
+      "depth": "148",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-repro3-conformance-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace-conformance.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro3-conformance-repro-initial-state-failure-30219 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "2392",
+      "depth": "226",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-repro3-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro3-repro-initial-state-failure-28730 Trace.tla",
+      "exit": 13,
+      "violations": [
+        "Temporal property TraceMatched was violated"
+      ],
+      "distinct_states": "1674",
+      "depth": "147",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-repro3b-A2-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceUpdateEvidence-A2.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro3b-A2-repro-initial-state-failure-30352 TraceUpdateEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1686",
+      "depth": "148",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-repro3b-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro3b-repro-initial-state-failure-30067 Trace.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedHistoriesPrefix is violated"
+      ],
+      "distinct_states": "2382",
+      "depth": "227",
+      "queue_left": "8",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-repro3c-conformance-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config Trace-conformance.cfg -metadir /dev/shm/specula-e2e-case-002/trace-repro3c-conformance-repro-initial-state-failure-30663 Trace.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "6868",
+      "depth": "507",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-upd-A2-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceUpdateEvidence-A2.cfg -metadir /dev/shm/specula-e2e-case-002/trace-upd-A2-diff-sync-consistency-20413 TraceUpdateEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "2548",
+      "depth": "166",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-upd-A2-repro-initial-state-failure.log",
+      "command": "timeout 1800s env JSON=../traces/repro-initial-state-failure.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceUpdateEvidence-A2.cfg -metadir /dev/shm/specula-e2e-case-002/trace-upd-A2-repro-initial-state-failure-20313 TraceUpdateEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant LeaderCompleteness is violated"
+      ],
+      "distinct_states": "1814",
+      "depth": "149",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-upd-evidence-diff-sync-consistency.log",
+      "command": "timeout 1800s env JSON=../traces/diff-sync-consistency.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 8 -config TraceUpdateEvidence.cfg -metadir /dev/shm/specula-e2e-case-002/trace-upd-evidence-diff-sync-consistency-13330 TraceUpdateEvidence.tla",
+      "exit": 12,
+      "violations": [
+        "Invariant CommittedPersistedOnQuorum is violated"
+      ],
+      "distinct_states": "1406",
+      "depth": "103",
+      "queue_left": "0",
+      "completed_without_error": false
+    },
+    {
+      "log": "spec/output/trace-upd-evidence-leader-abandon-restart-recovery.log",
+      "command": "timeout 1800s env JSON=../traces/leader-abandon-restart-recovery.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceUpdateEvidence.cfg -metadir /dev/shm/specula-e2e-case-002/trace-upd-evidence-leader-abandon-restart-recovery-33359 TraceUpdateEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "83356",
+      "depth": "361",
+      "queue_left": "0",
+      "completed_without_error": true
+    },
+    {
+      "log": "spec/output/trace-upd-evidence-quorum-startup-mutation-shutdown.log",
+      "command": "timeout 1800s env JSON=../traces/quorum-startup-mutation-shutdown.ndjson java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config TraceUpdateEvidence.cfg -metadir /dev/shm/specula-e2e-case-002/trace-upd-evidence-quorum-startup-mutation-shutdown-33273 TraceUpdateEvidence.tla",
+      "exit": 0,
+      "violations": [],
+      "distinct_states": "200",
+      "depth": "102",
+      "queue_left": "0",
+      "completed_without_error": true
+    }
+  ],
+  "tlc_states_dir": "/dev/shm/specula-e2e-case-002 (removed after each run)",
+  "final_reference_sha256": [
+    "15dfef6b43fd41c6b457160e70ae42883ff95dcc8747a668df4efd04bad09a99  base.tla",
+    "d2eb5884c5396fd5fd621dc5cd43761e751e38387f7c623f7ac56b106063fbff  MC.tla",
+    "ad48ef73219cbaad04ccf4a5498f3d8769c51c8d391bdc6ece1905397b17397f  Update.tla",
+    "0cfe84c47cbf121d8f37211d429c52a071f63680015693a5a6d0096eb739b40f  UpdateProps.tla",
+    "6bfef05132f9d4f6ac352ef58ce8b5c44b4df704ec245f3214a4ebac23cd631e  Trace.tla",
+    ""
+  ],
+  "final_reference_from": "2026-11-18T21:52:06Z",
+  "outcome": {
+    "decision": "MODEL_CHANGE_REQUIRED (reported as MODEL_UPDATED)",
+    "trace_validation": "6 fresh traces pass on the final reference (spec/output/trace-suite-final4.ndjson); 4 negative controls rejected",
+    "findings": [
+      "MC-1 (ENV_LIMITED; window observed on real traces)",
+      "MC-2 (REPRODUCED on updated code and baseline control)"
+    ],
+    "coverage": "LIMITED_COVERAGE: all model-checking runs are time-budgeted; see spec/output/validation-summary.md"
+  }
+}

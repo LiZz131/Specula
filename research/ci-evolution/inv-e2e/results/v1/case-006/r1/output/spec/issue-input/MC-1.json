@@ -1,0 +1,67 @@
+{
+ "id": "MC-1",
+ "title": "Reused ReadIndex context completed by a stale heartbeat acknowledgement",
+ "status": "REPRODUCED",
+ "source": "model-checking",
+ "cause": "advance now deletes released requests (read_only.go:100-104), so addRequest accepts the same context again in the same term, and recvAck attributes any in-flight MsgHeartbeatResp carrying that context to the new request.",
+ "trigger": "Release a ReadIndex for context C while another follower's ack for the same heartbeat round is delayed; a newer leader commits; the old leader accepts ReadIndex C again; the delayed ack arrives.",
+ "consequence": "The old leader returns a ReadState whose index is below an entry committed before the request was issued (stale, non-linearizable read).",
+ "sites": [
+  "read_only.go:advance",
+  "read_only.go:recvAck",
+  "read_only.go:addRequest",
+  "raft.go:stepLeader MsgHeartbeatResp"
+ ],
+ "actions": [
+  "HandleHeartbeatResponse",
+  "ProcessReadIndex",
+  "HandleHeartbeat",
+  "ReadyPublish"
+ ],
+ "invariants": [
+  "ReadIndexFreshness",
+  "ReadDeliveryJustifiedFresh"
+ ],
+ "premises": [
+  "The caller may reuse a ReadIndex context after the earlier request with that context completed (no API precondition forbids it).",
+  "Heartbeat acknowledgements can be delayed or duplicated (network delay; periodic MsgBeat carries the last pending context).",
+  "The old leader has not yet stepped down when the delayed acknowledgement arrives."
+ ],
+ "dependencies": [
+  {
+   "root": "source",
+   "path": "read_only.go"
+  },
+  {
+   "root": "source",
+   "path": "raft.go",
+   "start": "\tcase pb.MsgHeartbeatResp:",
+   "end": "\tcase pb.MsgSnapStatus:"
+  },
+  {
+   "root": "work",
+   "path": "spec/base.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/UpdateProps.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/Update.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/Update_hunt_us4_guided.cfg"
+  }
+ ],
+ "evidence": [
+  "spec/confirmation-MC-1.md",
+  "harness/repro/specula_repro_readindex_test.go",
+  "harness/repro.sh",
+  "spec/output/repro/repro-new-update.log",
+  "spec/output/repro/repro-old-baseline.log",
+  "spec/output/mc/final_hunt_us4_guided.log",
+  "spec/output/mc/final_update_focused.log"
+ ]
+}

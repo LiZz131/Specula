@@ -1,0 +1,50 @@
+# cmd: java tlc2.TLC -config MC_reach_commit.cfg -metadir /dev/shm/specula-e2e-case-012/reach-commit-r1 -workers 4  MC.tla (outer timeout 600s+300s)
+# start: 2026-11-20T00:46:46-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 15 and seed -2562893337245784902 with 4 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 11258] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-9458180873383030597/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-9458180873383030597/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-9458180873383030597/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-9458180873383030597/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-9458180873383030597/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-9458180873383030597/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-9458180873383030597/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-20 06:46:46)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 06:46:47.
+Error: Invariant NotReachCommitWitness is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n1) line 40, col 5 to line 43, col 70 of module MC>
+
+State 3: <MCGrantVote(n1,n3) line 72, col 5 to line 73, col 28 of module MC>
+
+State 4: <MCClientAppend(n1) line 46, col 5 to line 49, col 72 of module MC>
+
+State 5: <MCSendAppendEntries(n1,n2) line 76, col 5 to line 77, col 28 of module MC>
+
+State 6: <MCNext line 105, col 8 to line 105, col 51 of module MC>
+
+State 7: <MCNext line 107, col 8 to line 107, col 50 of module MC>
+
+217 states generated, 151 distinct states found, 82 states left on queue.
+The depth of the complete state graph search is 7.
+Finished in 01s at (2026-11-20 06:46:47)
+Trace exploration spec path: ./MC_TTrace_1795157206.tla
+# exit: 12 end: 2026-11-20T00:46:47-06:00

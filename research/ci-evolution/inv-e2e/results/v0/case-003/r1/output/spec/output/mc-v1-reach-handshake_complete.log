@@ -1,0 +1,45 @@
+cmd: cd /work/current/.specula-output/spec && timeout --signal=TERM 12m java -XX:+UseParallelGC -Xmx8g -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC_reach_handshake_complete.cfg -metadir /dev/shm/specula-e2e-case-003/mc-reach-handshake_complete-38192 -workers 8 -cleanup  MC.tla
+spec sha256: base.tla=add413227a379952 MC.tla=3d94958e93491e2f Update.tla=a94c29ed9a183e89 MC_reach_handshake_complete.cfg=4fca72aae3c54764 
+start: 2026-11-18T18:06:47-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 65 and seed -4796570237934586176 with 8 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 38203] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-3504810731141418372/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-3504810731141418372/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-3504810731141418372/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-3504810731141418372/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-3504810731141418372/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-3504810731141418372/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-3504810731141418372/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-19 00:06:47)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 00:06:48.
+Error: Invariant NeverReachedHandshakeComplete is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCrash line 27, col 5 to line 29, col 54 of module MC>
+
+State 3: <MCBeginHandshake line 44, col 21 to line 44, col 56 of module MC>
+
+State 4: <MCCompleteHandshake line 48, col 24 to line 48, col 62 of module MC>
+
+189 states generated, 169 distinct states found, 29 states left on queue.
+The depth of the complete state graph search is 12.
+Finished in 00s at (2026-11-19 00:06:48)
+Trace exploration spec path: ./MC_TTrace_1795046807.tla
+end: 2026-11-18T18:06:48-06:00 tlc exit=12

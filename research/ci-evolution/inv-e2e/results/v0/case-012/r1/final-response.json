@@ -1,0 +1,18 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "Source delta ce863f4->aa05a38 moves leader commit from LeaderState::calc_commit_log_id (joint greatest-majority recomputed on every ack) to Engine::update_progress over a leader-owned VecProgress (cached committed, in-place raises, quorum set rebuilt by upgrade_quorum_set on membership change); disposition MODEL_CHANGE_REQUIRED. Generation: reference suite updated with explicit VecProgress order/committed/quorum set, update_progress, update_effective_membership, update_committed, Leader lifecycle; V0 repairs needed by the interaction (blank entry, matched reset, next_safe proposals, Leader cleared, symmetry removed); Update.tla with affected/interaction actions, EnvUpdate + discharge, 4 update properties, 5 canaries; SANY and cfg resolution clean. Validation: V0 harness rebased (patch regenerated, +stable toolchain, depth filtering, fixture splitting; removed test replaced, greatest_majority superseded); 27/27 fresh traces from the updated implementation pass real TLC replay with TraceMatched and full pre/post checks, 13/13 field mutants rejected. Model checking: MC.cfg complete (4,234,312 states, no error); full/focused/open/discharge, inherited and update hunts, simulations, and reach canaries run on final artifacts; one Case A fix (V0 OneOutstandingMembership vs crash-reset commit) and one Case C finding MC-1: after a joint membership change the leader commits the joint entry without a joint quorum (CommitWitnessSound/ProgressCommittedSound). MC-1 reproduced through the real runtime (3 voters, 6/6) and with 5 voters two nodes applied different entries at the same index (6/6); identical schedules on the baseline pass. Other campaigns found no violation within time/bound budgets (LIMITED_COVERAGE, not proof).",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/upd-hunt-u1-consequence-final.log",
+    "/work/current/.specula-output/spec/output/upd-hunt-u1-bfs-final.log",
+    "/work/current/.specula-output/spec/output/repro-new-runtime-both.log",
+    "/work/current/.specula-output/spec/output/repro-old-control-runtime-both.log",
+    "/work/current/.specula-output/harness/repro/t90_specula_joint_commit_repro.rs",
+    "/work/current/.specula-output/harness/repro/t91_specula_joint_commit_divergence.rs"
+  ],
+  "blockers": []
+}

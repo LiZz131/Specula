@@ -1,0 +1,50 @@
+CMD: timeout 720s java -XX:+UseParallelGC -Xmx4g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 1 -metadir /dev/shm/specula-e2e-case-010/final-mc-election-hunt-33676 -config MC-election-hunt.cfg  Update  (TLC wall limit 10m via outer timeout)
+START: 2026-11-20T01:49:03Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 87 and seed 5673173132066011631 with 1 worker on 40 cores with 3641MB heap and 64MB offheap memory [pid: 33824] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-10988217113811896617/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-10988217113811896617/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-10988217113811896617/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-10988217113811896617/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-10988217113811896617/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-10988217113811896617/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-10988217113811896617/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 01:49:06)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 01:49:08.
+Error: Invariant ElectionUnreachable is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s1,s1) line 50, col 5 to line 52, col 23 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 50, col 5 to line 52, col 23 of module MC>
+
+State 4: <MCFinishElection(s1,s1) line 55, col 5 to line 57, col 29 of module MC>
+
+68 states generated, 23 distinct states found, 14 states left on queue.
+The depth of the complete state graph search is 4.
+Finished in 05s at (2026-11-20 01:49:08)
+Trace exploration spec path: ./Update_TTrace_1795139343.tla
+END: 2026-11-20T01:49:09Z exit=12

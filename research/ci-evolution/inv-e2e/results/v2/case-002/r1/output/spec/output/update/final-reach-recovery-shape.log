@@ -1,0 +1,91 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 2100s env JSON= java -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -metadir /dev/shm/specula-e2e-case-002/final-reach-recovery-shape -config Update-reach-recovery-shape.cfg -workers 4 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 103 and seed -2625697938301724386 with 4 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 14132] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-9011597677558628955/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-9011597677558628955/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-9011597677558628955/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-9011597677558628955/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-9011597677558628955/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-9011597677558628955/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-9011597677558628955/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 11:37:37)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 11:37:38.
+Progress(11) at 2026-11-18 11:37:41: 23,924 states generated (23,924 s/min), 4,707 distinct states found (4,707 ds/min), 1,940 states left on queue.
+Progress(21) at 2026-11-18 11:38:41: 2,918,915 states generated (2,894,991 s/min), 592,222 distinct states found (587,515 ds/min), 146,993 states left on queue.
+Progress(24) at 2026-11-18 11:39:41: 5,861,787 states generated (2,942,872 s/min), 1,224,913 distinct states found (632,691 ds/min), 254,074 states left on queue.
+Error: Invariant NotRecoveryShape is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 21, col 21 to line 21, col 79 of module MC>
+
+State 5: <MCFollowLeader(s2,s1) line 22, col 25 to line 22, col 67 of module MC>
+
+State 6: <MCFollowLeader(s3,s1) line 22, col 25 to line 22, col 67 of module MC>
+
+State 7: <MCAcceptEpoch(s2) line 23, col 21 to line 23, col 59 of module MC>
+
+State 8: <MCAcceptEpoch(s3) line 23, col 21 to line 23, col 59 of module MC>
+
+State 9: <MCFinishDiscovery(s1) line 24, col 25 to line 24, col 67 of module MC>
+
+State 10: <MCEnterSyncPhase(s2,s1) line 25, col 27 to line 25, col 71 of module MC>
+
+State 11: <MCEnterSyncPhase(s3,s1) line 25, col 27 to line 25, col 71 of module MC>
+
+State 12: <MCSelectSync(s3,s1,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 13: <MCSelectSync(s2,s1,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 14: <MCReceiveSyncPayload(s2) line 32, col 5 to line 34, col 25 of module MC>
+
+State 15: <MCReceiveSyncPayload(s3) line 32, col 5 to line 34, col 25 of module MC>
+
+State 16: <MCPersistCurrentEpoch(s2) line 35, col 29 to line 35, col 75 of module MC>
+
+State 17: <MCBeginElection(s2) line 19, col 23 to line 19, col 85 of module MC>
+
+State 18: <MCPersistCurrentEpoch(s3) line 35, col 29 to line 35, col 75 of module MC>
+
+State 19: <MCClearSyncMode(s3) line 37, col 23 to line 37, col 63 of module MC>
+
+State 20: <MCAckNewLeader(s3) line 40, col 5 to line 43, col 25 of module MC>
+
+State 21: <MCLeaderBroadcast(s1) line 48, col 5 to line 51, col 25 of module MC>
+
+State 22: <MCBeginElection(s3) line 19, col 23 to line 19, col 85 of module MC>
+
+State 23: <MCPropose(s1,t1) line 52, col 20 to line 52, col 79 of module MC>
+
+State 24: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+6007630 states generated, 1255615 distinct states found, 258557 states left on queue.
+The depth of the complete state graph search is 24.
+Finished in 02min 08s at (2026-11-18 11:39:44)
+Trace exploration spec path: ./Update_TTrace_1795001855.tla

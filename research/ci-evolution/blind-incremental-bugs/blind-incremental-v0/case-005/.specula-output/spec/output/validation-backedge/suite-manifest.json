@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-05T11:00:54Z",
+  "purpose": "exact-old-v0-validation-backedge",
+  "evidence_boundary": {
+    "source_revision": "exact-old-only",
+    "internet_research": false,
+    "repository_history_inspected": false,
+    "external_paths_inspected": false,
+    "dependency_network_activity": false
+  },
+  "order": [
+    "instrumentation_provenance",
+    "sany",
+    "trace_validation_all_retained",
+    "canonical_base_bfs",
+    "canonical_mc_bfs"
+  ],
+  "inputs": {
+    "scope": "/work/scope.md",
+    "pristine_source": "/work/source",
+    "instrumented_worktree": "/work/work-source",
+    "libraries": [
+      "/work/lib/tla2tools.jar",
+      "/work/lib/CommunityModules-deps.jar"
+    ]
+  },
+  "semantic_digests": {
+    "trace_tla": "51bd909f114bff9c4f112c069a77b271761518b851266a6543e2994082c04f95",
+    "trace_cfg": "d6addaa5b297cf22dcffe02290975ca5428b4c0f67d4a4dd1e61bf31dd0dcd53",
+    "base_tla": "e4c5191608f4593aa2b00b238031ec942b79afc2238c3b9af6258fedabeb7cc8",
+    "base_cfg": "ae9fa0df1218e8f3b98fa04831b60c4ebe47036f9425a9b45840a7d4a0fd4bc8",
+    "mc_tla": "31a33b2dfc076dff6375b04a0d4b9ed793b938676b8eb19eb75b10af1b257689",
+    "mc_cfg": "a1f68a2a449e03f09356a12b48b9b82a079069d1cf661c35d5b0d0c6427b9bc1"
+  },
+  "syntax_check": {
+    "command": "timeout --signal=TERM --kill-after=10s 120s java -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tla2sany.SANY base.tla MC.tla Trace.tla",
+    "exit_code": 0,
+    "result": "passed",
+    "log": "spec/output/validation-backedge/sany.log"
+  },
+  "instrumentation": {
+    "patch": {
+      "path": "harness/patches/instrumentation.patch",
+      "sha256": "2ac8f7d55ce0e80e157555a849933c6ee9bbd017fe240eb26b175ecffc53121f"
+    },
+    "added_files": [
+      {
+        "path": "harness/src/SpeculaTrace.java",
+        "sha256": "babb0c3e10706986c10789446547aa092a66a4c315cebd95bc944990c1afada3"
+      },
+      {
+        "path": "harness/src/SpeculaTraceHarnessTest.java",
+        "sha256": "15bab4990db843588a00ad06770d12b7cac7c283249e3f33084d59f0e49f95da"
+      }
+    ],
+    "application_check": {
+      "command": "timeout --signal=TERM --kill-after=5s 30s patch -d /work/work-source -p1 -R --dry-run < harness/patches/instrumentation.patch",
+      "exit_code": 0,
+      "result": "recorded patch is applied",
+      "log": "spec/output/validation-backedge/instrumentation-provenance.log"
+    }
+  },
+  "trace_validation": {
+    "enumeration": "all top-level traces/*.ndjson; no scenario-name filter",
+    "config_property": "TraceMatched",
+    "traces": [
+      {
+        "name": "startup-mutation-restart-fresh",
+        "path": "traces/startup-mutation-restart-fresh.ndjson",
+        "sha256": "1efbaf3fd8a13b6ba1d16bb2fcbc6c532e6c71f797b0ca8c9de8f1bec2cfbab6",
+        "lines": 286,
+        "exit_code": 0,
+        "states_generated": 301,
+        "distinct_states": 287,
+        "states_left_on_queue": 0,
+        "completion": "natural",
+        "result": "passed",
+        "log": "spec/output/validation-backedge/trace-startup-mutation-restart-fresh.log",
+        "original": {
+          "path": "traces/original/startup-mutation-restart-fresh.ndjson.original",
+          "sha256": "8244572a947b64c65ea5b9a115255555b567b6e53937711093a6cd1e32b6cd9c"
+        }
+      },
+      {
+        "name": "startup-mutation-restart-v2",
+        "path": "traces/startup-mutation-restart-v2.ndjson",
+        "sha256": "0543d2f1b31c75292c03873ca152e0c059da3ae4b2a5d028289e569946c9efc8",
+        "lines": 286,
+        "exit_code": 0,
+        "states_generated": 300,
+        "distinct_states": 287,
+        "states_left_on_queue": 0,
+        "completion": "natural",
+        "result": "passed",
+        "log": "spec/output/validation-backedge/trace-startup-mutation-restart-v2.log",
+        "original": {
+          "path": "traces/original/startup-mutation-restart-v2.ndjson.original",
+          "sha256": "de0dabd597a854b76b3bc88d02bd69526a4db51e2efe18e445ec8cbfd9b76f73"
+        }
+      },
+      {
+        "name": "startup-mutation-restart-v2.tlc",
+        "path": "traces/startup-mutation-restart-v2.tlc.ndjson",
+        "sha256": "3b16cc1c840ee0e5541b5cf027abfe0bf8b249da4f8d0e6b8ac91fcebb3fdece",
+        "lines": 286,
+        "exit_code": 0,
+        "states_generated": 300,
+        "distinct_states": 287,
+        "states_left_on_queue": 0,
+        "completion": "natural",
+        "result": "passed",
+        "log": "spec/output/validation-backedge/trace-startup-mutation-restart-v2.tlc.log",
+        "original": {
+          "path": "traces/original/startup-mutation-restart-v2.tlc.ndjson.original",
+          "sha256": "4c5f535ddc18f611d476eaa4c96d10cce36f383343d9c5857edc5ddad20845df"
+        }
+      },
+      {
+        "name": "startup-mutation-restart",
+        "path": "traces/startup-mutation-restart.ndjson",
+        "sha256": "80199f3e27163fe88b54374df9053cb18ee4166104b96ca0a4d5a59fff93fbe0",
+        "lines": 286,
+        "exit_code": 0,
+        "states_generated": 303,
+        "distinct_states": 288,
+        "states_left_on_queue": 0,
+        "completion": "natural",
+        "result": "passed",
+        "log": "spec/output/validation-backedge/trace-startup-mutation-restart.log",
+        "original": {
+          "path": "traces/original/startup-mutation-restart.ndjson.original",
+          "sha256": "8d4a6e768b44f6722b4cfb2975903bbfbd980fed38be98558be0f42e8dce5580"
+        }
+      },
+      {
+        "name": "startup-mutation-restart.tlc",
+        "path": "traces/startup-mutation-restart.tlc.ndjson",
+        "sha256": "37902c22c962b956749ec927035e0cff0c539c183ac03ad7cf1e8784522033ee",
+        "lines": 286,
+        "exit_code": 0,
+        "states_generated": 303,
+        "distinct_states": 288,
+        "states_left_on_queue": 0,
+        "completion": "natural",
+        "result": "passed",
+        "log": "spec/output/validation-backedge/trace-startup-mutation-restart.tlc.log",
+        "original": {
+          "path": "traces/original/startup-mutation-restart.tlc.ndjson.original",
+          "sha256": "353d7cf0276a63b4fe644492d95430edb7e023031d1e8b0f98cdd8968e7184e5"
+        }
+      }
+    ],
+    "coverage": {
+      "expected_events": [
+        "AcceptedEpochMemory",
+        "AcceptedEpochPersist",
+        "AckEpochSent",
+        "AckReceived",
+        "AckSent",
+        "Apply",
+        "BootstrapSnapshot",
+        "Commit",
+        "CurrentEpochMemory",
+        "CurrentEpochPersist",
+        "ElectionDecision",
+        "EpochAckAccepted",
+        "EpochSupportReceived",
+        "FollowerBroadcastReady",
+        "LeaderBroadcastReady",
+        "LeaderInfoSent",
+        "LogAppend",
+        "LogDurable",
+        "NewLeaderAckReceived",
+        "NewLeaderSent",
+        "Proposal",
+        "ProposalReceived",
+        "ServerCrash",
+        "ServerStart",
+        "SyncCommitApplied",
+        "SyncModeApplied",
+        "SyncModeSelected",
+        "SyncProposalReceived",
+        "UpToDateSent"
+      ],
+      "event_inventory": [
+        {
+          "event": "AcceptedEpochMemory",
+          "count": 30
+        },
+        {
+          "event": "AcceptedEpochPersist",
+          "count": 30
+        },
+        {
+          "event": "AckEpochSent",
+          "count": 25
+        },
+        {
+          "event": "AckReceived",
+          "count": 100
+        },
+        {
+          "event": "AckSent",
+          "count": 90
+        },
+        {
+          "event": "Apply",
+          "count": 140
+        },
+        {
+          "event": "BootstrapSnapshot",
+          "count": 25
+        },
+        {
+          "event": "Commit",
+          "count": 140
+        },
+        {
+          "event": "CurrentEpochMemory",
+          "count": 35
+        },
+        {
+          "event": "CurrentEpochPersist",
+          "count": 35
+        },
+        {
+          "event": "ElectionDecision",
+          "count": 35
+        },
+        {
+          "event": "EpochAckAccepted",
+          "count": 20
+        },
+        {
+          "event": "EpochSupportReceived",
+          "count": 35
+        },
+        {
+          "event": "FollowerBroadcastReady",
+          "count": 25
+        },
+        {
+          "event": "LeaderBroadcastReady",
+          "count": 10
+        },
+        {
+          "event": "LeaderInfoSent",
+          "count": 25
+        },
+        {
+          "event": "LogAppend",
+          "count": 140
+        },
+        {
+          "event": "LogDurable",
+          "count": 140
+        },
+        {
+          "event": "NewLeaderAckReceived",
+          "count": 20
+        },
+        {
+          "event": "NewLeaderSent",
+          "count": 25
+        },
+        {
+          "event": "Proposal",
+          "count": 50
+        },
+        {
+          "event": "ProposalReceived",
+          "count": 90
+        },
+        {
+          "event": "ServerCrash",
+          "count": 35
+        },
+        {
+          "event": "ServerStart",
+          "count": 35
+        },
+        {
+          "event": "SyncCommitApplied",
+          "count": 10
+        },
+        {
+          "event": "SyncModeApplied",
+          "count": 25
+        },
+        {
+          "event": "SyncModeSelected",
+          "count": 25
+        },
+        {
+          "event": "SyncProposalReceived",
+          "count": 10
+        },
+        {
+          "event": "UpToDateSent",
+          "count": 25
+        }
+      ],
+      "missing_events": [],
+      "unexpected_events": [],
+      "captured_state_fields": [
+        "zxid",
+        "modelZxid",
+        "epoch",
+        "acceptedEpoch",
+        "role",
+        "mode"
+      ],
+      "consumed_state_fields": [
+        "zxid",
+        "modelZxid",
+        "epoch",
+        "acceptedEpoch",
+        "role",
+        "mode"
+      ],
+      "event_specific_validation": true
+    },
+    "result": "passed"
+  },
+  "canonical_checks": [
+    {
+      "name": "canonical_base",
+      "mode": "bfs",
+      "module": "base.tla",
+      "config": "base.cfg",
+      "command": "timeout --signal=TERM --kill-after=20s 300s java -Djava.io.tmpdir=/work/prior/.specula-output/spec/output/validation-backedge/.tlc-state-base.bMMhOJ -XX:+UseParallelGC -Xmx8G -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 4 -config base.cfg -metadir /work/prior/.specula-output/spec/output/validation-backedge/.tlc-state-base.bMMhOJ base.tla",
+      "exit_code": 0,
+      "completion": "natural",
+      "states_generated": 5413931,
+      "distinct_states": 779347,
+      "states_left_on_queue": 0,
+      "depth": 38,
+      "result": "passed",
+      "log": "spec/output/validation-backedge/base-canonical-bfs.log"
+    },
+    {
+      "name": "canonical_mc",
+      "mode": "bfs",
+      "module": "MC.tla",
+      "config": "MC.cfg",
+      "command": "timeout --signal=TERM --kill-after=20s 300s java -Djava.io.tmpdir=/work/prior/.specula-output/spec/output/validation-backedge/.tlc-state-MC.ThLLQS -XX:+UseParallelGC -Xmx8G -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 4 -config MC.cfg -metadir /work/prior/.specula-output/spec/output/validation-backedge/.tlc-state-MC.ThLLQS MC.tla",
+      "exit_code": 0,
+      "completion": "natural",
+      "states_generated": 1455,
+      "distinct_states": 404,
+      "states_left_on_queue": 0,
+      "depth": 15,
+      "result": "passed",
+      "log": "spec/output/validation-backedge/mc-canonical-bfs.log"
+    }
+  ],
+  "limited_evidence": [
+    {
+      "path": "spec/output/repair/base-broader-open-frontier.log",
+      "classification": "timeout/open-frontier; not proof"
+    },
+    {
+      "path": "spec/output/repair/mc-broader-open-frontier.log",
+      "classification": "timeout/open-frontier; not proof"
+    },
+    {
+      "path": "spec/output/repair/mc-two-voter-open-frontier-client0.log",
+      "classification": "timeout/open-frontier; not proof"
+    }
+  ],
+  "cleanup": {
+    "tlc_state_directories_removed": true,
+    "background_processes_left_running": false
+  },
+  "result": "passed"
+}

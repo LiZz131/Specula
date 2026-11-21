@@ -1,0 +1,18 @@
+{
+ "decision": "MODEL_UPDATED",
+ "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "summary": "MODEL_CHANGE_REQUIRED: Learner.shutdown now calls zk.shutdown(syncMode==SNAP) and ZooKeeperServer.shutdown(boolean) clears an unstarted zkDb. The reference suite was updated (SNAP/TRUNC reconciliation split, per-follower learner exit with clear and reload, leaked log-processor queues, zxid-based sync decision, NEWLEADER commit) with Update.tla/UpdateProps.tla and evidence for every property decision. The prior harness patch applied cleanly; the missing prior stateful emitter was rebuilt (schema v3). Five fresh new-revision traces, including the update's own testDiffSyncAfterSnap, pass TLC trace validation with TraceMatched; old-revision traces replay under the old semantics and reproduce the old data gap (recovered [11]). Model checking: the update's SNAP fix holds within bounds (UPD-1 exhaustive, 144,904 states, no violation; the old semantics violate). Findings: MC-1 (introduced by the update): zk.shutdown(boolean) bypasses LearnerZooKeeperServer.shutdown(), so the follower SyncRequestProcessor is never stopped or drained on learner exit; reproduced in real code (new revision fails, old passes); in the model a re-synced follower can lose a committed txn from its log or replay a stale record. MC-2 (pre-existing): the TRUNC branch has the same unpersisted in-memory window and is not covered by the SNAP-only guard. MC-3 (pre-existing): fast-forward before drain leaves re-sent records out of order. Budgeted full/residual/open/discharge campaigns found nothing beyond these, but they are LIMITED_COVERAGE, not proof.",
+ "findings_paths": [
+  "/work/current/.specula-output/spec/findings.json",
+  "/work/current/.specula-output/spec/bug-report.md",
+  "/work/current/.specula-output/spec/final-result.json",
+  "/work/current/.specula-output/spec/confirmation-MC-1.md",
+  "/work/current/.specula-output/spec/output/counterexamples/final/MC-1_leaked-log-processor_unflushed-applied_committed-gap_UPDATED.log",
+  "/work/current/.specula-output/spec/output/counterexamples/final/MC-1_leaked-log-processor_committed-gap_UPDATED.log",
+  "/work/current/.specula-output/spec/output/counterexamples/final/MC-2_trunc-exit_committed-gap_UPDATED_noleak.log",
+  "/work/current/.specula-output/spec/output/counterexamples/final/MC-3_PRIOR_drain-after-fastforward_replay-order.log",
+  "/work/current/.specula-output/spec/output/verification-summary-update.md",
+  "/work/current/.specula-output/spec/invariant-evidence.json"
+ ],
+ "blockers": []
+}

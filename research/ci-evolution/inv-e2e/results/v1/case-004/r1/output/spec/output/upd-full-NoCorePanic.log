@@ -1,0 +1,71 @@
+# cmd: timeout 2400 java -Dtlc2.TLC.stopAfter=1800 -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-004/Update_full_NoCorePanic-1795072020223822440 -config Update_full_NoCorePanic.cfg -workers 4 -deadlock -dumpTrace json /work/current/.specula-output/spec/output/upd-full-NoCorePanic.cex.json Update.tla
+# cwd: /work/current/.specula-output/spec
+# start: 2026-11-19T01:07:00-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 83 and seed -1705918034846949375 with 4 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 22424] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-4234385491347110329/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-4234385491347110329/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-4234385491347110329/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-4234385491347110329/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-4234385491347110329/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-4234385491347110329/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-4234385491347110329/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-4234385491347110329/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-4234385491347110329/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 07:07:01)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 07:07:02.
+Error: Invariant NoCorePanic is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 40, col 5 to line 44, col 88 of module MC>
+
+State 3: <MCPersistVote(1) line 58, col 21 to line 58, col 56 of module MC>
+
+State 4: <MCSendVote(1) line 59, col 18 to line 59, col 50 of module MC>
+
+State 5: <MCNext line 126, col 8 to line 126, col 60 of module MC>
+
+State 6: <MCPersistVote(2) line 58, col 21 to line 58, col 56 of module MC>
+
+State 7: <MCNext line 127, col 8 to line 127, col 62 of module MC>
+
+State 8: <MCNext line 127, col 8 to line 127, col 62 of module MC>
+
+State 9: <MCFollowerAppend(3,1,1) line 100, col 30 to line 100, col 66 of module MC>
+
+State 10: <MCTransferLeader(3) line 51, col 5 to line 56, col 88 of module MC>
+
+State 11: <MCPersistVote(3) line 58, col 21 to line 58, col 56 of module MC>
+
+State 12: <MCNext line 127, col 8 to line 127, col 62 of module MC>
+
+"CounterExample written: /work/current/.specula-output/spec/output/upd-full-NoCorePanic.cex.json"
+3582 states generated, 1594 distinct states found, 1216 states left on queue.
+The depth of the complete state graph search is 13.
+Finished in 04s at (2026-11-19 07:07:04)
+Trace exploration spec path: ./Update_TTrace_1795072020.tla
+# exit: 12 end: 2026-11-19T01:07:04-06:00

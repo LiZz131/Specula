@@ -1,0 +1,24 @@
+=== RUN   TestSpeculaTraceQuorumRead
+raft2026/09/04 17:32:12 INFO: 1 became follower at term 0
+raft2026/09/04 17:32:12 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/09/04 17:32:12 INFO: 2 became follower at term 0
+raft2026/09/04 17:32:12 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/09/04 17:32:12 INFO: 3 became follower at term 0
+raft2026/09/04 17:32:12 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/09/04 17:32:12 INFO: 1 is starting a new election at term 0
+raft2026/09/04 17:32:12 INFO: 1 became candidate at term 1
+raft2026/09/04 17:32:12 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/09/04 17:32:12 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/09/04 17:32:12 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/09/04 17:32:12 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/09/04 17:32:12 INFO: 2 became follower at term 1
+raft2026/09/04 17:32:12 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/09/04 17:32:12 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/09/04 17:32:12 INFO: 3 became follower at term 1
+raft2026/09/04 17:32:12 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/09/04 17:32:12 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/09/04 17:32:12 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/09/04 17:32:12 INFO: 1 became leader at term 1
+--- PASS: TestSpeculaTraceQuorumRead (0.07s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.071s

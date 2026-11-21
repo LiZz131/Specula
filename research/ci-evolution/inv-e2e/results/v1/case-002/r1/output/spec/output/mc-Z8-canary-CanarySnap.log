@@ -1,0 +1,61 @@
+# cwd: /work/current/.specula-output/spec
+# cmd: timeout 780s java -Xmx4g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -workers 2 -config MC-canary-CanarySnap.cfg -metadir /dev/shm/specula-e2e-case-002/mc-Z8-canary-CanarySnap-34427 MC.tla
+# started: 2026-11-18T22:12:24Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 122 and seed 2142973846905886411 with 2 workers on 40 cores with 3641MB heap and 64MB offheap memory [pid: 34472] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-7333537845934389999/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-7333537845934389999/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7333537845934389999/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7333537845934389999/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7333537845934389999/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7333537845934389999/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7333537845934389999/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-18 22:12:26)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 22:12:27.
+Progress(11) at 2026-11-18 22:12:30: 23,709 states generated (23,709 s/min), 4,616 distinct states found (4,616 ds/min), 1,452 states left on queue.
+Error: Invariant CanarySnap is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s2,s1) line 25, col 21 to line 25, col 56 of module MC>
+
+State 3: <MCWinElection(s1) line 26, col 21 to line 26, col 56 of module MC>
+
+State 4: <MCStartLeading(s1) line 28, col 22 to line 28, col 58 of module MC>
+
+State 5: <MCFollowLeader(s2,s1) line 27, col 25 to line 27, col 64 of module MC>
+
+State 6: <MCStartFollowing(s2) line 29, col 24 to line 29, col 62 of module MC>
+
+State 7: <MCLeaderProposeEpoch(s1) line 30, col 28 to line 30, col 70 of module MC>
+
+State 8: <MCAcceptEpoch(s2) line 31, col 21 to line 31, col 56 of module MC>
+
+State 9: <MCSendAckEpoch(s2) line 32, col 22 to line 32, col 58 of module MC>
+
+State 10: <MCEnterSyncPhase(s2) line 35, col 24 to line 35, col 62 of module MC>
+
+State 11: <MCSyncSnap(s2) line 38, col 18 to line 38, col 50 of module MC>
+
+27930 states generated, 5420 distinct states found, 1591 states left on queue.
+The depth of the complete state graph search is 12.
+Finished in 06s at (2026-11-18 22:12:31)
+Trace exploration spec path: ./MC_TTrace_1795039944.tla
+# exit: 12
+# finished: 2026-11-18T22:12:31Z

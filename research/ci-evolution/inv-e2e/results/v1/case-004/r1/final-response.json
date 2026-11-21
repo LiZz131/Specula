@@ -1,0 +1,24 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "Chapter 1 disposition MODEL_CHANGE_REQUIRED. The update adds RaftMsg::TransferLeader, whose RaftCore branch calls Engine::elect() after checking only vote == from. Every older election path also requires is_voter, so election enablement changed for learners and removed nodes. The reference suite was updated: Elect has a membership-dependent post-state, StartElection == IsVoter /\\ Elect, and HandleTransferLeader covers the elect, lease-only and ignored branches. V0 abstractions the update relies on were repaired: full-LogId vote freshness, closed-world vote and append traffic, real follower entries with membership, fresh leader progress, and member-only leader restore. Update.tla adds ElectionInitiatorIsVoter, CandidateIsVoterOfSnapshot, NoCorePanic, EnvUpdate/discharge and canaries. Validation: the V0 harness was rebased and RaftCore window probes added. 34 fresh traces (8 prior scenarios rerun, 4 update unit scenarios, 22 live-cluster windows) pass real TLC replay with TraceMatched and full post-state checks; 27/27 field mutations are rejected; the final regression passes 34/34. Model checking: standard MC.cfg had one Case-B bound artifact, fixed, then no violation in 30 min (51.45M distinct states, depth 27). The full, focused and open update checks find MC-1: TransferLeader to a learner makes it elect, and its RaftCore panics on its own SaveVote self-grant in Candidate::grant_by ('target not in quorum set', Fatal::Panicked). Calling it on every node also deposes the current leader; a removed-node target elects without panicking and disrupts the cluster. MC-1 is reproduced on the real update revision with a public-API test and is absent on the baseline control. Voter-target transfer, crash, open and discharge campaigns show no violation within their BFS and simulation budgets, and every update scenario has a reachability witness. A pre-existing, update-independent observation (MC-2, persisted committed ahead of the leader's durable log with 3 voters) is left NEEDS MORE INFO. All clean results are budget-limited, not proofs.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/upd-full-NoCorePanic.log",
+    "/work/current/.specula-output/spec/output/upd-full-NoCorePanic.cex.json",
+    "/work/current/.specula-output/spec/output/upd-full-ElectionInitiatorIsVoter.log",
+    "/work/current/.specula-output/spec/output/upd-hunt-U1-absent-nodsb.log",
+    "/work/current/.specula-output/spec/output/upd-hunt-U1-absent-DurableStateBounded.log",
+    "/work/current/.specula-output/spec/output/repro/repro-new-update.log",
+    "/work/current/.specula-output/spec/output/repro/control-old-baseline.log",
+    "/work/current/.specula-output/harness/repro/t98_specula_repro_transfer_leader_to_learner.rs",
+    "/work/current/.specula-output/spec/output/model-checking-summary.md"
+  ],
+  "blockers": [
+    "specula CLI not installed in this environment: persistent-findings lookup/registration and `specula ci-result` could not run; spec/final-result.json is written but the tool-generated CI reports are absent.",
+    "The pinned toolchain nightly-2024-03-20 is not installable offline; all builds and tests used stable cargo 1.100.0 (recorded in spec/output/harness.log)."
+  ]
+}

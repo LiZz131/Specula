@@ -1,0 +1,54 @@
+# cmd: java tlc2.TLC -config Update_reach_JointCommit.cfg -metadir /dev/shm/specula-e2e-case-012/upd-reach-jointcommit-final -workers 1  Update.tla (outer timeout 600s+300s)
+# start: 2026-11-20T02:17:00-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 53 and seed -1319921318303418910 with 1 worker on 40 cores with 7282MB heap and 64MB offheap memory [pid: 26098] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-14865801113222979149/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14865801113222979149/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14865801113222979149/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14865801113222979149/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14865801113222979149/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14865801113222979149/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14865801113222979149/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 08:17:02)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 08:17:03.
+Progress(6) at 2026-11-20 08:17:06: 1,010 states generated (1,010 s/min), 832 distinct states found (832 ds/min), 601 states left on queue.
+Error: Invariant NotReachJointCommit is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n1) line 40, col 5 to line 43, col 70 of module MC>
+
+State 3: <MCGrantVote(n1,n2) line 72, col 5 to line 73, col 28 of module MC>
+
+State 4: <MCProposeMembership(n1,{{n1, n2}, {n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+
+State 5: <MCSendAppendEntries(n1,n2) line 76, col 5 to line 77, col 28 of module MC>
+
+State 6: <MCNext line 105, col 8 to line 105, col 51 of module MC>
+
+State 7: <MCNext line 107, col 8 to line 107, col 50 of module MC>
+
+1167 states generated, 935 distinct states found, 665 states left on queue.
+The depth of the complete state graph search is 7.
+Finished in 06s at (2026-11-20 08:17:06)
+Trace exploration spec path: ./Update_TTrace_1795162620.tla
+# exit: 12 end: 2026-11-20T02:17:06-06:00

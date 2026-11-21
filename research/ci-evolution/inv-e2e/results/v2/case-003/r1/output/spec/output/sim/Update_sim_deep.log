@@ -1,0 +1,123 @@
++ cd /work/current/.specula-output/spec
++ timeout 10m java -XX:+UseParallelGC -Xmx16g -DTLA-Library=/work/current/.specula-output/spec:/work/current/.specula-output/spec/evidence -Dtlc2.TLC.stopAfter=300 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update_sim_deep.cfg -metadir /dev/shm/specula-e2e-case-003/sim_Update_sim_deep-41667 -workers 8 -simulate -depth 100 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed -856553196733334989 with 8 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 41674] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-2297402122179477268/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-2297402122179477268/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-2297402122179477268/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2297402122179477268/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-2297402122179477268/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-2297402122179477268/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2297402122179477268/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 23:38:36)
+Computed 4 initial states...
+Finished computing initial states: 4 distinct state generated at 2026-11-18 23:38:36.
+Error: Invariant UnchangedVEUpdateNotRejected is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 26, col 5 to line 27, col 67 of module MC>
+
+State 2: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 3: <MCCrash line 35, col 5 to line 37, col 54 of module MC>
+
+State 4: <MCBeginHandshake line 52, col 21 to line 52, col 56 of module MC>
+
+State 5: <MCSelectRealReplay line 54, col 23 to line 54, col 60 of module MC>
+
+State 6: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 7: <MCFinalizeBlock([rest |-> "r1", abciPresent |-> TRUE, abci |-> 7, present |-> TRUE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 8: <MCCrash line 35, col 5 to line 37, col 54 of module MC>
+
+State 9: <MCBeginHandshake line 52, col 21 to line 52, col 56 of module MC>
+
+State 10: <MCSelectRealReplay line 54, col 23 to line 54, col 60 of module MC>
+
+State 11: <MCCrash line 35, col 5 to line 37, col 54 of module MC>
+
+State 12: <MCBeginHandshake line 52, col 21 to line 52, col 56 of module MC>
+
+State 13: <MCSelectRealReplay line 54, col 23 to line 54, col 60 of module MC>
+
+State 14: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 15: <MCFinalizeBlock([rest |-> "r1", abciPresent |-> FALSE, abci |-> 0, present |-> TRUE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 16: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 17: <MCUpdateStateAccepted line 47, col 26 to line 47, col 66 of module MC>
+
+State 18: <MCCommitApp line 49, col 16 to line 49, col 46 of module MC>
+
+State 19: <MCSaveState line 50, col 16 to line 50, col 46 of module MC>
+
+State 20: <MCCompleteHandshake line 56, col 24 to line 56, col 62 of module MC>
+
+State 21: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 22: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 23: <MCFinalizeBlock([rest |-> "r1", abciPresent |-> TRUE, abci |-> 3, present |-> TRUE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 24: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 25: <MCUpdateStateAccepted line 47, col 26 to line 47, col 66 of module MC>
+
+State 26: <MCCommitApp line 49, col 16 to line 49, col 46 of module MC>
+
+State 27: <MCSaveState line 50, col 16 to line 50, col 46 of module MC>
+
+State 28: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 29: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 30: <MCFinalizeBlock([rest |-> "none", abciPresent |-> FALSE, abci |-> 0, present |-> FALSE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 31: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 32: <MCUpdateStateAccepted line 47, col 26 to line 47, col 66 of module MC>
+
+State 33: <MCCommitApp line 49, col 16 to line 49, col 46 of module MC>
+
+State 34: <MCSaveState line 50, col 16 to line 50, col 46 of module MC>
+
+State 35: <MCSaveBlock line 30, col 5 to line 32, col 53 of module MC>
+
+State 36: <MCApplyBlockStart line 44, col 22 to line 44, col 58 of module MC>
+
+State 37: <MCFinalizeBlock([rest |-> "r0", abciPresent |-> TRUE, abci |-> 3, present |-> TRUE]) line 45, col 23 to line 45, col 60 of module MC>
+
+State 38: <MCSaveFinalizeBlockResponse line 46, col 32 to line 46, col 78 of module MC>
+
+State 39: <MCUpdateStateRejected line 48, col 26 to line 48, col 66 of module MC>
+
+The number of states generated: 11905
+Simulation using seed -856553196733334989 and aril 0
+Progress: 11929 states checked, 120 traces generated (trace length: mean=71, var(x)=1114, sd=33)
+Finished in 01s at (2026-11-18 23:38:37)
+Trace exploration spec path: ./Update_TTrace_1795045116.tla
+elapsed_seconds: 1
+exit_code: 12
+state_dir_removed: yes

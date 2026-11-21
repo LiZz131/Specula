@@ -1,0 +1,950 @@
+diff --git a/openraft/src/core/mod.rs b/openraft/src/core/mod.rs
+index 1a7a485..dc9f5d7 100644
+--- a/openraft/src/core/mod.rs
++++ b/openraft/src/core/mod.rs
+@@ -11,6 +11,7 @@ pub(crate) mod raft_msg;
+ mod replication_state;
+ mod server_state;
+ pub(crate) mod sm;
++pub(crate) mod specula_core_trace;
+ mod tick;
+ 
+ pub(crate) use raft_core::ApplyResult;
+diff --git a/openraft/src/core/raft_core.rs b/openraft/src/core/raft_core.rs
+index 40bf3f5..70d1ad5 100644
+--- a/openraft/src/core/raft_core.rs
++++ b/openraft/src/core/raft_core.rs
+@@ -1112,7 +1112,16 @@ where
+     pub(super) fn handle_vote_request(&mut self, req: VoteRequest<C>, tx: VoteTx<C>) {
+         tracing::info!(req = display(&req), func = func_name!());
+ 
++        let specula_on = crate::core::specula_core_trace::pre(&self.id, &self.engine, false);
++        let specula_vote = req.vote;
++        let specula_args = crate::core::specula_core_trace::vote_request_args(&req.vote, req.last_log_id.as_ref());
+         let resp = self.engine.handle_vote_req(req);
++        // Only the granting outcome is a modeled transition (base!ReceiveVoteRequest).
++        if let Some(skip) = specula_on {
++            if self.engine.state.vote_ref() == &specula_vote {
++                crate::core::specula_core_trace::post(&self.id, &self.engine, skip, "VoteRequest", specula_args);
++            }
++        }
+         let condition = Some(Condition::IOFlushed {
+             io_id: IOId::new(*self.engine.state.vote_ref()),
+         });
+@@ -1191,6 +1200,7 @@ where
+                 from: current_leader_vote,
+                 to,
+             } => {
++                let specula_on = crate::core::specula_core_trace::pre(&self.id, &self.engine, true);
+                 if self.engine.state.vote_ref() == &current_leader_vote {
+                     tracing::info!("Transfer Leader from: {}, to {}", current_leader_vote, to);
+ 
+@@ -1199,6 +1209,15 @@ where
+                         self.engine.elect();
+                     }
+                 }
++                if let Some(skip) = specula_on {
++                    crate::core::specula_core_trace::post(
++                        &self.id,
++                        &self.engine,
++                        skip,
++                        "TransferLeader",
++                        crate::core::specula_core_trace::transfer_args(&current_leader_vote, &to),
++                    );
++                }
+             }
+             RaftMsg::ExternalCommand { cmd } => {
+                 tracing::info!(cmd = debug(&cmd), "received RaftMsg::ExternalCommand: {}", func_name!());
+@@ -1258,7 +1277,16 @@ where
+                 );
+ 
+                 if self.does_vote_match(&sender_vote, "VoteResponse") {
++                    let specula_on = crate::core::specula_core_trace::pre(&self.id, &self.engine, false);
++                    // Only a candidate grant (resp.vote == the uncommitted candidate vote) is a
++                    // modeled transition (base!ReceiveVoteResponse); a committed sender_vote is
++                    // the new Leader's own SaveVote echo, a no-op once the candidate is gone.
++                    let specula_grant = !sender_vote.is_committed() && resp.vote == sender_vote;
++                    let specula_args = crate::core::specula_core_trace::vote_response_args(&target, &resp.vote);
+                     self.engine.handle_vote_resp(target, resp);
++                    if let (Some(skip), true) = (specula_on, specula_grant) {
++                        crate::core::specula_core_trace::post(&self.id, &self.engine, skip, "VoteResponse", specula_args);
++                    }
+                 }
+             }
+ 
+diff --git a/openraft/src/core/specula_core_trace.rs b/openraft/src/core/specula_core_trace.rs
+new file mode 100644
+index 0000000..4737a6b
+--- /dev/null
++++ b/openraft/src/core/specula_core_trace.rs
+@@ -0,0 +1,320 @@
++//! Specula update harness: RaftCore-level trace capture.
++//!
++//! Runtime-gated: does nothing unless `SPECULA_CORE_TRACE_DIR` is set. Installed by
++//! `harness/apply.sh` into `openraft/src/core/` and wired into `RaftCore` at the
++//! `RaftMsg::TransferLeader` arm, `handle_vote_request` and the `Notification::VoteResponse`
++//! arm. Each probe captures the synchronous Engine state inside the single RaftCore task, so
++//! pre/post snapshots of one handler cannot interleave with other inputs.
++//!
++//! A *session* is one NDJSON file per node. It starts with `Bootstrap` (pre-state) when that
++//! node handles a `TransferLeader` message and continues with later instrumented events of the
++//! same node only while the node's pre-state equals the last emitted post-state, i.e. no
++//! uninstrumented input changed captured state in between. Otherwise the session is closed.
++//!
++//! Node ids are mapped to model ids `id + 1` (model `NoNode = 0`); a vote/log leader id with
++//! term 0 maps to `NoNode` (it is `Vote::default()` / `LogId::default()`).
++
++use std::collections::BTreeMap;
++use std::collections::BTreeSet;
++use std::fmt::Display;
++use std::fs::File;
++use std::io::Write;
++use std::sync::Mutex;
++use std::sync::OnceLock;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use crate::engine::Command;
++use crate::engine::Engine;
++use crate::progress::Progress;
++use crate::raft_state::LogStateReader;
++use crate::LogId;
++use crate::RaftTypeConfig;
++use crate::Vote;
++
++struct Session {
++    out: File,
++    last_state: String,
++}
++
++struct Registry {
++    dir: String,
++    seq: u64,
++    last_ts: u128,
++    sessions: BTreeMap<String, Session>,
++}
++
++fn registry() -> Option<&'static Mutex<Registry>> {
++    static R: OnceLock<Option<Mutex<Registry>>> = OnceLock::new();
++    R.get_or_init(|| {
++        std::env::var("SPECULA_CORE_TRACE_DIR").ok().map(|dir| {
++            Mutex::new(Registry {
++                dir,
++                seq: 0,
++                last_ts: 0,
++                sessions: BTreeMap::new(),
++            })
++        })
++    })
++    .as_ref()
++}
++
++/// Map an implementation node id to a model id (`id + 1`).
++fn nid(id: &impl Display) -> String {
++    let s = id.to_string();
++    match s.parse::<u64>() {
++        Ok(x) => (x + 1).to_string(),
++        Err(_) => format!("\"{}\"", s),
++    }
++}
++
++/// Map a leader-id node of a vote/log id; term 0 is the default id -> NoNode (0).
++fn leader_node(term: u64, id: &impl Display) -> String {
++    if term == 0 {
++        "0".to_string()
++    } else {
++        nid(id)
++    }
++}
++
++fn command_name<C: RaftTypeConfig>(cmd: &Command<C>) -> &'static str {
++    match cmd {
++        Command::UpdateIOProgress { .. } => "UpdateIOProgress",
++        Command::AppendInputEntries { .. } => "AppendInputEntries",
++        Command::ReplicateCommitted { .. } => "ReplicateCommitted",
++        Command::SaveCommitted { .. } => "SaveCommitted",
++        Command::Apply { .. } => "Apply",
++        Command::Replicate { .. } => "Replicate",
++        Command::RebuildReplicationStreams { .. } => "RebuildReplicationStreams",
++        Command::SaveVote { .. } => "SaveVote",
++        Command::SendVote { .. } => "SendVote",
++        Command::PurgeLog { .. } => "PurgeLog",
++        Command::TruncateLog { .. } => "TruncateLog",
++        Command::StateMachine { .. } => "StateMachine",
++        Command::Respond { .. } => "Respond",
++    }
++}
++
++fn idx<NID: crate::NodeId>(log_id: Option<&LogId<NID>>) -> i64 {
++    log_id.map(|x| x.index as i64).unwrap_or(-1)
++}
++
++fn ids<I: Iterator<Item = String>>(it: I) -> String {
++    let v: Vec<String> = it.collect();
++    format!("[{}]", v.join(","))
++}
++
++/// Strong post-state capture; same field set as the Engine unit harness
++/// (`engine/specula_trace_tests.rs::capture`), with node ids mapped.
++/// `skip`: number of queued commands that predate the current handler (condition-blocked
++/// commands such as `Respond` stay queued across inputs); only commands queued by the current
++/// handler are reported, matching the model's per-action `commands'`.
++fn capture<C: RaftTypeConfig>(id: &C::NodeId, eng: &Engine<C>, skip: usize) -> String {
++    let vote = eng.state.vote_ref();
++    let seen = &eng.last_seen_vote;
++    let effective = eng.state.membership_state.effective();
++    let committed_membership = eng.state.membership_state.committed();
++    let last_index = eng.state.last_log_id().map(|x| x.index as i64).unwrap_or(-1);
++
++    let mut logs = Vec::new();
++    if last_index >= 0 {
++        for i in 0..=(last_index as u64) {
++            match eng.state.get_log_id(i) {
++                Some(x) => logs.push(format!(
++                    "{{\"term\":{},\"node\":{},\"index\":{}}}",
++                    x.leader_id.term,
++                    leader_node(x.leader_id.term, &x.leader_id.node_id),
++                    x.index
++                )),
++                None => logs.push(format!("{{\"term\":-1,\"node\":-1,\"index\":{}}}", i)),
++            }
++        }
++    }
++
++    let configs = effective
++        .membership()
++        .get_joint_config()
++        .iter()
++        .map(|c| ids(c.iter().map(nid)))
++        .collect::<Vec<_>>();
++    let learners = ids(effective.membership().learner_ids().map(|x| nid(&x)));
++    let granters = ids(eng.candidate_ref().map(|c| c.granters().map(|x| nid(&x)).collect::<Vec<_>>()).unwrap_or_default().into_iter());
++    let matches = eng
++        .leader_ref()
++        .map(|l| {
++            l.progress
++                .iter()
++                .map(|(peer, p)| format!("{{\"peer\":{},\"index\":{}}}", nid(peer), idx(p.matching.as_ref())))
++                .collect::<Vec<_>>()
++        })
++        .unwrap_or_default();
++    let commands = eng
++        .output
++        .iter_commands()
++        .skip(skip)
++        .map(command_name)
++        .collect::<BTreeSet<_>>()
++        .into_iter()
++        .map(|x| format!("\"{}\"", x));
++    let (accepted_kind, accepted_index) = match eng.state.accepted_io() {
++        None => ("none", -1),
++        Some(io) => match io.last_log_id() {
++            Some(l) => ("log", l.index as i64),
++            None => ("vote", -1),
++        },
++    };
++
++    format!(
++        concat!(
++            "{{\"node_id\":{},\"vote_term\":{},\"vote_node\":{},\"vote_committed\":{},",
++            "\"last_seen_term\":{},\"last_seen_node\":{},\"last_seen_committed\":{},",
++            "\"role\":\"{:?}\",\"logs\":[{}],\"last_index\":{},\"commit_index\":{},",
++            "\"effective_index\":{},\"committed_membership_index\":{},",
++            "\"effective_configs\":[{}],\"learners\":{},\"candidate\":{},\"granters\":{},",
++            "\"leader\":{},\"matches\":[{}],\"accepted_index\":{},\"accepted_kind\":\"{}\",",
++            "\"commands\":[{}]}}"
++        ),
++        nid(id),
++        vote.leader_id.term,
++        leader_node(vote.leader_id.term, &vote.leader_id.node_id),
++        vote.committed,
++        seen.leader_id.term,
++        leader_node(seen.leader_id.term, &seen.leader_id.node_id),
++        seen.committed,
++        eng.state.server_state,
++        logs.join(","),
++        last_index,
++        idx(eng.state.committed()),
++        idx(effective.log_id().as_ref()),
++        idx(committed_membership.log_id().as_ref()),
++        configs.join(","),
++        learners,
++        eng.candidate_ref().is_some(),
++        granters,
++        eng.leader_ref().is_some(),
++        matches.join(","),
++        accepted_index,
++        accepted_kind,
++        commands.collect::<Vec<_>>().join(","),
++    )
++}
++
++fn strip_commands(state: &str) -> &str {
++    match state.find(",\"commands\":[") {
++        Some(i) => &state[..i],
++        None => state,
++    }
++}
++
++fn now_ts(reg: &mut Registry) -> u128 {
++    let observed = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
++    let ts = std::cmp::max(observed, reg.last_ts + 1);
++    reg.last_ts = ts;
++    ts
++}
++
++fn write_line(reg: &mut Registry, key: &str, name: &str, node: &str, args: &str, state: &str) {
++    let ts = now_ts(reg);
++    let line = format!(
++        "{{\"tag\":\"trace\",\"ts\":\"{}\",\"event\":{{\"name\":\"{}\",\"node\":{},\"args\":{},\"state\":{}}}}}\n",
++        ts, name, node, args, state
++    );
++    if let Some(s) = reg.sessions.get_mut(key) {
++        let _ = s.out.write_all(line.as_bytes());
++        let _ = s.out.flush();
++    }
++}
++
++/// Probe at handler entry. Returns `Some(queue_len)` when the handler's post-state may be
++/// emitted. `start` = the handler may open a new session (only the TransferLeader arm does).
++pub(crate) fn pre<C: RaftTypeConfig>(id: &C::NodeId, eng: &Engine<C>, start: bool) -> Option<usize> {
++    let reg = registry()?;
++    let mut reg = reg.lock().unwrap();
++    let key = nid(id);
++    let queued = eng.output.iter_commands().count();
++    let state = capture(id, eng, queued);
++    // `commands` is the queue left by the previous handler; RaftCore drains it between inputs
++    // (modeled by PersistVote / SendVoteRequests / Submit..., which change no other captured
++    // field), so it is excluded from the contiguity comparison.
++    let contiguous = reg.sessions.get(&key).map(|s| strip_commands(&s.last_state) == strip_commands(&state)).unwrap_or(false);
++    if contiguous {
++        return Some(queued);
++    }
++    // Uninstrumented input changed captured state (or no session yet): close.
++    reg.sessions.remove(&key);
++    if !start {
++        return None;
++    }
++    reg.seq += 1;
++    let path = format!("{}/transfer-n{}-{:03}.ndjson", reg.dir, key, reg.seq);
++    let Ok(out) = File::create(&path) else { return None };
++    reg.sessions.insert(key.clone(), Session {
++        out,
++        last_state: state.clone(),
++    });
++    write_line(&mut reg, &key, "Bootstrap", &key, "{}", &state);
++    Some(queued)
++}
++
++/// Probe at handler exit: emit the post-state if the session is live.
++pub(crate) fn post<C: RaftTypeConfig>(id: &C::NodeId, eng: &Engine<C>, skip: usize, name: &str, args: String) {
++    let Some(reg) = registry() else { return };
++    let mut reg = reg.lock().unwrap();
++    let key = nid(id);
++    if !reg.sessions.contains_key(&key) {
++        return;
++    }
++    let state = capture(id, eng, skip);
++    write_line(&mut reg, &key, name, &key, &args, &state);
++    if let Some(s) = reg.sessions.get_mut(&key) {
++        s.last_state = state;
++    }
++}
++
++pub(crate) fn transfer_args<NID: crate::NodeId>(from: &Vote<NID>, to: &NID) -> String {
++    format!(
++        "{{\"from_term\":{},\"from_node\":{},\"from_committed\":{},\"to\":{}}}",
++        from.leader_id.term,
++        leader_node(from.leader_id.term, &from.leader_id.node_id),
++        from.committed,
++        nid(to)
++    )
++}
++
++pub(crate) fn vote_request_args<NID: crate::NodeId>(vote: &Vote<NID>, last: Option<&LogId<NID>>) -> String {
++    let (lt, ln, li) = match last {
++        Some(l) => (
++            l.leader_id.term,
++            leader_node(l.leader_id.term, &l.leader_id.node_id),
++            l.index as i64,
++        ),
++        None => (0, "0".to_string(), -1),
++    };
++    format!(
++        "{{\"candidate\":{},\"term\":{},\"committed\":{},\"last_term\":{},\"last_node\":{},\"last_index\":{}}}",
++        leader_node(vote.leader_id.term, &vote.leader_id.node_id),
++        vote.leader_id.term,
++        vote.committed,
++        lt,
++        ln,
++        li
++    )
++}
++
++pub(crate) fn vote_response_args<NID: crate::NodeId>(peer: &NID, vote: &Vote<NID>) -> String {
++    format!(
++        "{{\"peer\":{},\"term\":{},\"owner\":{},\"committed\":{}}}",
++        nid(peer),
++        vote.leader_id.term,
++        leader_node(vote.leader_id.term, &vote.leader_id.node_id),
++        vote.committed
++    )
++}
++
++#[allow(dead_code)]
++/// Drop every session (called by the scenario at the end; files are already flushed).
++pub(crate) fn close_all() {
++    if let Some(reg) = registry() {
++        reg.lock().unwrap().sessions.clear();
++    }
++}
+diff --git a/openraft/src/engine/mod.rs b/openraft/src/engine/mod.rs
+index d75828c..d785b8c 100644
+--- a/openraft/src/engine/mod.rs
++++ b/openraft/src/engine/mod.rs
+@@ -52,6 +52,8 @@ mod tests {
+ }
+ #[cfg(test)]
+ pub(crate) mod testing;
++#[cfg(test)]
++mod specula_trace_tests;
+ 
+ pub(crate) use command::Command;
+ pub(crate) use command::Condition;
+diff --git a/openraft/src/engine/specula_trace_tests.rs b/openraft/src/engine/specula_trace_tests.rs
+new file mode 100644
+index 0000000..7617d1e
+--- /dev/null
++++ b/openraft/src/engine/specula_trace_tests.rs
+@@ -0,0 +1,372 @@
++//! Specula trace harness for the Engine boundary (V0 harness, rebased onto the update commit:
++//! `accepted_kind` field and full-LogId VoteRequest args added; scenarios unchanged).
++//!
++//! Enabled only in tests. Every scenario calls production Engine handlers and records the
++//! synchronous post-state. The writable work tree is instrumented; the immutable source tree is
++//! untouched.
++
++use std::collections::BTreeSet;
++use std::fs::File;
++use std::io::BufWriter;
++use std::io::Write;
++use std::sync::Arc;
++use std::sync::Mutex;
++use std::time::Duration;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use maplit::btreeset;
++use serde_json::json;
++use serde_json::Value;
++
++use crate::core::ServerState;
++use crate::engine::testing::UTConfig;
++use crate::engine::Command;
++use crate::engine::Engine;
++use crate::engine::LogIdList;
++use crate::entry::RaftEntry;
++use crate::progress::Inflight;
++use crate::progress::Progress;
++use crate::raft::VoteRequest;
++use crate::raft::VoteResponse;
++use crate::raft_state::LogStateReader;
++use crate::testing::log_id;
++use crate::type_config::TypeConfigExt;
++use crate::utime::Leased;
++use crate::CommittedLeaderId;
++use crate::EffectiveMembership;
++use crate::Entry;
++use crate::LogId;
++use crate::Membership;
++use crate::MembershipState;
++use crate::Vote;
++
++struct Recorder {
++    out: Mutex<BufWriter<File>>,
++    last_ts: u128,
++}
++
++impl Recorder {
++    fn from_env() -> anyhow::Result<Option<Self>> {
++        let Ok(path) = std::env::var("SPECULA_TRACE_FILE") else {
++            return Ok(None);
++        };
++        Ok(Some(Self {
++            out: Mutex::new(BufWriter::new(File::create(path)?)),
++            last_ts: 0,
++        }))
++    }
++
++    fn emit(&mut self, name: &str, node: u64, args: Value, eng: &Engine<UTConfig>) -> anyhow::Result<()> {
++        let observed = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos();
++        let ts = std::cmp::max(observed, self.last_ts + 1);
++        self.last_ts = ts;
++        let line = json!({
++            "tag": "trace",
++            "ts": ts.to_string(),
++            "event": {
++                "name": name,
++                "node": node,
++                "args": args,
++                "state": capture(eng),
++            }
++        });
++        let mut out = self.out.lock().expect("trace writer mutex poisoned");
++        serde_json::to_writer(&mut *out, &line)?;
++        out.write_all(b"\n")?;
++        out.flush()?;
++        Ok(())
++    }
++}
++
++fn command_name(cmd: &Command<UTConfig>) -> &'static str {
++    match cmd {
++        Command::UpdateIOProgress { .. } => "UpdateIOProgress",
++        Command::AppendInputEntries { .. } => "AppendInputEntries",
++        Command::ReplicateCommitted { .. } => "ReplicateCommitted",
++        Command::SaveCommitted { .. } => "SaveCommitted",
++        Command::Apply { .. } => "Apply",
++        Command::Replicate { .. } => "Replicate",
++        Command::RebuildReplicationStreams { .. } => "RebuildReplicationStreams",
++        Command::SaveVote { .. } => "SaveVote",
++        Command::SendVote { .. } => "SendVote",
++        Command::PurgeLog { .. } => "PurgeLog",
++        Command::TruncateLog { .. } => "TruncateLog",
++        Command::StateMachine { .. } => "StateMachine",
++        Command::Respond { .. } => "Respond",
++    }
++}
++
++fn idx(log_id: Option<&LogId<u64>>) -> i64 {
++    log_id.map(|x| x.index as i64).unwrap_or(-1)
++}
++
++fn capture(eng: &Engine<UTConfig>) -> Value {
++    let vote = eng.state.vote_ref();
++    let seen = eng.last_seen_vote;
++    let effective = eng.state.membership_state.effective();
++    let committed_membership = eng.state.membership_state.committed();
++    let last_index = eng.state.last_log_id().map(|x| x.index as i64).unwrap_or(-1);
++
++    let logs = if last_index < 0 {
++        Vec::new()
++    } else {
++        (0..=last_index as u64)
++            .map(|i| {
++                let x = eng.state.get_log_id(i).expect("LogIdList must cover every retained index");
++                json!({"term": x.leader_id.term, "node": x.leader_id.node_id, "index": x.index})
++            })
++            .collect::<Vec<_>>()
++    };
++
++    let configs = effective
++        .membership()
++        .get_joint_config()
++        .iter()
++        .map(|c| c.iter().copied().collect::<Vec<_>>())
++        .collect::<Vec<_>>();
++    let learners = effective.membership().learner_ids().collect::<Vec<_>>();
++    let granters = eng
++        .candidate_ref()
++        .map(|c| c.granters().collect::<Vec<_>>())
++        .unwrap_or_default();
++    let matches = eng
++        .leader_ref()
++        .map(|l| {
++            l.progress
++                .iter()
++                .map(|(peer, p)| json!({"peer": peer, "index": idx(p.matching.as_ref())}))
++                .collect::<Vec<_>>()
++        })
++        .unwrap_or_default();
++    let commands = eng
++        .output
++        .iter_commands()
++        .map(command_name)
++        .collect::<BTreeSet<_>>()
++        .into_iter()
++        .collect::<Vec<_>>();
++
++    json!({
++        "node_id": eng.config.id,
++        "vote_term": vote.leader_id.term,
++        "vote_node": vote.leader_id.node_id,
++        "vote_committed": vote.committed,
++        "last_seen_term": seen.leader_id.term,
++        "last_seen_node": seen.leader_id.node_id,
++        "last_seen_committed": seen.committed,
++        "role": format!("{:?}", eng.state.server_state),
++        "logs": logs,
++        "last_index": last_index,
++        "commit_index": idx(eng.state.committed.as_ref()),
++        "effective_index": idx(effective.log_id().as_ref()),
++        "committed_membership_index": idx(committed_membership.log_id().as_ref()),
++        "effective_configs": configs,
++        "learners": learners,
++        "candidate": eng.candidate_ref().is_some(),
++        "granters": granters,
++        "leader": eng.leader_ref().is_some(),
++        "matches": matches,
++        "accepted_index": eng.state.accepted_io().and_then(|x| x.last_log_id()).map(|x| x.index as i64).unwrap_or(-1),
++        // Update rebase: distinguish no accepted IO, a vote-only IO (no log position) and a log IO.
++        "accepted_kind": match eng.state.accepted_io() {
++            None => "none",
++            Some(io) => if io.last_log_id().is_some() { "log" } else { "vote" },
++        },
++        "commands": commands,
++    })
++}
++
++fn membership(configs: Vec<BTreeSet<u64>>, learners: BTreeSet<u64>) -> Membership<UTConfig> {
++    Membership::new(configs, learners)
++}
++
++fn base_engine(id: u64, voters: BTreeSet<u64>, learners: BTreeSet<u64>) -> Engine<UTConfig> {
++    let mut eng = Engine::testing_default(id);
++    eng.state.enable_validation(false);
++    eng.state.log_ids = LogIdList::new([log_id(0, 0, 0)]);
++    eng.state.committed = Some(log_id(0, 0, 0));
++    let m = membership(vec![voters], learners);
++    let em = Arc::new(EffectiveMembership::new(Some(log_id(0, 0, 0)), m));
++    eng.state.membership_state = MembershipState::new(em.clone(), em);
++    eng.state.server_state = if eng.state.membership_state.effective().is_voter(&id) {
++        ServerState::Follower
++    } else {
++        ServerState::Learner
++    };
++    eng
++}
++
++fn clear(eng: &mut Engine<UTConfig>) {
++    eng.output.clear_commands();
++}
++
++#[test]
++fn specula_trace_election() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = base_engine(1, btreeset! {1,2}, btreeset! {3});
++    rec.emit("Bootstrap", 1, json!({}), &eng)?;
++
++    eng.elect();
++    rec.emit("Elect", 1, json!({}), &eng)?;
++    clear(&mut eng);
++
++    let v = *eng.state.vote_ref();
++    eng.handle_vote_resp(1, VoteResponse::new(v, eng.state.last_log_id().copied()));
++    rec.emit("VoteResponse", 1, json!({"peer": 1, "term": v.leader_id.term, "owner": 1, "committed": false}), &eng)?;
++    clear(&mut eng);
++
++    eng.handle_vote_resp(2, VoteResponse::new(v, eng.state.last_log_id().copied()));
++    rec.emit("VoteResponse", 1, json!({"peer": 2, "term": v.leader_id.term, "owner": 1, "committed": false}), &eng)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_vote_request() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = base_engine(2, btreeset! {1,2}, btreeset! {3});
++    rec.emit("Bootstrap", 2, json!({}), &eng)?;
++
++    let req = VoteRequest::new(Vote::new(1, 1), eng.state.last_log_id().copied());
++    let _ = eng.handle_vote_req(req);
++    rec.emit("VoteRequest", 2, json!({"candidate": 1, "term": 1, "committed": false, "last_term": 0, "last_node": 0, "last_index": 0}), &eng)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_follower_append() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = base_engine(2, btreeset! {1,2}, btreeset! {3});
++    let vote = Vote::new_committed(2, 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(0), vote);
++    eng.last_seen_vote = vote;
++    eng.state.log_ids.append(log_id(2, 1, 1));
++    eng.state.committed = Some(log_id(0, 0, 0));
++    clear(&mut eng);
++    rec.emit("Bootstrap", 2, json!({}), &eng)?;
++
++    eng.append_entries(
++        &vote,
++        Some(log_id(2, 1, 1)),
++        vec![Entry::new_blank(log_id(2, 1, 2)), Entry::new_blank(log_id(2, 1, 3))],
++    )?;
++    rec.emit("FollowerAppend", 2, json!({"owner": 1, "term": 2, "prev": 1, "count": 2}), &eng)?;
++    Ok(())
++}
++
++fn leader_engine(voters: BTreeSet<u64>, learners: BTreeSet<u64>) -> Engine<UTConfig> {
++    let mut eng = base_engine(1, voters, learners);
++    let vote = Vote::new_committed(1, 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(0), vote);
++    eng.last_seen_vote = vote;
++    eng.testing_new_leader();
++    eng.state.server_state = ServerState::Leader;
++    clear(&mut eng);
++    eng
++}
++
++#[test]
++fn specula_trace_learner_membership() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = leader_engine(btreeset! {1,2}, btreeset! {});
++    rec.emit("Bootstrap", 1, json!({}), &eng)?;
++
++    let m = membership(vec![btreeset! {1,2}], btreeset! {3});
++    eng.leader_handler()?.leader_append_entries(vec![Entry::new_membership(LogId::default(), m)]);
++    rec.emit("LeaderAppend", 1, json!({"kind": "learner", "configs": [[1,2]], "learners": [3]}), &eng)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_joint_membership() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = leader_engine(btreeset! {1,2}, btreeset! {3});
++    rec.emit("Bootstrap", 1, json!({}), &eng)?;
++
++    let m = membership(vec![btreeset! {1,2}, btreeset! {2,3}], btreeset! {});
++    eng.leader_handler()?.leader_append_entries(vec![Entry::new_membership(LogId::default(), m)]);
++    rec.emit("LeaderAppend", 1, json!({"kind": "joint", "configs": [[1,2],[2,3]], "learners": []}), &eng)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_uniform_membership() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = base_engine(1, btreeset! {1,2}, btreeset! {3});
++    let joint = membership(vec![btreeset! {1,2}, btreeset! {2,3}], btreeset! {});
++    let em = Arc::new(EffectiveMembership::new(Some(log_id(0, 0, 0)), joint));
++    eng.state.membership_state = MembershipState::new(em.clone(), em);
++    let vote = Vote::new_committed(1, 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(0), vote);
++    eng.last_seen_vote = vote;
++    eng.testing_new_leader();
++    eng.state.server_state = ServerState::Leader;
++    clear(&mut eng);
++    rec.emit("Bootstrap", 1, json!({}), &eng)?;
++
++    let uniform = membership(vec![btreeset! {2,3}], btreeset! {1});
++    eng.leader_handler()?.leader_append_entries(vec![Entry::new_membership(LogId::default(), uniform)]);
++    rec.emit("LeaderAppend", 1, json!({"kind": "uniform", "configs": [[2,3]], "learners": [1]}), &eng)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_partial_replication() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = leader_engine(btreeset! {1,2,3}, btreeset! {});
++    eng.state.log_ids.append(log_id(1, 1, 1));
++    eng.state.log_ids.append(log_id(2, 1, 2));
++    eng.state.log_ids.append(log_id(2, 1, 4));
++    eng.state.committed = Some(log_id(0, 0, 0));
++    eng.state.accept_io(crate::raft_state::IOId::new_log_io(
++        Vote::new(2, 1).into_committed(),
++        Some(log_id(2, 1, 4)),
++    ));
++    let vote = Vote::new_committed(2, 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(0), vote);
++    eng.last_seen_vote = vote;
++    eng.testing_new_leader();
++    eng.state.server_state = ServerState::Leader;
++    clear(&mut eng);
++
++    let (id2, id3) = {
++        let leader = eng.leader_mut().unwrap();
++        let p2 = leader.progress.get_mut(&2).unwrap();
++        p2.inflight = Inflight::logs(None, Some(log_id(2, 1, 4)));
++        let id2 = p2.inflight.get_id().unwrap();
++        let p3 = leader.progress.get_mut(&3).unwrap();
++        p3.inflight = Inflight::logs(None, Some(log_id(2, 1, 4)));
++        let id3 = p3.inflight.get_id().unwrap();
++        (id2, id3)
++    };
++    rec.emit("Bootstrap", 1, json!({}), &eng)?;
++
++    eng.replication_handler().update_matching(3, id3, Some(log_id(1, 1, 1)));
++    rec.emit("AckReplication", 1, json!({"peer": 3, "index": 1}), &eng)?;
++    clear(&mut eng);
++
++    eng.replication_handler().update_matching(2, id2, Some(log_id(1, 1, 1)));
++    rec.emit("AckReplication", 1, json!({"peer": 2, "index": 1}), &eng)?;
++    clear(&mut eng);
++
++    eng.replication_handler().update_matching(3, id3, Some(log_id(2, 1, 3)));
++    rec.emit("AckReplication", 1, json!({"peer": 3, "index": 3}), &eng)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_restart() -> anyhow::Result<()> {
++    let Some(mut rec) = Recorder::from_env()? else { return Ok(()); };
++    let mut eng = base_engine(1, btreeset! {1,2}, btreeset! {3});
++    eng.state.log_ids.append(LogId::new(CommittedLeaderId::new(2, 1), 1));
++    let vote = Vote::new_committed(2, 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(0), vote);
++    eng.last_seen_vote = vote;
++    eng.state.server_state = ServerState::Learner;
++    clear(&mut eng);
++    rec.emit("Bootstrap", 1, json!({}), &eng)?;
++
++    eng.startup();
++    rec.emit("Startup", 1, json!({}), &eng)?;
++    Ok(())
++}
+diff --git a/tests/tests/client_api/main.rs b/tests/tests/client_api/main.rs
+index e6d5ba0..e7f78b1 100644
+--- a/tests/tests/client_api/main.rs
++++ b/tests/tests/client_api/main.rs
+@@ -15,6 +15,7 @@ mod t13_get_snapshot;
+ mod t13_install_full_snapshot;
+ mod t13_trigger_snapshot;
+ mod t14_transfer_leader;
++mod t99_specula_transfer;
+ mod t16_with_raft_state;
+ mod t16_with_state_machine;
+ mod t50_lagging_network_write;
+diff --git a/tests/tests/client_api/t99_specula_transfer.rs b/tests/tests/client_api/t99_specula_transfer.rs
+new file mode 100644
+index 0000000..6ad3f3b
+--- /dev/null
++++ b/tests/tests/client_api/t99_specula_transfer.rs
+@@ -0,0 +1,141 @@
++//! Specula update-focused scenarios for `Raft::transfer_leader` (harness-owned).
++//!
++//! These drive the real public API on a real in-memory cluster. They record observations
++//! (`SPECULA_OBS_FILE`, one JSON object per line) instead of asserting a protocol outcome, so
++//! the same scenario serves as trace producer and as code observation for the divergence
++//! evidence. RaftCore traces are written by `openraft/src/core/specula_core_trace.rs` when
++//! `SPECULA_CORE_TRACE_DIR` is set.
++
++use std::io::Write;
++use std::sync::Arc;
++use std::time::Duration;
++
++use maplit::btreeset;
++use openraft::Config;
++use openraft::ServerState;
++use openraft_memstore::ClientRequest;
++use openraft_memstore::IntoMemClientRequest;
++
++use crate::fixtures::ut_harness;
++use crate::fixtures::MemRaft;
++use crate::fixtures::RaftRouter;
++
++fn observe(label: &str, line: String) {
++    println!("SPECULA_OBS {} {}", label, line);
++    if let Ok(path) = std::env::var("SPECULA_OBS_FILE") {
++        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
++            let _ = writeln!(f, "{{\"label\":\"{}\",{}}}", label, line);
++        }
++    }
++}
++
++fn metrics_json(id: u64, n: &MemRaft) -> String {
++    let m = n.metrics().borrow().clone();
++    format!(
++        "\"node\":{},\"state\":\"{:?}\",\"current_leader\":\"{:?}\",\"vote\":\"{}\",\"last_log_index\":\"{:?}\",\"voters\":\"{:?}\"",
++        id,
++        m.state,
++        m.current_leader,
++        m.vote,
++        m.last_log_index,
++        m.membership_config.membership().voter_ids().collect::<Vec<_>>()
++    )
++}
++
++fn config() -> anyhow::Result<Arc<Config>> {
++    Ok(Arc::new(
++        Config {
++            election_timeout_min: 150,
++            election_timeout_max: 300,
++            ..Default::default()
++        }
++        .validate()?,
++    ))
++}
++
++/// U2: the `to` node is a learner. `transfer_leader` is called on every node, as the API
++/// documentation instructs (`raft/mod.rs:641-642`).
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_transfer_to_learner() -> anyhow::Result<()> {
++    let mut router = RaftRouter::new(config()?);
++    let _log_index = router.new_cluster(btreeset! {0,1,2}, btreeset! {3}).await?;
++
++    let n: Vec<MemRaft> = (0..4).map(|i| router.get_raft_handle(&i)).collect::<Result<_, _>>()?;
++    for (i, h) in n.iter().enumerate() {
++        observe("before", metrics_json(i as u64, h));
++    }
++
++    let m0 = n[0].metrics().borrow().clone();
++    let leader_vote = m0.vote;
++    let last_log_id = m0.last_applied;
++
++    // Non-target nodes first (lease reset), then the target (waits for its log).
++    n[0].transfer_leader(leader_vote, 3, last_log_id).await?;
++    n[1].transfer_leader(leader_vote, 3, last_log_id).await?;
++    n[2].transfer_leader(leader_vote, 3, last_log_id).await?;
++    n[3].transfer_leader(leader_vote, 3, last_log_id).await?;
++
++    let res = n[3]
++        .wait(Some(Duration::from_millis(2_000)))
++        .state(ServerState::Leader, "learner node-3 becomes leader?")
++        .await;
++    observe("n3_became_leader", format!("\"result\":\"{}\"", res.is_ok()));
++
++    // Let replication and heartbeats settle.
++    tokio::time::sleep(Duration::from_millis(500)).await;
++    for (i, h) in n.iter().enumerate() {
++        observe("after", metrics_json(i as u64, h));
++    }
++
++    // Consumer-visible consequence: where does a follower forward a client write?
++    let w1 = n[1].client_write(ClientRequest::make_request("specula", 1)).await;
++    observe("write_via_n1", format!("\"result\":\"{}\"", match &w1 {
++        Ok(r) => format!("ok log_id={}", r.log_id),
++        Err(e) => format!("err {}", e).replace('"', "'"),
++    }));
++    let w3 = n[3].client_write(ClientRequest::make_request("specula", 2)).await;
++    observe("write_via_n3", format!("\"result\":\"{}\"", match &w3 {
++        Ok(r) => format!("ok log_id={}", r.log_id),
++        Err(e) => format!("err {}", e).replace('"', "'"),
++    }));
++
++    tokio::time::sleep(Duration::from_millis(500)).await;
++    for (i, h) in n.iter().enumerate() {
++        observe("final", metrics_json(i as u64, h));
++    }
++    Ok(())
++}
++
++/// U1 interaction: `transfer_leader` called on every node of a 3-voter cluster, including the
++/// current leader (exercises the leader's own lease reset and its vote grant).
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_transfer_all_nodes() -> anyhow::Result<()> {
++    let mut router = RaftRouter::new(config()?);
++    let _log_index = router.new_cluster(btreeset! {0,1,2}, btreeset! {}).await?;
++
++    let n: Vec<MemRaft> = (0..3).map(|i| router.get_raft_handle(&i)).collect::<Result<_, _>>()?;
++    let m0 = n[0].metrics().borrow().clone();
++    let leader_vote = m0.vote;
++    let last_log_id = m0.last_applied;
++
++    n[0].transfer_leader(leader_vote, 1, last_log_id).await?;
++    n[2].transfer_leader(leader_vote, 1, last_log_id).await?;
++    n[1].transfer_leader(leader_vote, 1, last_log_id).await?;
++
++    let res = n[1].wait(Some(Duration::from_millis(2_000))).state(ServerState::Leader, "node-1 leader").await;
++    observe("n1_became_leader", format!("\"result\":\"{}\"", res.is_ok()));
++    let res = n[0].wait(Some(Duration::from_millis(2_000))).state(ServerState::Follower, "node-0 follower").await;
++    observe("n0_became_follower", format!("\"result\":\"{}\"", res.is_ok()));
++
++    let w = n[1].client_write(ClientRequest::make_request("specula", 1)).await;
++    observe("write_via_new_leader", format!("\"result\":\"{}\"", match &w {
++        Ok(r) => format!("ok log_id={}", r.log_id),
++        Err(e) => format!("err {}", e).replace('"', "'"),
++    }));
++    for (i, h) in n.iter().enumerate() {
++        observe("final", metrics_json(i as u64, h));
++    }
++    Ok(())
++}

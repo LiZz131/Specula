@@ -1,0 +1,55 @@
+# cmd: java tlc2.TLC -config Update_full.cfg -metadir /dev/shm/specula-e2e-case-012/upd-full-r1 -workers 10  Update.tla (outer timeout 1200s+300s)
+# start: 2026-11-20T00:46:46-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 1 and seed -7623440963393912253 with 10 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 11259] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-2988542582363285584/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-2988542582363285584/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2988542582363285584/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-2988542582363285584/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2988542582363285584/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-2988542582363285584/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-2988542582363285584/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 06:46:46)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 06:46:47.
+Error: Invariant OneOutstandingMembership is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n1) line 40, col 5 to line 43, col 70 of module MC>
+
+State 3: <MCGrantVote(n1,n3) line 72, col 5 to line 73, col 28 of module MC>
+
+State 4: <MCProposeMembership(n1,{{n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+
+State 5: <MCSendAppendEntries(n1,n2) line 76, col 5 to line 77, col 28 of module MC>
+
+State 6: <MCNext line 105, col 8 to line 105, col 51 of module MC>
+
+State 7: <MCNext line 107, col 8 to line 107, col 50 of module MC>
+
+State 8: <MCCrash(n1) line 58, col 5 to line 61, col 78 of module MC>
+
+12954 states generated, 7354 distinct states found, 5190 states left on queue.
+The depth of the complete state graph search is 8.
+Finished in 02s at (2026-11-20 06:46:49)
+Trace exploration spec path: ./Update_TTrace_1795157206.tla
+# exit: 12 end: 2026-11-20T00:46:49-06:00

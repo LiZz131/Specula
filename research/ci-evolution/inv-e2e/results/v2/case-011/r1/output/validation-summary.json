@@ -1,0 +1,47 @@
+{
+ "status": "LIMITED_COVERAGE",
+ "decision": "MODEL_CHANGE_REQUIRED",
+ "source_revision": {
+  "baseline": "1adc857 (baseline)",
+  "update": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769 (update)"
+ },
+ "toolchain_used": "stable (cargo 1.100.0); pinned nightly-2026-03-01 unavailable",
+ "instrumentation": [
+  "harness/instrumentation.patch",
+  "harness/patches/memstore-delay-save-vote.patch"
+ ],
+ "tests_on_update": {
+  "openraft_library": {
+   "passed": 488,
+   "failed": 16,
+   "note": "the 16 failures are the Specula trace-emitting tests, which require SPECULA_TRACE_PATH and pass under harness/run.sh"
+  },
+  "elect_integration": {
+   "passed": 8,
+   "failed": 0,
+   "note": "excluding the two Specula reproduction tests, which fail by design on the defective revision"
+  }
+ },
+ "trace_validation": {
+  "status": "PASS",
+  "fresh_files": 16,
+  "events": 24,
+  "all_consumed": true,
+  "summary": "spec/output/trace-validation-summary.txt",
+  "field_audit": "spec/output/trace-field-consumption.txt"
+ },
+ "model_checking": "see spec/bug-report.md (campaign table)",
+ "findings": [
+  {
+   "id": "MC-1",
+   "status": "REPRODUCED"
+  },
+  {
+   "id": "MC-2",
+   "status": "REPRODUCED"
+  }
+ ],
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specula-e2e-case-011 (per-run state directories removed after each run)"
+ }
+}

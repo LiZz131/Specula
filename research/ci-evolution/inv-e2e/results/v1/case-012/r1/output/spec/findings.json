@@ -1,0 +1,25 @@
+{
+  "schema_version": "2",
+  "system": "OpenRaft (case-012 updated revision aa05a38)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Leader commits an entry without a quorum of every joint-membership group (VecProgress order corruption)",
+      "source": "model-checking",
+      "scenario": "U1 progress order x membership upgrade",
+      "severity": "Critical",
+      "invariant": "CommitWitnessSound",
+      "config": "Update_full_cws.cfg",
+      "counterexample": "spec/output/MC-1_counterexample_Update_full_cws.out",
+      "affected_code": [
+        "openraft/src/progress/mod.rs:180-203",
+        "openraft/src/progress/mod.rs:222-232",
+        "openraft/src/engine/engine_impl.rs:270-288",
+        "openraft/src/engine/engine_impl.rs:617-647",
+        "openraft/src/core/replication.rs:133-138"
+      ],
+      "summary": "The update routes leader commit through Engine::update_progress over a VecProgress. VecProgress::update writes a value in place without move_up when the previous value is above committed, so the vector can become unsorted; the recompute loop then treats vector[0..=i] as the ids holding at least vector[i] and counts a lagging node. upgrade_quorum_set (run when the leader appends a membership entry) resets committed and keeps tied values in id order, making this reachable right after a membership change: with leader n2, joint config [{n1,n2,n3},{n1,n3}], n1 at index 0 and n3 acking index 1, the leader commits index 1 although only {n2,n3} hold it ({n1,n3} has no majority). Confirmed by a failing Engine-level requirement test and a TLC-validated implementation trace; the old revision's greatest_majority_value gives the correct result on the same state. A directed 5-server run with a voter-adding joint config reaches CommittedLogAgreement violation (two different entries committed at index 1): spec/output/MC-1_consequence_counterexample_MC5_divergence.out; Engine-level confirmation in spec/output/new-observe-add-voters.log."
+    }
+  ]
+}

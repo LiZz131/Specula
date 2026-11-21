@@ -1,0 +1,58 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab, incremental run on artifact commit update 2efbdfc3754df193bce05b9792297c813377cdaf",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER quorum commits a history that is not durable on a quorum",
+      "source": "model-checking",
+      "scenario": "U1 (NEWLEADER ACK vs durability) / U2 (crash in the ACK-fsync window)",
+      "severity": "High",
+      "invariant": "CommittedDurableOnQuorum; NewLeaderAckDurable",
+      "config": "Update-focused-quorumdurable.cfg; Update-focused-ackdurable.cfg",
+      "counterexample": "spec/output/update/final-focused-quorumdurable.log",
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:749-760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:81-88",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:166-250",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547-1585"
+      ],
+      "summary": "In the updated NEWLEADER handler the learner hands the buffered DIFF/TRUNC proposals to FollowerZooKeeperServer.logRequest, which only enqueues them into the asynchronous SyncRequestProcessor, and immediately writes ACK(NEWLEADER). Leader.waitForNewLeaderAck counts that ACK and, with a quorum, the leader activates and serves (commits) its history although the acknowledging learner has not persisted it. TLC reaches CommittedDurableOnQuorum=false in 13 states from a reachable epoch-1 aftermath state (and NewLeaderAckDurable fails at the ACK step). The real updated implementation shows the same order (follower-diff trace event 12: ACK with no txn log on disk; DIFFSyncConsistencyTest trace events 82-89: leader activation before the learner's fsync). A crash of the acknowledging learners in this window loses a committed transaction. The exact-old code had the same gap (it did not even enqueue before the ACK); the update narrows but does not close it, contrary to its stated contract (Learner.java:757). Full-model simulations from MCInit (Update-full.cfg, Update-full-sim-quorum.cfg; spec/output/update/final-sim-update-full.log, final-sim-full-quorum.log) independently reach the same NewLeaderAckDurable and CommittedDurableOnQuorum violations."
+    },
+    {
+      "id": "MC-2",
+      "title": "Aborted synchronization after the NEWLEADER ACK lets a later-epoch leader activate without a committed transaction",
+      "source": "model-checking",
+      "scenario": "U4 (aborted sync in the INITIAL window), U2",
+      "severity": "High",
+      "invariant": "LeaderCompleteness",
+      "config": "Update-hunt-postact-leak.cfg",
+      "counterexample": "spec/output/update/final-hunt-postact-leak.log",
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:673-698",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-850",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-172",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:749-767",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:593"
+      ],
+      "summary": "startupWithoutServing() starts all learner request processors but leaves the server in INITIAL until UPTODATE. If the synchronization aborts in between (UPTODATE timeout, leader loss, or the CR-1 NPE), Learner.shutdown -> zk.shutdown() returns immediately because canShutdown() is false: the SyncRequestProcessor is not stopped (it later persists the streamed transactions and then dies with an NPE) and the in-memory database is not fast-forwarded. The peer re-enters FLE and ACKEPOCH with its stale in-memory zxid and, if elected, Leader.lead serves zk.loadData()'s in-memory database. TLC shows, without any crash, a 14-state path from the reachable post-activation state of MC-1 in which the aborted learner wins epoch 3 and activates without the transaction committed and served in epoch 2 (LeaderCompleteness). The real updated implementation executed this path in DIFFSyncConsistencyTest (trace events 103-126: s1 elected and activated in epoch 3 reporting 0x100000001 while 0x100000002 had been committed by the epoch-2 leader and made durable by s1's leaked sync thread); the test passes only because a full restart later reloads the log."
+    },
+    {
+      "id": "MC-3",
+      "title": "Learner leave persists a proposal outside the next leader's history",
+      "source": "model-checking",
+      "scenario": "U4 interaction (pre-existing learner shutdown order, unchanged by the update)",
+      "severity": "High",
+      "invariant": "SyncedLogMatchesLeader",
+      "config": "Update-hunt-ghost.cfg",
+      "counterexample": "spec/output/update/final-hunt-ghost.log",
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-172",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:834-850",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java:1257-1262"
+      ],
+      "summary": "LearnerZooKeeperServer.shutdown() fast-forwards the in-memory database (ZooKeeperServer.shutdown) before shutting down and flushing the learner's SyncRequestProcessor, so a proposal still queued when a RUNNING learner leaves becomes durable but is absent from the in-memory database. FLE and ACKEPOCH report the in-memory zxid, the next leader (which never had the proposal) selects DIFF from that stale position, and the learner enters BROADCAST with an uncommitted proposal in its log that its leader does not know; a restart replays it. TLC finds this in 19 states from a reachable state (both learners ACKed NEWLEADER, epoch-2 leader activated) and under full MCNext. The code is unchanged by the update; the refined model (trace-driven in-memory history) exposes it. Not observed in a fresh trace."
+    }
+  ]
+}

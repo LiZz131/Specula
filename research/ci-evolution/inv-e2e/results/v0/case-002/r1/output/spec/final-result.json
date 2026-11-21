@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "run_id": "case-002-incremental",
+  "summary": "Model updated for the NEWLEADER/UPTODATE change (packet-level learner sync, INITIAL server state); harness rebased; 7 fresh traces validated; model checking found 3 real defects: an update-introduced NPE (MC-1), NEWLEADER ACK before durability (MC-2, pre-existing, narrowed) and loss of a committed transaction after a learner fails in INITIAL and re-elects in-process (MC-3).",
+  "validation_limits": [
+    "All BFS campaigns stopped at their per-run time budget with non-empty queues (bounded exploration, not proof): 3 servers, 1 transaction, MaxEpoch 2-3, bounded crash/drop/snapshot.",
+    "Deep update paths (U-EPOCH no-crash, U-LOSS) were reached with guidance constraints that only restrict the full MCNext.",
+    "Leader-side LearnerHandler packet production is not instrumented; Trace.tla supplies the consumed packet (TraceDeliverPacket).",
+    "MC-2's data-loss consequence needs a process crash inside the ACK-to-fsync window, which the in-JVM test harness cannot inject.",
+    "The specula CLI (ci-result, persistent findings registry) is not installed in this environment; reports were written manually."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NullPointerException when a COMMIT crosses NEWLEADER",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "The update clears packetsNotCommitted at NEWLEADER, but the unchanged COMMIT handler dereferences packetsNotCommitted.peekFirst() (Learner.java:645-646).",
+      "trigger": "A learner joins an established leader with an outstanding proposal (forwarded before NEWLEADER by startForwarding) whose COMMIT is forwarded after NEWLEADER.",
+      "consequence": "The learner throws NullPointerException after ACKing NEWLEADER, aborts synchronisation, leaks its INITIAL-state processors and retries; under write load it may never rejoin.",
+      "severity": "High",
+      "evidence": ["spec/confirmation-MC-1.md", "spec/bug-report.md", "spec/output/mc/hunt-update-npe-strict.log", "traces/update-commit-after-newleader.ndjson"]
+    },
+    {
+      "id": "MC-2",
+      "title": "NEWLEADER ACKed and currentEpoch persisted before the synchronised history is durable",
+      "status": "ENV_LIMITED",
+      "source": "model-checking",
+      "cause": "setCurrentEpoch precedes logging and the update only enqueues the DIFF proposals (logRequest) before writing the NEWLEADER ACK; the fsync happens later in SyncRequestProcessor.",
+      "trigger": "A learner ACKs NEWLEADER of a new epoch whose history it received by DIFF and crashes before SyncRequestProcessor forces it; the old leader then fails.",
+      "consequence": "The crashed learner restarts with the new epoch but without the history; FLE prefers its epoch, so it can lead and truncate a committed transaction.",
+      "severity": "High",
+      "evidence": ["spec/confirmation-MC-2.md", "spec/bug-report.md", "spec/output/mc/hunt-update-epoch.log", "spec/output/mc/hunt-update-dur.log"]
+    },
+    {
+      "id": "MC-3",
+      "title": "Stale tree after a failure in the new INITIAL state; in-process re-election loses a committed transaction",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "A learner failing between NEWLEADER and UPTODATE is in State.INITIAL, where ZooKeeperServer/LearnerZooKeeperServer.shutdown are no-ops, so its tree is not fast-forwarded while currentEpoch already advanced.",
+      "trigger": "Learners ACK NEWLEADER (the leader establishes and serves the DIFF transaction), time out on UPTODATE, the leader fails and the learners re-elect without a process restart.",
+      "consequence": "The new leader establishes an epoch without the committed transaction; a znode a client read from the old leader is missing after failover.",
+      "severity": "Critical",
+      "evidence": ["spec/confirmation-MC-3.md", "spec/bug-report.md", "spec/output/mc/hunt-update-loss-tight.log", "traces/update-diff-sync-consistency.ndjson"]
+    }
+  ]
+}

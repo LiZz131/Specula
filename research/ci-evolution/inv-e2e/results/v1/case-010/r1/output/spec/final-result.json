@@ -1,0 +1,87 @@
+{
+ "version": 1,
+ "run_id": "case-010",
+ "summary": "Model updated for the learner-shutdown change; the update's SNAP fix holds within bounds, but the new shutdown call no longer stops or drains the follower log processor (reproduced), and a TRUNC sibling of the fixed window remains open.",
+ "validation_limits": [
+  "All model checking is bounded (3 servers, MaxTxn<=2, MaxEpoch<=2, <=1 crash, <=2 learner exits); MC-full, Update-full, residual, open and discharge campaigns stopped at their time limits (LIMITED_COVERAGE).",
+  "TruncateLog, ApplySyncCommit and leaked flushes of queued writes were not observed in fresh traces (timing); they are covered by model checking only.",
+  "The prior run's stateful trace emitter was not preserved; the trace emitter was rebuilt (schema v3) and prior v2 traces were replayed on common fields only.",
+  "Data-loss consequences of MC-1/MC-2/MC-3 are model-level; only MC-1's mechanism (leaked SyncRequestProcessor) was reproduced in real code.",
+  "Adjacent duplicate WAL records are accepted by the replay-order properties (unresolved in spec/invariant-evidence.json).",
+  "The specula ci-result command is not available in this environment, so generated CI reports were not produced."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Learner exit no longer drains or stops the follower log processor",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "Learner.shutdown now calls zk.shutdown(boolean), which LearnerZooKeeperServer does not override, so its shutdown() override that stops and drains syncProcessor is skipped.",
+   "trigger": "A follower leaves FOLLOWING while serving (leader stop, I/O error) or the peer shuts down; writes still queued in its SyncRequestProcessor are left to a thread that is never stopped.",
+   "consequence": "Thread leak on every serving learner exit (reproduced); in the model a re-synced follower's recoverable log can miss a committed txn or replay a stale record after newer ones if it crashes or reopens its log before the leaked thread writes.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/counterexamples/final/MC-1_leaked-log-processor_unflushed-applied_committed-gap_UPDATED.log",
+    "spec/output/counterexamples/final/MC-1_control_PRIOR_no-committed-gap_exhaustive.log",
+    "spec/output/harness/repro-mc1-artifact.log",
+    "spec/output/harness/repro-mc1-artifact-old.log"
+   ],
+   "persistence": {
+    "sites": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:shutdown",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+    ],
+    "premises": [
+     "LearnerZooKeeperServer overrides shutdown() but not shutdown(boolean)",
+     "Learner.shutdown calls zk.shutdown(boolean)"
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+     }
+    ]
+   }
+  },
+  {
+   "id": "MC-2",
+   "title": "TRUNC-mode learner exit before NEWLEADER keeps an unpersisted in-memory image",
+   "status": "NEEDS MORE INFO",
+   "source": "model-checking",
+   "cause": "TRUNC, like SNAP, applies in-sync COMMITs only in memory until the NEWLEADER snapshot, but the update clears the database on exit only when syncMode is SNAP.",
+   "trigger": "A follower ahead of the leader's committed log receives TRUNC plus PROPOSAL/COMMIT for a committed-but-unapplied txn and fails before NEWLEADER, then re-joins by DIFF.",
+   "consequence": "The follower's recoverable log misses the committed txn; after a restart it permanently lacks it (model; pre-existing, also under exact-old semantics).",
+   "severity": "Medium",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/counterexamples/final/MC-2_trunc-exit_committed-gap_UPDATED_noleak.log",
+    "spec/output/counterexamples/final/MC-2_control_PRIOR_trunc-exit_committed-gap_noleak.log"
+   ]
+  },
+  {
+   "id": "MC-3",
+   "title": "Fast-forward before drain leaves re-sent or stale records ahead of committed history in a follower log",
+   "status": "NEEDS MORE INFO",
+   "source": "model-checking",
+   "cause": "The old learner shutdown fast-forwards the DataTree before draining the sync queue, so drained txns are on disk but not in the advertised baseline and are re-sent and appended again.",
+   "trigger": "A serving follower exits with unflushed queued txns and re-joins by DIFF.",
+   "consequence": "Transiently a record follows a newer one (or an uncommitted record precedes committed ones); a crash in that window makes restart replay regress state (model; pre-existing).",
+   "severity": "Medium",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/counterexamples/final/MC-3_PRIOR_drain-after-fastforward_replay-order.log",
+    "spec/output/counterexamples/final/MC-3_PRIOR_drain-after-fastforward_stale-before-committed.log"
+   ]
+  }
+ ]
+}

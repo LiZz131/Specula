@@ -1,0 +1,24 @@
+SANY base ok
+SANY MC ok
+SANY Trace ok
+SANY TraceUpd ok
+SANY Update ok
+quorum_read cfg=Trace.cfg records=28 rc=0 depth=29 :: Model checking completed. No error has been found. 
+quorum_loss cfg=Trace.cfg records=15 rc=0 depth=16 :: Model checking completed. No error has been found. 
+read_reuse cfg=Trace.cfg records=33 rc=0 depth=34 :: Model checking completed. No error has been found. 
+forwarded_read cfg=Trace.cfg records=36 rc=0 depth=37 :: Model checking completed. No error has been found. 
+stepdown_pending cfg=Trace.cfg records=25 rc=0 depth=26 :: Model checking completed. No error has been found. 
+stale_ack_reuse cfg=Trace_stale_ack.cfg records=37 rc=0 depth=38 :: Model checking completed. No error has been found. 
+stale_ack_reuse cfg=Trace_stale_ack_evidence_fresh.cfg records=37 rc=12 depth=38 :: Error: Invariant TrFinalReadAckFresh is violated. Error: The behavior up to this point is: 
+stale_ack_reuse cfg=Trace_stale_ack_evidence_lin.cfg records=37 rc=12 depth=38 :: Error: Invariant TrFinalReadIndexLinearizable is violated. Error: The behavior up to this point is: 
+(stale_ack_reuse evidence runs: final-state violation of TrFinal* expected)
+m1_quorum_read_stale_pending: record 26 claims the exact-old stale pending entry
+m2_read_reuse_readindex: record 31 second ReadState index -> 1
+m3_forwarded_resp_index: record 29 follower ReadState index -> 3
+m4_stale_ack_requester: record 35 pending.from -> s2
+m5_stale_ack_index: record 35 pending.index -> 3
+m1_quorum_read_stale_pending cfg=Trace.cfg records=28 rc=12 depth=26 :: Error: Invariant TraceCanProgress is violated. Error: The behavior up to this point is: 
+m2_read_reuse_readindex cfg=Trace.cfg records=33 rc=12 depth=31 :: Error: Invariant TraceCanProgress is violated. Error: The behavior up to this point is: 
+m3_forwarded_resp_index cfg=Trace.cfg records=36 rc=12 depth=29 :: Error: Invariant TraceCanProgress is violated. Error: The behavior up to this point is: 
+m4_stale_ack_requester cfg=Trace.cfg records=37 rc=12 depth=35 :: Error: Invariant TraceCanProgress is violated. Error: The behavior up to this point is: 
+m5_stale_ack_index cfg=Trace.cfg records=37 rc=12 depth=35 :: Error: Invariant TraceCanProgress is violated. Error: The behavior up to this point is: 
