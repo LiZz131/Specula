@@ -401,6 +401,9 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
         status = "USAGE_LIMIT"
     elif AUTH_FAILURE.search(json.dumps(behavior.get("error") or {}) + _tail(activity)):
         status = "AUTH_ERROR"
+    elif "max_budget" in str(behavior.get("result_subtype") or ""):
+        # The per-run cost cap (--max-budget-usd) stopped the agent: a truncated result, recorded as is.
+        status = "BUDGET_CAP"
     manifest.update({
         "status": status,
         "exit_code": proc.returncode,

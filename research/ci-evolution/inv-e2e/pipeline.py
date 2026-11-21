@@ -7,7 +7,8 @@ For each case, in order:
   1. wait until its frozen annotation exists (annotate.py, started earlier in the background);
   2. wait until the previous case's runs have finished;
   3. prepare v0/v1/v2 workspaces (rep 1);
-  4. run the arms one at a time in the fixed order v2, v0, v1 (run.py, one arm per call);
+  4. run the arms one at a time in the fixed order v2, v0, v1 (run.py, one arm per call), exporting each
+     finished run into the repository (export.py);
      just before the last arm, start annotate.py for the next case in the background.
 The first case's annotation starts at once (the previous batch is assumed to be in its last arm).
 --wait-log names a run log whose final "EXIT" line marks the end of an earlier batch.
@@ -125,6 +126,13 @@ def main() -> int:
             r = subprocess.run([sys.executable, "run.py", "--arm", arm, "--case", case_id, "--rep", "1"],
                                cwd=HERE, capture_output=True, text=True)
             log(f"{case_id} {arm}: run exit {r.returncode}: {r.stdout.strip()[-600:]} {r.stderr.strip()[-600:]}")
+            if (RESULTS / arm / case_id / "r1" / "run.json").exists():
+                e = subprocess.run([sys.executable, "export.py", "runs", "--arm", arm, "--case", case_id, "--rep", "1"],
+                                   cwd=HERE, capture_output=True, text=True)
+                log(f"{case_id} {arm}: export exit {e.returncode}: {e.stdout.strip()[-200:]} {e.stderr.strip()[-300:]}")
+    case_args = [x for c in args.cases for x in ("--case", c)]
+    e = subprocess.run([sys.executable, "export.py", "inputs", *case_args], cwd=HERE, capture_output=True, text=True)
+    log(f"export inputs exit {e.returncode}: {e.stderr.strip()[-300:]}")
     log("pipeline done")
     print("EXIT 0", flush=True)
     return 0

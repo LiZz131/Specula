@@ -161,6 +161,16 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
     evidence = ws / "current/.specula-output/spec/invariant-evidence.json"
     if evidence.is_file():
         shutil.copy2(evidence, out / "invariant-evidence.json")
+    if manifest["status"] != "EXITED_0":
+        # A run stopped by the cost cap, the timeout or a failure is a result, recorded as is.
+        # Keep its partial outputs here; the full workspace and the session log stay under WORK/attempts.
+        partial = out / "partial"
+        for f in sorted((ws / "current").rglob("*")):
+            rel = f.relative_to(ws / "current")
+            if (f.is_file() and f.suffix in (".md", ".json", ".tla", ".cfg", ".txt") and f.stat().st_size <= 2_000_000
+                    and "states" not in rel.parts and not rel.name.endswith("TTrace.tla")):
+                (partial / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(f, partial / rel)
     summary = {
         "arm": arm, "case_id": case_id, "rep": rep, "attempt_no": attempt.get("attempt_no", 1),
         "status": manifest["status"],
@@ -174,6 +184,8 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
         "invariant_evidence": evidence_stats(evidence),
         "skills_tree_sha256": attempt["skills_tree_sha256"],
         "prior_tree_sha256": attempt["prior_tree_sha256"],
+        "truncated": manifest["status"] in ("BUDGET_CAP", "TIMEOUT"),
+        "session_log": str(logical / "log" / "activity.jsonl"),
         "graded": None,
     }
     write_json(out / "run.json", summary)

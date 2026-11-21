@@ -2,7 +2,9 @@
 
 Prototypes for #188 §3. This branch is not merged into main.
 
-`etcd-v0-v3/` includes the experiment results: reports, per-run summaries and verdicts, comparison results, invariant decisions and scores, the bug-A reproduction, and TLC logs. Omitted: build caches, TLC state directories, per-test raw outputs (aggregated in each `comparison.json`), copied inputs and spec suites, input traces, and agent transcripts. TLC logs keep the statistics and the counterexample action sequence but not the per-state dumps; `events.json`/`summary.json` next to each log hold the condensed counterexample, and rerunning the command in `run.json`/`receipt.json` regenerates the full dump. `blind-incremental-bugs/` has no run outputs.
+`etcd-v0-v3/` includes the experiment results: reports, per-run summaries and verdicts, comparison results, invariant decisions and scores, the bug-A reproduction, and TLC logs. Omitted: build caches, TLC state directories, per-test raw outputs (aggregated in each `comparison.json`), copied inputs and spec suites, input traces, and agent transcripts. TLC logs keep the statistics and the counterexample action sequence but not the per-state dumps; `events.json`/`summary.json` next to each log hold the condensed counterexample, and rerunning the command in `run.json`/`receipt.json` regenerates the full dump. `blind-incremental-bugs/` has no run outputs; its `blind-incremental-v0/` holds the V0 suites verbatim, since they are the prior input of `inv-e2e/`.
+
+`inv-e2e/` keeps, per run, the exported model suite, harness, traces, reports, evidence, trimmed TLC logs, instrumentation diffs and a timeline of the session, plus the inputs of every run (`inv-e2e/README.md`, "Storage"). Full session logs and workspaces are archived outside git under `/proj/aiopslab-PG0/specula-ci/inv-e2e/`.
 
 - `etcd-v0-v3/`: etcd/raft V0–V3 evolution experiment. Overview in `PLAN.md` and `REPORT-20260923.md` (Chinese).
   - 3.1 Action validation: `agent-runs/action-framework-final/`
@@ -14,7 +16,7 @@ Prototypes for #188 §3. This branch is not merged into main.
 - `update-coverage/`: checks that the checking configs reach the update's affected actions with the suite's checks enabled (§3.3), with results on etcd V01–V03 and a MongoDB case study.
 - `prefix-branch/`: branches from a recorded run into the update's affected actions instead of starting at Init (§3.3), with results on etcd V01–V03 from the 153-event prefix and from all 11 recordings of the V02 CI run, with each alarm checked against the previous version. `choose.py` ranks branch points.
 - `env-update/`: finds the actions the focused update model leaves out, summarizes what they do as `EnvUpdate`, and checks the summary (§3.3), with results on etcd V01–V03 and a check of its action split on the 10 blind-study V0 suites.
-- `inv-e2e/`: end-to-end blind test of the §3.2 invariant evidence in the full incremental workflow (v0 base skill, v1 divergence evidence, v2 plus the requirement-evidence ledger), with pilot results on case-006.
+- `inv-e2e/`: end-to-end blind test of the §3.2 invariant evidence in the full incremental workflow (v0 base skill, v1 divergence evidence, v2 plus the requirement-evidence ledger); epoch 1 is 7 cases × 3 arms, ungraded.
 - `blind-incremental-bugs/`: blind study of historical bug-introducing updates (§2.2): protocol, neutral cohort, runner tools.
 
 Scripts still use the original absolute paths.
