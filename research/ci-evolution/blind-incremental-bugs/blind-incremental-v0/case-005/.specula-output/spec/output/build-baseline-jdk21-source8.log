@@ -1,0 +1,469 @@
+Buildfile: /work/work-source/build.xml
+
+init:
+
+ivy-download:
+
+ivy-taskdef:
+
+ivy-init:
+
+ivy-retrieve:
+[ivy:retrieve] :: Apache Ivy 2.4.0 - 20141213170938 :: http://ant.apache.org/ivy/ ::
+[ivy:retrieve] :: loading settings :: file = /work/work-source/ivysettings.xml
+[ivy:retrieve] :: resolving dependencies :: org.apache.zookeeper#zookeeper;3.6.0-SNAPSHOT
+[ivy:retrieve] 	confs: [default]
+[ivy:retrieve] 	found jline#jline;2.11 in maven2
+[ivy:retrieve] 	found org.eclipse.jetty#jetty-server;9.2.18.v20160721 in maven2
+[ivy:retrieve] 	found javax.servlet#javax.servlet-api;3.1.0 in maven2
+[ivy:retrieve] 	found org.eclipse.jetty#jetty-http;9.2.18.v20160721 in maven2
+[ivy:retrieve] 	found org.eclipse.jetty#jetty-util;9.2.18.v20160721 in maven2
+[ivy:retrieve] 	found org.eclipse.jetty#jetty-io;9.2.18.v20160721 in maven2
+[ivy:retrieve] 	found org.eclipse.jetty#jetty-servlet;9.2.18.v20160721 in maven2
+[ivy:retrieve] 	found org.eclipse.jetty#jetty-security;9.2.18.v20160721 in maven2
+[ivy:retrieve] 	found org.codehaus.jackson#jackson-mapper-asl;1.9.11 in maven2
+[ivy:retrieve] 	found org.codehaus.jackson#jackson-core-asl;1.9.11 in maven2
+[ivy:retrieve] 	found org.slf4j#slf4j-api;1.7.5 in maven2
+[ivy:retrieve] 	found org.slf4j#slf4j-log4j12;1.7.5 in maven2
+[ivy:retrieve] 	found commons-cli#commons-cli;1.2 in maven2
+[ivy:retrieve] 	found log4j#log4j;1.2.17 in maven2
+[ivy:retrieve] 	found io.netty#netty;3.10.5.Final in maven2
+[ivy:retrieve] 	found net.java.dev.javacc#javacc;5.0 in maven2
+[ivy:retrieve] :: resolution report :: resolve 179ms :: artifacts dl 5ms
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      default     |   16  |   0   |   0   |   0   ||   16  |   0   |
+	---------------------------------------------------------------------
+[ivy:retrieve] :: retrieving :: org.apache.zookeeper#zookeeper
+[ivy:retrieve] 	confs: [default]
+[ivy:retrieve] 	1 artifacts copied, 15 already retrieved (291kB/4ms)
+
+clover.setup:
+
+clover.info:
+
+clover:
+
+generate_jute_parser:
+[ivy:artifactproperty] DEPRECATED: 'ivy.conf.file' is deprecated, use 'ivy.settings.file' instead
+[ivy:artifactproperty] :: loading settings :: file = /work/work-source/ivysettings.xml
+     [move] Moving 1 file to /work/work-source/build/lib
+   [javacc] Java Compiler Compiler Version 5.0 (Parser Generator)
+   [javacc] (type "javacc" with no arguments for help)
+   [javacc] Reading from file /work/work-source/src/java/main/org/apache/jute/compiler/generated/rcc.jj . . .
+   [javacc] File "TokenMgrError.java" is being rebuilt.
+   [javacc] File "ParseException.java" is being rebuilt.
+   [javacc] File "Token.java" is being rebuilt.
+   [javacc] File "SimpleCharStream.java" is being rebuilt.
+   [javacc] Parser generated successfully.
+
+jute:
+    [javac] Compiling 39 source files to /work/work-source/build/classes
+    [javac] warning: [options] bootstrap class path not set in conjunction with -source 8
+    [javac] warning: [options] source value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] target value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+    [javac] 4 warnings
+
+compile_jute_uptodate:
+
+compile_jute:
+    [mkdir] Created dir: /work/work-source/src/java/generated
+    [mkdir] Created dir: /work/work-source/src/c/generated
+     [java] ../../zookeeper.jute Parsed Successfully
+     [java] ../../zookeeper.jute Parsed Successfully
+    [touch] Creating /work/work-source/src/java/generated/.generated
+
+ver-gen:
+    [javac] Compiling 1 source file to /work/work-source/build/classes
+    [javac] warning: [options] bootstrap class path not set in conjunction with -source 8
+    [javac] warning: [options] source value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] target value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+    [javac] 4 warnings
+
+git-revision:
+    [mkdir] Created dir: /work/work-source/.revision
+
+version-info:
+
+process-template:
+
+build-generated:
+    [javac] Compiling 62 source files to /work/work-source/build/classes
+    [javac] warning: [options] bootstrap class path not set in conjunction with -source 8
+    [javac] warning: [options] source value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] target value 8 is obsolete and will be removed in a future release
+    [javac] warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:23: error: reference to Record is ambiguous
+    [javac] public class ACL implements Record {
+    [javac]                             ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Id.java:23: error: reference to Record is ambiguous
+    [javac] public class Id implements Record {
+    [javac]                            ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Stat.java:23: error: reference to Record is ambiguous
+    [javac] public class Stat implements Record {
+    [javac]                              ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/StatPersisted.java:23: error: reference to Record is ambiguous
+    [javac] public class StatPersisted implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/AuthPacket.java:23: error: reference to Record is ambiguous
+    [javac] public class AuthPacket implements Record {
+    [javac]                                    ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckVersionRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class CheckVersionRequest implements Record {
+    [javac]                                             ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckWatchesRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class CheckWatchesRequest implements Record {
+    [javac]                                             ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class ConnectRequest implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class ConnectResponse implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/Create2Response.java:23: error: reference to Record is ambiguous
+    [javac] public class Create2Response implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CreateRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateRequest implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CreateResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateResponse implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CreateTTLRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateTTLRequest implements Record {
+    [javac]                                          ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/DeleteRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class DeleteRequest implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ErrorResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class ErrorResponse implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ExistsRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class ExistsRequest implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ExistsResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class ExistsResponse implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetACLRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class GetACLRequest implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetACLResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class GetACLResponse implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetChildren2Request.java:23: error: reference to Record is ambiguous
+    [javac] public class GetChildren2Request implements Record {
+    [javac]                                             ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetChildren2Response.java:23: error: reference to Record is ambiguous
+    [javac] public class GetChildren2Response implements Record {
+    [javac]                                              ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetChildrenRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class GetChildrenRequest implements Record {
+    [javac]                                            ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetChildrenResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class GetChildrenResponse implements Record {
+    [javac]                                             ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetDataRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class GetDataRequest implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetDataResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class GetDataResponse implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetMaxChildrenRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class GetMaxChildrenRequest implements Record {
+    [javac]                                               ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetMaxChildrenResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class GetMaxChildrenResponse implements Record {
+    [javac]                                                ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/GetSASLRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class GetSASLRequest implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/MultiHeader.java:23: error: reference to Record is ambiguous
+    [javac] public class MultiHeader implements Record {
+    [javac]                                     ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ReconfigRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class ReconfigRequest implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/RemoveWatchesRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class RemoveWatchesRequest implements Record {
+    [javac]                                              ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ReplyHeader.java:23: error: reference to Record is ambiguous
+    [javac] public class ReplyHeader implements Record {
+    [javac]                                     ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/RequestHeader.java:23: error: reference to Record is ambiguous
+    [javac] public class RequestHeader implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetACLRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class SetACLRequest implements Record {
+    [javac]                                       ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetACLResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class SetACLResponse implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetDataRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class SetDataRequest implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetDataResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class SetDataResponse implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetMaxChildrenRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class SetMaxChildrenRequest implements Record {
+    [javac]                                               ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetSASLRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class SetSASLRequest implements Record {
+    [javac]                                        ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetSASLResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class SetSASLResponse implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SetWatches.java:23: error: reference to Record is ambiguous
+    [javac] public class SetWatches implements Record {
+    [javac]                                    ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SyncRequest.java:23: error: reference to Record is ambiguous
+    [javac] public class SyncRequest implements Record {
+    [javac]                                     ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/SyncResponse.java:23: error: reference to Record is ambiguous
+    [javac] public class SyncResponse implements Record {
+    [javac]                                      ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/WatcherEvent.java:23: error: reference to Record is ambiguous
+    [javac] public class WatcherEvent implements Record {
+    [javac]                                      ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/server/persistence/FileHeader.java:23: error: reference to Record is ambiguous
+    [javac] public class FileHeader implements Record {
+    [javac]                                    ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/server/quorum/LearnerInfo.java:23: error: reference to Record is ambiguous
+    [javac] public class LearnerInfo implements Record {
+    [javac]                                     ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/server/quorum/QuorumPacket.java:23: error: reference to Record is ambiguous
+    [javac] public class QuorumPacket implements Record {
+    [javac]                                      ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/CheckVersionTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class CheckVersionTxn implements Record {
+    [javac]                                         ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/CreateContainerTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateContainerTxn implements Record {
+    [javac]                                            ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/CreateSessionTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateSessionTxn implements Record {
+    [javac]                                          ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/CreateTTLTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateTTLTxn implements Record {
+    [javac]                                      ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/CreateTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateTxn implements Record {
+    [javac]                                   ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/CreateTxnV0.java:23: error: reference to Record is ambiguous
+    [javac] public class CreateTxnV0 implements Record {
+    [javac]                                     ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/DeleteTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class DeleteTxn implements Record {
+    [javac]                                   ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/ErrorTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class ErrorTxn implements Record {
+    [javac]                                  ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/MultiTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class MultiTxn implements Record {
+    [javac]                                  ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/Txn.java:23: error: reference to Record is ambiguous
+    [javac] public class Txn implements Record {
+    [javac]                             ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/SetACLTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class SetACLTxn implements Record {
+    [javac]                                   ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/SetDataTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class SetDataTxn implements Record {
+    [javac]                                    ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/SetMaxChildrenTxn.java:23: error: reference to Record is ambiguous
+    [javac] public class SetMaxChildrenTxn implements Record {
+    [javac]                                           ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/txn/TxnHeader.java:23: error: reference to Record is ambiguous
+    [javac] public class TxnHeader implements Record {
+    [javac]                                   ^
+    [javac]   both interface org.apache.jute.Record in org.apache.jute and class java.lang.Record in java.lang match
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:47: error: incompatible types: ACL cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:49: error: incompatible types: Id cannot be converted to Record
+    [javac]     a_.writeRecord(id,"id");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:50: error: incompatible types: ACL cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:56: error: incompatible types: Id cannot be converted to Record
+    [javac]     a_.readRecord(id,"id");
+    [javac]                   ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:65: error: incompatible types: ACL cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:67: error: incompatible types: Id cannot be converted to Record
+    [javac]     a_.writeRecord(id,"id");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/ACL.java:68: error: incompatible types: ACL cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Id.java:47: error: incompatible types: Id cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Id.java:50: error: incompatible types: Id cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Id.java:64: error: incompatible types: Id cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Id.java:67: error: incompatible types: Id cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Stat.java:128: error: incompatible types: Stat cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Stat.java:140: error: incompatible types: Stat cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Stat.java:163: error: incompatible types: Stat cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/Stat.java:175: error: incompatible types: Stat cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/StatPersisted.java:110: error: incompatible types: StatPersisted cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/StatPersisted.java:120: error: incompatible types: StatPersisted cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/StatPersisted.java:141: error: incompatible types: StatPersisted cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/data/StatPersisted.java:151: error: incompatible types: StatPersisted cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/AuthPacket.java:56: error: incompatible types: AuthPacket cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/AuthPacket.java:60: error: incompatible types: AuthPacket cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/AuthPacket.java:75: error: incompatible types: AuthPacket cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/AuthPacket.java:79: error: incompatible types: AuthPacket cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckVersionRequest.java:47: error: incompatible types: CheckVersionRequest cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckVersionRequest.java:50: error: incompatible types: CheckVersionRequest cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckVersionRequest.java:64: error: incompatible types: CheckVersionRequest cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckVersionRequest.java:67: error: incompatible types: CheckVersionRequest cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckWatchesRequest.java:47: error: incompatible types: CheckWatchesRequest cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckWatchesRequest.java:50: error: incompatible types: CheckWatchesRequest cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckWatchesRequest.java:64: error: incompatible types: CheckWatchesRequest cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/CheckWatchesRequest.java:67: error: incompatible types: CheckWatchesRequest cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectRequest.java:74: error: incompatible types: ConnectRequest cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectRequest.java:80: error: incompatible types: ConnectRequest cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectRequest.java:97: error: incompatible types: ConnectRequest cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectRequest.java:103: error: incompatible types: ConnectRequest cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectResponse.java:65: error: incompatible types: ConnectResponse cannot be converted to Record
+    [javac]     a_.startRecord(this,tag);
+    [javac]                    ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectResponse.java:70: error: incompatible types: ConnectResponse cannot be converted to Record
+    [javac]     a_.endRecord(this,tag);
+    [javac]                  ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectResponse.java:86: error: incompatible types: ConnectResponse cannot be converted to Record
+    [javac]       a_.startRecord(this,"");
+    [javac]                      ^
+    [javac] /work/work-source/src/java/generated/org/apache/zookeeper/proto/ConnectResponse.java:91: error: incompatible types: ConnectResponse cannot be converted to Record
+    [javac]       a_.endRecord(this,"");
+    [javac]                    ^
+    [javac] Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+    [javac] 100 errors
+    [javac] 4 warnings
+    [javac] only showing the first 100 errors, of 362 total; use -Xmaxerrs if you would like to see more
+
+BUILD FAILED
+/work/work-source/build.xml:347: Compile failed; see the compiler error output for details.
+
+Total time: 1 second

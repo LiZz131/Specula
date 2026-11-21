@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "case_id": "case-003",
+  "attempt": "attempt-004",
+  "purpose": "neutral_exact_old_v0_prior_generation",
+  "source": {
+    "immutable_path": "/work/source",
+    "working_path": "/work/work-source",
+    "baseline_commit": "c1af1f6bd6b43538fd9646f5cb1b0f309da347a7",
+    "declared_exact_old_tree_sha256": "3cf8db277fbb67a9cc9ae7429383ae31e90ddab107011ef9e5e78f273ec33ebd",
+    "input_manifest_sha256": "31edebfcb581d497b54388c18db1d05953f1932c26d055193808ef6a2b6734df",
+    "scope_sha256": "356f40dead024b1cb2799c0891003a84a8cc216e69bccc06dd095dbb586843e3",
+    "immutable_tree_git_status": "clean",
+    "external_behavioral_sources_used": false
+  },
+  "instrumentation": {
+    "patch": "harness/patches/instrumentation.patch",
+    "sha256": "d9c8c96a6a4db223249c8e2e5a0c6522e0c40c66a4f6be4911499ee3008f3ed9",
+    "target_only": "/work/work-source"
+  },
+  "trace_validation": {
+    "status": "LIMITED_COVERAGE",
+    "all_collected_traces_matched": true,
+    "traces": [
+      {"file": "traces/apply_valid.ndjson", "events": 7, "sha256": "e6fb3a05cc52f76ff6fd45b490e44c95ac9fbed46c5edd1875d7a889c1fcf840"},
+      {"file": "traces/apply_rejected.ndjson", "events": 5, "sha256": "df9e8585ba611792d5d40fbd67aeaf8f312b006581d0a2f1fa5a5435f728f2fa"},
+      {"file": "traces/replay_app_only.ndjson", "events": 6, "sha256": "d8bff533ff36e99eb5eeb6627fd0ba397812a250560a9df3ff8b4bdf92988c1e"},
+      {"file": "traces/replay_real.ndjson", "events": 9, "sha256": "2c76e59f67067db969fa09f442eb1226bb4b58a99460a85435e453fcd6416286"},
+      {"file": "traces/replay_mock.ndjson", "events": 9, "sha256": "892456dafcd562c99ecdc8498072bda540a8274955f340e4b9acae02e58545f2"},
+      {"file": "traces/replay_none.ndjson", "events": 2, "sha256": "9f39b8fea9393f6634d9046eb024f9bfd59f0ea107f8a22a5e19a196dc54d2b1"}
+    ]
+  },
+  "model_checking": {
+    "status": "LIMITED_COVERAGE",
+    "base_bfs_distinct_states": 5344,
+    "main_bfs_distinct_states": 5126,
+    "main_bfs_diameter": 33,
+    "scenario_bfs_distinct_states": [183, 1719, 3892],
+    "scenario_bfs_diameters": [18, 27, 33],
+    "scenario_1_simulation_states_checked": 80000001,
+    "scenario_1_simulation_traces": 800000,
+    "reachability_witnesses": [
+      "accepted_update",
+      "rejected_update",
+      "crash",
+      "app_only_replay",
+      "real_replay",
+      "mock_replay",
+      "handshake_complete"
+    ],
+    "findings": 0
+  },
+  "cleanup": {
+    "tlc_state_root": "/dev/shm/specula-v0-case-003/",
+    "state_directories_remaining": 0,
+    "background_processes_remaining": 0
+  }
+}

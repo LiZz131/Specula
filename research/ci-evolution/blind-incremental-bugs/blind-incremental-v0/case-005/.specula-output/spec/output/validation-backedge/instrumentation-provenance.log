@@ -1,0 +1,20 @@
+checking file build.xml
+checking file src/java/main/org/apache/zookeeper/server/FinalRequestProcessor.java
+checking file src/java/main/org/apache/zookeeper/server/SyncRequestProcessor.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/FastLeaderElection.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/Follower.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/Leader.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/Learner.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/LearnerHandler.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/QuorumPeer.java
+checking file src/java/main/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java
+command: timeout --signal=TERM --kill-after=5s 30s patch -d /work/work-source -p1 -R --dry-run < /work/prior/.specula-output/harness/patches/instrumentation.patch
+exit_code: 0
+command: cmp -s harness/src/SpeculaTrace.java /work/work-source/src/java/main/org/apache/zookeeper/server/SpeculaTrace.java
+exit_code: 0
+command: cmp -s harness/src/SpeculaTraceHarnessTest.java /work/work-source/src/java/test/org/apache/zookeeper/server/quorum/SpeculaTraceHarnessTest.java
+exit_code: 0
+2ac8f7d55ce0e80e157555a849933c6ee9bbd017fe240eb26b175ecffc53121f  /work/prior/.specula-output/harness/patches/instrumentation.patch
+babb0c3e10706986c10789446547aa092a66a4c315cebd95bc944990c1afada3  /work/prior/.specula-output/harness/src/SpeculaTrace.java
+15bab4990db843588a00ad06770d12b7cac7c283249e3f33084d59f0e49f95da  /work/prior/.specula-output/harness/src/SpeculaTraceHarnessTest.java
