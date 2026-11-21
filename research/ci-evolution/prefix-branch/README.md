@@ -4,7 +4,7 @@ For #188 §3.3, starting from validated trace prefixes instead of `Init`. Qian's
 
 ## How it works
 
-Each simulated run replays the recorded trace up to a random step, takes one of the update's `AffectedActions` there, and then lets the system settle: the parts of `ReactiveActions` take turns, so persisting, sending and delivering keep moving. Every invariant the suite enables in any config is checked after the branch. The branch can also come after the recording ends, while the system settles.
+Each simulated run replays the recorded trace up to a random step, takes one of the update's `AffectedActions` there, and then lets the system settle: the parts of `ReactiveActions` take turns, so persisting, sending and delivering keep moving. Every invariant the suite enables in any config is checked after the branch, except those already false right before it. The branch can also come after the recording ends, while the system settles.
 
 Limits come from `Update_full.cfg`, the recorded system's settings from `Trace.cfg`. Replay is strict by default (`TraceNext`); `--replay MatchEvent(logline)` replays inputs only, for traces recorded on another model revision.
 
@@ -57,7 +57,31 @@ Bug A, checking only `CampaignDecisionEligibility` (`reports/full-traces/bug-a/s
 - The four that find it are the runs that go through a joint configuration change. Every counterexample branches at step 193–416 with one `Campaign`, inside or right after the recording, so the recordings themselves reach bug A's precondition.
 - On V01 this takes 8–21 s. From the 153-event prefix it took 434 s, and with the RawNode guard it was not found in 30 minutes.
 
-With every invariant in the suite checked (`reports/full-traces/all-checks/`), the same branches also break four other invariants after a new V2 change is injected: `NoUnexpectedFatal`, `PromiseBacking`, `ConfigurationOrigin` and `ProposalConfigurationDecisions`. They break on V01, V02 and V03 alike, so they are not update bugs. All four, like bug A's property, are enabled only in configs whose workload has no V2 changes, so this is the first time they are checked together with V2 requests. Whether they are real bugs, too-strong invariants or model gaps needs someone who knows the spec. Because a run stops at its first violation, they also hide bug A in that table.
+### All checks
+
+Every invariant in the suite is checked (`reports/full-traces/fixed/`). Checks already false in the recording are not counted, `Maintenance.tla` is loaded so a `Revised` check replaces the original, and `--guard` only injects V2 requests that leave a well-formed configuration. Each alarm is rerun on the previous version (`full_traces.py triage`), and labels follow Qian's review (`etcd/qian-verdicts.json`). Times are summed over the 11 runs; branching makes no model calls.
+
+| Version | Checks | Wall s | TLC CPU s | Alarms | Real, from the update | Real, older | Noise | Not reviewed |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| V01 | all | 3621 | 3598 | 4 | 2 | 1 | 1 | 0 |
+| V02 | all | 3104 | 3052 | 4 | 0 | 3 | 1 | 0 |
+| V03 | all | 3106 | 3415 | 4 | 0 | 1 | 1 | 2 |
+| V01 | without the 4 noisy | 3938 | 3787 | 3 | 2 | 0 | 0 | 1 |
+| V02 | without the 4 noisy | 3399 | 3253 | 4 | 0 | 3 | 0 | 1 |
+| V03 | without the 4 noisy | 3106 | 3416 | 4 | 0 | 1 | 0 | 3 |
+
+- Bug A comes from the V01 update and is found on V01, V02 and V03.
+- An empty ConfChangeV2 outside a joint config is committed and every node panics. It is found on V01 and V02 from node-lifecycle and ready-intervening-output, not on V03. This is a raft bug already fixed upstream.
+- With only `NoUnexpectedFatal` checked, V03 node-lifecycle finds a duplicate leave: after an auto-leave the app calls `Advance` before `ApplyConfChange`, which raft allows, the leader proposes a second leave, and applying it is fatal. Qian reproduced it on the latest etcd raft. It is not from the V03 update; V01 and V02 have a broader version of it.
+- `PromiseBacking` fails on all three versions from same-batch-replay. It is an old model gap from V00.
+- `ConfigurationOrigin` is already false in V01's joint-snapshot-recovery recording.
+- Removing the only voter, which raft also rejects, is no longer injected.
+- Without the four noisy invariants (`reports/full-traces/fixed-without-noisy/`), V02 finds bug A on two more recordings.
+
+Not reviewed yet:
+
+- V03: `RevisedProposalConfigurationDecisions` on node-lifecycle, ready-intervening-output and same-batch-replay.
+- `RevisedConfigurationTransitionSafety` on V01 and `ReadBasis` on V01 and V02, both on node-lifecycle.
 
 ### Choosing branch points
 
@@ -75,6 +99,7 @@ A breadth-first sweep over every recorded state was also tried and dropped: it r
 
 - The full-trace domains are chosen from parameter names (`id`, `weight`, `encoded`), which is specific to this suite.
 - Recordings are made on V02 only, so V01 and V03 branch from a prefix of some of them.
+- There is no full V00 suite, so V01 alarms are not compared with a previous version.
 - The RawNode guard and a usable progress condition still need someone who knows the spec.
 - Rerunning Specula's CI on etcd here to get our own traces was tried and stopped: code analysis alone used a 5-hour Claude quota in 23 minutes.
 
@@ -84,6 +109,10 @@ A breadth-first sweep over every recorded state was also tried and dropped: it r
 python3 branch.py SPEC_DIR TRACE.ndjson --out /tmp/branch
 python3 etcd/evaluate.py
 python3 etcd/full_traces.py all --traces DIR --checks CampaignDecisionEligibility --label bug-a
+python3 etcd/full_traces.py all --traces DIR --guard --label fixed
+python3 etcd/full_traces.py triage --traces DIR --label fixed
+python3 etcd/full_traces.py verdicts --traces DIR --label verdicts
+python3 etcd/full_traces.py table
 python3 choose.py SPEC_DIR TRACE.ndjson... --out /tmp/choose
 python3 -m pytest test_branch.py test_choose.py etcd/test_full_traces.py
 ```
