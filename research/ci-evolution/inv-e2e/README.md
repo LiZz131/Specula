@@ -37,7 +37,7 @@ The etcd V0–V3 experiments served as the dev set: the skill overlays were writ
 | 7. Export | `export.py all` | `results/<arm>/<case>/r<N>/{output,instrumentation,timeline.md,export.json}`; `inputs/` |
 | 8. Archive | `archive.py --epoch E` | `/proj/aiopslab-PG0/specula-ci/inv-e2e/E/` (logs and workspaces, outside git) |
 | Driver | `pipeline.py --case ...` | steps 3–5 and the per-run export (step 7) for several cases (run 6 and 8 by hand afterwards): arms in the fixed order v2, v0, v1, one at a time; the next case is annotated while the current one runs its last arm |
-| Analysis | `analysis/timeline.py`, `analysis/prop_changes.py` | per-run behavior timeline from the activity log; which prior properties a run kept, changed, deleted or stopped checking |
+| Analysis | `analysis/timeline.py`, `analysis/prop_changes.py`, `analysis/prop_events.py` | per-run behavior timeline from the activity log; which prior properties a run kept, changed, deleted or stopped checking; per case, a table of every prior and new property across the arms (`analysis/out/`) |
 
 `WORK` is `$INV_E2E_WORK` (default `/mydata/bingzhuo/inv-e2e`); `results/` can be redirected with `$INV_E2E_RESULTS`.
 
@@ -146,6 +146,10 @@ All three arms ended with workflow status `COMPLETED_WITH_LIMITED_COVERAGE`.
 - **Prior properties.** None of the 25 prior properties was deleted or weakened by any arm. Only `TypeOK` gained fields.
 - **Cost.** v1 < v2 < v0. With one run per arm, this may be noise. Part of v0's extra cost is its property-revision loop and an extra repair of a pre-existing V0 crash defect.
 - **Annotation cost (v2 only, once per case).** $12.21: annotation $7.80 plus review $4.41.
+
+## Epoch-1 analysis
+
+[`analysis/epoch-1/`](analysis/epoch-1/README.md) holds the judged analysis of all 21 epoch-1 runs: a rubric for invariant-evolution quality and miss attribution, one file per case, and a summary of why bugs were missed, how well each arm evolved its properties, and a proposed strengthening of the skill.
 
 ## Status (2026-11-20)
 
