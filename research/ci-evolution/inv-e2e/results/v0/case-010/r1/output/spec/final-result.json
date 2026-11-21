@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "run_id": "case-010",
+  "summary": "Source update changes the learner-exit post-state for SNAP sync (model updated). Reference, MC, Trace and Update suites rebuilt; the rebased harness produced four fresh traces that all replay. Bounded model checking found MC-1 (the same non-durable in-memory state survives a TRUNC-mode exit, which the update does not cover) and MC-2 (pre-existing DIFF-window under-report).",
+  "validation_limits": [
+    "All TLC campaigns stopped at their time bound with non-empty queues (LIMITED_COVERAGE); no exhaustive result is claimed.",
+    "MC-1 and MC-2 were found only by steered schedules (ACTION_CONSTRAINT subsets of FocusNext, BFS and simulation) and, for MC-1's consequence, a continuation from a reachable final state; unsteered BFS reached depth 28-35, below the 55-89-step witnesses.",
+    "MC-1 is a model-checking result with source analysis; real-system reproduction (Part 4) was not run in this task.",
+    "Real traces never exercised TRUNC sync, an in-memory COMMIT inside a SNAP/TRUNC window, a DIFF exit after NEWLEADER, crashes or leader quorum loss; these are covered by model checking only.",
+    "The V0 schema-v2 probe source was not preserved; the rebased probe derives fields from real objects (last-element comparisons for histories).",
+    "specula ci-result is not available in this environment; generated CI reports were not produced."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "TRUNC-mode learner exit keeps a non-durable in-memory commit; the update's full shutdown covers only SNAP",
+      "status": "DEFERRED",
+      "source": "model-checking",
+      "cause": "TRUNC keeps snapshotNeeded=true, so a COMMIT read before NEWLEADER is applied only in memory (Learner.java:555,614,656-665); the update clears the database on learner exit only when syncMode==SNAP (Learner.java:864; ZooKeeperServer.java:803-810).",
+      "trigger": "A learner reports a record the leader committed but has not applied, gets TRUNC, applies the forwarded COMMIT in memory, and fails before the NEWLEADER snapshot (e.g. I/O error reading NEWLEADER).",
+      "consequence": "The learner reports a record its disk lacks; the leader answers with an empty DIFF and no snapshot, the learner logs and ACKs later records, and after restart its history has a committed hole.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/counterexamples/MC-1-witness-deterministic-commit-final.log",
+        "spec/output/counterexamples/MC-1-consequence-durable-hole-final.log"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:shutdown",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:shutdown(boolean)"
+        ],
+        "premises": [
+          "TRUNC sync applies pre-NEWLEADER COMMITs to the data tree without logging them.",
+          "Learner.shutdown requests a full shutdown only for SyncMode.SNAP.",
+          "LearnerHandler.syncFollower sends TRUNC to a learner whose last zxid exceeds maxCommittedLog."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "DIFF learner exiting between NEWLEADER and UPTODATE under-reports its log; a logged record escapes the next epoch",
+      "status": "DEFERRED",
+      "source": "model-checking",
+      "cause": "DIFF NEWLEADER logs buffered proposals through a just-started sync processor but updates the data tree only after UPTODATE (Learner.java:751-785); an exit before UPTODATE takes ZooKeeperServer.shutdown(false)'s early return (ZooKeeperServer.java:804-809), so getLastLoggedZxid reports the stale tree.",
+      "trigger": "A late DIFF joiner receives an outstanding proposal before NEWLEADER, logs it at NEWLEADER, and the leader fails before the joiner processes UPTODATE; the joiner then wins or joins the next election with its lower data-tree zxid.",
+      "consequence": "The next epoch is built without the record while it stays in the joiner's log below later committed records; after restart the joiner's data tree diverges, and a record committed with its ACK can be missing from the next leader.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/counterexamples/MC-2-diff-window-uncommitted-record-in-log.log"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:shutdown(boolean)"
+        ],
+        "premises": [
+          "DIFF sync logs pre-NEWLEADER proposals at NEWLEADER and applies them only after UPTODATE.",
+          "ZooKeeperServer.shutdown returns early for a non-running learner without stopping started processors or fast-forwarding."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+          }
+        ]
+      }
+    }
+  ]
+}

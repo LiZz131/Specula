@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "run_id": "case-002-incremental",
+  "summary": "Model updated for the NEWLEADER/UPTODATE reordering; two committed-data-loss defects remain in the updated learner sync path (one reproduced).",
+  "validation_limits": [
+    "Model checking is budget-limited (LIMITED_COVERAGE): standard MC.cfg BFS reached depth 42 (43.2M distinct states) with a nonempty queue; no run is an exhaustive proof.",
+    "SyncTrunc is not observed in any fresh implementation trace; its reachability rests on a model canary only.",
+    "MC-1's loss consequence needs a process crash inside the observed ACK-before-fsync window; it was not reproduced in-JVM (window observed on real traces).",
+    "JDK 21 only (as in V0); the specula ci-result command is not installed in this environment, so generated CI reports were not produced."
+  ],
+  "findings": [
+    {
+      "id": "MC-2",
+      "title": "Learner failure between NEWLEADER and UPTODATE hides logged committed records",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "An updated learner's server is INITIAL between NEWLEADER and UPTODATE and applies DIFF records only after UPTODATE; on failure in between, canShutdown() is false so the data tree is never fast-forwarded, and the FLE vote and a new leader's loaded database omit the records.",
+      "trigger": "Leader activates on NEWLEADER ACKs from learners that then fail before UPTODATE (socket timeout or leader loss) without a process restart; the learners elect a new leader among themselves.",
+      "consequence": "A transaction already served as committed by the previous leader is missing from the new leader's database (data inconsistency, no crash required).",
+      "severity": "Critical",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/mc-Z3b-update-concrete2-A2-initial.log",
+        "spec/evidence/trace-A2/tlc.log",
+        "spec/evidence/trace-A2/tlc-CommittedHistoriesPrefix.log",
+        "spec/output/repro-surefire-update.txt",
+        "spec/output/old-control-repro.log",
+        "harness/repro/SpeculaInitialStateFailureReproTest.java"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:canShutdown",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+        ],
+        "actions": [
+          "StartupWithoutServing",
+          "BeginElection",
+          "CastVote",
+          "LeaderActivate"
+        ],
+        "invariants": [
+          "LeaderCompleteness"
+        ],
+        "premises": [
+          "The learner fails after its NEWLEADER ACK and before UPTODATE without the process restarting.",
+          "The FLE vote and leader database use the in-memory data tree (QuorumPeer.getLastLoggedZxid, ZooKeeperServer.loadData)."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/UpdateProps.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update-concrete2-A2.cfg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK precedes durability of synchronized records",
+      "status": "ENV_LIMITED",
+      "source": "model-checking",
+      "cause": "The updated NEWLEADER branch persists the new epoch, enqueues the DIFF records to the asynchronous SyncRequestProcessor via logRequest, and writes the NEWLEADER ACK before they are forced; the leader commits and serves its whole history on that ACK quorum.",
+      "trigger": "A learner that acknowledged NEWLEADER crashes (process/power failure) before its SyncThread forces the DIFF records, then restarts with the new epoch and wins the next election.",
+      "consequence": "Committed history is persisted on fewer than a quorum (observed on real traces) and, after the crash, a transaction already served as committed is lost from the next leader's history.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/mc-Z3-update-concrete-A1.log",
+        "spec/output/mc-Z3c-update-concrete2-A2-crash.log",
+        "spec/evidence/trace-A1/tlc.log",
+        "traces/diff-sync-consistency.ndjson"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:logRequest",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:run"
+        ],
+        "actions": [
+          "LogSyncProposal",
+          "SendNewLeaderAck",
+          "ReceiveNewLeaderAck",
+          "LeaderActivate",
+          "FsyncOne",
+          "Crash"
+        ],
+        "invariants": [
+          "CommittedPersistedOnQuorum",
+          "LeaderCompleteness"
+        ],
+        "premises": [
+          "Fail-stop crash loses queued and appended-but-unforced transaction-log records.",
+          "In-JVM tests cannot kill a single peer between the NEWLEADER ACK and the SyncThread flush (environment limitation)."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java"
+          },
+          {
+            "root": "source",
+            "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/UpdateProps.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update-concrete.cfg"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+ "version": 1,
+ "run_id": "case-010-incremental",
+ "summary": "Model updated for the learner-shutdown change. The SNAP fix works; a TRUNC sibling path (reproduced) and an update-introduced sync-processor leak remain.",
+ "validation_limits": [
+  "Model checking is bounded (3 servers, MaxEpoch<=2, MaxTxn<=2, <=2 learner exits, <=1 crash/snapshot) and time-limited; non-exhausted runs are LIMITED_COVERAGE.",
+  "The prior V0 stateful (schema-2) trace probe was not preserved; fresh traces carry schema-1 common state plus the incremental fields.",
+  "LeakedFlush (a stale sync-processor flush) was not observed in a real trace; MC-2's log-gap consequence is model-only.",
+  "Observers are not modeled; the leader-side sync decision may be ordered before the learner's ACKEPOCH in MC."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Unfinished TRUNC sync keeps unlogged committed transactions in the reused in-memory database",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "Learner.shutdown forces a full shutdown only for SyncMode.SNAP, but TRUNC also applies COMMITs in memory before the NEWLEADER snapshot (writeToTxnLog=false).",
+   "trigger": "A follower re-syncs with TRUNC, applies a toBeApplied COMMIT in memory, and its sync fails before NEWLEADER.",
+   "consequence": "The follower reuses an in-memory database its disk does not back, receives an empty DIFF, and after a restart from disk has lost a committed transaction.",
+   "severity": "High",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/counterexamples/MC-1-trunc-abort-update-focused-txn1.log",
+    "spec/output/repro/trunc-abort-new.out",
+    "spec/output/repro/trunc-abort-old.out",
+    "harness/repro/SpeculaTruncAbortReproTest.java",
+    "traces/repro-trunc-abort-new.ndjson",
+    "spec/output/trace-upd-repro-trunc-abort-new.log",
+    "spec/output/trace-e2e-repro-trunc-abort-new.log"
+   ],
+   "persistence": {
+    "sites": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:shutdown",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader"
+    ],
+    "premises": [
+     "TRUNC keeps snapshotNeeded=true and applies pre-NEWLEADER COMMITs in memory",
+     "fullyShutDown is computed only from SyncMode.SNAP"
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+     }
+    ]
+   }
+  },
+  {
+   "id": "MC-2",
+   "title": "Learner.shutdown bypasses LearnerZooKeeperServer.shutdown(); the learner sync processor is never stopped",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "The update calls ZooKeeperServer.shutdown(boolean), which the learner server subclasses do not override; only their shutdown() override stopped and drained syncProcessor.",
+   "trigger": "A serving follower or observer loses its leader connection (or is shut down).",
+   "consequence": "The SyncRequestProcessor thread leaks on every serving learner shutdown (observed: syncAlive=true; old code false); in the model a still-queued proposal can be logged after a later TRUNC cut, leaving a log gap (not reproduced on the real system).",
+   "severity": "Medium",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/counterexamples/MC-2-leaked-sync-processor-update-focused.log",
+    "traces/diff-sync-after-snap-new.ndjson",
+    "traces/diff-sync-after-snap-oldcontrol.ndjson",
+    "spec/output/trace-control-old-model-on-new-trace.log"
+   ],
+   "persistence": {
+    "sites": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:shutdown",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+    ],
+    "premises": [
+     "LearnerZooKeeperServer and ObserverZooKeeperServer override only shutdown()"
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     }
+    ]
+   }
+  }
+ ]
+}

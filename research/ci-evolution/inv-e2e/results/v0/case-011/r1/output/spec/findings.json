@@ -1,0 +1,44 @@
+{
+  "schema_version": "2",
+  "system": "OpenRaft (election / Pre-Vote update, commit `update` 3ab6cdd)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Stale Pre-Vote round survives leader establishment and makes the new leader re-elect",
+      "source": "model-checking",
+      "scenario": "U1 (stale Pre-Vote round x leader establishment); consequence variant U3 (non-voter election after self-removal)",
+      "severity": "Medium",
+      "invariant": "PreVoteNeverDemotesEstablishedLeader (also PreVoteElectOnlyByVoter, PreVoteRoundNotInheritedByLeader)",
+      "config": "MC_hunt_prevote_leader_tickonly.cfg",
+      "counterexample": "spec/output/mc-hunt-prevote-leader-tickonly.log",
+      "affected_code": [
+        "openraft/src/core/raft_core.rs:1959-2036",
+        "openraft/src/engine/engine_impl.rs:298-322",
+        "openraft/src/engine/engine_impl.rs:855-881",
+        "openraft/src/engine/engine_impl.rs:516-554",
+        "openraft/src/core/raft_core.rs:1803-1820",
+        "openraft/src/engine/handler/vote_handler/mod.rs:154-162",
+        "openraft/src/engine/engine_impl.rs:977-982"
+      ],
+      "summary": "The election tick has no in-flight-candidate check, so a Candidate whose vote expired calls pre_elect() and creates a Pre-Vote round for term+1 while its real election is still collecting votes. When a delayed vote response then completes the quorum, establish_leader() consumes only the candidate; update_vote(committed) goes through become_leader, not become_following, so pre_candidate survives. A peer that already granted the in-flight vote also grants the probe, RaftCore delivers that late PreVoteResponse because a pre-candidate with the same leader id exists, and handle_pre_vote_resp() calls elect(): the freshly established leader bumps its term, becomes Candidate while retaining its Leader object, and (debug builds) panics on the leader.vote >= state.vote assertion. Reproduced at engine and runtime level on the update revision; a candidate fix that cancels the round in establish_leader makes both MC-1 reproduction tests pass."
+    },
+    {
+      "id": "MC-2",
+      "title": "Pre-Vote-triggered election skips the voter check, so a leader that removed itself starts an election",
+      "source": "model-checking",
+      "scenario": "U3 (voter gate) via operator trigger().elect(true) on the leader followed by self-removal",
+      "severity": "Low",
+      "invariant": "PreVoteElectOnlyByVoter",
+      "config": "MC_hunt_prevote_membership.cfg",
+      "counterexample": "spec/output/mc-hunt-prevote-membership.log",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:530-541",
+        "openraft/src/core/raft_core.rs:1683-1691",
+        "openraft/src/core/raft_core.rs:1803-1820",
+        "openraft/src/engine/engine_impl.rs:262-289"
+      ],
+      "summary": "ExternalCommand::Elect{pre_vote:true} checks is_voter only when the Pre-Vote round starts and accepts a leader. The round's quorum is frozen; if the leader then removes itself (change_membership, with removed_leader_step_down = Never or within the After window) nothing clears pre_candidate, and a late granting Pre-Vote response makes handle_pre_vote_resp call elect() on a node that is no longer a voter, whereas every other path to do_elect checks is_voter at election time. The removed node persists an inflated term and sends RequestVote to the new configuration. Independent of MC-1: with only the MC-1 candidate fix the model still violates PreVoteElectOnlyByVoter and both MC-2 reproduction tests still fail; adding a voter re-check before the Pre-Vote-triggered elect() makes them pass."
+    }
+  ]
+}

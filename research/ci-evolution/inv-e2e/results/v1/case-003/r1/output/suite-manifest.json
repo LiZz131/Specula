@@ -1,0 +1,279 @@
+{
+ "schema_version": 1,
+ "case_id": "case-003",
+ "attempt": "v1-incremental",
+ "purpose": "blind_incremental_update_verification",
+ "prior_suite": {
+  "path": "/work/previous/.specula-output",
+  "manifest_sha256": "8ac49afe99c1a9cecc7cbe3cb6074982de9103effed7ac38b21aa7e0770e6934"
+ },
+ "source": {
+  "artifact": "artifact/",
+  "old_commit": "9dd6e50 (baseline)",
+  "new_commit": "401753b (update)",
+  "new_params_go_sha256": "ed9e08e265a6031def169f7f3e44608af2ac4e9576dbcf10a58fa4a2b41327b1",
+  "old_source_params_go_sha256": "d2333af689b9b426fb9266b9d7f37bdd2a272e43561de5b15c0c5067c447edf8",
+  "artifact_left_uninstrumented": true,
+  "external_behavioral_sources_used": false
+ },
+ "disposition": "MODEL_CHANGE_REQUIRED",
+ "instrumentation": {
+  "patch": "harness/patches/instrumentation.patch",
+  "sha256": "18659189c8d5aba40ce875d3d15dc5d5217ef264d8a351e735b0aa10b0886776",
+  "v0_patch_applied_cleanly": true,
+  "v0_patch": "harness/patches/v0-instrumentation.patch"
+ },
+ "trace_validation": {
+  "status": "PASSED_ON_ALL_FRESH_TRACES",
+  "all_fresh_traces_matched": true,
+  "completion_property": "TraceMatched",
+  "traces": [
+   {
+    "file": "traces/apply_rejected.ndjson",
+    "events": 5,
+    "sha256": "5d262a743cea3540d332c0b92c37e0d88b5704d90916ff5d7de93fd3bfbfdb13",
+    "log": "spec/output/final-trace-apply_rejected.log"
+   },
+   {
+    "file": "traces/apply_valid.ndjson",
+    "events": 7,
+    "sha256": "96ff806be79d0f7c6ad81270631afd788526c10f3be094afd4daeb7498b4a924",
+    "log": "spec/output/final-trace-apply_valid.log"
+   },
+   {
+    "file": "traces/replay_app_only.ndjson",
+    "events": 6,
+    "sha256": "dd2bfe671740821d912af76a0d02365a0807a04ce035c982f286ce05ee3fe92c",
+    "log": "spec/output/final-trace-replay_app_only.log"
+   },
+   {
+    "file": "traces/replay_mock.ndjson",
+    "events": 9,
+    "sha256": "a65f8085659a442f0b0418d6c46dccc194ad2edd8b4b82440de3749442a51570",
+    "log": "spec/output/final-trace-replay_mock.log"
+   },
+   {
+    "file": "traces/replay_none.ndjson",
+    "events": 2,
+    "sha256": "8ecdeee2cf16c8e616be2a6707df74e98943838391356fc4a4e0250e8795363e",
+    "log": "spec/output/final-trace-replay_none.log"
+   },
+   {
+    "file": "traces/replay_real.ndjson",
+    "events": 9,
+    "sha256": "377de2644119ac2a3cdcc6841ad665ec4351734a2bc9fc245775b64882f02e7b",
+    "log": "spec/output/final-trace-replay_real.log"
+   },
+   {
+    "file": "traces/ve_disable_future.ndjson",
+    "events": 7,
+    "sha256": "b6cd541d58813e2bde64aed0e0d9533a56169b1500c4830b5f5ed993da357e65",
+    "log": "spec/output/final-trace-ve_disable_future.log"
+   },
+   {
+    "file": "traces/ve_disable_reached.ndjson",
+    "events": 5,
+    "sha256": "106ab7b8d0a09d82e7c36d2f35e08021bb6171550eb8d0a01ea7e04168fd7ea9",
+    "log": "spec/output/final-trace-ve_disable_reached.log"
+   },
+   {
+    "file": "traces/ve_echo_disabled.ndjson",
+    "events": 7,
+    "sha256": "09c3da1bd09d87408ef558118d9b454bbdd77af9da0ffda8c812e39bf6b81b2c",
+    "log": "spec/output/final-trace-ve_echo_disabled.log"
+   },
+   {
+    "file": "traces/ve_echo_future.ndjson",
+    "events": 7,
+    "sha256": "bb3ee4e1e83c5f1fbc2f435ab2519a6b70ea80486c7b6c7a92c501277063ab2e",
+    "log": "spec/output/final-trace-ve_echo_future.log"
+   },
+   {
+    "file": "traces/ve_echo_reached.ndjson",
+    "events": 5,
+    "sha256": "75ac17e7b72334dc3136b3dfd3debf12d9b4e827cd6ac661ccde903bcc5f4002",
+    "log": "spec/output/final-trace-ve_echo_reached.log"
+   },
+   {
+    "file": "traces/ve_echo_restart_apply.ndjson",
+    "events": 5,
+    "sha256": "321d2b53bbc9ccae8004147fb806bdab7697fc4148a3b4733e93bec2bf885315",
+    "log": "spec/output/final-trace-ve_echo_restart_apply.log"
+   },
+   {
+    "file": "traces/ve_echo_restart_handshake.ndjson",
+    "events": 6,
+    "sha256": "e88a9b22335952620022c71d7b494dc84262d43b85805de12d006a3445d26d5c",
+    "log": "spec/output/final-trace-ve_echo_restart_handshake.log"
+   },
+   {
+    "file": "traces/ve_enable_current.ndjson",
+    "events": 5,
+    "sha256": "afdaa150f47f65a9bbaf20568e99f5c71ad0ab946bde85abce246a1521e1ee19",
+    "log": "spec/output/final-trace-ve_enable_current.log"
+   },
+   {
+    "file": "traces/ve_enable_future.ndjson",
+    "events": 7,
+    "sha256": "ea52eea8a226bd77fc5c89e2ebf88ac0d9a65313a44bb37ddb7739f9ed13cb1a",
+    "log": "spec/output/final-trace-ve_enable_future.log"
+   },
+   {
+    "file": "traces/ve_enable_then_echo.ndjson",
+    "events": 12,
+    "sha256": "a543be05b77439dc6fdea8684162493f224e3cc4abd0923c3c93d15147cbcc93",
+    "log": "spec/output/final-trace-ve_enable_then_echo.log"
+   },
+   {
+    "file": "traces/ve_move_future.ndjson",
+    "events": 7,
+    "sha256": "e8144f0594ff94aa22fa9eaccb9a449caa2efb69f2ad08425227a05468419c19",
+    "log": "spec/output/final-trace-ve_move_future.log"
+   },
+   {
+    "file": "traces/ve_move_reached.ndjson",
+    "events": 5,
+    "sha256": "60ee505a000644c640fb70ec638efb7c8c7ef682864c85bd6feae1a1748838c9",
+    "log": "spec/output/final-trace-ve_move_reached.log"
+   },
+   {
+    "file": "traces/ve_negative.ndjson",
+    "events": 5,
+    "sha256": "b46a7aae1249b9b5105bc8aa6f11fb649d1b37fb89a262abd379237be1effb48",
+    "log": "spec/output/final-trace-ve_negative.log"
+   }
+  ],
+  "mutation_controls_rejected": 5,
+  "old_code_controls": "spec/output/control-old-vs-v1-summary.log"
+ },
+ "model_checking": {
+  "status": "LIMITED_COVERAGE",
+  "runs": {
+   "final-mc-standard": {
+    "log": "spec/output/final-mc-standard.log",
+    "distinct_states": 40119,
+    "depth": 34,
+    "violation": null
+   },
+   "base-bfs": {
+    "log": "spec/output/base-bfs.log",
+    "distinct_states": 32053,
+    "depth": 33,
+    "violation": null
+   },
+   "final-update-full": {
+    "log": "spec/output/final-update-full.log",
+    "distinct_states": 753,
+    "depth": 10,
+    "violation": "UnchangedVENotRejected"
+   },
+   "final-update-full-safety": {
+    "log": "spec/output/final-update-full-safety.log",
+    "distinct_states": 40119,
+    "depth": 34,
+    "violation": null
+   },
+   "update-focused": {
+    "log": "spec/output/update-focused.log",
+    "distinct_states": 818,
+    "depth": 10,
+    "violation": "UnchangedVENotRejected"
+   },
+   "update-focused-safety": {
+    "log": "spec/output/update-focused-safety.log",
+    "distinct_states": 59267,
+    "depth": 39,
+    "violation": null
+   },
+   "update-open": {
+    "log": "spec/output/update-open.log",
+    "distinct_states": 759,
+    "depth": 10,
+    "violation": "UnchangedVENotRejected"
+   },
+   "update-open-safety": {
+    "log": "spec/output/update-open-safety.log",
+    "distinct_states": 80837,
+    "depth": 34,
+    "violation": null
+   },
+   "update-discharge": {
+    "log": "spec/output/update-discharge.log",
+    "distinct_states": 53799,
+    "depth": 41,
+    "violation": null
+   },
+   "hunt-scenario1-params": {
+    "log": "spec/output/hunt-scenario1-params.log",
+    "distinct_states": 7174,
+    "depth": 31,
+    "violation": null
+   },
+   "hunt-scenario2-durability": {
+    "log": "spec/output/hunt-scenario2-durability.log",
+    "distinct_states": 8643,
+    "depth": 31,
+    "violation": null
+   },
+   "hunt-scenario3-recovery": {
+    "log": "spec/output/hunt-scenario3-recovery.log",
+    "distinct_states": 19161,
+    "depth": 33,
+    "violation": null
+   },
+   "update-hunt-unchanged": {
+    "log": "spec/output/update-hunt-unchanged.log",
+    "distinct_states": 936,
+    "depth": 12,
+    "violation": "UnchangedVENotRejected"
+   },
+   "update-hunt-unchanged-from-disabled": {
+    "log": "spec/output/update-hunt-unchanged-from-disabled.log",
+    "distinct_states": 1435,
+    "depth": 20,
+    "violation": "UnchangedVENotRejected"
+   },
+   "update-hunt-enable": {
+    "log": "spec/output/update-hunt-enable.log",
+    "distinct_states": 7567,
+    "depth": 38,
+    "violation": null
+   },
+   "update-hunt-recovery": {
+    "log": "spec/output/update-hunt-recovery.log",
+    "distinct_states": 35363,
+    "depth": 36,
+    "violation": null
+   },
+   "update-deep-bfs": {
+    "log": "spec/output/update-deep-bfs.log",
+    "distinct_states": 158158,
+    "depth": 41,
+    "violation": null
+   }
+  },
+  "simulation": {
+   "update-sim-deep": "spec/output/update-sim-deep.log (371,326,033 states checked, depth 100, 600 s budget, no violation)",
+   "update-sim-unchanged": "spec/output/update-sim-unchanged.log (UnchangedVENotRejected violated)"
+  },
+  "reachability_witnesses": "spec/output/reach-summary.log (25/25)",
+  "findings": [
+   "MC-1"
+  ]
+ },
+ "findings": {
+  "MC-1": {
+   "status": "REPRODUCED",
+   "bug_report": "spec/bug-report.md",
+   "findings_json": "spec/findings.json",
+   "reproduction": "harness/repro_MC-1.sh",
+   "updated_result": "FAIL (bug present)",
+   "baseline_control": "PASS"
+  }
+ },
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specula-e2e-case-003/",
+  "state_directories_remaining": 0,
+  "temporary_control_trees_removed": true
+ }
+}

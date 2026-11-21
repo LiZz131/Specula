@@ -1,0 +1,200 @@
+warning: virtual workspace defaulting to `resolver = "1"` despite one or more workspace members being on edition 2021 which implies `resolver = "2"`
+  |
+  = note: to keep the current resolver, specify `workspace.resolver = "1"` in the workspace root's manifest
+  = note: to use the edition 2021 resolver, specify `workspace.resolver = "2"` in the workspace root's manifest
+  = note: for more details see https://doc.rust-lang.org/cargo/reference/resolver.html#resolver-versions
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:12:12
+   |
+12 | homepage = "https://github.com/datafuselabs/openraft"
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+15 | repository = "https://github.com/datafuselabs/openraft"
+   |              ------------------------------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> memstore/Cargo.toml:12:12
+   |
+12 | homepage = "https://github.com/datafuselabs/openraft"
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+15 | repository = "https://github.com/datafuselabs/openraft"
+   |              ------------------------------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `memstore` (manifest) generated 1 warning
+warning: unused import: `maplit::btreeset`
+ --> openraft/src/testing/suite.rs:6:5
+  |
+6 | use maplit::btreeset;
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `committed` is never used
+  --> openraft/src/progress/mod.rs:31:8
+   |
+17 | pub(crate) trait Progress<ID, V, QS>
+   |                  -------- method in this trait
+...
+31 |     fn committed(&self) -> &V;
+   |        ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `DummyConfig` is never constructed
+  --> openraft/src/testing/mod.rs:11:16
+   |
+11 |     pub(crate) DummyConfig: D = u64, R = u64, NodeId = u64
+   |                ^^^^^^^^^^^
+   |
+   = note: this warning originates in the macro `crate::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `openraft` (lib) generated 3 warnings (run `cargo fix --lib -p openraft` to apply 1 suggestion)
+warning: unexpected `cfg` condition value: `serde`
+  --> memstore/src/lib.rs:73:1
+   |
+73 | / openraft::declare_raft_types!(
+74 | |     /// Declare the type configuration for `MemStore`.
+75 | |     pub Config: D = ClientRequest, R = ClientResponse, NodeId = MemNodeId
+76 | | );
+   | |_^
+   |
+   = note: expected values for `feature` are: `docinclude`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `openraft::declare_raft_types` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `openraft::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `memstore` (lib) generated 1 warning
+warning: struct `Foo` is never constructed
+  --> openraft/src/engine/update_committed_membership_test.rs:16:16
+   |
+16 |     pub(crate) Foo: D=(), R=(), NodeId=u64
+   |                ^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+   = note: this warning originates in the macro `crate::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: struct `Foo` is never constructed
+  --> openraft/src/engine/update_effective_membership_test.rs:18:16
+   |
+18 |     pub(crate) Foo: D=(), R=(), NodeId=u64
+   |                ^^^
+   |
+   = note: this warning originates in the macro `crate::declare_raft_types` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `openraft` (lib test) generated 4 warnings (2 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (/work/.cache/cargo-target/debug/build/openraft/d7db9b59071e720d/out/openraft-d7db9b59071e720d)
+
+running 100 tests
+test core::replication::tests::snapshot_is_within_half_of_threshold::guards_against_underflow ... ok
+test core::replication::tests::snapshot_is_within_half_of_threshold::happy_path_true_when_within_half_threshold ... ok
+test core::replication::tests::snapshot_is_within_half_of_threshold::happy_path_false_when_above_half_threshold ... ok
+test engine::calc_purge_upto_test::test_calc_purge_upto ... ok
+test engine::follower_commit_entries_test::test_follower_commit_entries_empty ... ok
+test engine::elect_test::test_elect ... ok
+test engine::follower_commit_entries_test::test_follower_commit_entries_gt_last_entry ... ok
+test engine::follower_commit_entries_test::test_follower_commit_entries_no_update ... ok
+test engine::follower_do_append_entries_test::test_follower_do_append_entries_empty ... ok
+test engine::follower_commit_entries_test::test_follower_commit_entries_lt_last_entry ... ok
+test engine::follower_do_append_entries_test::test_follower_do_append_entries_no_membership_entries ... ok
+test config::config_test::test_config_defaults ... ok
+test engine::follower_do_append_entries_test::test_follower_do_append_entries_one_membership_entry ... ok
+test engine::follower_do_append_entries_test::test_follower_do_append_entries_three_membership_entries ... ok
+test engine::handle_append_entries_req_test::test_handle_append_entries_req_prev_log_id_conflict ... ok
+test engine::handle_append_entries_req_test::test_handle_append_entries_req_entries_conflict ... ok
+test engine::handle_append_entries_req_test::test_handle_append_entries_req_prev_log_id_is_committed ... ok
+test engine::handle_append_entries_req_test::test_handle_append_entries_req_prev_log_id_not_exists ... ok
+test config::config_test::test_build ... ok
+test engine::handle_append_entries_req_test::test_handle_append_entries_req_vote_is_rejected ... ok
+test config::config_test::test_invalid_election_timeout_config_produces_expected_error ... ok
+test engine::handle_vote_req_test::test_handle_vote_req_granted_equal_vote_and_last_log_id ... ok
+test config::config_test::test_option_remove_replication ... ok
+test engine::handle_vote_req_test::test_handle_vote_req_granted_follower_learner_does_not_emit_update_server_state_cmd ... ok
+test engine::handle_vote_req_test::test_handle_vote_req_granted_greater_vote ... ok
+test engine::handle_vote_req_test::test_handle_vote_req_reject_smaller_vote ... ok
+test engine::handle_vote_req_test::test_handle_vote_req_reject_smaller_last_log_id ... ok
+test engine::internal_handle_vote_req_test::test_internal_handle_vote_req_committed_vote ... ok
+test engine::initialize_test::test_initialize ... ok
+test engine::internal_handle_vote_req_test::test_internal_handle_vote_req_granted_equal_vote_and_last_log_id ... ok
+test engine::handle_vote_resp_test::test_handle_vote_resp ... ok
+test engine::internal_handle_vote_req_test::test_internal_handle_vote_req_granted_greater_vote ... ok
+test engine::internal_handle_vote_req_test::test_internal_handle_vote_req_granted_follower_learner_does_not_emit_update_server_state_cmd ... ok
+test engine::internal_handle_vote_req_test::test_internal_handle_vote_req_reject_smaller_last_log_id ... ok
+test engine::internal_handle_vote_req_test::test_internal_handle_vote_req_reject_smaller_vote ... ok
+test engine::leader_append_entries_test::test_leader_append_entries_empty ... ok
+test engine::leader_append_entries_test::test_leader_append_entries_fast_commit ... ok
+test engine::log_id_list_test::test_log_id_list_append ... ok
+test engine::leader_append_entries_test::test_leader_append_entries_fast_commit_membership_no_voter_change ... ok
+test engine::leader_append_entries_test::test_leader_append_entries_normal ... ok
+test engine::log_id_list_test::test_log_id_list_extend ... ok
+test engine::leader_append_entries_test::test_leader_append_entries_fast_commit_upto_membership_entry ... ok
+test engine::log_id_list_test::test_log_id_list_extend_from_same_leader ... ok
+test engine::leader_append_entries_test::test_leader_append_entries_fast_commit_if_membership_voter_change_to_1 ... ok
+test engine::log_id_list_test::test_log_id_list_get_log_id ... ok
+test engine::log_id_list_test::test_log_id_list_purge ... ok
+test engine::log_id_list_test::test_log_id_list_truncate ... ok
+test engine::purge_log_test::test_purge_log_already_purged ... ok
+test engine::purge_log_test::test_purge_log_equal_prev_last_purged ... ok
+test engine::purge_log_test::test_purge_log_go_pass_last_key_log ... ok
+test engine::purge_log_test::test_purge_log_go_pass_last_log_id ... ok
+test engine::purge_log_test::test_purge_log_same_leader_as_prev_last_purged ... ok
+test engine::purge_log_test::test_purge_log_to_higher_leader_lgo ... ok
+test engine::purge_log_test::test_purge_log_to_last_key_log ... ok
+test engine::purge_log_test::test_purge_log_to_last_log_id ... ok
+test engine::truncate_logs_test::test_truncate_logs_revert_effective_membership ... ok
+test engine::truncate_logs_test::test_truncate_logs_since_4 ... ok
+test engine::truncate_logs_test::test_truncate_logs_since_5 ... ok
+test engine::truncate_logs_test::test_truncate_logs_since_3 ... ok
+test engine::truncate_logs_test::test_truncate_logs_since_6 ... ok
+test engine::truncate_logs_test::test_truncate_logs_since_8 ... ok
+test engine::update_committed_membership_test::test_update_committed_membership_at_index_0 ... ok
+test engine::truncate_logs_test::test_truncate_logs_since_7 ... ok
+test engine::update_committed_membership_test::test_update_committed_membership_at_index_3 ... ok
+test engine::update_committed_membership_test::test_update_committed_membership_at_index_4 ... ok
+test engine::update_committed_membership_test::test_update_committed_membership_at_index_2 ... ok
+test engine::update_effective_membership_test::test_update_effective_membership_at_index_0_is_allowed ... ok
+test engine::update_progress_test::test_update_progress_no_leader ... ok
+test engine::update_effective_membership_test::test_update_effective_membership_for_leader ... ok
+test engine::update_progress_test::test_update_progress_update_leader_progress ... ok
+test membership::membership_state_test::test_membership_state_is_member ... ok
+test membership::effective_membership_test::test_effective_membership_majority ... ok
+test membership::membership_test::test_membership ... ok
+test membership::membership_test::test_membership_extend_nodes ... ok
+test membership::membership_test::test_membership_add_learner ... ok
+test membership::membership_test::test_membership_with_learners ... ok
+test membership::membership_test::test_membership_with_nodes ... ok
+test membership::membership_test::test_membership_summary ... ok
+test membership::membership_test::test_membership_next_safe_with_nodes ... ok
+test membership::membership_test::test_membership_next_safe ... ok
+test metrics::replication_metrics_test::test_versioned ... ok
+test progress::t::vec_progress_move_up ... ok
+test metrics::replication_metrics_test::test_versioned_methods ... ok
+test progress::t::vec_progress_update ... ok
+test progress::t::vec_progress_upgrade_quorum_set ... ok
+test core::replication_state_test::test_is_line_rate ... ok
+test quorum::coherent_test::test_find_coherent_joint ... ok
+test quorum::coherent_test::test_is_coherent_slice ... ok
+test quorum::coherent_test::test_is_coherent_vec ... ok
+test quorum::quorum_set_test::test_ids ... ok
+test quorum::quorum_set_test::test_simple_quorum_set_impl ... ok
+test quorum::quorum_set_test::test_joint_quorum_set_impl ... ok
+test raft_state_test::test_raft_state_has_log_id_committed_gets_true ... ok
+test raft_state_test::test_raft_state_has_log_id_empty ... ok
+test raft_state_test::test_raft_state_last_log_id ... ok
+test raft_state_test::test_raft_state_has_log_id_in_log_id_list ... ok
+test raft_state_test::test_raft_state_last_purged_log_id ... ok
+test vote::leader_id_test::test_leader_id ... ok
+test timer::timeout_test::test_timeout ... ok
+test metrics::wait_test::test_wait ... ok
+
+test result: ok. 100 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+
+exit=0

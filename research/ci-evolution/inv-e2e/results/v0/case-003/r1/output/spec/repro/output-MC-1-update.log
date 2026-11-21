@@ -1,0 +1,39 @@
+rev: update (commit 401753b049219c7a8c1c26d5fcc44d7922e2fbc3)
+types/params.go sha256: ed9e08e265a6031def169f7f3e44608af2ac4e9576dbcf10a58fa4a2b41327b1
+cmd: cd <export of update> && timeout 10m go test -mod=readonly ./internal/consensus -run '^(TestSpeculaReproMC1UnchangedEnableHeight|TestSpeculaReproControlEnableFromZero)$' -count=1 -v
+=== RUN   TestSpeculaReproMC1UnchangedEnableHeight
+I[2026-11-18|18:09:01.520] service start                                module=events msg="Starting EventBus service" impl=EventBus
+I[2026-11-18|18:09:01.520] service start                                module=pubsub msg="Starting PubSub service" impl=PubSub
+I[2026-11-18|18:09:01.522] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:01.522] executed block                               height=1 app_hash=0000000000000000
+I[2026-11-18|18:09:01.522] committed state                              height=1 block_app_hash=
+I[2026-11-18|18:09:01.526] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:01.526] executed block                               height=2 app_hash=0000000000000000
+    specula_repro_mc1_test.go:113: MC-1 unchanged-after-enable: highest committed height=1 (target 4); CONSENSUS FAILURE logged=true
+    specula_repro_mc1_test.go:113: MC-1 unchanged-after-enable: E[2026-11-18|18:09:01.527] CONSENSUS FAILURE!!!                         err="failed to apply block; error commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 2" 
+    specula_repro_mc1_test.go:113: MC-1 unchanged-after-enable: OUTCOME=CHAIN_HALTED
+--- PASS: TestSpeculaReproMC1UnchangedEnableHeight (15.02s)
+=== RUN   TestSpeculaReproControlEnableFromZero
+I[2026-11-18|18:09:16.535] service start                                module=events msg="Starting EventBus service" impl=EventBus
+I[2026-11-18|18:09:16.535] service start                                module=pubsub msg="Starting PubSub service" impl=PubSub
+I[2026-11-18|18:09:16.537] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.537] executed block                               height=1 app_hash=0000000000000000
+I[2026-11-18|18:09:16.538] committed state                              height=1 block_app_hash=
+I[2026-11-18|18:09:16.540] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.540] executed block                               height=2 app_hash=0000000000000000
+I[2026-11-18|18:09:16.540] committed state                              height=2 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.542] finalized block                              height=3 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.542] executed block                               height=3 app_hash=0000000000000000
+I[2026-11-18|18:09:16.542] committed state                              height=3 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.545] finalized block                              height=4 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.545] executed block                               height=4 app_hash=0000000000000000
+I[2026-11-18|18:09:16.545] committed state                              height=4 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.547] finalized block                              height=5 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:09:16.547] executed block                               height=5 app_hash=0000000000000000
+I[2026-11-18|18:09:16.547] committed state                              height=5 block_app_hash=0000000000000000
+    specula_repro_mc1_test.go:120: control enable-from-zero: highest committed height=5 (target 5); CONSENSUS FAILURE logged=false
+    specula_repro_mc1_test.go:120: control enable-from-zero: OUTCOME=CHAIN_PROGRESSED
+--- PASS: TestSpeculaReproControlEnableFromZero (0.01s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/consensus	15.055s
+exit=0

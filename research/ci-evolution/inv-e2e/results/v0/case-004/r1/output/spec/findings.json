@@ -1,0 +1,41 @@
+{
+  "schema_version": "2",
+  "system": "openraft (update revision d7176ef, leader transfer)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "transfer_leader to a learner makes the learner run an election and panics its RaftCore",
+      "source": "model-checking",
+      "scenario": "U-S1 transfer to a non-voter (learner) target",
+      "severity": "Medium",
+      "invariant": "NoCorePanic (invariant) and ElectOnlyByVoter (action property), spec/Update.tla",
+      "config": "Update_full_NoCorePanic.cfg",
+      "counterexample": "spec/output/MC-1_NoCorePanic_violation.out",
+      "affected_code": [
+        "openraft/src/core/raft_core.rs:1190-1202",
+        "openraft/src/raft/mod.rs:645-703",
+        "openraft/src/proposer/candidate.rs:90-96",
+        "openraft/src/core/raft_core.rs:1669-1681"
+      ],
+      "summary": "The new RaftMsg::TransferLeader handler calls Engine::elect() on the node named `to` whenever its vote equals `from`, without the is_voter check that the tick-election and ExternalCommand::Elect callers perform. A learner holds the leader's committed vote after replication, so Raft::transfer_leader(leader_vote, learner, ..) makes the learner a Candidate whose quorum set contains only voters. After SaveVote, RaftCore delivers the learner's own vote grant first; Candidate::grant_by(self) calls progress.update(..).expect(\"target not in quorum set\") and the RaftCore task panics (Fatal::Panicked). The voters, whose leases the same transfer disabled, grant the learner's higher vote, so the old leader steps down and the cluster is leaderless until an election timeout. Model counterexamples (U1, U2) on full MCNext; validated real trace; uninstrumented reproduction 5/5; baseline and same-revision trigger().elect() controls are guarded."
+    },
+    {
+      "id": "MC-2",
+      "title": "A Leader that runs elect() trips the leader_handler vote-order assertion (transfer to the current leader)",
+      "source": "model-checking",
+      "scenario": "U-S4 transfer whose target is the current leader",
+      "severity": "Low",
+      "invariant": "LeaderVoteNotSuperseded (U7, spec/Update.tla)",
+      "config": "Update_full_LeaderVoteNotSuperseded.cfg",
+      "counterexample": "spec/output/MC-2_LeaderVoteNotSuperseded_transfer.out",
+      "affected_code": [
+        "openraft/src/core/raft_core.rs:1190-1202",
+        "openraft/src/core/raft_core.rs:1207-1213",
+        "openraft/src/engine/engine_impl.rs:765-770",
+        "openraft/src/core/raft_core.rs:966-969"
+      ],
+      "summary": "Engine::elect() keeps the Leader object of a node that is already Leader (candidate+leader coexistence) while moving the local vote to a higher non-committed self vote. Engine::leader_handler() debug-asserts leader.committed_vote >= state.vote and RaftCore calls it on every runtime-loop iteration, so the leader's RaftCore panics (debug assertions enabled). The new TransferLeader handler reaches this state with to == current leader; the same state is pre-existing through trigger().elect() (ExternalCommand::Elect) on the leader, so the defect is pre-existing and the update adds a new public trigger. Reproduced on both revisions; release-build consequence not verified."
+    }
+  ]
+}

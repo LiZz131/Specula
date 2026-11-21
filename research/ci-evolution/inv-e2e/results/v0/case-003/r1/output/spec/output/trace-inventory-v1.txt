@@ -1,0 +1,20 @@
+apply_rejected.ndjson                    5  BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(basic)
+apply_valid.ndjson                       7  BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState
+apply_ve_cancel_future.ndjson            7  BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState
+apply_ve_disable_after_enable.ndjson     5  BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)
+apply_ve_enable_from_zero.ndjson         7  BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState
+apply_ve_modify_after_enable.ndjson      5  BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)
+apply_ve_modify_future.ndjson            7  BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState
+apply_ve_negative.ndjson                 5  BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(basic)
+apply_ve_past_height.ndjson              5  BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)
+apply_ve_unchanged_after_enable.ndjson  12  BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState > BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)
+apply_ve_unchanged_echo.ndjson           5  BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)
+apply_ve_zero_to_zero.ndjson             7  BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState
+replay_app_only.ndjson                   6  HandshakeStart > ReplayAppBlock > ReplayAppBlock > ReplayAppBlock > ReplayAppBlock > HandshakeComplete
+replay_mock.ndjson                       9  HandshakeStart > ReplayStateBlockStart(mock) > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState > HandshakeComplete
+replay_mock_ve_enable_prefix.ndjson      8  HandshakeStart > HandshakeComplete > BS > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp
+replay_mock_ve_enable_restart.ndjson     9  HandshakeStart > ReplayStateBlockStart(mock) > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState > HandshakeComplete
+replay_none.ndjson                       2  HandshakeStart > HandshakeComplete
+replay_real.ndjson                       9  HandshakeStart > ReplayStateBlockStart(real) > ABS > FinalizeBlock > SaveResp > UpdateStateAccepted > CommitApp > SaveState > HandshakeComplete
+replay_ve_unchanged_prefix.ndjson        7  HandshakeStart > HandshakeComplete > BS > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)
+replay_ve_unchanged_restart.ndjson       6  HandshakeStart > ReplayStateBlockStart(real) > ABS > FinalizeBlock > SaveResp > UpdateStateRejected(update)

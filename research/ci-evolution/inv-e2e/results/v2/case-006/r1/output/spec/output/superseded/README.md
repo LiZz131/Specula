@@ -1,0 +1,1 @@
+Reach_update_leader_stepdown.cfg first run used MaxQuorumCheckLimit=1, which cannot step a leader down after a commit (the first check consumes recent activity); cfg fixed to 2 and rerun (mc-reach_update_leader_stepdown.log).

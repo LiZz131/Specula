@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "run_id": "case-003-v1-incremental",
+  "summary": "Updated the reference/MC/Trace suite and generated Update.tla for the ValidateUpdate rewrite; rebased harness traces all validate. Model checking found one update-introduced defect (MC-1), reproduced on the updated source: an unchanged, already reached VoteExtensionsEnableHeight update is rejected and halts the chain permanently.",
+  "validation_limits": [
+    "All model-checking results are bounded (heights <= 3 in BFS, <= 5 in simulation; symbolic non-ABCI parameters); LIMITED_COVERAGE, not proof.",
+    "Single node and single code version: rolling binary upgrades across a restart, validator-set changes, Byzantine behaviour and I/O faults are not modeled.",
+    "Mock final-block replay of a changed vote-extension height was reached only in the model, not in a runtime trace.",
+    "The requirement behind UnchangedVENotRejected is contested at unit-test level (new test data expects ValidateUpdate to error); the ABCI contract and the old unit test treat the unchanged value as compliant.",
+    "The bug-confirmation controller and 'specula ci-result' were not available; the reproduction was run directly (harness/repro_MC-1.sh) and this file was not validated by the CLI."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Unchanged, already-reached VoteExtensionsEnableHeight update is rejected — permanent chain halt",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "The updated ConsensusParams.ValidateUpdate removed the old unchanged-value short-cut, so row 6 (types/params.go:243-248) rejects an Abci update whose VoteExtensionsEnableHeight equals the current, already reached value (P = U, P <= h), while rows 3 and 9 still accept unchanged values.",
+      "trigger": "With vote extensions enabled at a height P <= h (e.g. at the initial height), the application returns a FinalizeBlock ConsensusParamUpdates whose Abci sub-record repeats P, for example by forwarding its complete parameter set (ToProto always sets Abci).",
+      "consequence": "updateState fails after the response is durable, ApplyBlock errors and consensus/blocksync panic; every restart replays the stored block through the real app and is rejected again, so the handshake fails and the chain halts permanently.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/MC-1_counterexample_Update_full.log",
+        "spec/output/MC-1_counterexample_enable_then_echo.log",
+        "spec/output/MC-1_consequence_halt_persists.log",
+        "spec/output/repro-MC-1-updated-401753b.log",
+        "spec/output/repro-MC-1-updated-clean-401753b.log",
+        "spec/output/repro-MC-1-control-baseline-9dd6e50.log",
+        "harness/repro_MC-1.sh",
+        "harness/repro/specula_mc1_repro_test.go",
+        "traces/ve_echo_reached.ndjson",
+        "traces/ve_echo_restart_apply.ndjson",
+        "traces/ve_echo_restart_handshake.ndjson",
+        "traces/ve_enable_then_echo.ndjson",
+        "spec/invariant-evidence.json",
+        "validation-report.md"
+      ],
+      "persistence": {
+        "sites": ["types/params.go:ValidateUpdate", "internal/state/execution.go:updateState"],
+        "actions": ["UpdateStateRejectedVE", "AbortRejectedApply", "SelectRealReplay"],
+        "invariants": ["UnchangedVENotRejected"],
+        "premises": [
+          "The application may return a non-nil ConsensusParamUpdates whose Abci sub-record repeats the current VoteExtensionsEnableHeight (non-empty fields are applied in full).",
+          "Any updateState error after the response save is fatal for consensus/blocksync and recurs on handshake replay."
+        ],
+        "dependencies": [
+          {"root": "source", "path": "types/params.go"},
+          {"root": "source", "path": "internal/state/execution.go"},
+          {"root": "source", "path": "internal/consensus/replay.go"},
+          {"root": "work", "path": "spec/base.tla"},
+          {"root": "work", "path": "spec/Update.tla"},
+          {"root": "work", "path": "spec/Update_full.cfg"}
+        ]
+      }
+    }
+  ]
+}

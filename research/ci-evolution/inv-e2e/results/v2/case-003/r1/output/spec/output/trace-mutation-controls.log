@@ -1,0 +1,8 @@
+M1_rejectRule | ve_unchanged_after_enable: UpdateStateRejected.state.rejectRule r6 -> r8 | Error: Deadlock reached. | exit_code: 11
+M2_veHist | ve_unchanged_after_enable: UpdateStateRejected.state.veHist [1,1] -> [1,0] | Error: Deadlock reached. | exit_code: 11
+M3_proposedAbci | ve_unchanged_after_enable: 2nd FinalizeBlock.msg.proposedParam.abci 1 -> 2 | Error: Deadlock reached. | exit_code: 11
+M4_activeVE | ve_unchanged_after_enable: UpdateStateRejected.state.activeParam.ve 1 -> 0 | Error: Deadlock reached. | exit_code: 11
+M5_enableRejected | ve_enable_future: first UpdateStateAccepted (0 -> 2 at h=1) replaced by an UpdateStateRejected (the V0 behavior); trace truncated there | Error: Deadlock reached. | exit_code: 11
+M6_lastParamChange | ve_enable_future: first UpdateStateAccepted.state.lastParamChange 2 -> 1 | Error: Deadlock reached. | exit_code: 11
+M7_responseParam | replay_mock_ve_update: HandshakeStart.state.responseParam.abci 3 -> 4 | Error: Deadlock reached. | exit_code: 11
+M8_cancelIgnored | ve_cancel_scheduled: first UpdateStateAccepted.state.activeParam.ve 0 -> 5 (cancel not installed) | Error: Deadlock reached. | exit_code: 11

@@ -1,0 +1,65 @@
+# cmd: timeout 10m java -XX:+UseParallelGC -Xmx6g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/final6-update-canary-snapabort-bfs.cZAA -config Update-canary-snapabort.cfg -workers 4 -checkpoint 0 Update
+# started: 2026-11-19T23:35:55Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 107 and seed 9125000003409697316 with 4 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 23058] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-1001672651298944385/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-1001672651298944385/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1001672651298944385/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1001672651298944385/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1001672651298944385/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1001672651298944385/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-1001672651298944385/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 23:35:56)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 23:35:57.
+Error: Invariant CanaryNoSnapAbort is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s1,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 4: <MCFinishElection(s2,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 5: <MCFinishElection(s1,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 6: <MCEnterDiscovery(s1) line 43, col 24 to line 43, col 72 of module MC>
+
+State 7: <MCEnterDiscovery(s2) line 43, col 24 to line 43, col 72 of module MC>
+
+State 8: <MCLeaderProposeEpoch(s1) line 45, col 28 to line 45, col 80 of module MC>
+
+State 9: <MCPersistFollowerAccepted(s2) line 47, col 33 to line 47, col 95 of module MC>
+
+State 10: <MCEnterFollowerSync(s2) line 59, col 27 to line 59, col 78 of module MC>
+
+State 11: <MCRecordEpochAck(s1,s2) line 50, col 5 to line 51, col 59 of module MC>
+
+State 12: <MCChooseSync(s2,"SNAP") line 62, col 5 to line 63, col 28 of module MC>
+
+State 13: <MCLearnerShutdown(s2) line 132, col 5 to line 147, col 57 of module MC>
+
+10465 states generated, 4241 distinct states found, 1586 states left on queue.
+The depth of the complete state graph search is 13.
+Finished in 04s at (2026-11-19 23:35:59)
+Trace exploration spec path: ./Update_TTrace_1795131355.tla
+# exit: 12 finished: 2026-11-19T23:35:59Z

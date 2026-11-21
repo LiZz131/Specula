@@ -1,0 +1,25 @@
+{
+  "schema_version": "2",
+  "system": "etcd Raft (incremental update c780d355)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Reused ReadIndex context released by an acknowledgement produced for the earlier request",
+      "source": "model-checking",
+      "scenario": "U2 (same-term context reuse + delayed acknowledgement) / U3 (stale read index after newer-term commit)",
+      "severity": "Medium",
+      "invariant": "UpdReadAckFresh; UpdReadIndexLinearizable",
+      "config": "Update_hunt_stale_ack.cfg; Update_hunt_linearizable_directed.cfg; Update_full.cfg (simulation)",
+      "counterexample": "spec/output/cex/upd_hunt_linearizable_directed.tla",
+      "counterexamples": [
+        "spec/output/cex/upd_hunt_stale_ack.tla",
+        "spec/output/cex/upd_focused.tla",
+        "spec/output/cex/upd_full_sim.tla",
+        "spec/output/cex/upd_hunt_linearizable_directed.tla"
+      ],
+      "affected_code": ["read_only.go:100-105", "read_only.go:52-59", "read_only.go:64-73", "raft.go:915-932"],
+      "summary": "The update makes readOnly.advance delete released requests under their real key, so a caller context released earlier in a leader term can be registered again by addRequest. recvAck matches heartbeat responses to pending requests only by context and sender, so a response produced for the earlier registration and delayed in the network is counted for the new registration, and stepLeader releases the read without any acknowledgement generated after it was registered. If a newer-term leader committed entries meanwhile and the old leader has not stepped down, the returned ReadState index is lower than an entry committed before the read was issued (stale linearizable read). Reproduced on the update revision; the baseline never registers the reused context (no stale read, but the read is never answered)."
+    }
+  ]
+}

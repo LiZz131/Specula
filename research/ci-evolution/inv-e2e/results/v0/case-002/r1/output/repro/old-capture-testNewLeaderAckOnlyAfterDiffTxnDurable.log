@@ -1,0 +1,87 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< org.apache.zookeeper:zookeeper >-------------------
+[INFO] Building Apache ZooKeeper - Server 3.7.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- mavanagaiata:0.9.4:commit (find-current-git-revision) @ zookeeper ---
+[INFO] 
+[INFO] --- maven-antrun-plugin:1.8:run (default) @ zookeeper ---
+[INFO] Executing tasks
+
+main:
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.0.0:timestamp-property (tbuild-time) @ zookeeper ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.0.0:parse-version (parse-version) @ zookeeper ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (enforce-maven-version) @ zookeeper ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (banned-commons-lang) @ zookeeper ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (banned-commons-lang3) @ zookeeper ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (banned-json-simple) @ zookeeper ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.0.0:add-source (default) @ zookeeper ---
+[INFO] Source directory: /work/current/.specula-output/repro/old-tree/zookeeper-server/target/generated-sources/java added.
+[INFO] 
+[INFO] --- maven-resources-plugin:3.1.0:copy-resources (prepare-filtered-java-source) @ zookeeper ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- maven-resources-plugin:3.1.0:resources (default-resources) @ zookeeper ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /work/current/.specula-output/repro/old-tree/zookeeper-serversrc/main/java/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ zookeeper ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 361 source files to /work/current/.specula-output/repro/old-tree/zookeeper-server/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.1.0:testResources (default-testResources) @ zookeeper ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 34 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ zookeeper ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 347 source files to /work/current/.specula-output/repro/old-tree/zookeeper-server/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.1:test (default-test) @ zookeeper ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.apache.zookeeper.server.quorum.SpeculaSyncUpdateTest
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 2.812 s <<< FAILURE! - in org.apache.zookeeper.server.quorum.SpeculaSyncUpdateTest
+[ERROR] testNewLeaderAckOnlyAfterDiffTxnDurable  Time elapsed: 2.451 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: NEWLEADER was ACKed (currentEpoch=1) while the DIFF transaction 0x100000001 was not yet on disk (disk last=0xffffffffffffffff) ==> expected: <true> but was: <false>
+	at org.apache.zookeeper.server.quorum.SpeculaSyncUpdateTest.lambda$testNewLeaderAckOnlyAfterDiffTxnDurable$3(SpeculaSyncUpdateTest.java:256)
+	at org.apache.zookeeper.server.quorum.SpeculaSyncUpdateTest.runConversation(SpeculaSyncUpdateTest.java:100)
+	at org.apache.zookeeper.server.quorum.SpeculaSyncUpdateTest.testNewLeaderAckOnlyAfterDiffTxnDurable(SpeculaSyncUpdateTest.java:220)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   SpeculaSyncUpdateTest.testNewLeaderAckOnlyAfterDiffTxnDurable:220->runConversation:100->lambda$testNewLeaderAckOnlyAfterDiffTxnDurable$3:256 NEWLEADER was ACKed (currentEpoch=1) while the DIFF transaction 0x100000001 was not yet on disk (disk last=0xffffffffffffffff) ==> expected: <true> but was: <false>
+[INFO] 
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  38.958 s
+[INFO] Finished at: 2026-11-18T14:20:11Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.1:test (default-test) on project zookeeper: There are test failures.
+[ERROR] 
+[ERROR] Please refer to /work/current/.specula-output/repro/old-tree/zookeeper-server/target/surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

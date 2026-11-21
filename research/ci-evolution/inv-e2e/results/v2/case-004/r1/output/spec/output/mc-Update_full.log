@@ -1,0 +1,63 @@
+# cmd: run_tlc.sh Update.tla Update_full.cfg Update_full 30  (workers=4 heap=8g)
+# started: 2026-11-19T02:24:56Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 71 and seed 5222688237064748631 with 4 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 19513] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-7679541142034103652/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-7679541142034103652/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7679541142034103652/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7679541142034103652/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7679541142034103652/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7679541142034103652/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7679541142034103652/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 02:24:57)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 02:24:57.
+Error: Invariant ElectionByVoterOnly is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 78, col 5 to line 83, col 64 of module MC>
+
+State 3: <MCPersistVote(1) line 106, col 5 to line 109, col 55 of module MC>
+
+State 4: <MCSendVote(1) line 115, col 5 to line 119, col 55 of module MC>
+
+State 5: <MCVoteRequest(2,1) line 124, col 5 to line 129, col 23 of module MC>
+
+State 6: <MCPersistVote(2) line 106, col 5 to line 109, col 55 of module MC>
+
+State 7: <MCVoteResponse(1,1) line 142, col 5 to line 148, col 23 of module MC>
+
+State 8: <MCVoteResponse(1,2) line 142, col 5 to line 148, col 23 of module MC>
+
+State 9: <MCSubmit(1) line 215, col 16 to line 215, col 47 of module MC>
+
+State 10: <MCFollowerAppend(3,1) line 199, col 5 to line 213, col 23 of module MC>
+
+State 11: <MCPersistVote(3) line 106, col 5 to line 109, col 55 of module MC>
+
+State 12: <MCTransferLeader(3) line 94, col 5 to line 101, col 51 of module MC>
+
+1359 states generated, 418 distinct states found, 246 states left on queue.
+The depth of the complete state graph search is 13.
+Finished in 01s at (2026-11-19 02:24:57)
+Trace exploration spec path: /work/current/.specula-output/spec/output/ttrace-Update_full/Update_TTrace_1795055096.tla
+# finished: 2026-11-19T02:24:58Z rc=12

@@ -1,0 +1,126 @@
+# cmd: timeout 5m java -XX:+UseParallelGC -Xmx24g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/smoke-sim-2.GF39 -config MC-smoke-reach.cfg -simulate num=300000 -depth 150 -workers 8 MC
+# started: 2026-11-19T20:14:52Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed 4484730685996652858 with 8 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 1752] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-10024666064634892491/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-10024666064634892491/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-10024666064634892491/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-10024666064634892491/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-10024666064634892491/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-10024666064634892491/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-10024666064634892491/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-19 20:14:52)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 20:14:52.
+Progress: 2313256 states checked, 60416 traces generated (trace length: mean=27, var(x)=1613, sd=40)
+Error: Invariant SyncEntryJustified is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 17, col 5 to line 19, col 16 of module MC>
+
+State 2: <MCCrash(s1) line 134, col 5 to line 137, col 13 of module MC>
+
+State 3: <MCCastVote(s3,s2) line 35, col 21 to line 35, col 66 of module MC>
+
+State 4: <MCBeginElection line 30, col 5 to line 33, col 13 of module MC>
+
+State 5: <MCRestart(s1) line 140, col 5 to line 142, col 46 of module MC>
+
+State 6: <MCCrash(s3) line 134, col 5 to line 137, col 13 of module MC>
+
+State 7: <MCCastVote(s1,s2) line 35, col 21 to line 35, col 66 of module MC>
+
+State 8: <MCCastVote(s2,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 9: <MCRestart(s3) line 140, col 5 to line 142, col 46 of module MC>
+
+State 10: <MCCastVote(s3,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 11: <MCFinishElection(s2,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 12: <MCFinishElection(s1,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 13: <MCEnterDiscovery(s2) line 44, col 5 to line 47, col 35 of module MC>
+
+State 14: <MCEnterDiscovery(s1) line 44, col 5 to line 47, col 35 of module MC>
+
+State 15: <MCLeaderProposeEpoch(s1) line 49, col 28 to line 49, col 80 of module MC>
+
+State 16: <MCPersistFollowerAccepted(s2) line 52, col 5 to line 58, col 35 of module MC>
+
+State 17: <MCFinishElection(s3,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 18: <MCEnterFollowerSync(s2) line 70, col 27 to line 70, col 78 of module MC>
+
+State 19: <MCRecordEpochAck(s1,s2) line 61, col 5 to line 62, col 59 of module MC>
+
+State 20: <MCLearnerShutdown(s3) line 151, col 5 to line 164, col 57 of module MC>
+
+State 21: <MCEnterDiscovery(s3) line 44, col 5 to line 47, col 35 of module MC>
+
+State 22: <MCLeaderEpochQuorum(s1) line 64, col 27 to line 64, col 78 of module MC>
+
+State 23: <MCPersistFollowerAccepted(s3) line 52, col 5 to line 58, col 35 of module MC>
+
+State 24: <MCFollowerExitToLooking(s3) line 166, col 31 to line 166, col 86 of module MC>
+
+State 25: <MCCastVote(s3,s3) line 35, col 21 to line 35, col 66 of module MC>
+
+State 26: <MCFinishElection(s3,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 27: <MCLeaderStartSync(s1) line 65, col 25 to line 65, col 74 of module MC>
+
+State 28: <MCEnterDiscovery(s3) line 44, col 5 to line 47, col 35 of module MC>
+
+State 29: <MCChooseSync(s2,"DIFF") line 73, col 5 to line 74, col 28 of module MC>
+
+State 30: <MCEnterFollowerSync(s3) line 70, col 27 to line 70, col 78 of module MC>
+
+State 31: <MCChooseSync(s3,"DIFF") line 73, col 5 to line 74, col 28 of module MC>
+
+State 32: <MCPersistFollowerCurrent(s3) line 86, col 32 to line 86, col 92 of module MC>
+
+State 33: <MCPersistFollowerCurrent(s2) line 86, col 32 to line 86, col 92 of module MC>
+
+State 34: <MCNewLeaderModeNone(s3) line 87, col 27 to line 87, col 85 of module MC>
+
+State 35: <MCNewLeaderModeNone(s2) line 87, col 27 to line 87, col 85 of module MC>
+
+State 36: <MCAckNewLeader(s3) line 88, col 22 to line 88, col 75 of module MC>
+
+State 37: <MCAckNewLeader(s2) line 88, col 22 to line 88, col 75 of module MC>
+
+State 38: <MCFormNewLeaderQuorum(s1) line 89, col 29 to line 89, col 82 of module MC>
+
+State 39: <MCLeaderBroadcast(s1) line 92, col 5 to line 95, col 35 of module MC>
+
+State 40: <MCUpToDate(s2) line 97, col 18 to line 97, col 67 of module MC>
+
+State 41: <MCCompleteSync(s2) line 98, col 22 to line 98, col 91 of module MC>
+
+State 42: <MCUpToDate(s3) line 97, col 18 to line 97, col 67 of module MC>
+
+State 43: <MCFollowerBroadcast(s2) line 101, col 5 to line 104, col 35 of module MC>
+
+State 44: <MCLearnerShutdown(s2) line 151, col 5 to line 164, col 57 of module MC>
+
+The number of states generated: 2982398
+Simulation using seed 4484730685996652858 and aril 0
+Progress: 2982413 states checked, 77842 traces generated (trace length: mean=27, var(x)=1619, sd=40)
+Finished in 01min 17s at (2026-11-19 20:16:09)
+Trace exploration spec path: ./MC_TTrace_1795119292.tla
+# exit: 12 finished: 2026-11-19T20:16:10Z

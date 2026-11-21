@@ -1,0 +1,12 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/apply_ve_unchanged_after_enable.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/state -run '^TestSpeculaTraceApplyVEUnchangedAfterEnable$' -count=1 -v
+=== RUN   TestSpeculaTraceApplyVEUnchangedAfterEnable
+I[2026-11-18|18:02:49.867] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:49.867] executed block                               height=1 app_hash=
+I[2026-11-18|18:02:49.891] committed state                              height=1 block_app_hash=
+    specula_trace_test.go:225: height 1: ApplyBlock accepted; VoteExtensionsEnableHeight=2
+I[2026-11-18|18:02:49.952] finalized block                              height=2 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:49.952] executed block                               height=2 app_hash=
+    specula_trace_test.go:225: height 2: ApplyBlock rejected: commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 2, current height 2
+--- PASS: TestSpeculaTraceApplyVEUnchangedAfterEnable (0.18s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.199s

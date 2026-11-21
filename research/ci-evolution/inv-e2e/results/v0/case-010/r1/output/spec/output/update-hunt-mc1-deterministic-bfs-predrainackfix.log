@@ -1,0 +1,171 @@
+# cmd: timeout 30m java -XX:+UseParallelGC -Xmx16g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/update-hunt-mc1-deterministic-bfs.nQrr -config Update-hunt-mc1-deterministic.cfg -workers 8 -checkpoint 0 Update
+# started: 2026-11-19T21:36:38Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 116 and seed -2736924304508346014 with 8 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 14125] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-14415081877708684888/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14415081877708684888/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14415081877708684888/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14415081877708684888/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14415081877708684888/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14415081877708684888/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14415081877708684888/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 21:36:39)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 21:36:40.
+Progress(36) at 2026-11-19 21:36:43: 19,194 states generated (19,194 s/min), 4,313 distinct states found (4,313 ds/min), 761 states left on queue.
+Progress(52) at 2026-11-19 21:37:43: 2,038,089 states generated (2,018,895 s/min), 426,998 distinct states found (422,685 ds/min), 75,525 states left on queue.
+Progress(57) at 2026-11-19 21:38:43: 4,287,073 states generated (2,248,984 s/min), 843,916 distinct states found (416,918 ds/min), 113,158 states left on queue.
+Progress(60) at 2026-11-19 21:39:43: 6,497,178 states generated (2,210,105 s/min), 1,237,633 distinct states found (393,717 ds/min), 133,863 states left on queue.
+Progress(62) at 2026-11-19 21:40:43: 8,623,880 states generated (2,126,702 s/min), 1,625,511 distinct states found (387,878 ds/min), 151,348 states left on queue.
+Progress(64) at 2026-11-19 21:41:43: 10,811,793 states generated (2,187,913 s/min), 2,029,426 distinct states found (403,915 ds/min), 160,809 states left on queue.
+Error: Invariant ReportedHistoryDurable is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCastVote(s1,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 35, col 21 to line 35, col 66 of module MC>
+
+State 4: <MCFinishElection(s2,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 5: <MCFinishElection(s1,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 6: <MCEnterDiscovery(s1) line 43, col 24 to line 43, col 72 of module MC>
+
+State 7: <MCEnterDiscovery(s2) line 43, col 24 to line 43, col 72 of module MC>
+
+State 8: <MCLeaderProposeEpoch(s1) line 45, col 28 to line 45, col 80 of module MC>
+
+State 9: <MCPersistFollowerAccepted(s2) line 47, col 33 to line 47, col 95 of module MC>
+
+State 10: <MCEnterFollowerSync(s2) line 59, col 27 to line 59, col 78 of module MC>
+
+State 11: <MCRecordEpochAck(s1,s2) line 50, col 5 to line 51, col 59 of module MC>
+
+State 12: <MCChooseSync(s2,"DIFF") line 62, col 5 to line 63, col 28 of module MC>
+
+State 13: <MCPersistFollowerCurrent(s2) line 75, col 32 to line 75, col 92 of module MC>
+
+State 14: <MCNewLeaderModeNone(s2) line 76, col 27 to line 76, col 85 of module MC>
+
+State 15: <MCLeaderEpochQuorum(s1) line 53, col 27 to line 53, col 78 of module MC>
+
+State 16: <MCAckNewLeader(s2) line 77, col 22 to line 77, col 75 of module MC>
+
+State 17: <MCLeaderStartSync(s1) line 54, col 25 to line 54, col 74 of module MC>
+
+State 18: <MCFormNewLeaderQuorum(s1) line 78, col 29 to line 78, col 82 of module MC>
+
+State 19: <MCLeaderBroadcast(s1) line 80, col 25 to line 80, col 79 of module MC>
+
+State 20: <MCLeaderPropose(s1) line 91, col 5 to line 92, col 35 of module MC>
+
+State 21: <MCSyncPacket(s2,1) line 67, col 23 to line 67, col 77 of module MC>
+
+State 22: <MCUpToDate(s2) line 82, col 18 to line 82, col 67 of module MC>
+
+State 23: <MCFollowerPending(s2,1) line 94, col 28 to line 94, col 88 of module MC>
+
+State 24: <MCQueue(s1,1) line 95, col 18 to line 95, col 67 of module MC>
+
+State 25: <MCQueue(s2,1) line 95, col 18 to line 95, col 67 of module MC>
+
+State 26: <MCFlush(s2,1) line 96, col 18 to line 96, col 66 of module MC>
+
+State 27: <MCAck(s1,s2,1) line 97, col 21 to line 97, col 80 of module MC>
+
+State 28: <MCFlush(s1,1) line 96, col 18 to line 96, col 66 of module MC>
+
+State 29: <MCAck(s1,s1,1) line 97, col 21 to line 97, col 80 of module MC>
+
+State 30: <MCCommit(s1,1) line 98, col 19 to line 98, col 80 of module MC>
+
+State 31: <MCFinishElection(s3,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 32: <MCEnterDiscovery(s3) line 43, col 24 to line 43, col 72 of module MC>
+
+State 33: <MCPersistFollowerAccepted(s3) line 47, col 33 to line 47, col 95 of module MC>
+
+State 34: <MCApply(s1,1) line 100, col 18 to line 100, col 63 of module MC>
+
+State 35: <MCEnterFollowerSync(s3) line 59, col 27 to line 59, col 78 of module MC>
+
+State 36: <MCChooseSync(s3,"SNAP") line 62, col 5 to line 63, col 28 of module MC>
+
+State 37: <MCApplySnapshot(s3) line 65, col 23 to line 65, col 94 of module MC>
+
+State 38: <MCSyncSnapshot(s3) line 74, col 22 to line 74, col 75 of module MC>
+
+State 39: <MCPersistFollowerCurrent(s3) line 75, col 32 to line 75, col 92 of module MC>
+
+State 40: <MCNewLeaderModeNone(s3) line 76, col 27 to line 76, col 85 of module MC>
+
+State 41: <MCAckNewLeader(s3) line 77, col 22 to line 77, col 75 of module MC>
+
+State 42: <MCUpToDate(s3) line 82, col 18 to line 82, col 67 of module MC>
+
+State 43: <MCCompleteSync(s3) line 83, col 22 to line 83, col 91 of module MC>
+
+State 44: <MCFollowerBroadcast(s3) line 85, col 27 to line 85, col 83 of module MC>
+
+State 45: <MCLeaderPropose(s1) line 91, col 5 to line 92, col 35 of module MC>
+
+State 46: <MCFollowerPending(s3,2) line 94, col 28 to line 94, col 88 of module MC>
+
+State 47: <MCLearnerShutdown(s3) line 132, col 5 to line 147, col 57 of module MC>
+
+State 48: <MCAck(s1,s3,2) line 97, col 21 to line 97, col 80 of module MC>
+
+State 49: <MCQueue(s1,2) line 95, col 18 to line 95, col 67 of module MC>
+
+State 50: <MCFlush(s1,2) line 96, col 18 to line 96, col 66 of module MC>
+
+State 51: <MCFollowerExitToLooking(s3) line 149, col 31 to line 149, col 86 of module MC>
+
+State 52: <MCAck(s1,s1,2) line 97, col 21 to line 97, col 80 of module MC>
+
+State 53: <MCEnterElectionPhase(s3) line 152, col 28 to line 152, col 80 of module MC>
+
+State 54: <MCFinishElection(s3,s1) line 38, col 5 to line 41, col 36 of module MC>
+
+State 55: <MCCommit(s1,2) line 98, col 19 to line 98, col 80 of module MC>
+
+State 56: <MCEnterDiscovery(s3) line 43, col 24 to line 43, col 72 of module MC>
+
+State 57: <MCEnterFollowerSync(s3) line 59, col 27 to line 59, col 78 of module MC>
+
+State 58: <MCChooseSync(s3,"TRUNC") line 62, col 5 to line 63, col 28 of module MC>
+
+State 59: <MCTruncateLog(s3) line 66, col 21 to line 66, col 88 of module MC>
+
+State 60: <MCSyncPacket(s3,2) line 67, col 23 to line 67, col 77 of module MC>
+
+State 61: <MCSyncCommit(s3) line 70, col 5 to line 72, col 63 of module MC>
+
+State 62: <MCLearnerShutdown(s3) line 132, col 5 to line 147, col 57 of module MC>
+
+State 63: <MCFollowerExitToLooking(s3) line 149, col 31 to line 149, col 86 of module MC>
+
+11215159 states generated, 2102123 distinct states found, 161385 states left on queue.
+The depth of the complete state graph search is 65.
+Finished in 05min 13s at (2026-11-19 21:41:52)
+Trace exploration spec path: ./Update_TTrace_1795124199.tla
+# exit: 12 finished: 2026-11-19T21:41:53Z

@@ -1,0 +1,254 @@
+{
+ "schema_version": 1,
+ "case_id": "case-003",
+ "purpose": "incremental_update_verification",
+ "decision": "MODEL_CHANGE_REQUIRED",
+ "final_schema_decision": "MODEL_UPDATED",
+ "status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "source": {
+  "artifact": "artifact/",
+  "baseline_commit": "9dd6e50 (subject: baseline)",
+  "update_commit": "401753b (subject: update)",
+  "changed_files": [
+   "types/params.go",
+   "types/params_test.go",
+   ".changelog/unreleased/bug-fixes/0000-asa-2024-001-fix-validate.md"
+  ],
+  "old_types_params_go_sha256": "d2333af689b9b426fb9266b9d7f37bdd2a272e43561de5b15c0c5067c447edf8",
+  "new_types_params_go_sha256": "ed9e08e265a6031def169f7f3e44608af2ac4e9576dbcf10a58fa4a2b41327b1",
+  "artifact_worktree_after_run": "clean (instrumentation reverted by harness/clean.sh)",
+  "external_behavioral_sources_used": false
+ },
+ "prior": {
+  "path": "/work/previous/.specula-output",
+  "archived_specs": "spec/prior-v0/",
+  "archived_logs": "spec/output/prior-v0/",
+  "archived_traces": "traces/archived-v0/"
+ },
+ "instrumentation": {
+  "patch": "harness/patches/instrumentation.patch",
+  "sha256": "dcf81b0f84d9818177d436367e0315898fd770bca7a4f760c23354fbdaf3cd81",
+  "prior_patch": "harness/patches/prior-v0/instrumentation.v0.patch",
+  "applies_cleanly_to": "401753b",
+  "one_command": "bash harness/run.sh"
+ },
+ "trace_validation": {
+  "status": "PASSED_ON_FRESH_TRACES",
+  "traces": [
+   {
+    "file": "traces/apply_valid.ndjson",
+    "events": 7,
+    "sha256": "1bc6e772d9219fa4a260ba6ea29d0933b5a4bdd209ceba54180a8791625cfcec",
+    "kind": "V0 regression",
+    "trace_validation_log": "spec/output/trace/apply_valid.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/apply_rejected.ndjson",
+    "events": 5,
+    "sha256": "d35289cb896ba7260c663edeea77056c4e2a6b712692306f3541bfb13fb87e50",
+    "kind": "V0 regression",
+    "trace_validation_log": "spec/output/trace/apply_rejected.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_app_only.ndjson",
+    "events": 6,
+    "sha256": "1a9e920f6964037c6d69cd69825e07c1d5c99aa89a1f68b003cced7518152a07",
+    "kind": "V0 regression",
+    "trace_validation_log": "spec/output/trace/replay_app_only.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_real.ndjson",
+    "events": 9,
+    "sha256": "c0838ff610dff0e5762db723e4b89578f84e66f712610904158a4b98eb7b00fa",
+    "kind": "V0 regression",
+    "trace_validation_log": "spec/output/trace/replay_real.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_mock.ndjson",
+    "events": 9,
+    "sha256": "c7fe3c8e2963fb2abf332fcd710cb34ba4d89d0116e858db7004ef6277d30076",
+    "kind": "V0 regression",
+    "trace_validation_log": "spec/output/trace/replay_mock.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_none.ndjson",
+    "events": 2,
+    "sha256": "47772da7877e7b895fb31050ab74904db5654ae704127d0cf64a54a6108cf44b",
+    "kind": "V0 regression",
+    "trace_validation_log": "spec/output/trace/replay_none.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_enable_future.ndjson",
+    "events": 21,
+    "sha256": "50a06914df7594dcfbbc0fd63052e4831cb873b4d7b4d166fd2efc443756baf7",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_enable_future.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_cancel_scheduled.ndjson",
+    "events": 21,
+    "sha256": "49fa32d34ddf99c7517bc4d986c8acf8348572ee9fd4377e58179112a4899d74",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_cancel_scheduled.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_unchanged_after_enable.ndjson",
+    "events": 12,
+    "sha256": "ecd39844fa363c12cb8e2669ce719f383d4ad9b3238b03b0698e3eacf1c87081",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_unchanged_after_enable.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_disable_after_enable.ndjson",
+    "events": 5,
+    "sha256": "e5a5bbb4a4f8a5d816adc34b163493b339a738cc99f84fb3772447fe7c7707f8",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_disable_after_enable.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_modify_after_enable.ndjson",
+    "events": 5,
+    "sha256": "77e2d56dc1c2b8dc4cb7d9b8473fb2cdb10138e97a196b31734dc9ab10093396",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_modify_after_enable.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_past_height.ndjson",
+    "events": 12,
+    "sha256": "2139a3d6c4d92a2d255189e979c1ed3fc0999e2d68ff96cab0eda710a8be849a",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_past_height.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/ve_negative.ndjson",
+    "events": 5,
+    "sha256": "410eeebdb62398e0f0a8dacd654e3a76044cef9af6191faa7193cd751bbd5ecc",
+    "kind": "update",
+    "trace_validation_log": "spec/output/trace/ve_negative.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_mock_ve_update.ndjson",
+    "events": 9,
+    "sha256": "cbcadff21b6752c78f26c4874a1a82825f2e84e4f38dd06bc3a40dd6c1023eaa",
+    "kind": "update \u00d7 recovery",
+    "trace_validation_log": "spec/output/trace/replay_mock_ve_update.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_real_ve_update.ndjson",
+    "events": 9,
+    "sha256": "e65679de6e6dc671fda7b6b07a73be97eb20bef451e75a18af619508319fb358",
+    "kind": "update \u00d7 recovery",
+    "trace_validation_log": "spec/output/trace/replay_real_ve_update.log",
+    "result": "matched"
+   },
+   {
+    "file": "traces/replay_real_ve_unchanged_rejected.ndjson",
+    "events": 6,
+    "sha256": "7eb8403f894cda3d7ce8c0c5a5b6c5ee84ac17d1a9767bcb019ffb6eecff96b3",
+    "kind": "update \u00d7 recovery",
+    "trace_validation_log": "spec/output/trace/replay_real_ve_unchanged_rejected.log",
+    "result": "matched"
+   }
+  ],
+  "mutation_controls": "spec/output/trace-mutation-controls.log (8/8 rejected)",
+  "final_regression": "spec/output/final/trace-regression-summary.log"
+ },
+ "model_checking": {
+  "status": "LIMITED_COVERAGE",
+  "bfs": {
+   "MC.cfg": [
+    1460638,
+    46
+   ],
+   "base.cfg": [
+    174936,
+    39
+   ],
+   "Update_full_core.cfg": [
+    1460638,
+    46
+   ],
+   "Update_focused_core.cfg": [
+    399798,
+    45
+   ],
+   "Update_open_core.cfg": [
+    2289011,
+    45
+   ],
+   "Update_discharge.cfg": [
+    129636,
+    46
+   ],
+   "MC_hunt_scenario1_params.cfg": [
+    4491,
+    22
+   ],
+   "MC_hunt_scenario2_durability.cfg": [
+    23072,
+    43
+   ],
+   "MC_hunt_scenario3_recovery.cfg": [
+    65161,
+    46
+   ],
+   "Update_hunt_scenario4_ve_lifecycle_core.cfg": [
+    502328,
+    43
+   ],
+   "Update_hunt_scenario5_ve_recovery_core.cfg": [
+    1005521,
+    49
+   ]
+  },
+  "bfs_note": "[distinct states, diameter]; every listed run exhausted its bounded state space without violation",
+  "simulation_states_checked": {
+   "MC_hunt_scenario1_params.cfg": 761632096,
+   "Update_hunt_scenario4_ve_lifecycle_core.cfg": 508444935,
+   "Update_hunt_scenario5_ve_recovery_core.cfg": 534199444,
+   "Update_sim_deep_core.cfg": 395989462
+  },
+  "counterexample_configs": [
+   "Update_full.cfg",
+   "Update_focused.cfg",
+   "Update_open.cfg",
+   "Update_hunt_scenario4_ve_lifecycle.cfg",
+   "Update_hunt_scenario5_ve_recovery.cfg",
+   "Update_sim_deep.cfg"
+  ],
+  "reachability_witnesses": 20,
+  "discharge_negative_control": "fails as expected",
+  "findings": 1
+ },
+ "findings": [
+  {
+   "id": "MC-1",
+   "invariant": "UnchangedVEUpdateNotRejected",
+   "counterexample": "spec/output/mc/MC-1_Update_full_counterexample.log",
+   "reproduction": {
+    "updated_401753b": "FAIL (bug present)",
+    "baseline_9dd6e50": "PASS"
+   },
+   "requirement": "contested"
+  }
+ ],
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specula-e2e-case-003/",
+  "state_directories_remaining": 0,
+  "background_processes_remaining": 0
+ }
+}

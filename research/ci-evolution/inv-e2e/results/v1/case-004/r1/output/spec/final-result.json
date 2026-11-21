@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "run_id": "case-004",
+  "summary": "MODEL_CHANGE_REQUIRED: RaftMsg::TransferLeader calls Engine::elect without the is_voter guard. Model, harness and Update.tla updated; 34/34 fresh traces validate; a learner transfer target panics its RaftCore (MC-1, reproduced, absent on baseline).",
+  "validation_limits": [
+    "All clean model-checking results are budget-limited (30-min BFS plus 20-min simulation per campaign; nonempty queues), not proofs.",
+    "Lease timing, the transfer_leader metrics wait/timeout, follower log truncation/membership rollback, follower commit propagation and HigherVote notifications are not modeled.",
+    "RaftCore-level traces cover TransferLeader and vote request/response windows only; crash/restart around a transfer (U4) and post-transfer commit are model-checked but not trace-observed.",
+    "Built with stable cargo 1.100.0 because the pinned nightly-2024-03-20 toolchain is not installable offline.",
+    "The specula CLI is not installed: persistent-findings lookup/registration and `specula ci-result` were not run."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "TransferLeader to a learner makes it elect and panics its RaftCore (target not in quorum set)",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "RaftCore handles RaftMsg::TransferLeader by calling Engine::elect() when self.id == to after checking only vote == from, without the is_voter guard of every other election trigger; Candidate::grant_by panics when the non-voter candidate handles its own SaveVote self-grant.",
+      "trigger": "Call Raft::transfer_leader(leader_vote, to = learner that holds leader_vote, last_log_id) on the learner or on every node.",
+      "consequence": "The learner's RaftCore panics (Fatal::Panicked, node down); when called on every node the higher-term vote requests also depose the current leader. A removed node used as `to` elects without panicking and disrupts the cluster.",
+      "severity": "High",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/upd-full-NoCorePanic.log",
+        "spec/output/upd-full-ElectionInitiatorIsVoter.log",
+        "spec/output/repro/repro-new-update.log",
+        "spec/output/repro/control-old-baseline.log",
+        "harness/repro/t98_specula_repro_transfer_leader_to_learner.rs",
+        "traces/window/t99-transfer-to-learner/00004-vote-response-n3.ndjson"
+      ],
+      "persistence": {
+        "sites": ["openraft/src/core/raft_core.rs:RaftMsg::TransferLeader", "openraft/src/proposer/candidate.rs:grant_by", "openraft/src/raft/mod.rs:transfer_leader"],
+        "actions": ["HandleTransferLeader", "Elect", "CoreVoteResponsePanic"],
+        "invariants": ["NoCorePanic", "ElectionInitiatorIsVoter"],
+        "premises": [
+          "A learner receives AppendEntries and holds the leader's committed vote.",
+          "transfer_leader does not validate that `to` is a voter.",
+          "SaveVote completion delivers the local self VoteResponse before remote responses."
+        ],
+        "dependencies": [
+          {"root": "source", "path": "openraft/src/core/raft_core.rs"},
+          {"root": "source", "path": "openraft/src/proposer/candidate.rs"},
+          {"root": "source", "path": "openraft/src/engine/engine_impl.rs"},
+          {"root": "source", "path": "openraft/src/raft/mod.rs"},
+          {"root": "work", "path": "spec/base.tla"},
+          {"root": "work", "path": "spec/Update.tla"},
+          {"root": "work", "path": "spec/Update_full_NoCorePanic.cfg"}
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "Persisted committed id can run ahead of the leader's durable log (pre-existing, not update-related)",
+      "status": "NEEDS MORE INFO",
+      "source": "model-checking",
+      "cause": "With three voters the leader commits from two follower acks before its own flush, and SaveCommitted has no flush condition, so a persisted committed id may exceed the leader's durable log.",
+      "trigger": "Three-voter cluster; leader appends, followers ack, leader saves committed before its own append is flushed; crash before the flush.",
+      "consequence": "Unresolved: docs allow committed > flushed, but RaftState::validate requires committed <= last_log_id after restart; reachability depends on the storage's ordering of save_committed vs append flush.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/output/upd-hunt-U1-absent-DurableStateBounded.log",
+        "spec/bug-report.md"
+      ]
+    }
+  ]
+}

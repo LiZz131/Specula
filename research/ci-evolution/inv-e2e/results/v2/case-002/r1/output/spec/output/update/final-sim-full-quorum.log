@@ -1,0 +1,167 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 2100s env JSON= java -XX:+UseParallelGC -Xmx6g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -metadir /dev/shm/specula-e2e-case-002/final-sim-full-quorum -config Update-full-sim-quorum.cfg -workers 4 -simulate -depth 100 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed 1546660027529781022 with 4 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 19444] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-13200480087556888074/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13200480087556888074/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13200480087556888074/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13200480087556888074/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13200480087556888074/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13200480087556888074/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13200480087556888074/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 12:26:17)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 12:26:17.
+Progress: 1840489 states checked, 20840 traces generated (trace length: mean=73, var(x)=398, sd=20)
+Progress: 3788459 states checked, 42863 traces generated (trace length: mean=73, var(x)=399, sd=20)
+Progress: 5776820 states checked, 65318 traces generated (trace length: mean=73, var(x)=400, sd=20)
+Progress: 7754188 states checked, 87704 traces generated (trace length: mean=73, var(x)=399, sd=20)
+Error: Invariant CommittedDurableOnQuorum is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 13, col 5 to line 15, col 16 of module MC>
+
+State 2: <MCCastVote(s1,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 3: <MCCrash(s3) line 66, col 5 to line 69, col 20 of module MC>
+
+State 4: <MCCastVote(s1,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 5: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 6: <MCCastVote(s2,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 7: <MCCastVote(s2,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 8: <MCRestart(s3) line 70, col 17 to line 70, col 72 of module MC>
+
+State 9: <MCWinElection(s2) line 21, col 21 to line 21, col 79 of module MC>
+
+State 10: <MCFollowLeader(s3,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 11: <MCFollowLeader(s1,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 12: <MCAcceptEpoch(s1) line 23, col 21 to line 23, col 59 of module MC>
+
+State 13: <MCBeginElection(s3) line 19, col 23 to line 19, col 85 of module MC>
+
+State 14: <MCCastVote(s3,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 15: <MCFinishDiscovery(s2) line 24, col 25 to line 24, col 67 of module MC>
+
+State 16: <MCCastVote(s3,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 17: <MCEnterSyncPhase(s1,s2) line 25, col 27 to line 25, col 71 of module MC>
+
+State 18: <MCSelectSync(s1,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 19: <MCSelectSync(s1,s2,"TRUNC") line 27, col 5 to line 29, col 25 of module MC>
+
+State 20: <MCReceiveSyncPayload(s1) line 32, col 5 to line 34, col 25 of module MC>
+
+State 21: <MCPersistCurrentEpoch(s1) line 35, col 29 to line 35, col 75 of module MC>
+
+State 22: <MCClearSyncMode(s1) line 37, col 23 to line 37, col 63 of module MC>
+
+State 23: <MCFollowLeader(s3,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 24: <MCAckNewLeader(s1) line 40, col 5 to line 43, col 25 of module MC>
+
+State 25: <MCLeaderBroadcast(s2) line 48, col 5 to line 51, col 25 of module MC>
+
+State 26: <MCPropose(s2,t1) line 52, col 20 to line 52, col 79 of module MC>
+
+State 27: <MCBeginElection(s2) line 19, col 23 to line 19, col 85 of module MC>
+
+State 28: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 29: <MCCastVote(s1,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 30: <MCBeginElection(s2) line 19, col 23 to line 19, col 85 of module MC>
+
+State 31: <MCBeginElection(s3) line 19, col 23 to line 19, col 85 of module MC>
+
+State 32: <MCCastVote(s3,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 33: <MCNext line 103, col 8 to line 103, col 43 of module MC>
+
+State 34: <MCCastVote(s1,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 35: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 36: <MCCastVote(s3,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 37: <MCWinElection(s2) line 21, col 21 to line 21, col 79 of module MC>
+
+State 38: <MCFollowLeader(s3,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 39: <MCBeginElection(s3) line 19, col 23 to line 19, col 85 of module MC>
+
+State 40: <MCFollowLeader(s1,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 41: <MCAcceptEpoch(s1) line 23, col 21 to line 23, col 59 of module MC>
+
+State 42: <MCFinishDiscovery(s2) line 24, col 25 to line 24, col 67 of module MC>
+
+State 43: <MCFollowLeader(s3,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 44: <MCAcceptEpoch(s3) line 23, col 21 to line 23, col 59 of module MC>
+
+State 45: <MCEnterSyncPhase(s3,s2) line 25, col 27 to line 25, col 71 of module MC>
+
+State 46: <MCSelectSync(s3,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 47: <MCSelectSync(s3,s2,"SNAP") line 27, col 5 to line 29, col 25 of module MC>
+
+State 48: <MCEnterSyncPhase(s1,s2) line 25, col 27 to line 25, col 71 of module MC>
+
+State 49: <MCSelectSync(s1,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 50: <MCSelectSync(s1,s2,"SNAP") line 27, col 5 to line 29, col 25 of module MC>
+
+State 51: <MCSelectSync(s3,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 52: <MCReceiveSyncPayload(s3) line 32, col 5 to line 34, col 25 of module MC>
+
+State 53: <MCPersistCurrentEpoch(s3) line 35, col 29 to line 35, col 75 of module MC>
+
+State 54: <MCSelectSync(s1,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 55: <MCSelectSync(s1,s2,"SNAP") line 27, col 5 to line 29, col 25 of module MC>
+
+State 56: <MCSelectSync(s1,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 57: <MCClearSyncMode(s3) line 37, col 23 to line 37, col 63 of module MC>
+
+State 58: <MCReceiveSyncPayload(s1) line 32, col 5 to line 34, col 25 of module MC>
+
+State 59: <MCPersistCurrentEpoch(s1) line 35, col 29 to line 35, col 75 of module MC>
+
+State 60: <MCAckNewLeader(s3) line 40, col 5 to line 43, col 25 of module MC>
+
+State 61: <MCLeaderBroadcast(s2) line 48, col 5 to line 51, col 25 of module MC>
+
+The number of states generated: 7763444
+Simulation using seed 1546660027529781022 and aril 0
+Progress: 7763447 states checked, 87813 traces generated (trace length: mean=73, var(x)=399, sd=20)
+Finished in 04min 01s at (2026-11-18 12:30:18)
+Trace exploration spec path: ./Update_TTrace_1795004776.tla

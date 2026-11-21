@@ -1,0 +1,70 @@
+21 states
+  1 Init
+  2
+      sent: MsgVote s1->s2 t1; MsgVote s1->s3 t1
+      role: {"s1":"Candidate"}
+      term: {"s1":1}
+      vote: {"s1":"s1"}
+  3
+      durableTerm: {"s1":1}
+      durableVote: {"s1":"s1"}
+      readyOutstanding: {"s1":true}
+  4  consumed/lost: MsgVote s1->s2 t1
+      sent: MsgVoteResp s2->s1 t1
+      term: {"s2":1}
+      vote: {"s2":"s1"}
+  5
+      readyOutstanding: {"s1":false}
+  6
+      durableTerm: {"s2":1}
+      durableVote: {"s2":"s1"}
+      readyOutstanding: {"s2":true}
+  7  consumed/lost: MsgVoteResp s2->s1 t1
+  8
+      sent: MsgApp s1->s2 t1 prev=0 ent=1 commit=0; MsgApp s1->s3 t1 prev=0 ent=1 commit=0
+      role: {"s1":"Leader"}
+      logs: {"s1":[{"term":1,"value":"Nil"}]}
+      leaderHistory: [{"term":1,"node":"s1"}]
+  9
+      durableLogs: {"s1":[{"term":1,"value":"Nil"}]}
+      readyOutstanding: {"s1":true}
+ 10  consumed/lost: MsgApp s1->s2 t1 prev=0 ent=1 commit=0
+      sent: MsgAppResp s2->s1 t1 idx=1
+      logs: {"s2":[{"term":1,"value":"Nil"}]}
+ 11
+      alive: {"s2":false}
+ 12
+      logs: {"s2":[]}
+      readyOutstanding: {"s2":false}
+      alive: {"s2":true}
+ 13
+      sent: MsgVote s2->s1 t2; MsgVote s2->s3 t2
+      role: {"s2":"Candidate"}
+      term: {"s2":2}
+      vote: {"s2":"s2"}
+ 14
+      durableTerm: {"s2":2}
+      durableVote: {"s2":"s2"}
+      readyOutstanding: {"s2":true}
+ 15  consumed/lost: MsgVote s2->s3 t2
+      sent: MsgVoteResp s3->s2 t2
+      term: {"s3":2}
+      vote: {"s3":"s2"}
+ 16
+      durableTerm: {"s3":2}
+      durableVote: {"s3":"s2"}
+      readyOutstanding: {"s3":true}
+ 17  consumed/lost: MsgVoteResp s3->s2 t2
+ 18
+      sent: MsgApp s2->s1 t2 prev=0 ent=2 commit=0; MsgApp s2->s3 t2 prev=0 ent=2 commit=0
+      role: {"s2":"Leader"}
+      logs: {"s2":[{"term":2,"value":"Nil"}]}
+      leaderHistory: [{"term":1,"node":"s1"},{"term":2,"node":"s2"}]
+ 19
+      readyOutstanding: {"s2":false}
+ 20
+      durableLogs: {"s2":[{"term":2,"value":"Nil"}]}
+      readyOutstanding: {"s2":true}
+ 21  consumed/lost: MsgAppResp s2->s1 t1 idx=1
+      commitIndex: {"s1":1}
+      commitHistory: [{"index":1,"entry":{"term":1,"value":"Nil"},"commitTerm":1}]

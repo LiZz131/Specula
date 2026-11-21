@@ -1,0 +1,64 @@
+{
+ "id": "MC-1",
+ "title": "A timer Pre-Vote round outlives the node's own leader establishment and demotes the new leader",
+ "status": "REPRODUCED",
+ "source": "model-checking",
+ "cause": "establish_leader/become_leader keep pre_candidate, and handle_pre_vote_resp calls elect() without the timer's leader/voter checks.",
+ "trigger": "With Pre-Vote enabled the timer starts a Pre-Vote round on a Candidate; the original election then wins; a late Pre-Vote grant for that round arrives.",
+ "consequence": "The freshly elected leader steps down to Candidate at term+1 while keeping its Leader object; RaftCore panics on try_leader_handler's leader.vote >= state.vote assertion (debug builds).",
+ "sites": [
+  "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+  "openraft/src/engine/engine_impl.rs:establish_leader",
+  "openraft/src/engine/handler/vote_handler/mod.rs:become_leader",
+  "openraft/src/core/raft_core.rs:handle_tick_election"
+ ],
+ "actions": [
+  "TickPreElect",
+  "HandleVoteResponse",
+  "HandlePreVoteResponse",
+  "ElectEffects"
+ ],
+ "invariants": [
+  "TimerPreVoteElectsOnlyNonLeader"
+ ],
+ "premises": [
+  "Pre-Vote is enabled (Config::enable_pre_vote = Some(true) or runtime toggle).",
+  "Vote responses can arrive after the Candidate's election timer fired but within the vote RPC timeout (vote persistence/command-drain latency exceeds election_timeout - election_timeout_min plus tick phase)."
+ ],
+ "dependencies": [
+  {
+   "root": "source",
+   "path": "openraft/src/engine/engine_impl.rs",
+   "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+   "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free."
+  },
+  {
+   "root": "source",
+   "path": "openraft/src/engine/handler/vote_handler/mod.rs"
+  },
+  {
+   "root": "source",
+   "path": "openraft/src/core/raft_core.rs",
+   "start": "    fn handle_tick_election(&mut self) {",
+   "end": "    /// If a message is sent by a previous Candidate but is received by current Candidate,"
+  },
+  {
+   "root": "work",
+   "path": "spec/base.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/UpdateProps.tla"
+  },
+  {
+   "root": "work",
+   "path": "spec/MC_hunt_U2_prevote_leader.cfg"
+  }
+ ],
+ "evidence": [
+  "spec/confirmation-MC-1.md",
+  "spec/output/MC-1_TimerPreVoteElectsOnlyNonLeader_cex.out",
+  "spec/output/repro-MC-1-run1.log",
+  "harness/src/t90_specula_repro_stale_prevote_leader.rs"
+ ]
+}

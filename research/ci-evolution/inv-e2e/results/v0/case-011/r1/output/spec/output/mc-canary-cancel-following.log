@@ -1,0 +1,51 @@
+# command: java -Xmx24g -Dtlc2.TLC.stopAfter=600 tlc2.TLC -workers 10 -metadir /dev/shm/specula-e2e-case-011/canary-cancel-following-16790 -config Update-canary-cancel-following.cfg  Update
+# started: 2026-11-20T12:35:31Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 88 and seed 5208296126409877531 with 10 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 16796] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-9226177769492046956/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-9226177769492046956/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-9226177769492046956/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-9226177769492046956/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-9226177769492046956/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-9226177769492046956/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-9226177769492046956/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 12:35:32)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 12:35:33.
+Error: Action property CanaryNoPreCandidateCancelledByFollowing is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCExternalElect("1") line 43, col 5 to line 46, col 35 of module MC>
+
+State 3: <MCTickElect("3") line 37, col 5 to line 40, col 24 of module MC>
+
+State 4: <MCNext line 130, col 8 to line 131, col 57 of module MC>
+
+State 5: <MCNext line 130, col 8 to line 131, col 57 of module MC>
+
+State 6: <MCNext line 130, col 8 to line 131, col 57 of module MC>
+
+3815 states generated, 1497 distinct states found, 1099 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 03s at (2026-11-20 12:35:35)
+Trace exploration spec path: ./Update_TTrace_1795178131.tla
+# exit: 13 finished: 2026-11-20T12:35:35Z

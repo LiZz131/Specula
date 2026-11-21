@@ -1,0 +1,88 @@
+# command: java -Xmx16g -Dtlc2.TLC.stopAfter=600 tlc2.TLC  -workers 2 -metadir /dev/shm/specula-e2e-case-006/reach_v0_s3_quorum -config Reach_s3_quorum.cfg MC.tla 
+# started: 2026-11-18T03:37:16Z budget=10m outer-timeout=15m
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 101 and seed 4322047983759201289 with 2 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 10153] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13633802886800636547/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-13633802886800636547/_TLAPlusCounterExample.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLAPlusCounterExample.tla)
+Parsing file /tmp/tlc-13633802886800636547/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-13633802886800636547/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13633802886800636547/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13633802886800636547/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13633802886800636547/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13633802886800636547/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13633802886800636547/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-13633802886800636547/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-13633802886800636547/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-13633802886800636547/SequencesExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/SequencesExt.tla)
+Parsing file /tmp/tlc-13633802886800636547/FiniteSetsExt.tla (jar:file:/work/lib/CommunityModules-deps.jar!/FiniteSetsExt.tla)
+Parsing file /tmp/tlc-13633802886800636547/Folds.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Folds.tla)
+Parsing file /tmp/tlc-13633802886800636547/Functions.tla (jar:file:/work/lib/CommunityModules-deps.jar!/Functions.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module IOUtils
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module FiniteSetsExt
+Semantic processing of module SequencesExt
+Semantic processing of module _TLAPlusCounterExample
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module IOUtils
+Linting of module Folds
+Linting of module Functions
+Linting of module FiniteSetsExt
+Linting of module SequencesExt
+Linting of module _TLAPlusCounterExample
+Linting of module _TLCTrace
+Linting of module MC
+line 199, col 44 to line 199, col 49 of module base
+
+The field name "leader" in the record constructor is identical to the existing definition or declaration
+named leader, located at line 66, col 23 to line 66, col 28 of module base.
+The field in the record will not take the value of the leader definition or declaration.
+In TLA+, field names in records are strings, regardless of any similarly named declarations or definitions.
+Therefore, DOMAIN [leader |-> ...] = {"leader"} holds true.
+
+
+
+Starting... (2026-11-18 03:37:18)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 03:37:18.
+Error: Invariant HuntQuorumCheck is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 3: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 4: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 5: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 6: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 7: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 8: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+"CounterExample written: output/cex/reach_v0_s3_quorum.json"
+"CounterExample written: output/cex/reach_v0_s3_quorum.tla"
+180 states generated, 72 distinct states found, 24 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 03s at (2026-11-18 03:37:19)
+Trace exploration spec path: output/te/MC_TTrace_1794973036.tla
+# finished: 2026-11-18T03:37:19Z rc=12

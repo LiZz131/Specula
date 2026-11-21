@@ -1,0 +1,122 @@
+warning: unused workspace dependency `bytes`
+  --> Cargo.toml:22:1
+   |
+22 | bytes              = { version = "1.0" }
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `bytes`
+warning: unused workspace dependency `tempfile`
+  --> Cargo.toml:45:1
+   |
+45 | tempfile           = { version = "3.4.0" }
+   | ^^^^^^^^
+   |
+help: consider removing the workspace dependency `tempfile`
+warning: workspace (manifest) generated 2 warnings
+warning: `package.homepage` is redundant with `package.repository`
+  --> rt/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-rt` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> macros/Cargo.toml:10:17
+   |
+10 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+13 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-macros` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> legacy/Cargo.toml:11:1
+   |
+11 | homepage.workspace = true
+   | ^^^^^^^^
+...
+14 | repository.workspace = true
+   | ----------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-legacy` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> tests/Cargo.toml:13:17
+   |
+13 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `tests` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore-custom-node-id/Cargo.toml:9:17
+   |
+ 9 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+12 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore-custom-node-id` (manifest) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/build/tests/0bc8754a19115d4f/out/elect-0bc8754a19115d4f)
+
+running 1 test
+
+thread 'tokio-rt-worker' (16464) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULA_REPRO {"scenario":"stale_prevote_round_grant_from_removed_node","term_before":1,"node1_term_after":1,"delayed_grant_sent":1,"heartbeat_result":"Err(Panicked)","raft_core_panicked":true}
+
+thread 't91_specula_repro_prevote_stale_round_panic::specula_repro_stale_prevote_round_grant_from_removed_node' (16458) panicked at tests/tests/elect/t91_specula_repro_prevote_stale_round_panic.rs:122:5:
+a delayed Pre-Vote response of an earlier round crashed the RaftCore
+test t91_specula_repro_prevote_stale_round_panic::specula_repro_stale_prevote_round_grant_from_removed_node ... FAILED
+
+failures:
+
+failures:
+    t91_specula_repro_prevote_stale_round_panic::specula_repro_stale_prevote_round_grant_from_removed_node
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 2.44s
+
+error: test failed, to rerun pass `-p tests --test elect`

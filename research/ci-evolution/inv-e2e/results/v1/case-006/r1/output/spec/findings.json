@@ -1,0 +1,26 @@
+{
+ "schema_version": "2",
+ "system": "etcd Raft (update revision c780d355, V1 incremental suite)",
+ "generated_by": "validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Reused ReadIndex context completed by a stale heartbeat acknowledgement yields a stale read index",
+   "source": "model-checking",
+   "scenario": "US3/US4 (update: read_only.go advance now deletes released requests)",
+   "severity": "Medium",
+   "invariant": "ReadIndexFreshness",
+   "config": "Update_hunt_us4_guided.cfg",
+   "counterexample": "spec/output/mc/final_hunt_us4_guided.log",
+   "affected_code": [
+    "read_only.go:100-104",
+    "read_only.go:52-58",
+    "read_only.go:64-73",
+    "raft.go:915-932",
+    "raft.go:824-838",
+    "raft.go:457-464"
+   ],
+   "summary": "The update makes readOnly.advance delete each released request from pendingReadIndex (read_only.go:103), so a later MsgReadIndex with the same caller context is accepted again in the same term (read_only.go:52-58). Heartbeat acknowledgements identify a request only by that context (read_only.go:64-73, raft.go:919-924), so an acknowledgement produced for the earlier request (delayed, or duplicated by the periodic MsgBeat heartbeat that carries the pending context) can supply the quorum for the new request although the follower answered before the new request was accepted. If that follower has meanwhile helped elect a newer leader that committed entries, the old leader (still leader of its term) releases the new request at its stale commit index: TLC reports ReadIndexFreshness (published read index 1 < floor 2) on a 37-state full-MCSpec path, and the mechanism-level ReadDeliveryJustifiedFresh on 21/22-state focused paths (final_update_focused.log, final_update_focused_reset.log, and unguided simulation sim_update_full.log). The real update revision reproduces it (spec/output/repro/repro-new-update.log: read index 1 returned after index 3 was committed); the baseline revision never serves the reused request instead (repro-old-baseline.log)."
+  }
+ ]
+}

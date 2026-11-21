@@ -1,0 +1,34 @@
+{
+ "schema_version": "2",
+ "system": "openraft (artifact d7176ef, incremental case-004)",
+ "generated_by": "validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "TransferLeader makes a learner campaign; the learner's RaftCore panics",
+   "source": "model-checking",
+   "scenario": "U2 \u2014 transfer whose `to` node is not a voter",
+   "severity": "High",
+   "invariant": "ElectionByVoterOnly (consequence: NoRaftCorePanic)",
+   "config": "Update_full.cfg",
+   "counterexample": "spec/output/mc-Update_full.log",
+   "additional_counterexamples": [
+    "spec/output/mc-Update_hunt_U2_panic.log",
+    "spec/output/mc-Update_focused.log",
+    "spec/output/mc-Update_open.log",
+    "spec/output/mc-Update_hunt_U2_learner_transfer.log"
+   ],
+   "affected_code": [
+    "openraft/src/core/raft_core.rs:1190-1202",
+    "openraft/src/raft/mod.rs:635-703",
+    "openraft/src/engine/engine_impl.rs:223-249",
+    "openraft/src/proposer/candidate.rs:58-72",
+    "openraft/src/proposer/candidate.rs:90-96",
+    "openraft/src/core/raft_core.rs:1670-1682"
+   ],
+   "update_attribution": "introduced by the update: new RaftMsg::TransferLeader handler calls Engine::elect() without the is_voter guard used by ExternalCommand::Elect and handle_tick_election",
+   "code_reproduction": "spec/output/clean-update-specula_repro_transfer_to_learner_no_panic.log",
+   "summary": "The new RaftMsg::TransferLeader arm (core/raft_core.rs:1190-1202) calls engine.elect() whenever the node's vote equals `from` and the node is `to`, without the is_voter check that the two existing elect() callers apply. A learner that has accepted the leader's AppendEntries holds exactly that vote, so Raft::transfer_leader(from, to = learner), called on every node as documented, makes the learner a Candidate (violating ElectionByVoterOnly; docs/data/vote.md:50-51). The voters, whose leases the same transfer disabled, grant its higher vote and the old leader steps down; then the learner's own self-grant reaches Candidate::grant_by, whose progress contains only voters, and expect(\"target not in quorum set\") panics (candidate.rs:92): the learner's Raft fails with Fatal::Panicked and the cluster is leaderless until another election timeout."
+  }
+ ]
+}

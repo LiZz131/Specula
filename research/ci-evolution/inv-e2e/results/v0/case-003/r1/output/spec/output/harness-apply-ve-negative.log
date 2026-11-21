@@ -1,0 +1,8 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/apply_ve_negative.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/state -run '^TestSpeculaTraceApplyVENegative$' -count=1 -v
+=== RUN   TestSpeculaTraceApplyVENegative
+I[2026-11-18|18:02:57.561] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:57.562] executed block                               height=1 app_hash=
+    specula_trace_test.go:258: height 1: ApplyBlock rejected: commit failed for application: validating new consensus params: ABCI.VoteExtensionsEnableHeight cannot be negative. Got: -1
+--- PASS: TestSpeculaTraceApplyVENegative (0.08s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.104s

@@ -1,0 +1,11 @@
+trunc-abort new rc=1 trace_lines=124
+SPECULA-REPRO follower 0 logged 0x100000004 and drops the leader connection instead of ACK
+SPECULA-REPRO follower 1 holds ACK 0x100000004
+SPECULA-REPRO leader startForwarding(sid=0, lastSeen=0x100000003) lastCommitted=0x100000004 target=0x100000004
+SPECULA-REPRO follower 0 fails its sync at NEWLEADER, syncMode=TRUNC
+SPECULA-REPRO path: droppedAck=0x100000004 committedAtStartForwarding=0x100000004 newLeaderAborted=true
+SPECULA-REPRO RESULT inMemoryBeforeRestart=true node1AfterRestart=false node2AfterRestart=true node1OnLeader=true
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 10.996 s <<< FAILURE! - in org.apache.zookeeper.server.quorum.SpeculaTruncAbortReproTest
+org.opentest4j.AssertionFailedError: committed node must survive the follower's restart from disk ==> expected: not <null>
+[ERROR]   SpeculaTruncAbortReproTest.testTruncSyncAbortKeepsUnloggedCommit:227 committed node must survive the follower's restart from disk ==> expected: not <null>
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0

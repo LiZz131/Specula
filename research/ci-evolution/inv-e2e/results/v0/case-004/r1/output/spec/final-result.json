@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "run_id": "case-004-incremental",
+  "summary": "Model updated for RaftMsg::TransferLeader and the lease flag; harness rebased; 20 fresh traces validated. Two reproduced findings: MC-1 (update-introduced learner-target panic) and MC-2 (pre-existing leader self-election assertion panic, new trigger).",
+  "validation_limits": [
+    "All bounded TLC campaigns without a counterexample stopped at their 30-minute budget with non-empty queues (LIMITED_COVERAGE).",
+    "Lease time, follower conflict truncation, follower commit propagation, and snapshots remain abstracted.",
+    "No real trace of an absent (removed) transfer target or of crash/restart across a transfer.",
+    "MC-2 consequence reproduced only with debug assertions; release-build behavior not verified.",
+    "Novelty of findings not assessed: external issue search is prohibited by the isolation contract."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "transfer_leader to a learner makes the learner run an election and panics its RaftCore",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "The RaftMsg::TransferLeader handler calls Engine::elect() for to == self.id without the is_voter guard used by the other elect() callers; a learner candidate then grants itself and Candidate::grant_by panics because its progress holds voters only.",
+      "trigger": "Call Raft::transfer_leader(leader_vote, learner_id, last_log_id) on the cluster nodes (as documented) with a caught-up learner as the target.",
+      "consequence": "The learner's RaftCore panics (Fatal::Panicked) and the voters, whose leases the transfer disabled, grant the learner's higher vote, deposing the healthy leader until an election timeout.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/output/MC-1_NoCorePanic_violation.out",
+        "spec/output/repro-MC-1.log",
+        "spec/output/control-MC-1-baseline.log"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/core/raft_core.rs:RaftMsg::TransferLeader",
+          "openraft/src/proposer/candidate.rs:grant_by"
+        ],
+        "premises": [
+          "A learner holds the leader's committed vote after replication.",
+          "The public transfer_leader API forwards a TransferLeader message to the target without validating that it is a voter.",
+          "SaveVote delivers the self vote response before any remote response on the FIFO notification channel."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "            RaftMsg::TransferLeader {",
+            "end": "            RaftMsg::ExternalCommand { cmd } => {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/proposer/candidate.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/raft/mod.rs"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update_full_NoCorePanic.cfg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "A Leader that runs elect() trips the leader_handler vote-order assertion (transfer to the current leader)",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "Engine::elect() on a node that is already Leader keeps its Leader object while moving the local vote to a higher non-committed vote; Engine::leader_handler() debug-asserts leader.committed_vote >= state.vote and RaftCore calls it every loop iteration.",
+      "trigger": "Call Raft::transfer_leader(leader_vote, current_leader_id, ..) (new) or Raft::trigger().elect() on the leader (pre-existing).",
+      "consequence": "With debug assertions enabled the leader's RaftCore panics (Fatal::Panicked) and the cluster loses its leader until an election timeout; release-build behavior not verified.",
+      "severity": "Low",
+      "evidence": [
+        "spec/confirmation-MC-2.md",
+        "spec/output/MC-2_LeaderVoteNotSuperseded_transfer.out",
+        "spec/output/probe-leader-self-elect-update.log",
+        "spec/output/probe-leader-self-elect-baseline.log"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/engine/engine_impl.rs:leader_handler",
+          "openraft/src/core/raft_core.rs:RaftMsg::TransferLeader",
+          "openraft/src/core/raft_core.rs:ExternalCommand::Elect"
+        ],
+        "premises": [
+          "Builds with debug assertions (openraft's test configuration).",
+          "Neither the TransferLeader handler nor ExternalCommand::Elect rejects elect() on a Leader."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn leader_handler(&mut self) -> Result<LeaderHandler<C>, ForwardToLeader<C>> {",
+            "end": "    pub(crate) fn replication_handler(&mut self) -> ReplicationHandler<C> {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "            RaftMsg::TransferLeader {",
+            "end": "            RaftMsg::ExternalCommand { cmd } => {"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update_full_LeaderVoteNotSuperseded.cfg"
+          }
+        ]
+      }
+    }
+  ]
+}

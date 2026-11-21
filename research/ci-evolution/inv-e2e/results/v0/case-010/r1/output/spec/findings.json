@@ -1,0 +1,43 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper (Zab) \u2014 incremental case-010, source update b16ba7105238d46b0d51e3cc5d92ce9fe16de834",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "TRUNC-mode learner exit keeps a non-durable in-memory commit; the update's full shutdown covers only SNAP",
+      "source": "model-checking",
+      "scenario": "U2 (TRUNC-window learner exit, crash-free variant U2b) \u2014 modeling-brief.md section 8.3",
+      "severity": "High",
+      "invariant": "ReportedHistoryDurable (consequence: DurableHistoryConsistent)",
+      "config": "spec/Update-hunt-mc1-deterministic.cfg",
+      "counterexample": "spec/output/counterexamples/MC-1-witness-deterministic-commit-final.log",
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:864",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:555",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:656",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:805",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:853",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1293"
+      ],
+      "summary": "TRUNC sync keeps snapshotNeeded=true, so writeToTxnLog is false and a COMMIT read before NEWLEADER is applied only to the data tree (Learner.java:555,614,656-665); durability returns only with the NEWLEADER snapshot. The update discards the data tree on learner exit only when syncMode == SNAP (Learner.java:864, ZooKeeperServer.java:803-810), so a learner that fails after such a COMMIT in TRUNC mode keeps the non-durable record and reports it via getLastLoggedZxid. TRUNC arises without crashes when the learner reports a record the leader committed but has not applied (LearnerHandler.java:853-863), and startForwarding queues that record's PROPOSAL+COMMIT before NEWLEADER (Leader.java:1289-1302). On rejoin the leader sends an empty DIFF and no snapshot is taken, so the record never reaches the learner's disk; the learner logs later records and acknowledges them, and after restart replays a history with a committed hole (continuation: spec/output/counterexamples/MC-1-consequence-durable-hole-final.log). Pre-existing on the TRUNC branch; not fixed by the update."
+    },
+    {
+      "id": "MC-2",
+      "title": "DIFF learner exiting between NEWLEADER and UPTODATE under-reports its log; a logged record escapes the next epoch",
+      "source": "model-checking",
+      "scenario": "U3 (DIFF exit after NEWLEADER, adjacent unchanged path) \u2014 modeling-brief.md section 8.3",
+      "severity": "High",
+      "invariant": "DurableHistoryConsistent",
+      "config": "spec/Update-hunt-trunc-steered2.cfg",
+      "counterexample": "spec/output/counterexamples/MC-2-diff-window-uncommitted-record-in-log.log",
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:755",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:804",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java:1257"
+      ],
+      "summary": "In DIFF mode a learner logs the proposals buffered before NEWLEADER (Learner.java:751-757) through the sync processor that startupWithoutServing just started, but its data tree is updated only after UPTODATE. If it exits in between (e.g. the leader crashes while it writes the NEWLEADER ACK), its server is not RUNNING, so ZooKeeperServer.shutdown(false) returns early: the started sync processor keeps flushing the logged records while getLastLoggedZxid keeps reporting the stale data tree. The learner can win the next election with that lower zxid (Leader.lead keeps the in-memory database), so the new epoch is built without a record that sits in this server's log below later committed records; after a restart it replays that record and diverges. If the record had been committed with this learner's ACK, the next leader can lack a committed record. Pre-existing; the update's syncMode==SNAP condition is false on this path in both revisions."
+    }
+  ]
+}

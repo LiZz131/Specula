@@ -1,0 +1,76 @@
+CMD: timeout 8m java -Xmx24g -XX:+UseParallelGC tlc2.TLC -config Update_full_ElectedLeaderWasVoter.cfg -workers 8 -deadlock -metadir /dev/shm/specula-e2e-case-004/update-full-c1-nonvoterleader   Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 40 and seed -7344928442735965518 with 8 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 6789] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-1080601041791616428/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-1080601041791616428/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1080601041791616428/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1080601041791616428/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1080601041791616428/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-1080601041791616428/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1080601041791616428/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 03:43:10)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 03:43:10.
+Progress(15) at 2026-11-19 03:43:13: 59,465 states generated (59,465 s/min), 15,750 distinct states found (15,750 ds/min), 11,479 states left on queue.
+Progress(19) at 2026-11-19 03:44:13: 6,066,260 states generated (6,006,795 s/min), 1,110,868 distinct states found (1,095,118 ds/min), 611,250 states left on queue.
+Error: Invariant ElectedLeaderWasVoter is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 38, col 5 to line 42, col 53 of module MC>
+
+State 3: <MCPersistVote(1) line 60, col 21 to line 60, col 54 of module MC>
+
+State 4: <MCSendVote(1) line 61, col 18 to line 61, col 56 of module MC>
+
+State 5: <MCVoteRequest(2) line 65, col 5 to line 69, col 23 of module MC>
+
+State 6: <MCPersistVote(2) line 60, col 21 to line 60, col 54 of module MC>
+
+State 7: <MCVoteResponse(1,1) line 75, col 5 to line 90, col 23 of module MC>
+
+State 8: <MCVoteResponse(1,2) line 75, col 5 to line 90, col 23 of module MC>
+
+State 9: <MCFollowerAppend(3,1) line 127, col 5 to line 135, col 53 of module MC>
+
+State 10: <MCTransfer(3,3) line 53, col 5 to line 58, col 53 of module MC>
+
+State 11: <MCPersistVote(3) line 60, col 21 to line 60, col 54 of module MC>
+
+State 12: <MCSendVote(3) line 61, col 18 to line 61, col 56 of module MC>
+
+State 13: <MCVoteRequest(1) line 65, col 5 to line 69, col 23 of module MC>
+
+State 14: <MCPersistVote(1) line 60, col 21 to line 60, col 54 of module MC>
+
+State 15: <MCVoteRequest(2) line 65, col 5 to line 69, col 23 of module MC>
+
+State 16: <MCPersistVote(2) line 60, col 21 to line 60, col 54 of module MC>
+
+State 17: <MCVoteResponse(3,1) line 75, col 5 to line 90, col 23 of module MC>
+
+State 18: <MCVoteResponse(3,2) line 75, col 5 to line 90, col 23 of module MC>
+
+12043585 states generated, 2092896 distinct states found, 1069788 states left on queue.
+The depth of the complete state graph search is 20.
+Finished in 01min 57s at (2026-11-19 03:45:07)
+Trace exploration spec path: ./Update_TTrace_1795059790.tla
+EXIT rc=12 elapsed=118s

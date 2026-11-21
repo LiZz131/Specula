@@ -1,0 +1,61 @@
+# command: timeout 30m java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 6 -metadir /dev/shm/specula-e2e-case-011/update-focus-15900 -config Update-focus.cfg Update
+# started: 2026-11-20T09:36:16-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 39 and seed 504286056816030767 with 6 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 15940] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-16174405712704134957/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-16174405712704134957/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-16174405712704134957/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-16174405712704134957/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-16174405712704134957/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-16174405712704134957/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-16174405712704134957/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 15:36:17)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 15:36:18.
+Progress(9) at 2026-11-20 15:36:21: 30,665 states generated (30,665 s/min), 8,016 distinct states found (8,016 ds/min), 5,991 states left on queue.
+Error: Invariant NoStalePreCandidateAtLeader is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickPreElect("1") line 35, col 5 to line 37, col 64 of module MC>
+
+State 3: <MCTickElect("1") line 14, col 5 to line 16, col 65 of module MC>
+
+State 4: <Reactive line 76, col 11 to line 77, col 88 of module Update>
+
+State 5: <MCTickPreElect("1") line 35, col 5 to line 37, col 64 of module MC>
+
+State 6: <Reactive line 80, col 11 to line 80, col 76 of module Update>
+
+State 7: <InteractionActions line 81, col 8 to line 83, col 50 of module Update>
+
+State 8: <InteractionActions line 81, col 8 to line 83, col 50 of module Update>
+
+State 9: <Reactive line 76, col 11 to line 77, col 88 of module Update>
+
+State 10: <InteractionActions line 81, col 8 to line 83, col 50 of module Update>
+
+557775 states generated, 117667 distinct states found, 79609 states left on queue.
+The depth of the complete state graph search is 11.
+Finished in 20s at (2026-11-20 15:36:37)
+Trace exploration spec path: ./Update_TTrace_1795188976.tla
+# exit: 12 (TLC terminated)
+# finished: 2026-11-20T09:36:37-06:00

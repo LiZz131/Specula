@@ -1,0 +1,60 @@
+diff --git a/openraft/src/membership/mod.rs b/openraft/src/membership/mod.rs
+index 531dbcd..fd4c1f3 100644
+--- a/openraft/src/membership/mod.rs
++++ b/openraft/src/membership/mod.rs
+@@ -16,3 +16,4 @@ pub use membership::IntoOptionNodes;
+ pub use membership::Membership;
+ pub use membership_state::MembershipState;
+ pub(crate) use node_type::NodeRole;
++#[cfg(test)] mod specula_old_control_test;
+diff --git a/mydata/bingzhuo/inv-e2e/attempts/v1/case-012/r1/ws/current/.specula-output/work/old-control/openraft/src/membership/specula_old_control_test.rs b/mydata/bingzhuo/inv-e2e/attempts/v1/case-012/r1/ws/current/.specula-output/work/old-control/openraft/src/membership/specula_old_control_test.rs
+new file mode 100644
+index 00000000..13d3dc8c
+--- /dev/null
++++ b/mydata/bingzhuo/inv-e2e/attempts/v1/case-012/r1/ws/current/.specula-output/work/old-control/openraft/src/membership/specula_old_control_test.rs
+@@ -0,0 +1,45 @@
++//! Specula old-revision control for update scenario U1 (harness-only).
++use std::collections::BTreeMap;
++
++use maplit::btreeset;
++
++use crate::progress::Progress;
++use crate::progress::VecProgress;
++use crate::quorum::Joint;
++use crate::LeaderId;
++use crate::LogId;
++use crate::Membership;
++
++fn log_id(term: u64, node_id: u64, index: u64) -> LogId<u64> {
++    LogId::<u64> { leader_id: LeaderId { term, node_id }, index }
++}
++
++/// Old production commit computation (core/replication.rs calc_commit_log_id ->
++/// Membership::greatest_majority_value) on the U1 acknowledgement state:
++/// joint [{1,2,3},{1,3}], matched 1:(1,2,1), 2:(1,2,2), 3:(1,2,2).
++#[test]
++fn specula_old_greatest_majority_u1() {
++    let joint = Membership::<u64>::new(vec![btreeset! {1,2,3}, btreeset! {1,3}], None);
++    let mut values = BTreeMap::new();
++    values.insert(1u64, log_id(1, 2, 1));
++    values.insert(2u64, log_id(1, 2, 2));
++    values.insert(3u64, log_id(1, 2, 2));
++    let got = joint.greatest_majority_value(&values).cloned();
++    println!("SPECULA_OLD_CONTROL greatest_majority_value={:?}", got);
++    assert_eq!(Some(log_id(1, 2, 1)), got);
++}
++
++/// The same VecProgress update/upgrade sequence the updated Engine performs in
++/// U1, run on the OLD VecProgress (present but not on the old commit path).
++#[test]
++fn specula_old_vecprogress_u1_sequence() {
++    let qs123 = Joint::from(vec![vec![1u64, 2, 3]]);
++    let joint = Joint::from(vec![vec![1u64, 2, 3], vec![1, 3]]);
++    let mut p = VecProgress::<u64, Option<LogId<u64>>, _>::new(qs123);
++    p.update(&2, Some(log_id(1, 2, 1)));
++    p.update(&1, Some(log_id(1, 2, 1)));
++    let mut p = p.upgrade_quorum_set(joint);
++    p.update(&2, Some(log_id(1, 2, 2)));
++    let got = *p.update(&3, Some(log_id(1, 2, 2)));
++    println!("SPECULA_OLD_CONTROL vecprogress_committed={:?}", got);
++}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab (incremental case-002, artifact commit update 2efbdfc3754d)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NullPointerException when a COMMIT crosses NEWLEADER",
+      "source": "model-checking",
+      "scenario": "U-NPE",
+      "severity": "High",
+      "invariant": "NoSyncException",
+      "config": "Update-hunt-npe-strict.cfg",
+      "counterexample": "spec/output/mc/hunt-update-npe-strict.log",
+      "affected_code": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:645", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:752"],
+      "summary": "The update logs and clears packetsNotCommitted when the learner processes NEWLEADER. Leader.startForwarding forwards outstanding proposals before LearnerHandler queues NEWLEADER, so the COMMIT of such a proposal can arrive after NEWLEADER. The unchanged COMMIT handler dereferences packetsNotCommitted.peekFirst() and throws NullPointerException, aborting synchronization of a learner that already ACKed NEWLEADER and started its processors in State.INITIAL. Reproduced on the new revision; the old revision passes the same test."
+    },
+    {
+      "id": "MC-2",
+      "title": "NEWLEADER ACKed and currentEpoch persisted before the synchronised history is durable",
+      "source": "model-checking",
+      "scenario": "U-DUR / U-EPOCH",
+      "severity": "High",
+      "invariant": "EpochHistoryRecoverable",
+      "config": "Update-hunt-epoch.cfg",
+      "counterexample": "spec/output/mc/hunt-update-epoch.log",
+      "affected_code": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:739", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82"],
+      "summary": "At NEWLEADER the learner writes the new currentEpoch file, only enqueues the DIFF proposals to SyncRequestProcessor (logRequest), and sends the ACK that the leader counts to establish the epoch, all before the proposals are forced. A crash in that window leaves a persisted state with the new epoch but without the epoch's initial history; FLE prefers the higher epoch, so such a server can lead and drop committed transactions. NewLeaderAckDurable is violated too (Update-hunt-dur.cfg). Pre-existing; the update narrows but does not close the window."
+    },
+    {
+      "id": "MC-3",
+      "title": "Stale tree after a failure in the new INITIAL state; in-process re-election loses a committed transaction",
+      "source": "model-checking",
+      "scenario": "U-LOSS",
+      "severity": "Critical",
+      "invariant": "LeaderCompleteness",
+      "config": "Update-hunt-loss-tight.cfg",
+      "counterexample": "spec/output/mc/hunt-update-loss-tight.log",
+      "affected_code": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:669", "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155"],
+      "summary": "The update starts the learner's server in State.INITIAL at NEWLEADER. If the learner fails before UPTODATE, ZooKeeperServer/LearnerZooKeeperServer.shutdown are no-ops (canShutdown is false), so the data tree is not fast-forwarded and keeps the pre-sync zxid while currentEpoch already advanced. After the old leader (which established the epoch with this learner's ACK and served the DIFF transactions) fails, the surviving learners re-elect in-process and the new leader establishes an epoch without the committed transaction. Reproduced: a client-visible committed znode disappears after failover (no crash needed); the update's own test passes only because it restarts the learners from disk."
+    }
+  ]
+}

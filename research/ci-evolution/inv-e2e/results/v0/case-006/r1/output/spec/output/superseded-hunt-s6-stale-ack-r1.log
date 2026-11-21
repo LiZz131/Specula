@@ -1,0 +1,98 @@
+# run=hunt-s6-stale-ack module=Update.tla cfg=MC_hunt_s6_stale_ack.cfg budget=30m workers=8 extra= start=2026-11-18T04:50:31Z
+# cmd: timeout 30m java -Xmx20g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 8 -metadir /dev/shm/specula-e2e-case-006/hunt-s6-stale-ack -noGenerateSpecTE -dumpTrace json output/hunt-s6-stale-ack.cex.json -config MC_hunt_s6_stale_ack.cfg  Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 27 and seed -2041105154594151755 with 8 workers on 40 cores with 18204MB heap and 64MB offheap memory [pid: 8696] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-7251773412460345889/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-7251773412460345889/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7251773412460345889/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7251773412460345889/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7251773412460345889/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7251773412460345889/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7251773412460345889/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-7251773412460345889/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module Update
+line 181, col 44 to line 181, col 49 of module base
+
+The field name "leader" in the record constructor is identical to the existing definition or declaration
+named leader, located at line 66, col 23 to line 66, col 28 of module base.
+The field in the record will not take the value of the leader definition or declaration.
+In TLA+, field names in records are strings, regardless of any similarly named declarations or definitions.
+Therefore, DOMAIN [leader |-> ...] = {"leader"} holds true.
+
+
+
+Starting... (2026-11-18 04:50:32)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 04:50:32.
+Progress(20) at 2026-11-18 04:50:35: 13,557 states generated (13,557 s/min), 3,944 distinct states found (3,944 ds/min), 2,023 states left on queue.
+Error: Invariant UpdReadAckFreshness is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 3: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 4: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 5: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 6: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 7: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 8: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 9: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 10: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 11: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 12: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 13: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 14: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 15: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 16: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 17: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 18: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 19: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 20: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+State 21: <MCNext line 118, col 5 to line 139, col 46 of module MC>
+
+"CounterExample written: output/hunt-s6-stale-ack.cex.json"
+82761 states generated, 23344 distinct states found, 11646 states left on queue.
+The depth of the complete state graph search is 22.
+Finished in 08s at (2026-11-18 04:50:40)
+# end=2026-11-18T04:50:40Z rc=12 outcome=VIOLATION_OR_ERROR: Error: Invariant UpdReadAckFreshness is violated.

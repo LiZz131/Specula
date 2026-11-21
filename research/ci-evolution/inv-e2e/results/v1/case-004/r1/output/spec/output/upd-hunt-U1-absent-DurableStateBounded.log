@@ -1,0 +1,86 @@
+# cmd: timeout 2400 java -Dtlc2.TLC.stopAfter=1800 -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-004/Update_hunt_U1_absent-1795072020223760801 -config Update_hunt_U1_absent.cfg -workers 4 -deadlock -dumpTrace json /work/current/.specula-output/spec/output/upd-hunt-U1-absent.cex.json Update.tla
+# cwd: /work/current/.specula-output/spec
+# start: 2026-11-19T01:07:00-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 102 and seed -6276140582077779057 with 4 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 22425] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-10765017167080466140/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-10765017167080466140/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-10765017167080466140/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-10765017167080466140/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-10765017167080466140/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-10765017167080466140/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-10765017167080466140/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-10765017167080466140/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-10765017167080466140/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 07:07:01)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 07:07:01.
+Progress(15) at 2026-11-19 07:07:04: 17,512 states generated (17,512 s/min), 6,698 distinct states found (6,698 ds/min), 4,121 states left on queue.
+Error: Invariant MCDurableStateBounded is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 40, col 5 to line 44, col 88 of module MC>
+
+State 3: <MCPersistVote(1) line 58, col 21 to line 58, col 56 of module MC>
+
+State 4: <MCNext line 127, col 8 to line 127, col 62 of module MC>
+
+State 5: <MCSendVote(1) line 59, col 18 to line 59, col 50 of module MC>
+
+State 6: <MCNext line 126, col 8 to line 126, col 60 of module MC>
+
+State 7: <MCPersistVote(3) line 58, col 21 to line 58, col 56 of module MC>
+
+State 8: <MCNext line 127, col 8 to line 127, col 62 of module MC>
+
+State 9: <MCFollowerAppend(2,1,1) line 100, col 30 to line 100, col 66 of module MC>
+
+State 10: <MCFollowerAppend(3,1,1) line 100, col 30 to line 100, col 66 of module MC>
+
+State 11: <MCSubmit(2) line 101, col 16 to line 101, col 54 of module MC>
+
+State 12: <MCFlush(2) line 102, col 15 to line 102, col 52 of module MC>
+
+State 13: <MCRespond(2) line 103, col 17 to line 103, col 48 of module MC>
+
+State 14: <MCSubmit(3) line 101, col 16 to line 101, col 54 of module MC>
+
+State 15: <MCFlush(3) line 102, col 15 to line 102, col 52 of module MC>
+
+State 16: <MCRespond(3) line 103, col 17 to line 103, col 48 of module MC>
+
+State 17: <MCNext line 132, col 8 to line 132, col 55 of module MC>
+
+State 18: <MCNext line 132, col 8 to line 132, col 55 of module MC>
+
+State 19: <MCSaveCommit(1) line 104, col 20 to line 104, col 59 of module MC>
+
+"CounterExample written: /work/current/.specula-output/spec/output/upd-hunt-U1-absent.cex.json"
+942326 states generated, 248421 distinct states found, 104753 states left on queue.
+The depth of the complete state graph search is 20.
+Finished in 28s at (2026-11-19 07:07:28)
+Trace exploration spec path: ./Update_TTrace_1795072020.tla
+# exit: 12 end: 2026-11-19T01:07:29-06:00

@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "case_id": "case-002",
+  "purpose": "incremental_update_verification",
+  "inputs": {
+    "old_source": "/work/old-source",
+    "new_source": "/work/new-source",
+    "previous_suite": "/work/previous/.specula-output",
+    "artifact": "/work/current/.specula-output/artifact",
+    "artifact_commits": {
+      "baseline": "1414ebfb1d16fd81abc38550a96950d919ecf805",
+      "update": "2efbdfc3754df193bce05b9792297c813377cdaf"
+    },
+    "case_json_sha256": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+    "model_scope_sha256": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+    "input_manifest_sha256": "a17fd8d3fbbc607b034d160a262100a1c062fba83c816fedc24deafd891417da",
+    "tla2tools_jar_sha256": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+    "community_modules_sha256": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99",
+    "history_or_external_research_used": false
+  },
+  "toolchain": {
+    "java": "OpenJDK 21.0.13 (/usr/lib/jvm/java-21-openjdk-amd64)",
+    "maven": "3.6.3",
+    "maven_repo": "/work/.cache/m2 (network used only for Maven dependencies)"
+  },
+  "harness": {
+    "patch": "harness/patches/instrumentation.patch",
+    "patch_sha256": "5506cec99e54c847ac6adbcf5d0305db845bed8cfa9d51ebdfd84569c66fae6e",
+    "command": "timeout 3600s /work/current/.specula-output/harness/run.sh (SKIP_BUILD=1 for reruns)",
+    "build_log": "spec/output/update/build-instrumented.log",
+    "summary": "spec/output/update/harness-summary.txt",
+    "old_control": "old-control/run-old-control.sh (git archive baseline; same observation test, no instrumentation)"
+  },
+  "traces": [
+    {
+      "path": "traces/follower-diff.ndjson",
+      "records": 19,
+      "bytes": 6805,
+      "sha256": "f5339f07d9a3ab3509ae7efe92002877043f3e1acc6e983c2fa8e0e017afa376",
+      "trace_validation_log": "spec/output/update/final-trace-follower-diff.log"
+    },
+    {
+      "path": "traces/follower-snap.ndjson",
+      "records": 20,
+      "bytes": 7194,
+      "sha256": "5423074d9a693aff7326f78de5816dd86ca5b1ff112ffa3d0bc1c725473c564e",
+      "trace_validation_log": "spec/output/update/final-trace-follower-snap.log"
+    },
+    {
+      "path": "traces/leader-abandon-restart-recovery.ndjson",
+      "records": 283,
+      "bytes": 113394,
+      "sha256": "b07d7f985d9f906eef1ad4349e355db552d4e808f118fed4fa50ed8b5c3d8101",
+      "trace_validation_log": "spec/output/update/final-trace-leader-abandon-restart-recovery.log"
+    },
+    {
+      "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+      "records": 75,
+      "bytes": 29332,
+      "sha256": "ee2d95213afad0e7ca75471449441d91a893b48e12639c7f813e393d01ce9f1c",
+      "trace_validation_log": "spec/output/update/final-trace-quorum-startup-mutation-shutdown.log"
+    },
+    {
+      "path": "traces/update-diff-sync-consistency.ndjson",
+      "records": 161,
+      "bytes": 66193,
+      "sha256": "958920355a50e805fa96ddf18707a9a7bfbb075416ffa89c4bed4da8d27dcd60",
+      "trace_validation_log": "spec/output/update/final-trace-update-diff-sync-consistency.log"
+    },
+    {
+      "path": "traces/update-observe-ack-durability.ndjson",
+      "records": 19,
+      "bytes": 7109,
+      "sha256": "b7c564ef0425b8d1c4f519efe1d6656096a58eb3040532a6f33bc175a47fe533",
+      "trace_validation_log": "spec/output/update/final-trace-update-observe-ack-durability.log"
+    },
+    {
+      "path": "traces/update-observe-commit-after-newleader.ndjson",
+      "records": 15,
+      "bytes": 5771,
+      "sha256": "e1af327720134bae9026b57639635274609eef5c2dbd716cc3c8dd72675905ec",
+      "trace_validation_log": "spec/output/update/final-trace-update-observe-commit-after-newleader.log"
+    }
+  ],
+  "spec": {
+    "modules": [
+      "spec/base.tla",
+      "spec/MC.tla",
+      "spec/Update.tla",
+      "spec/UpdateProps.tla",
+      "spec/Trace.tla",
+      "spec/TraceSync.tla",
+      "spec/TraceWitness.tla"
+    ],
+    "sha256": {
+      "spec/base.tla": "4a906e63da410ee1dfaece929afd443c6b0edbf8f55ecc5d028c8ec496eea2db",
+      "spec/MC.tla": "cb3168fe9b68a3219815bcdea8f5735003e1acca24de10e8d7c6f1bc418008ff",
+      "spec/Update.tla": "8970a9c3c6fbd2796c9036f2fa0119b3bb6874a70ffbe807c3a9a8a894c6a8e7",
+      "spec/UpdateProps.tla": "acf37ea30ff0e561b8ae984a648572f6402cc126aecc3059753d4c9e41ccaaf0",
+      "spec/Trace.tla": "82ba22a54a0d271b2b6e6d3096cd8acb834fbeac9939525d06f57cf033525b52",
+      "spec/TraceSync.tla": "6dd0a651446a9118ab4ea09d44129914c6deabfacaf6228183773e0e711dd564"
+    },
+    "tlc_runner": "spec/run-tlc.sh (outer timeout, -metadir /dev/shm/specula-e2e-case-002/<id>, removed after run)",
+    "campaign_script": "spec/run-campaigns.sh",
+    "ledger": "spec/output/update/command-results.ndjson",
+    "campaign_summary": "spec/output/update/campaign-summary.md"
+  },
+  "results": {
+    "disposition": "MODEL_CHANGE_REQUIRED",
+    "model_checking_findings": [
+      "MC-1",
+      "MC-2"
+    ],
+    "code_review_findings": [
+      "CR-1"
+    ],
+    "findings": "spec/findings.json",
+    "bug_report": "spec/bug-report.md",
+    "final_result": "spec/final-result.json"
+  }
+}

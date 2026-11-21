@@ -1,0 +1,55 @@
+# cmd: java tlc2.TLC -config Update_focused.cfg -metadir /dev/shm/specula-e2e-case-012/upd-focused-r1 -workers 6  Update.tla (outer timeout 1500s+300s)
+# start: 2026-11-20T00:51:37-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 68 and seed 6509534615844640741 with 6 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 12115] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-5495624156708601281/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-5495624156708601281/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-5495624156708601281/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-5495624156708601281/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-5495624156708601281/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-5495624156708601281/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-5495624156708601281/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 06:51:37)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 06:51:38.
+Error: Invariant ProgressSortedAboveCommitted is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n3) line 40, col 5 to line 43, col 70 of module MC>
+
+State 3: <MCGrantVote(n3,n2) line 72, col 5 to line 73, col 28 of module MC>
+
+State 4: <MCClientAppend(n3) line 46, col 5 to line 49, col 72 of module MC>
+
+State 5: <MCSendAppendEntries(n3,n1) line 76, col 5 to line 77, col 28 of module MC>
+
+State 6: <FollowerFocus line 35, col 18 to line 35, col 61 of module Update>
+
+State 7: <HandleUpdateMatchedFocus line 24, col 29 to line 24, col 71 of module Update>
+
+State 8: <MCProposeMembership(n3,{{n1, n2}, {n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+
+5092 states generated, 3390 distinct states found, 2182 states left on queue.
+The depth of the complete state graph search is 8.
+Finished in 03s at (2026-11-20 06:51:40)
+Trace exploration spec path: ./Update_TTrace_1795157497.tla
+# exit: 12 end: 2026-11-20T00:51:40-06:00

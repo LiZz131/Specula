@@ -1,0 +1,9 @@
+---- MODULE EE8 ----
+EXTENDS TLC, Integers, Sequences, FiniteSets
+S == [blockStoreHeight |-> 2, appHeight |-> 2, stateStoreHeight |-> 2, stateHeight |-> 2, activeParam |-> [rest |-> "13116fe37a77a8415d6267bfba8e92fb370ee112eeec29a9aef4fe471cc68967", ve |-> 2], persistedParam |-> [rest |-> "13116fe37a77a8415d6267bfba8e92fb370ee112eeec29a9aef4fe471cc68967", ve |-> 2], lastParamChange |-> 2, persistedLastParamChange |-> 2, responseHeight |-> 2, responseParam |-> [abci |-> 0, abciPresent |-> FALSE, present |-> FALSE, rest |-> "none"], phase |-> "normal", replayMutatesState |-> FALSE, pendingBlockHeight |-> 0, pendingParam |-> [abci |-> 0, abciPresent |-> FALSE, present |-> FALSE, rest |-> "none"], updatePresent |-> FALSE, validationOutcome |-> "none", rejectRule |-> "none", veHist |-> <<1, 0>>, coverage |-> {}]
+New == INSTANCE UpdateProps WITH MaxHeight <- 100, Rest <- {"13116fe37a77a8415d6267bfba8e92fb370ee112eeec29a9aef4fe471cc68967", "rBad"}, ValidRest <- {"13116fe37a77a8415d6267bfba8e92fb370ee112eeec29a9aef4fe471cc68967"}, VEValues <- {-1, 0, 1, 2}, InitialParams <- {S.persistedParam}, NoRest <- "none", blockStoreHeight <- S.blockStoreHeight, appHeight <- S.appHeight, stateStoreHeight <- S.stateStoreHeight, stateHeight <- S.stateHeight, activeParam <- S.activeParam, persistedParam <- S.persistedParam, lastParamChange <- S.lastParamChange, persistedLastParamChange <- S.persistedLastParamChange, responseHeight <- S.responseHeight, responseParam <- S.responseParam, phase <- S.phase, replayMutatesState <- S.replayMutatesState, pendingBlockHeight <- S.pendingBlockHeight, pendingParam <- S.pendingParam, updatePresent <- S.updatePresent, validationOutcome <- S.validationOutcome, rejectRule <- S.rejectRule, veHist <- S.veHist, coverage <- S.coverage
+ASSUME PrintT(<<"E8", "New!VEEnableMonotone", New!VEEnableMonotone>>)
+VARIABLE dummy
+Init == dummy = 0
+Next == UNCHANGED dummy
+====

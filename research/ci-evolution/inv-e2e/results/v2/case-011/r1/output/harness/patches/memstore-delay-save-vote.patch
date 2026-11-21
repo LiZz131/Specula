@@ -1,0 +1,35 @@
+diff --git a/stores/memstore/src/lib.rs b/stores/memstore/src/lib.rs
+index d1708ec..d37bea6 100644
+--- a/stores/memstore/src/lib.rs
++++ b/stores/memstore/src/lib.rs
+@@ -127,6 +127,8 @@ pub enum BlockOperation {
+     DelayBuildingSnapshot,
+     BuildSnapshot,
+     PurgeLog,
++    /// Delay `save_vote` (slow vote persistence). Test-only, added by the Specula harness.
++    DelaySaveVote,
+ }
+ 
+ /// Block operations for testing purposes.
+@@ -179,6 +181,11 @@ pub struct MemLogStore {
+ }
+ 
+ impl MemLogStore {
++    /// The shared block configuration of this log store. Test-only, added by the Specula harness.
++    pub fn block_config(&self) -> &BlockConfig {
++        &self.block
++    }
++
+     pub fn new(block: BlockConfig) -> Self {
+         let log = RwLock::new(BTreeMap::new());
+ 
+@@ -407,6 +414,9 @@ impl RaftLogStorage<TypeConfig> for Arc<MemLogStore> {
+     #[tracing::instrument(level = "trace", skip(self))]
+     async fn save_vote(&mut self, vote: &Vote<leader_id_mode::LeaderId<u64, u64>>) -> Result<(), io::Error> {
+         tracing::debug!(?vote, "save_vote");
++        if let Some(d) = self.block.get_blocking(&BlockOperation::DelaySaveVote) {
++            TypeConfig::sleep(d).await;
++        }
+         let mut h = self.vote.write().await;
+ 
+         *h = Some(*vote);

@@ -1,0 +1,73 @@
+# cmd: java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=1800 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update_focused.cfg -workers 10 -metadir /dev/shm/specula-e2e-case-012/upd-focused-bfs-10448 -cleanup -noGenerateSpecTE -dumpTrace json /work/current/.specula-output/spec/output/upd-focused-bfs.trace.json Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 27 and seed 8168474096008645529 with 10 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 10467] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-17132825707931495082/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-17132825707931495082/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-17132825707931495082/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-17132825707931495082/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-17132825707931495082/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-17132825707931495082/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-17132825707931495082/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-17132825707931495082/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module Update
+Starting... (2026-11-20 02:48:19)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 02:48:19.
+Progress(12) at 2026-11-20 02:48:22: 55,782 states generated (55,782 s/min), 29,116 distinct states found (29,116 ds/min), 20,427 states left on queue.
+Progress(15) at 2026-11-20 02:49:22: 2,766,034 states generated (2,710,252 s/min), 1,205,630 distinct states found (1,176,514 ds/min), 739,873 states left on queue.
+Progress(16) at 2026-11-20 02:50:22: 5,590,358 states generated (2,824,324 s/min), 2,437,506 distinct states found (1,231,876 ds/min), 1,480,365 states left on queue.
+Progress(16) at 2026-11-20 02:51:22: 8,353,836 states generated (2,763,478 s/min), 3,648,134 distinct states found (1,210,628 ds/min), 2,193,791 states left on queue.
+Error: Invariant MembershipOrder is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n1) line 31, col 5 to line 34, col 70 of module MC>
+
+State 3: <MCGrantVote(n1,n2) line 63, col 5 to line 64, col 87 of module MC>
+
+State 4: <MCProposeMembership(n1,{{n1, n2}}) line 43, col 5 to line 46, col 68 of module MC>
+
+State 5: <MCSendAppendEntries(n1,n2) line 67, col 5 to line 68, col 87 of module MC>
+
+State 6: <AffectedActions line 22, col 8 to line 22, col 51 of module Update>
+
+State 7: <MCSendAppendEntries(n1,n3) line 67, col 5 to line 68, col 87 of module MC>
+
+State 8: <AffectedActions line 21, col 8 to line 21, col 50 of module Update>
+
+State 9: <MCProposeMembership(n1,{{n1, n2}}) line 43, col 5 to line 46, col 68 of module MC>
+
+State 10: <AffectedActions line 22, col 8 to line 22, col 51 of module Update>
+
+State 11: <MCStartElection(n3) line 31, col 5 to line 34, col 70 of module MC>
+
+State 12: <MCGrantVote(n3,n2) line 63, col 5 to line 64, col 87 of module MC>
+
+State 13: <MCSendAppendEntries(n3,n1) line 67, col 5 to line 68, col 87 of module MC>
+
+State 14: <AffectedActions line 22, col 8 to line 22, col 51 of module Update>
+
+"CounterExample written: /work/current/.specula-output/spec/output/upd-focused-bfs.trace.json"
+10709336 states generated, 4674255 distinct states found, 2842081 states left on queue.
+The depth of the complete state graph search is 17.
+Finished in 03min 56s at (2026-11-20 02:52:15)
+# exit=12

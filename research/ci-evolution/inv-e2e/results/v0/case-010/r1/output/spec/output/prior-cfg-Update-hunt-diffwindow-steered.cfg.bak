@@ -1,0 +1,31 @@
+\* Scenario U3 steered schedule (DiffWindowScenarioNext): DIFF learner exits after NEWLEADER logging; updated source.
+CONSTANTS
+    Server = {s1, s2, s3}
+    NoServer = NoServer
+    MaxEpoch = 2
+    MaxTxn = 3
+    MaxRounds = 1
+    MaxCrashes = 1
+    MaxExits = 1
+    MaxSnapshots = 0
+    UpdateFullShutdownOnSnap = TRUE
+    TrackCoverage = FALSE
+INIT MCInit
+NEXT DiffWindowScenarioNext
+CHECK_DEADLOCK FALSE
+INVARIANTS
+    MCTypeOK
+    LeaderUniquenessPerEpoch
+    AcceptedEpochGECurrentEpoch
+    OrderedHistories
+    CommittedPrefixAgreement
+    NormalAckHasDurabilityEvidence
+    ApplyHasCommitCertificate
+    SyncEntryJustified
+    SnapshotPublishedValid
+    DurableHistoryConsistent
+    LeaderCompleteness
+    ReportedHistoryDurable
+    SnapExitReportsDisk
+PROPERTIES
+    MonotoneUnlessRecovery

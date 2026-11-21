@@ -1,0 +1,16 @@
+# source: artifact (401753b)
+# command: (cd artifact && timeout 10m go test -mod=readonly ./internal/state -run '^TestSpeculaMC1UnchangedVoteExtensionsEnableHeight$' -count=1 -v)
+=== RUN   TestSpeculaMC1UnchangedVoteExtensionsEnableHeight
+    specula_mc1_repro_test.go:111: SPECULA_MC1 apply_error=commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 1
+    specula_mc1_repro_test.go:123: SPECULA_MC1 restart_handshake_error=error on replay: commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 1
+    specula_mc1_repro_test.go:125: 
+        	Error Trace:	/work/current/.specula-output/artifact/internal/state/specula_mc1_repro_test.go:125
+        	Error:      	Received unexpected error:
+        	            	commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 1
+        	Test:       	TestSpeculaMC1UnchangedVoteExtensionsEnableHeight
+        	Messages:   	MC-1: unchanged VoteExtensionsEnableHeight rejected; production consensus panics here
+--- FAIL: TestSpeculaMC1UnchangedVoteExtensionsEnableHeight (0.00s)
+FAIL
+FAIL	github.com/cometbft/cometbft/internal/state	0.020s
+FAIL
+# exit: 1

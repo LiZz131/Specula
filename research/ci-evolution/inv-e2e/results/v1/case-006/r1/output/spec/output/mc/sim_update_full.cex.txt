@@ -1,0 +1,44 @@
+ 1 Init
+ 2 s2: term:0->1; vote:Nil->s2; role:Follower->Candidate | counters={'campaign': 1}  [+['MsgVote(s2->s1,t1,i0,c0,ctx=Nil,rej=False)', 'MsgVote(s2->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+ 3 counters={'campaign': 1, 'lose': 1}  [-['MsgVote(s2->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+ 4 s2: alive:True->False | counters={'crash': 1, 'campaign': 1, 'lose': 1}
+ 5 s3: term:0->1; vote:Nil->s3; role:Follower->Candidate | counters={'crash': 1, 'campaign': 2, 'lose': 1}  [+['MsgVote(s3->s1,t1,i0,c0,ctx=Nil,rej=False)', 'MsgVote(s3->s2,t1,i0,c0,ctx=Nil,rej=False)']]
+ 6 s3: readyOutstanding:False->True; READY(dTerm=1,dLog=[],dCommit=0) | counters={'crash': 1, 'campaign': 2, 'ready': 1, 'lose': 1}
+ 7 s1: term:0->1; vote:Nil->s3  [-['MsgVote(s3->s1,t1,i0,c0,ctx=Nil,rej=False)']]  [+['MsgVoteResp(s1->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+ 8 s1: readyOutstanding:False->True; READY(dTerm=1,dLog=[],dCommit=0) | counters={'crash': 1, 'campaign': 2, 'ready': 2, 'lose': 1}
+ 9 s2: term:1->0; vote:s2->Nil; role:Candidate->Follower; alive:False->True
+10 s3: readyOutstanding:True->False
+11 s1: readyOutstanding:True->False
+12   [-['MsgVoteResp(s1->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+13 s3: role:Candidate->Leader; leader:Nil->s3; log=[1]  [+['MsgApp(s3->s1,t1,i0,c0,ctx=Nil,rej=False)', 'MsgApp(s3->s2,t1,i0,c0,ctx=Nil,rej=False)']]
+14 s2: term:0->1; vote:Nil->s3  [-['MsgVote(s3->s2,t1,i0,c0,ctx=Nil,rej=False)']]  [+['MsgVoteResp(s2->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+15 counters={'crash': 1, 'campaign': 2, 'heartbeat': 1, 'ready': 2, 'lose': 1}  [+['MsgHeartbeat(s3->s1,t1,i0,c0,ctx=Nil,rej=False)', 'MsgHeartbeat(s3->s2,t1,i0,c0,ctx=Nil,rej=False)']]
+16 s1: leader:Nil->s3  [-['MsgHeartbeat(s3->s1,t1,i0,c0,ctx=Nil,rej=False)']]  [+['MsgHeartbeatResp(s1->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+17 s3: readyOutstanding:False->True; READY(dTerm=1,dLog=[1],dCommit=0) | counters={'crash': 1, 'campaign': 2, 'heartbeat': 1, 'ready': 3, 'lose': 1}
+18 s2: leader:Nil->s3; log=[1]  [-['MsgApp(s3->s2,t1,i0,c0,ctx=Nil,rej=False)']]  [+['MsgAppResp(s2->s3,t1,i1,c0,ctx=Nil,rej=False)']]
+19 s1: log=[1]  [-['MsgApp(s3->s1,t1,i0,c0,ctx=Nil,rej=False)']]  [+['MsgAppResp(s1->s3,t1,i1,c0,ctx=Nil,rej=False)']]
+20 s2: readyOutstanding:False->True; READY(dTerm=1,dLog=[1],dCommit=0) | counters={'crash': 1, 'campaign': 2, 'heartbeat': 1, 'ready': 4, 'lose': 1}
+21 s3: readyOutstanding:True->False
+22 counters={'crash': 1, 'read': 1, 'campaign': 2, 'heartbeat': 1, 'ready': 4, 'lose': 1}  [+['MsgReadIndex(s2->s3,t0,i0,c0,ctx=ctx1,rej=False)']]
+23 counters={'crash': 1, 'read': 2, 'campaign': 2, 'heartbeat': 1, 'ready': 4, 'lose': 1}  [+['MsgReadIndex(s1->s3,t0,i0,c0,ctx=ctx1,rej=False)']]
+24 s3: commitIndex:0->1 | commitHistory=[(1, 1)]  [-['MsgAppResp(s2->s3,t1,i1,c0,ctx=Nil,rej=False)']]
+25 s3: queue=['ctx1']; pending={'ctx1': (True, 1, [], 'floor', 1, 'fresh', [])}  [-['MsgReadIndex(s1->s3,t0,i0,c0,ctx=ctx1,rej=False)']]  [+['MsgHeartbeat(s3->s1,t1,i0,c0,ctx=ctx1,rej=False)', 'MsgHeartbeat(s3->s2,t1,i0,c1,ctx=ctx1,rej=False)']]
+26 s3: readyOutstanding:False->True; READY(dTerm=1,dLog=[1],dCommit=1) | counters={'crash': 1, 'read': 2, 'campaign': 2, 'heartbeat': 1, 'ready': 5, 'lose': 1}
+27 counters={'crash': 1, 'read': 2, 'campaign': 2, 'heartbeat': 1, 'ready': 5, 'quorumCheck': 1, 'lose': 1}
+28 s2: commitIndex:0->1 | s3: pending={'ctx1': (True, 1, [], 'floor', 1, 'fresh', ['s2'])}  [-['MsgHeartbeat(s3->s2,t1,i0,c1,ctx=ctx1,rej=False)']]  [+['MsgHeartbeatResp(s2->s3,t1,i0,c0,ctx=ctx1,rej=False)']]
+29 s2: readyOutstanding:True->False
+30 s3: queue=[]; pending={'ctx1': (False, 0, [], 'floor', 0, 'fresh', [])}  [-['MsgHeartbeatResp(s2->s3,t1,i0,c0,ctx=ctx1,rej=False)']]  [+['MsgReadIndexResp(s3->s1,t1,i1,c0,ctx=ctx1,rej=False)']]
+31   [-['MsgHeartbeat(s3->s1,t1,i0,c0,ctx=ctx1,rej=False)']]  [+['MsgHeartbeatResp(s1->s3,t1,i0,c0,ctx=ctx1,rej=False)']]
+32 s1: produced=[(1, ['s2', 's3'], ['s2', 's3'], 1)]  [-['MsgReadIndexResp(s3->s1,t1,i1,c0,ctx=ctx1,rej=False)']]
+33 s1: readyOutstanding:False->True; READY(dTerm=1,dLog=[1],dCommit=0); produced=[] | PUBLISHED=[('s1', 's3', 'idx', 1, 'floor', 1, 'acks', ['s2', 's3'], 'fresh', ['s2', 's3'])] | counters={'crash': 1, 'read': 2, 'campaign': 2, 'heartbeat': 1, 'ready': 6, 'quorumCheck': 1, 'lose': 1}
+34 s3: queue=['ctx1']; pending={'ctx1': (True, 1, [], 'floor', 1, 'fresh', [])}  [-['MsgReadIndex(s2->s3,t0,i0,c0,ctx=ctx1,rej=False)']]  [+['MsgHeartbeat(s3->s1,t1,i0,c0,ctx=ctx1,rej=False)', 'MsgHeartbeat(s3->s2,t1,i0,c1,ctx=ctx1,rej=False)']]
+35 s3: readyOutstanding:True->False
+36 s2: readyOutstanding:False->True; READY(dTerm=1,dLog=[1],dCommit=1) | counters={'crash': 1, 'read': 2, 'campaign': 2, 'heartbeat': 1, 'ready': 7, 'quorumCheck': 1, 'lose': 1}
+37 s2: readyOutstanding:True->False
+38   [-['MsgAppResp(s1->s3,t1,i1,c0,ctx=Nil,rej=False)']]
+39   [-['MsgHeartbeat(s3->s2,t1,i0,c0,ctx=Nil,rej=False)']]  [+['MsgHeartbeatResp(s2->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+40 s1: readyOutstanding:True->False
+41 s3: queue=[]; pending={'ctx1': (False, 0, [], 'floor', 0, 'fresh', [])}  [-['MsgHeartbeatResp(s1->s3,t1,i0,c0,ctx=ctx1,rej=False)']]  [+['MsgReadIndexResp(s3->s2,t1,i1,c0,ctx=ctx1,rej=False)']]
+42   [-['MsgHeartbeatResp(s2->s3,t1,i0,c0,ctx=Nil,rej=False)']]
+43 s2: produced=[(1, ['s1', 's3'], ['s3'], 1)]  [-['MsgReadIndexResp(s3->s2,t1,i1,c0,ctx=ctx1,rej=False)']]
+44 s2: readyOutstanding:False->True; produced=[] | PUBLISHED=[('s1', 's3', 'idx', 1, 'floor', 1, 'acks', ['s2', 's3'], 'fresh', ['s2', 's3']), ('s2', 's3', 'idx', 1, 'floor', 1, 'acks', ['s1', 's3'], 'fresh', ['s3'])] | counters={'crash': 1, 'read': 2, 'campaign': 2, 'heartbeat': 1, 'ready': 8, 'quorumCheck': 1, 'lose': 1}

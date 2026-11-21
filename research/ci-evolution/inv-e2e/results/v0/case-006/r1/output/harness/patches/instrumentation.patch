@@ -1,0 +1,673 @@
+diff --git a/node.go b/node.go
+index 5da1c11..4d6253f 100644
+--- a/node.go
++++ b/node.go
+@@ -522,6 +522,7 @@ func newReady(r *raft, prevSoftSt *SoftState, prevHardSt pb.HardState) Ready {
+ 		rd.ReadStates = r.readStates
+ 	}
+ 	rd.MustSync = MustSync(rd.HardState, prevHardSt, len(rd.Entries))
++	speculaTraceEmit(r, "ReadyPublish", nil, len(rd.ReadStates))
+ 	return rd
+ }
+ 
+diff --git a/raft.go b/raft.go
+index 7be4407..62b8d7d 100644
+--- a/raft.go
++++ b/raft.go
+@@ -578,6 +578,7 @@ func (r *raft) becomeCandidate() {
+ 	r.Vote = r.id
+ 	r.state = StateCandidate
+ 	r.logger.Infof("%x became candidate at term %d", r.id, r.Term)
++	speculaTraceEmit(r, "Campaign", nil, 0)
+ }
+ 
+ func (r *raft) becomePreCandidate() {
+@@ -619,6 +620,7 @@ func (r *raft) becomeLeader() {
+ 
+ 	r.appendEntry(pb.Entry{Data: nil})
+ 	r.logger.Infof("%x became leader at term %d", r.id, r.Term)
++	speculaTraceEmit(r, "BecomeLeader", nil, 0)
+ }
+ 
+ func (r *raft) campaign(t CampaignType) {
+@@ -773,6 +775,9 @@ func (r *raft) Step(m pb.Message) error {
+ 				r.id, r.raftLog.lastTerm(), r.raftLog.lastIndex(), r.Vote, m.Type, m.From, m.LogTerm, m.Index, r.Term)
+ 			r.send(pb.Message{To: m.From, Type: voteRespMsgType(m.Type), Reject: true})
+ 		}
++		if m.Type == pb.MsgVote {
++			speculaTraceEmit(r, "HandleVoteRequest", &m, 0)
++		}
+ 
+ 	default:
+ 		r.step(r, m)
+@@ -787,12 +792,14 @@ func stepLeader(r *raft, m pb.Message) {
+ 	switch m.Type {
+ 	case pb.MsgBeat:
+ 		r.bcastHeartbeat()
++		speculaTraceEmit(r, "BroadcastHeartbeat", nil, 0)
+ 		return
+ 	case pb.MsgCheckQuorum:
+ 		if !r.checkQuorumActive() {
+ 			r.logger.Warningf("%x stepped down to follower since quorum is not active", r.id)
+ 			r.becomeFollower(r.Term, None)
+ 		}
++		speculaTraceEmit(r, "CheckQuorum", &m, 0)
+ 		return
+ 	case pb.MsgProp:
+ 		if len(m.Entries) == 0 {
+@@ -819,6 +826,7 @@ func stepLeader(r *raft, m pb.Message) {
+ 			}
+ 		}
+ 		r.appendEntry(m.Entries...)
++		speculaTraceEmit(r, "ClientProposal", &m, 0)
+ 		r.bcastAppend()
+ 		return
+ 	case pb.MsgReadIndex:
+@@ -850,6 +858,11 @@ func stepLeader(r *raft, m pb.Message) {
+ 			r.readStates = append(r.readStates, ReadState{Index: r.raftLog.committed, RequestCtx: m.Entries[0].Data})
+ 		}
+ 
++		if m.From == None || m.From == r.id {
++			speculaTraceEmit(r, "ClientReadIndex", &m, 0)
++		} else {
++			speculaTraceEmit(r, "HandleReadIndexRequest", &m, 0)
++		}
+ 		return
+ 	}
+ 
+@@ -900,7 +913,9 @@ func stepLeader(r *raft, m pb.Message) {
+ 				}
+ 			}
+ 		}
++		speculaTraceEmit(r, "HandleAppendResponse", &m, 0)
+ 	case pb.MsgHeartbeatResp:
++		defer speculaTraceEmit(r, "HandleHeartbeatResponse", &m, 0)
+ 		pr.RecentActive = true
+ 		pr.resume()
+ 
+@@ -1010,6 +1025,9 @@ func stepCandidate(r *raft, m pb.Message) {
+ 		r.handleSnapshot(m)
+ 	case myVoteRespType:
+ 		gr := r.poll(m.From, m.Type, !m.Reject)
++		if m.Type == pb.MsgVoteResp {
++			speculaTraceEmit(r, "HandleVoteResponse", &m, 0)
++		}
+ 		r.logger.Infof("%x [quorum:%d] has received %d %s votes and %d vote rejections", r.id, r.quorum(), gr, m.Type, len(r.votes)-gr)
+ 		switch r.quorum() {
+ 		case gr:
+@@ -1072,16 +1090,19 @@ func stepFollower(r *raft, m pb.Message) {
+ 		}
+ 		m.To = r.lead
+ 		r.send(m)
++		speculaTraceEmit(r, "ForwardReadIndex", &m, 0)
+ 	case pb.MsgReadIndexResp:
+ 		if len(m.Entries) != 1 {
+ 			r.logger.Errorf("%x invalid format of MsgReadIndexResp from %x, entries count: %d", r.id, m.From, len(m.Entries))
+ 			return
+ 		}
+ 		r.readStates = append(r.readStates, ReadState{Index: m.Index, RequestCtx: m.Entries[0].Data})
++		speculaTraceEmit(r, "HandleReadIndexResponse", &m, 0)
+ 	}
+ }
+ 
+ func (r *raft) handleAppendEntries(m pb.Message) {
++	defer speculaTraceEmit(r, "HandleAppendEntries", &m, 0)
+ 	if m.Index < r.raftLog.committed {
+ 		r.send(pb.Message{To: m.From, Type: pb.MsgAppResp, Index: r.raftLog.committed})
+ 		return
+@@ -1097,6 +1118,7 @@ func (r *raft) handleAppendEntries(m pb.Message) {
+ }
+ 
+ func (r *raft) handleHeartbeat(m pb.Message) {
++	defer speculaTraceEmit(r, "HandleHeartbeat", &m, 0)
+ 	r.raftLog.commitTo(m.Commit)
+ 	r.send(pb.Message{To: m.From, Type: pb.MsgHeartbeatResp, Context: m.Context})
+ }
+diff --git a/specula_trace.go b/specula_trace.go
+new file mode 100644
+index 0000000..086b8e2
+--- /dev/null
++++ b/specula_trace.go
+@@ -0,0 +1,171 @@
++package raft
++
++import (
++	"encoding/json"
++	"fmt"
++	"os"
++	"sort"
++	"strings"
++	"sync"
++	"time"
++
++	pb "github.com/coreos/etcd/raft/raftpb"
++)
++
++// This file is test-only instrumentation for the Specula V0 harness. Calls are
++// no-ops unless speculaTraceStart has enabled a writer.
++var speculaTrace struct {
++	sync.Mutex
++	f *os.File
++}
++
++type speculaTraceState struct {
++	Term           uint64             `json:"term"`
++	Vote           string             `json:"vote"`
++	Role           string             `json:"role"`
++	Leader         string             `json:"leader"`
++	Commit         uint64             `json:"commit"`
++	Applied        uint64             `json:"applied"`
++	LogTerms       []uint64           `json:"logTerms"`
++	ReadQueue      []string           `json:"readQueue"`
++	PendingCount   int                `json:"pendingCount"`
++	PendingCtxs    []string           `json:"pendingCtxs"`
++	ReadCount      int                `json:"readCount"`
++	ReadStates     []speculaReadState `json:"readStates"`
++	ReadyReadCount int                `json:"readyReadCount"`
++}
++
++// speculaReadState projects one raft.ReadState (read_only.go:24-27).
++type speculaReadState struct {
++	Index uint64 `json:"index"`
++	Ctx   string `json:"ctx"`
++}
++
++type speculaTraceMsg struct {
++	Type      string `json:"type"`
++	From      string `json:"from"`
++	To        string `json:"to"`
++	Term      uint64 `json:"term"`
++	Index     uint64 `json:"index"`
++	LogTerm   uint64 `json:"logTerm"`
++	Commit    uint64 `json:"commit"`
++	EntryTerm uint64 `json:"entryTerm"`
++	Value     string `json:"value"`
++	Ctx       string `json:"ctx"`
++	Reject    bool   `json:"reject"`
++}
++
++func speculaNodeID(id uint64) string {
++	if id == None {
++		return "Nil"
++	}
++	return fmt.Sprintf("s%d", id)
++}
++
++func speculaTraceStart(path string) error {
++	speculaTrace.Lock()
++	defer speculaTrace.Unlock()
++	f, err := os.Create(path)
++	if err != nil {
++		return err
++	}
++	speculaTrace.f = f
++	return nil
++}
++
++func speculaTraceStop() error {
++	speculaTrace.Lock()
++	defer speculaTrace.Unlock()
++	if speculaTrace.f == nil {
++		return nil
++	}
++	err := speculaTrace.f.Close()
++	speculaTrace.f = nil
++	return err
++}
++
++func speculaCaptureState(r *raft, readyReads int) speculaTraceState {
++	terms := make([]uint64, 0, r.raftLog.lastIndex())
++	for _, e := range r.raftLog.allEntries() {
++		terms = append(terms, e.Term)
++	}
++	queue := make([]string, len(r.readOnly.readIndexQueue))
++	copy(queue, r.readOnly.readIndexQueue)
++	// Keys of readOnly.pendingReadIndex (read_only.go:35-39), sorted.
++	pending := make([]string, 0, len(r.readOnly.pendingReadIndex))
++	for k := range r.readOnly.pendingReadIndex {
++		pending = append(pending, k)
++	}
++	sort.Strings(pending)
++	reads := make([]speculaReadState, 0, len(r.readStates))
++	for _, rs := range r.readStates {
++		reads = append(reads, speculaReadState{Index: rs.Index, Ctx: string(rs.RequestCtx)})
++	}
++	role := strings.TrimPrefix(r.state.String(), "State")
++	return speculaTraceState{
++		Term: r.Term, Vote: speculaNodeID(r.Vote), Role: role,
++		Leader: speculaNodeID(r.lead), Commit: r.raftLog.committed,
++		Applied: r.raftLog.applied, LogTerms: terms, ReadQueue: queue,
++		PendingCount: len(r.readOnly.pendingReadIndex), PendingCtxs: pending,
++		ReadCount: len(r.readStates), ReadStates: reads,
++		ReadyReadCount: readyReads,
++	}
++}
++
++func speculaCaptureMsg(m *pb.Message) *speculaTraceMsg {
++	if m == nil {
++		return nil
++	}
++	tm, value := uint64(0), "Nil"
++	if len(m.Entries) != 0 {
++		e := m.Entries[len(m.Entries)-1]
++		tm = e.Term
++		if len(e.Data) != 0 {
++			value = string(e.Data)
++		}
++	}
++	ctx := "Nil"
++	if len(m.Context) != 0 {
++		ctx = string(m.Context)
++	} else if (m.Type == pb.MsgReadIndex || m.Type == pb.MsgReadIndexResp) && len(m.Entries) != 0 {
++		// Read requests/responses carry the caller context in Entries[0].Data
++		// (node.go:502-504, raft.go:846, 930); it is not a log value.
++		ctx = string(m.Entries[0].Data)
++		value = "Nil"
++	}
++	return &speculaTraceMsg{
++		Type: m.Type.String(), From: speculaNodeID(m.From),
++		To: speculaNodeID(m.To), Term: m.Term, Index: m.Index,
++		LogTerm: m.LogTerm, Commit: m.Commit, EntryTerm: tm,
++		Value: value, Ctx: ctx, Reject: m.Reject,
++	}
++}
++
++func speculaTraceEmit(r *raft, name string, m *pb.Message, readyReads int) {
++	speculaTrace.Lock()
++	defer speculaTrace.Unlock()
++	if speculaTrace.f == nil {
++		return
++	}
++	event := map[string]interface{}{
++		"name":  name,
++		"nid":   speculaNodeID(r.id),
++		"state": speculaCaptureState(r, readyReads),
++	}
++	if msg := speculaCaptureMsg(m); msg != nil {
++		event["msg"] = msg
++	}
++	record := map[string]interface{}{
++		"tag": "trace", "ts": time.Now().UnixNano(), "event": event,
++	}
++	b, err := json.Marshal(record)
++	if err != nil {
++		panic(err)
++	}
++	if _, err = speculaTrace.f.Write(append(b, '\n')); err != nil {
++		panic(err)
++	}
++	if err = speculaTrace.f.Sync(); err != nil {
++		panic(err)
++	}
++}
+diff --git a/specula_trace_test.go b/specula_trace_test.go
+new file mode 100644
+index 0000000..3c2d2c2
+--- /dev/null
++++ b/specula_trace_test.go
+@@ -0,0 +1,365 @@
++package raft
++
++import (
++	"os"
++	"testing"
++
++	pb "github.com/coreos/etcd/raft/raftpb"
++)
++
++// TestSpeculaTraceQuorumRead drives the exact-old state machine and its real
++// in-tree message-routing test network. The core instrumentation emits NDJSON;
++// this test does not synthesize protocol states or trace lines.
++func TestSpeculaTraceQuorumRead(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgHup})
++	lead := nt.peers[1].(*raft)
++	if lead.state != StateLeader {
++		t.Fatalf("node 1 state = %v, want leader", lead.state)
++	}
++
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgProp,
++		Entries: []pb.Entry{{Data: []byte("v1")}}})
++	if lead.raftLog.committed < 2 {
++		t.Fatalf("commit = %d, want at least 2", lead.raftLog.committed)
++	}
++
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgReadIndex,
++		Entries: []pb.Entry{{Data: []byte("ctx1")}}})
++	if len(lead.readStates) != 1 {
++		t.Fatalf("read states = %d, want 1", len(lead.readStates))
++	}
++
++	_ = newReady(lead, &SoftState{Lead: None, RaftState: StateFollower}, emptyState)
++}
++
++// TestSpeculaTraceQuorumLoss records the heartbeat-activity reset followed by
++// exact-old leader step-down when the next quorum check sees no active peers.
++func TestSpeculaTraceQuorumLoss(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgHup})
++	lead := nt.peers[1].(*raft)
++	if lead.state != StateLeader {
++		t.Fatalf("node 1 state = %v, want leader", lead.state)
++	}
++
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgCheckQuorum})
++	if lead.state != StateLeader {
++		t.Fatalf("first quorum check state = %v, want leader", lead.state)
++	}
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgCheckQuorum})
++	if lead.state != StateFollower {
++		t.Fatalf("second quorum check state = %v, want follower", lead.state)
++	}
++}
++
++// ---------------------------------------------------------------------------
++// V1 update-focused scenarios (read_only.go:100-105 delete key). All three
++// drive the real raft state machines; the in-tree network or explicit Step
++// calls only route messages.
++
++func speculaElectAndCommit(t *testing.T, nt *network) *raft {
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgHup})
++	lead := nt.peers[1].(*raft)
++	if lead.state != StateLeader {
++		t.Fatalf("node 1 state = %v, want leader", lead.state)
++	}
++	nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgProp,
++		Entries: []pb.Entry{{Data: []byte("v1")}}})
++	if lead.raftLog.committed < 2 {
++		t.Fatalf("commit = %d, want at least 2", lead.raftLog.committed)
++	}
++	return lead
++}
++
++// TestSpeculaTraceReadReuse: old producer (heartbeat acks) -> affected
++// advance/delete -> old consumer (addRequest duplicate guard) on reuse of a
++// released context, then Ready publication of both reads.
++func TestSpeculaTraceReadReuse(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++	lead := speculaElectAndCommit(t, nt)
++	for k := 0; k < 2; k++ {
++		nt.send(pb.Message{From: 1, To: 1, Type: pb.MsgReadIndex,
++			Entries: []pb.Entry{{Data: []byte("ctx1")}}})
++	}
++	t.Logf("readStates=%d pending=%d queue=%d", len(lead.readStates),
++		len(lead.readOnly.pendingReadIndex), len(lead.readOnly.readIndexQueue))
++	_ = newReady(lead, &SoftState{Lead: None, RaftState: StateFollower}, emptyState)
++}
++
++// TestSpeculaTraceForwardedRead: follower-originated request (forwarding
++// path) through the affected leader release, the remote MsgReadIndexResp
++// consumer, then reuse of the same context by the same follower.
++func TestSpeculaTraceForwardedRead(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++	lead := speculaElectAndCommit(t, nt)
++	f := nt.peers[2].(*raft)
++	for k := 0; k < 2; k++ {
++		nt.send(pb.Message{From: 2, To: 2, Type: pb.MsgReadIndex,
++			Entries: []pb.Entry{{Data: []byte("ctx2")}}})
++	}
++	t.Logf("follower readStates=%d leader pending=%d queue=%d", len(f.readStates),
++		len(lead.readOnly.pendingReadIndex), len(lead.readOnly.readIndexQueue))
++	_ = newReady(f, &SoftState{Lead: None, RaftState: StateFollower}, emptyState)
++}
++
++// TestSpeculaTraceDelayedAck: a follower's response to the first request's
++// heartbeat is delivered only after the same context has been enqueued again;
++// the second request's heartbeats are never delivered.
++func TestSpeculaTraceDelayedAck(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++	lead := speculaElectAndCommit(t, nt)
++	f2 := nt.peers[2].(*raft)
++	f3 := nt.peers[3].(*raft)
++	read := pb.Message{From: 1, To: 1, Type: pb.MsgReadIndex,
++		Entries: []pb.Entry{{Data: []byte("ctx1")}}}
++
++	lead.Step(read)
++	var resp2, resp3 []pb.Message
++	for _, hb := range lead.readMessages() {
++		switch hb.To {
++		case 2:
++			f2.Step(hb)
++			resp2 = f2.readMessages()
++		case 3:
++			f3.Step(hb)
++			resp3 = f3.readMessages()
++		}
++	}
++	if len(resp2) != 1 || len(resp3) != 1 {
++		t.Fatalf("heartbeat responses = %d/%d, want 1/1", len(resp2), len(resp3))
++	}
++	lead.Step(resp2[0])
++	if len(lead.readStates) != 1 {
++		t.Fatalf("first read states = %d, want 1", len(lead.readStates))
++	}
++	lead.Step(read)
++	withheld := lead.readMessages()
++	lead.Step(resp3[0])
++	t.Logf("withheld second-round heartbeats=%d readStates=%d", len(withheld), len(lead.readStates))
++	_ = newReady(lead, &SoftState{Lead: None, RaftState: StateFollower}, emptyState)
++}
++
++// TestSpeculaTraceStepDownClearsReads: repair boundary for raft.reset
++// (raft.go:489-511). A pending safe read exists when the leader broadcasts a
++// MsgBeat heartbeat (lastPendingRequestCtx, raft.go:457-464) and then steps
++// down on CheckQuorum (raft.go:791-796); becomeFollower installs a new
++// readOnly.
++func TestSpeculaTraceStepDownClearsReads(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++	lead := speculaElectAndCommit(t, nt)
++	f2 := nt.peers[2].(*raft)
++	lead.Step(pb.Message{From: 1, To: 1, Type: pb.MsgReadIndex,
++		Entries: []pb.Entry{{Data: []byte("ctx1")}}})
++	_ = lead.readMessages() // read heartbeats withheld
++	lead.Step(pb.Message{From: 1, To: 1, Type: pb.MsgBeat})
++	for _, hb := range lead.readMessages() {
++		if hb.To == 2 {
++			f2.Step(hb)
++			_ = f2.readMessages() // response withheld
++		}
++	}
++	lead.Step(pb.Message{From: 1, To: 1, Type: pb.MsgCheckQuorum})
++	lead.Step(pb.Message{From: 1, To: 1, Type: pb.MsgCheckQuorum})
++	if lead.state != StateFollower {
++		t.Fatalf("state = %v, want follower", lead.state)
++	}
++	t.Logf("after step-down pending=%d queue=%d", len(lead.readOnly.pendingReadIndex), len(lead.readOnly.readIndexQueue))
++}
++
++// TestSpeculaTraceHigherTermClearsReads: repair boundary for a higher-term
++// MsgVote (raft.go:684-710 -> becomeFollower -> reset) received by a leader
++// with a pending read, followed by the new leader's election.
++func TestSpeculaTraceHigherTermClearsReads(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++	lead := speculaElectAndCommit(t, nt)
++	f2 := nt.peers[2].(*raft)
++	f3 := nt.peers[3].(*raft)
++	lead.Step(pb.Message{From: 1, To: 1, Type: pb.MsgReadIndex,
++		Entries: []pb.Entry{{Data: []byte("ctx1")}}})
++	_ = lead.readMessages() // read heartbeats withheld
++	f2.Step(pb.Message{From: 2, To: 2, Type: pb.MsgHup})
++	var resps []pb.Message
++	for _, v := range f2.readMessages() {
++		switch v.To {
++		case 1:
++			lead.Step(v)
++			resps = append(resps, lead.readMessages()...)
++		case 3:
++			f3.Step(v)
++			resps = append(resps, f3.readMessages()...)
++		}
++	}
++	for _, r := range resps {
++		f2.Step(r)
++	}
++	if f2.state != StateLeader || lead.state != StateFollower {
++		t.Fatalf("states = %v/%v, want leader/follower", f2.state, lead.state)
++	}
++	t.Logf("old leader pending=%d queue=%d", len(lead.readOnly.pendingReadIndex), len(lead.readOnly.readIndexQueue))
++}
++
++// TestSpeculaTraceStaleReadReuse: S6b interaction on the real state machines
++// (same schedule as harness/src/specula_s6_stale_read_test.go). s2's response
++// to the first read's heartbeat is delayed; s2 then wins term 2 with s3 and
++// commits "w"; s1, still leader of term 1, accepts a reused context and the
++// delayed term-1 response releases it. Messages addressed to s1 after the
++// first read are never delivered (partition), except the delayed response.
++func TestSpeculaTraceStaleReadReuse(t *testing.T) {
++	path := os.Getenv("SPECULA_TRACE_PATH")
++	if path == "" {
++		t.Skip("SPECULA_TRACE_PATH is not set")
++	}
++	nt := newNetwork(nil, nil, nil)
++	if err := speculaTraceStart(path); err != nil {
++		t.Fatal(err)
++	}
++	defer func() {
++		if err := speculaTraceStop(); err != nil {
++			t.Error(err)
++		}
++	}()
++	s1 := speculaElectAndCommit(t, nt)
++	s2 := nt.peers[2].(*raft)
++	s3 := nt.peers[3].(*raft)
++	ctx := []byte("ctx1")
++	read := pb.Message{From: 1, To: 1, Type: pb.MsgReadIndex, Entries: []pb.Entry{{Data: ctx}}}
++
++	s1.Step(read)
++	var delayed []pb.Message
++	for _, hb := range s1.readMessages() {
++		switch hb.To {
++		case 2:
++			s2.Step(hb)
++			delayed = append(delayed, s2.readMessages()...)
++		case 3:
++			s3.Step(hb)
++			for _, resp := range s3.readMessages() {
++				s1.Step(resp)
++			}
++		}
++	}
++	_ = s1.readMessages()
++	if len(s1.readStates) != 1 || len(delayed) != 1 {
++		t.Fatalf("first read: readStates=%d delayed=%d", len(s1.readStates), len(delayed))
++	}
++	_ = newReady(s1, &SoftState{Lead: None, RaftState: StateFollower}, emptyState)
++	s1.readStates = nil // delivered by node.run after Ready (node.go:355-373)
++
++	deliver := func(msgs []pb.Message) []pb.Message {
++		var out []pb.Message
++		for _, m := range msgs {
++			switch m.To {
++			case 2:
++				s2.Step(m)
++				out = append(out, s2.readMessages()...)
++			case 3:
++				s3.Step(m)
++				out = append(out, s3.readMessages()...)
++			}
++		}
++		return out
++	}
++	s2.Step(pb.Message{From: 2, To: 2, Type: pb.MsgHup})
++	for msgs := s2.readMessages(); len(msgs) > 0; {
++		msgs = deliver(msgs)
++		msgs = append(msgs, s2.readMessages()...)
++	}
++	s2.Step(pb.Message{From: 2, To: 2, Type: pb.MsgProp, Entries: []pb.Entry{{Data: []byte("v1")}}})
++	for msgs := s2.readMessages(); len(msgs) > 0; {
++		msgs = deliver(msgs)
++		msgs = append(msgs, s2.readMessages()...)
++	}
++	s1.Step(read)
++	_ = s1.readMessages()
++	s1.Step(delayed[0])
++	t.Logf("s2 term=%d committed=%d; s1 term=%d readStates=%v", s2.Term, s2.raftLog.committed, s1.Term, s1.readStates)
++}

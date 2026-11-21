@@ -1,0 +1,45 @@
+# cwd: /work/current/.specula-output/spec
+# command: timeout --kill-after=60s 10m java -XX:+UseParallelGC -Xmx24g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-003/reach-crash-39246-1795050451572156791 -noGenerateSpecTE -dumpTrace json /work/current/.specula-output/spec/output/reach-crash.cex.json -config MC_reach_crash.cfg -workers 8 MC.tla
+# started: 2026-11-18T19:07:31-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 103 and seed -36772622636089392 with 8 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 39255] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14155213249462549052/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-14155213249462549052/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14155213249462549052/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14155213249462549052/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14155213249462549052/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14155213249462549052/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14155213249462549052/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-14155213249462549052/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module MC
+Starting... (2026-11-19 01:07:32)
+Computing initial states...
+Finished computing initial states: 2 distinct states generated at 2026-11-19 01:07:32.
+Error: Invariant NeverReachedCrash is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCCrash line 25, col 5 to line 27, col 54 of module MC>
+
+"CounterExample written: /work/current/.specula-output/spec/output/reach-crash.cex.json"
+26 states generated, 26 distinct states found, 10 states left on queue.
+The depth of the complete state graph search is 5.
+Finished in 00s at (2026-11-19 01:07:32)
+# exit: 12
+# finished: 2026-11-18T19:07:32-06:00

@@ -1,0 +1,11 @@
+=== update c780d355cfeae6ee6be52c50c1f0bd7d30c6657a
+    specula_s6_stale_read_test.go:99: first ReadState index=2; w committed by term-2 leader at index 4; second-read ReadStates=[{2 [99 116 120]}]
+    specula_s6_stale_read_test.go:103: stale read: old leader (term 1) produced ReadState{Index: 2, Ctx: "ctx"} for a read issued after index 4 was committed in term 2
+--- FAIL: TestSpeculaS6StaleReadAfterContextReuse (0.00s)
+FAIL
+FAIL	github.com/coreos/etcd/raft	0.030s
+FAIL
+=== baseline 7289d1c5e049933b90a9692bbf508714bee02fce
+    specula_s6_stale_read_test.go:99: first ReadState index=2; w committed by term-2 leader at index 4; second-read ReadStates=[]
+--- PASS: TestSpeculaS6StaleReadAfterContextReuse (0.00s)
+ok  	github.com/coreos/etcd/raft	0.014s

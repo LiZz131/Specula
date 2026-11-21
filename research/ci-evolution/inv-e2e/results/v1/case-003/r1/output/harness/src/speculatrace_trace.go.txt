@@ -1,0 +1,214 @@
+// Package speculatrace provides opt-in NDJSON tracing for the Specula V0
+// harness. When SPECULA_TRACE_FILE is unset every operation is a no-op.
+package speculatrace
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"os"
+	"sync"
+	"time"
+
+	cmtproto "github.com/cometbft/cometbft/api/cometbft/types/v1"
+	"github.com/cometbft/cometbft/types"
+)
+
+// NoOther is the "other" identity of the distinguished NoParam record.
+const NoOther = "NoOther"
+
+// NoParam is the V1 record for "no ConsensusParamUpdates".
+var NoParam = map[string]any{"other": NoOther, "veh": int64(0)}
+
+var traceState struct {
+	sync.Mutex
+	file           *os.File
+	path           string
+	replay         bool
+	appHeight      int64
+	responseHeight int64
+	responseParam  map[string]any
+	responseAbci   bool
+}
+
+// Enabled reports whether this process was launched for trace collection.
+func Enabled() bool {
+	return os.Getenv("SPECULA_TRACE_FILE") != ""
+}
+
+// Reset truncates the configured trace file. It is used at the real Handshake
+// entry point so test-fixture setup does not contaminate recovery traces.
+func Reset() error {
+	path := os.Getenv("SPECULA_TRACE_FILE")
+	if path == "" {
+		return nil
+	}
+	traceState.Lock()
+	defer traceState.Unlock()
+	if traceState.file != nil {
+		_ = traceState.file.Close()
+	}
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
+	if err != nil {
+		return err
+	}
+	traceState.file = f
+	traceState.path = path
+	traceState.replay = false
+	traceState.appHeight = 0
+	traceState.responseHeight = 0
+	traceState.responseParam = NoParam
+	traceState.responseAbci = false
+	return nil
+}
+
+// Fingerprint gives a stable symbolic identity to a complete consensus
+// parameter value without baking its large Go representation into the model.
+func Fingerprint(v any) string {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "marshal-error"
+	}
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
+}
+
+// ParamRecord is the V1 parameter encoding: a fingerprint of every non-ABCI
+// field (the complete value with VoteExtensionsEnableHeight forced to 0) and
+// the integer VoteExtensionsEnableHeight read by ValidateUpdate.
+func ParamRecord(p types.ConsensusParams) map[string]any {
+	other := p
+	other.ABCI.VoteExtensionsEnableHeight = 0
+	return map[string]any{
+		"other": Fingerprint(other),
+		"veh":   p.ABCI.VoteExtensionsEnableHeight,
+	}
+}
+
+// OtherValid reports the outcome of ValidateBasic on the non-ABCI part.
+func OtherValid(p types.ConsensusParams) bool {
+	other := p
+	other.ABCI.VoteExtensionsEnableHeight = 0
+	return other.ValidateBasic() == nil
+}
+
+// Proposal returns the V1 record of current.Update(updates), whether
+// updates.Abci was present, and the non-ABCI ValidateBasic outcome.
+func Proposal(current types.ConsensusParams, updates *cmtproto.ConsensusParams) (map[string]any, bool, bool) {
+	if updates == nil {
+		return NoParam, false, true
+	}
+	next := current.Update(updates)
+	return ParamRecord(next), updates.Abci != nil, OtherValid(next)
+}
+
+func SetReplay(v bool) {
+	traceState.Lock()
+	defer traceState.Unlock()
+	traceState.replay = v
+}
+
+func IsReplay() bool {
+	traceState.Lock()
+	defer traceState.Unlock()
+	return traceState.replay
+}
+
+func SetAppHeight(h int64) {
+	traceState.Lock()
+	defer traceState.Unlock()
+	traceState.appHeight = h
+}
+
+func AppHeight() int64 {
+	traceState.Lock()
+	defer traceState.Unlock()
+	return traceState.appHeight
+}
+
+func SetResponse(height int64, param map[string]any, abci bool) {
+	traceState.Lock()
+	defer traceState.Unlock()
+	traceState.responseHeight = height
+	traceState.responseParam = param
+	traceState.responseAbci = abci
+}
+
+// LifecycleState constructs the state object consumed by Trace.tla.
+func LifecycleState(
+	blockStoreHeight, stateStoreHeight, inMemoryStateHeight int64,
+	activeParams, persistedParams types.ConsensusParams,
+	lastParamChange, persistedLastParamChange int64,
+	phase string,
+	pendingBlockHeight int64,
+	pendingParam map[string]any,
+	pendingAbci bool,
+	validationOutcome string,
+) map[string]any {
+	activeParam := ParamRecord(activeParams)
+	persistedParam := ParamRecord(persistedParams)
+	activeOtherValid := OtherValid(activeParams)
+	traceState.Lock()
+	defer traceState.Unlock()
+	responseParam := traceState.responseParam
+	if responseParam == nil {
+		responseParam = NoParam
+	}
+	return map[string]any{
+		"blockStoreHeight":         blockStoreHeight,
+		"appHeight":                traceState.appHeight,
+		"stateStoreHeight":         stateStoreHeight,
+		"stateHeight":              inMemoryStateHeight,
+		"activeParam":              activeParam,
+		"persistedParam":           persistedParam,
+		"activeOtherValid":         activeOtherValid,
+		"lastParamChange":          lastParamChange,
+		"persistedLastParamChange": persistedLastParamChange,
+		"phase":                    phase,
+		"replayMutatesState":       traceState.replay,
+		"responseHeight":           traceState.responseHeight,
+		"responseParam":            responseParam,
+		"responseAbciPresent":      traceState.responseAbci,
+		"pendingBlockHeight":       pendingBlockHeight,
+		"pendingParam":             pendingParam,
+		"pendingAbciPresent":       pendingAbci,
+		"validationOutcome":        validationOutcome,
+	}
+}
+
+// Emit appends one mutex-serialized event with a real wall-clock timestamp.
+// Instrumentation deliberately ignores its returned error at call sites so it
+// cannot change the system's functional error paths.
+func Emit(name string, state map[string]any, msg map[string]any) error {
+	path := os.Getenv("SPECULA_TRACE_FILE")
+	if path == "" {
+		return nil
+	}
+	traceState.Lock()
+	defer traceState.Unlock()
+	if traceState.file == nil || traceState.path != path {
+		if traceState.file != nil {
+			_ = traceState.file.Close()
+		}
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
+		if err != nil {
+			return err
+		}
+		traceState.file = f
+		traceState.path = path
+	}
+	event := map[string]any{
+		"tag": "trace",
+		"ts":  time.Now().UnixNano(),
+		"event": map[string]any{
+			"name":  name,
+			"nid":   "node",
+			"state": state,
+			"msg":   msg,
+		},
+	}
+	if err := json.NewEncoder(traceState.file).Encode(event); err != nil {
+		return err
+	}
+	return traceState.file.Sync()
+}

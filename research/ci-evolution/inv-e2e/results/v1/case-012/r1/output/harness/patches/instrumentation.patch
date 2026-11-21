@@ -1,0 +1,898 @@
+diff --git a/openraft/src/core/replication_state.rs b/openraft/src/core/replication_state.rs
+index c30601c..0597f62 100644
+--- a/openraft/src/core/replication_state.rs
++++ b/openraft/src/core/replication_state.rs
+@@ -57,5 +57,12 @@ pub fn is_matched_upto_date<NID: NodeId>(
+ ) -> bool {
+     let my_index = matched.next_index();
+     let distance = last_log_id.next_index().saturating_sub(my_index);
+-    distance <= config.replication_lag_threshold
++    let result = distance <= config.replication_lag_threshold;
++    crate::specula_trace::emit_replication_lag(
++        matched.index().map(|x| x as i64).unwrap_or(-1),
++        last_log_id.index().map(|x| x as i64).unwrap_or(-1),
++        config.replication_lag_threshold,
++        result,
++    );
++    result
+ }
+diff --git a/openraft/src/engine/engine_impl.rs b/openraft/src/engine/engine_impl.rs
+index 3aee239..798d9b8 100644
+--- a/openraft/src/engine/engine_impl.rs
++++ b/openraft/src/engine/engine_impl.rs
+@@ -99,6 +99,7 @@ impl<NID: NodeId> Engine<NID> {
+     /// Start to elect this node as leader
+     #[tracing::instrument(level = "debug", skip(self))]
+     pub(crate) fn elect(&mut self) {
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
+         // init election
+         self.state.vote = Vote::new(self.state.vote.term + 1, self.id);
+         self.state.new_leader();
+@@ -116,6 +117,7 @@ impl<NID: NodeId> Engine<NID> {
+ 
+             // TODO: For compatibility. remove it. The runtime does not need to know about server state.
+             self.set_server_state(ServerState::Leader);
++            crate::specula_trace::emit_engine("Elect", self.id, specula_pre, self, "{}".to_string());
+             return;
+         }
+ 
+@@ -128,6 +130,7 @@ impl<NID: NodeId> Engine<NID> {
+ 
+         // TODO: For compatibility. remove it. The runtime does not need to know about server state.
+         self.set_server_state(ServerState::Candidate);
++        crate::specula_trace::emit_engine("Elect", self.id, specula_pre, self, "{}".to_string());
+     }
+ 
+     #[tracing::instrument(level = "debug", skip_all)]
+@@ -162,6 +165,14 @@ impl<NID: NodeId> Engine<NID> {
+ 
+     #[tracing::instrument(level = "debug", skip(self, resp))]
+     pub(crate) fn handle_vote_resp(&mut self, target: NID, resp: VoteResponse<NID>) {
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
++        let specula_args = crate::specula_trace::vote_resp_args(target, &resp.vote, resp.vote_granted);
++        self.specula_handle_vote_resp_inner(target, resp);
++        crate::specula_trace::emit_engine("HandleVoteResp", self.id, specula_pre, self, specula_args);
++    }
++
++    /// Original body of `handle_vote_resp` (unchanged), wrapped for tracing.
++    fn specula_handle_vote_resp_inner(&mut self, target: NID, resp: VoteResponse<NID>) {
+         tracing::debug!(
+             resp = display(resp.summary()),
+             target = display(target),
+@@ -238,6 +249,9 @@ impl<NID: NodeId> Engine<NID> {
+         if l == 0 {
+             return;
+         }
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
++        let specula_old_last = self.state.last_log_id().map(|x| x.index as i64).unwrap_or(-1);
++        let specula_old_effective = self.state.membership_state.effective.log_id.map(|x| x.index as i64).unwrap_or(-1);
+ 
+         self.assign_log_ids(entries.iter_mut());
+         self.state.extend_log_ids_from_same_leader(entries);
+@@ -290,6 +304,20 @@ impl<NID: NodeId> Engine<NID> {
+         // Still need to replicate to learners, even when it is fast-committed.
+         self.push_command(Command::ReplicateInputEntries { range: 0..l });
+         self.push_command(Command::MoveInputCursorBy { n: l });
++
++        let specula_new_effective = self.state.membership_state.effective.log_id.map(|x| x.index as i64).unwrap_or(-1);
++        let specula_membership_position = if specula_new_effective != specula_old_effective {
++            specula_new_effective - specula_old_last
++        } else {
++            -1
++        };
++        crate::specula_trace::emit_engine(
++            "LeaderAppend",
++            self.id,
++            specula_pre,
++            self,
++            format!("{{\"count\":{},\"membership_position\":{}}}", l, specula_membership_position),
++        );
+     }
+ 
+     /// Append entries to follower/learner.
+@@ -367,6 +395,13 @@ impl<NID: NodeId> Engine<NID> {
+         prev_log_id: Option<LogId<NID>>,
+         entries: &[Ent],
+     ) {
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
++        let specula_leader_commit = leader_committed.map(|x| x.index as i64).unwrap_or(-1);
++        let specula_leader_commit_term = leader_committed.map(|x| x.leader_id.term).unwrap_or(0);
++        let specula_prev_log = prev_log_id.map(|x| x.index as i64).unwrap_or(-1);
++        let specula_prev_log_term = prev_log_id.map(|x| x.leader_id.term).unwrap_or(0);
++        let specula_last_entry = entries.last().map(|x| x.get_log_id().index as i64).unwrap_or(-1);
++        let specula_last_entry_term = entries.last().map(|x| x.get_log_id().leader_id.term).unwrap_or(0);
+         tracing::debug!(
+             leader_committed = display(leader_committed.summary()),
+             prev_log_id = display(prev_log_id.summary()),
+@@ -386,6 +421,26 @@ impl<NID: NodeId> Engine<NID> {
+                 upto: committed.unwrap(),
+             });
+         }
++
++        crate::specula_trace::emit_engine(
++            "FollowerCommit",
++            self.id,
++            specula_pre,
++            self,
++            format!(
++                concat!(
++                    "{{\"leader_commit_term\":{},\"leader_commit\":{},",
++                    "\"prev_log_term\":{},\"prev_log\":{},",
++                    "\"last_entry_term\":{},\"last_entry\":{}}}"
++                ),
++                specula_leader_commit_term,
++                specula_leader_commit,
++                specula_prev_log_term,
++                specula_prev_log,
++                specula_last_entry_term,
++                specula_last_entry
++            ),
++        );
+     }
+ 
+     /// Follower/Learner appends `entries[since..]`.
+@@ -554,6 +609,10 @@ impl<NID: NodeId> Engine<NID> {
+     /// Update membership state with a committed membership config
+     #[tracing::instrument(level = "debug", skip_all)]
+     pub(crate) fn update_committed_membership(&mut self, membership: EffectiveMembership<NID>) {
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
++        let specula_new_index = membership.log_id.map(|x| x.index as i64).unwrap_or(-1);
++        let specula_new_term = membership.log_id.map(|x| x.leader_id.term).unwrap_or(0);
++        let specula_new_configs = crate::specula_trace::configs_json(&membership.membership);
+         tracing::debug!("update committed membership: {}", membership.summary());
+ 
+         let server_state = self.calc_server_state();
+@@ -586,10 +645,22 @@ impl<NID: NodeId> Engine<NID> {
+         self.state.membership_state = mem_state;
+ 
+         self.update_server_state_if_changed(server_state);
++
++        crate::specula_trace::emit_engine(
++            "UpdateCommittedMembership",
++            self.id,
++            specula_pre,
++            self,
++            format!(
++                "{{\"new_term\":{},\"new_index\":{},\"new_configs\":{}}}",
++                specula_new_term, specula_new_index, specula_new_configs
++            ),
++        );
+     }
+ 
+     #[tracing::instrument(level = "debug", skip_all)]
+     pub(crate) fn update_effective_membership(&mut self, log_id: &LogId<NID>, m: &Membership<NID>) {
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
+         tracing::debug!("update effective membership: log_id:{} {}", log_id, m.summary());
+ 
+         let server_state = self.calc_server_state();
+@@ -612,15 +683,31 @@ impl<NID: NodeId> Engine<NID> {
+         if server_state != ServerState::Leader {
+             self.update_server_state_if_changed(server_state);
+         }
++
++        crate::specula_trace::emit_engine(
++            "UpdateEffectiveMembership",
++            self.id,
++            specula_pre,
++            self,
++            format!(
++                "{{\"term\":{},\"index\":{},\"configs\":{}}}",
++                log_id.leader_id.term,
++                log_id.index,
++                crate::specula_trace::configs_json(m)
++            ),
++        );
+     }
+ 
+     #[tracing::instrument(level = "debug", skip_all)]
+     pub(crate) fn update_progress(&mut self, node_id: NID, log_id: Option<LogId<NID>>) {
++        let specula_pre = crate::specula_trace::capture_engine_pre(self);
++        let specula_args = crate::specula_trace::update_progress_args(node_id, log_id);
+         tracing::debug!("update_progress: node_id:{} log_id:{:?}", node_id, log_id);
+ 
+         let committed = {
+             let leader = match &mut self.state.leader {
+                 None => {
++                    crate::specula_trace::emit_engine("UpdateProgress", self.id, specula_pre, self, specula_args);
+                     return;
+                 }
+                 Some(x) => x,
+@@ -632,6 +719,7 @@ impl<NID: NodeId> Engine<NID> {
+         // Only when the log id is proposed by current leader, it is committed.
+         if let Some(c) = committed {
+             if c.leader_id.term != self.state.vote.term || c.leader_id.node_id != self.state.vote.node_id {
++                crate::specula_trace::emit_engine("UpdateProgress", self.id, specula_pre, self, specula_args);
+                 return;
+             }
+         }
+@@ -645,6 +733,8 @@ impl<NID: NodeId> Engine<NID> {
+                 upto: self.state.committed.unwrap(),
+             });
+         }
++
++        crate::specula_trace::emit_engine("UpdateProgress", self.id, specula_pre, self, specula_args);
+     }
+ 
+     // --- Draft API ---
+diff --git a/openraft/src/engine/mod.rs b/openraft/src/engine/mod.rs
+index c47d1d8..3d011d7 100644
+--- a/openraft/src/engine/mod.rs
++++ b/openraft/src/engine/mod.rs
+@@ -14,6 +14,8 @@ mod log_id_list;
+ #[cfg(test)] mod leader_append_entries_test;
+ #[cfg(test)] mod log_id_list_test;
+ #[cfg(test)] mod purge_log_test;
++#[cfg(test)] mod specula_trace_test;
++#[cfg(test)] mod specula_update_test;
+ #[cfg(test)] mod testing;
+ #[cfg(test)] mod truncate_logs_test;
+ #[cfg(test)] mod update_committed_membership_test;
+diff --git a/openraft/src/engine/specula_trace_test.rs b/openraft/src/engine/specula_trace_test.rs
+new file mode 100644
+index 0000000..ac5950b
+--- /dev/null
++++ b/openraft/src/engine/specula_trace_test.rs
+@@ -0,0 +1,20 @@
++use std::sync::Arc;
++
++use maplit::btreeset;
++
++use crate::engine::Engine;
++use crate::{EffectiveMembership, Membership};
++
++#[test]
++fn specula_trace_election_single() -> anyhow::Result<()> {
++    let mut engine = Engine::<u64>::default();
++    engine.id = 1;
++    engine.state.membership_state.effective =
++        Arc::new(EffectiveMembership::new(None, Membership::new(vec![btreeset! {1}], None)));
++
++    engine.elect();
++
++    assert!(engine.state.vote.committed);
++    assert!(engine.state.server_state.is_leader());
++    Ok(())
++}
+diff --git a/openraft/src/engine/specula_update_test.rs b/openraft/src/engine/specula_update_test.rs
+new file mode 100644
+index 0000000..b779734
+--- /dev/null
++++ b/openraft/src/engine/specula_update_test.rs
+@@ -0,0 +1,163 @@
++//! Specula update-focused scenarios (harness-only test file).
++//!
++//! Derived from the visible diff: leader commit is now computed by
++//! `Engine::update_progress` over `Leader.progress` (a `VecProgress` keyed by the
++//! effective membership), and a membership entry upgrades that progress with
++//! `upgrade_quorum_set` inside `leader_append_entries`.
++//!
++//! The scenario drives only real Engine entry points in the order the runtime
++//! uses them: `elect` + `handle_vote_resp` (election), `leader_append_entries`
++//! (LeaderState::write_entry), and `update_progress` (LeaderState::
++//! handle_update_matched, which calls it only for matched > committed).
++
++use std::sync::Arc;
++
++use maplit::btreeset;
++
++use crate::engine::Engine;
++use crate::raft::VoteResponse;
++use crate::EffectiveMembership;
++use crate::Entry;
++use crate::EntryPayload;
++use crate::LeaderId;
++use crate::LogId;
++use crate::Membership;
++use crate::Vote;
++
++crate::declare_raft_types!(
++    pub(crate) Foo: D=(), R=(), NodeId=u64
++);
++
++fn log_id(term: u64, node_id: u64, index: u64) -> LogId<u64> {
++    LogId::<u64> {
++        leader_id: LeaderId { term, node_id },
++        index,
++    }
++}
++
++fn blank() -> Entry<Foo> {
++    Entry {
++        log_id: log_id(0, 0, 0),
++        payload: EntryPayload::<Foo>::Blank,
++    }
++}
++
++fn membership(m: Membership<u64>) -> Entry<Foo> {
++    Entry {
++        log_id: log_id(0, 0, 0),
++        payload: EntryPayload::<Foo>::Membership(m),
++    }
++}
++
++/// An initialized node 2 of a 3-voter cluster {1,2,3}: index 0 holds the
++/// initial membership entry (0,0,0) written by `Engine::initialize`
++/// (raft_types.rs requires the zero-th log id to be (0,0,0)).  Node 2 is then
++/// elected with a grant from node 1.
++fn elected_leader_2() -> Engine<u64> {
++    let mut eng = Engine::<u64> { id: 2, ..Default::default() };
++    let m123 = Membership::<u64>::new(vec![btreeset! {1,2,3}], None);
++    eng.state.log_ids.append(log_id(0, 0, 0));
++    eng.state.committed = Some(log_id(0, 0, 0));
++    eng.state.membership_state.committed = Arc::new(EffectiveMembership::new(Some(log_id(0, 0, 0)), m123.clone()));
++    eng.state.membership_state.effective = Arc::new(EffectiveMembership::new(Some(log_id(0, 0, 0)), m123));
++
++    eng.elect();
++    eng.handle_vote_resp(1, VoteResponse {
++        vote: Vote::new(1, 2),
++        vote_granted: true,
++        last_log_id: Some(log_id(0, 0, 0)),
++    });
++    assert!(eng.state.vote.committed, "node 2 must be leader");
++    eng
++}
++
++/// Update scenario U1: leader 2 commits a blank entry with node 1, proposes the
++/// next_safe joint config that removes itself ([{1,2,3},{1,3}]), and node 3
++/// (only) acknowledges the joint membership entry (index 2).
++///
++/// Requirement (joint quorum, guide/src/dynamic-membership.md): index 2 may be
++/// committed only when a majority of {1,2,3} AND of {1,3} hold it.  Here only
++/// {2,3} hold index 2, so {1,3} is not satisfied.
++///
++/// This harness test records the observed commit; it does not assert the
++/// requirement so that the trace is collected either way.  The requirement is
++/// asserted separately by `specula_observe_joint_commit_requires_both_groups`.
++#[test]
++fn specula_update_joint_commit_order() -> anyhow::Result<()> {
++    let mut eng = elected_leader_2();
++
++    // LeaderState::run writes the initial blank entry -> index 1.
++    eng.leader_append_entries(&mut [blank()]);
++    // Node 1 acknowledges index 1 -> committed by {1,2}.
++    eng.update_progress(1, Some(log_id(1, 2, 1)));
++    assert_eq!(Some(log_id(1, 2, 1)), eng.state.committed);
++
++    // change_membership({1,3}) writes next_safe = joint [{1,2,3},{1,3}] -> index 2.
++    let joint = Membership::<u64>::new(vec![btreeset! {1,2,3}, btreeset! {1,3}], None);
++    eng.leader_append_entries(&mut [membership(joint)]);
++
++    // Node 3 acknowledges index 2 (handle_update_matched: matched (1,2) > committed (1,1)).
++    eng.update_progress(3, Some(log_id(1, 2, 2)));
++
++    println!("SPECULA_OBSERVED committed={:?}", eng.state.committed);
++    Ok(())
++}
++
++/// Requirement check for scenario U1 (expected to pass on a correct
++/// implementation; run separately as code observation).
++#[test]
++fn specula_observe_joint_commit_requires_both_groups() -> anyhow::Result<()> {
++    let mut eng = elected_leader_2();
++    eng.leader_append_entries(&mut [blank()]);
++    eng.update_progress(1, Some(log_id(1, 2, 1)));
++    let joint = Membership::<u64>::new(vec![btreeset! {1,2,3}, btreeset! {1,3}], None);
++    eng.leader_append_entries(&mut [membership(joint)]);
++    eng.update_progress(3, Some(log_id(1, 2, 2)));
++
++    assert_eq!(
++        Some(log_id(1, 2, 1)),
++        eng.state.committed,
++        "index 2 is held by {{2,3}} only; group {{1,3}} has no majority, so it must not be committed"
++    );
++    Ok(())
++}
++
++/// Update scenario U2: uniform 3-voter cluster, ordinary replication through
++/// update_progress (no membership change).  Expected: commit follows the
++/// majority of acknowledged log ids.
++#[test]
++fn specula_update_uniform_commit() -> anyhow::Result<()> {
++    let mut eng = elected_leader_2();
++    eng.leader_append_entries(&mut [blank()]);
++    eng.update_progress(3, Some(log_id(1, 2, 1)));
++    eng.leader_append_entries(&mut [blank()]);
++    eng.leader_append_entries(&mut [blank()]);
++    eng.update_progress(1, Some(log_id(1, 2, 2)));
++    eng.update_progress(3, Some(log_id(1, 2, 3)));
++    eng.update_progress(1, Some(log_id(1, 2, 3)));
++    println!("SPECULA_OBSERVED committed={:?}", eng.state.committed);
++    Ok(())
++}
++
++/// Update scenario U3 (follower boundary): commit does not advance while the
++/// effective membership is already covered by the local commit.  The updated
++/// RaftState::update_committed promotes committed membership only when commit
++/// advances (raft_state.rs:122-137); the old follower path promoted it
++/// unconditionally (old engine_impl.rs:370-372).  Records the observed state.
++#[test]
++fn specula_follower_commit_no_advance() -> anyhow::Result<()> {
++    let m01 = Membership::<u64>::new(vec![btreeset! {0,1}], None);
++    let m23 = Membership::<u64>::new(vec![btreeset! {2,3}], None);
++    let mut eng = Engine::<u64>::default();
++    eng.state.committed = Some(log_id(2, 1, 3));
++    eng.state.membership_state.committed = Arc::new(EffectiveMembership::new(Some(log_id(1, 1, 1)), m01));
++    eng.state.membership_state.effective = Arc::new(EffectiveMembership::new(Some(log_id(2, 1, 3)), m23));
++
++    eng.follower_commit_entries(Some(log_id(2, 1, 3)), Some(log_id(2, 1, 3)), &Vec::<Entry<Foo>>::new());
++
++    println!(
++        "SPECULA_OBSERVED committed={:?} committed_membership={:?}",
++        eng.state.committed, eng.state.membership_state.committed.log_id
++    );
++    Ok(())
++}
+diff --git a/openraft/src/leader/leader.rs b/openraft/src/leader/leader.rs
+index 4826fd7..353ed09 100644
+--- a/openraft/src/leader/leader.rs
++++ b/openraft/src/leader/leader.rs
+@@ -32,7 +32,7 @@ pub(crate) struct Leader<NID: NodeId, QS: QuorumSet<NID>> {
+ impl<NID, QS> Leader<NID, QS>
+ where
+     NID: NodeId,
+-    QS: QuorumSet<NID> + 'static,
++    QS: QuorumSet<NID> + crate::specula_trace::SpeculaQuorum + 'static,
+ {
+     pub(crate) fn new(quorum_set: QS) -> Self {
+         Self {
+diff --git a/openraft/src/lib.rs b/openraft/src/lib.rs
+index fcb2939..7b81f2a 100644
+--- a/openraft/src/lib.rs
++++ b/openraft/src/lib.rs
+@@ -30,6 +30,7 @@ mod storage_error;
+ mod store_ext;
+ mod store_wrapper;
+ mod summary;
++mod specula_trace;
+ mod vote;
+ 
+ mod engine;
+diff --git a/openraft/src/membership/effective_membership.rs b/openraft/src/membership/effective_membership.rs
+index f0cacd7..b44ac1e 100644
+--- a/openraft/src/membership/effective_membership.rs
++++ b/openraft/src/membership/effective_membership.rs
+@@ -150,7 +150,10 @@ impl<NID: NodeId> QuorumSet<NID> for EffectiveMembership<NID> {
+     type Iter = std::collections::btree_set::IntoIter<NID>;
+ 
+     fn is_quorum<'a, I: Iterator<Item = &'a NID> + Clone>(&self, ids: I) -> bool {
+-        self.quorum_set.is_quorum(ids)
++        let granted = ids.copied().collect::<Vec<_>>();
++        let result = self.quorum_set.is_quorum(granted.iter());
++        crate::specula_trace::emit_quorum(&self.membership, &granted, result);
++        result
+     }
+ 
+     fn ids(&self) -> Self::Iter {
+diff --git a/openraft/src/progress/mod.rs b/openraft/src/progress/mod.rs
+index 2aa8336..de0c161 100644
+--- a/openraft/src/progress/mod.rs
++++ b/openraft/src/progress/mod.rs
+@@ -120,13 +120,18 @@ where
+     pub(crate) fn stat(&self) -> &Stat {
+         &self.stat
+     }
++
++    /// Specula instrumentation: the vector in its real order.
++    pub(crate) fn specula_vector(&self) -> &[(ID, V)] {
++        &self.vector
++    }
+ }
+ 
+ impl<ID, V, QS> Progress<ID, V, QS> for VecProgress<ID, V, QS>
+ where
+-    ID: PartialEq + Debug + Copy + 'static,
+-    V: PartialOrd + Ord + Copy + Default + 'static,
+-    QS: QuorumSet<ID> + 'static,
++    ID: PartialEq + Debug + std::fmt::Display + Copy + 'static,
++    V: PartialOrd + Ord + Copy + Default + crate::specula_trace::SpeculaValue + 'static,
++    QS: QuorumSet<ID> + crate::specula_trace::SpeculaQuorum + 'static,
+ {
+     /// Update one of the scalar value and re-calculate the committed value.
+     ///
+@@ -161,10 +166,12 @@ where
+     ///      1   3   5
+     /// ```
+     fn update(&mut self, id: &ID, value: V) -> &V {
++        let specula_pre = crate::specula_trace::capture_progress(&self.quorum_set, &self.vector, &self.committed);
+         self.stat.update_count += 1;
+ 
+         let index = match self.index(id) {
+             None => {
++                crate::specula_trace::emit_progress_update(specula_pre, &self.vector, &self.committed, id, &value);
+                 return &self.committed;
+             }
+             Some(x) => x,
+@@ -174,6 +181,7 @@ where
+         let prev = elt.1;
+ 
+         if prev == value {
++            crate::specula_trace::emit_progress_update(specula_pre, &self.vector, &self.committed, id, &value);
+             return &self.committed;
+         }
+ 
+@@ -203,6 +211,7 @@ where
+             }
+         }
+ 
++        crate::specula_trace::emit_progress_update(specula_pre, &self.vector, &self.committed, id, &value);
+         &self.committed
+     }
+ 
+@@ -220,6 +229,7 @@ where
+     }
+ 
+     fn upgrade_quorum_set(self, quorum_set: QS) -> Self {
++        let specula_pre = crate::specula_trace::capture_progress(&self.quorum_set, &self.vector, &self.committed);
+         let mut new_qs = Self::new(quorum_set);
+ 
+         new_qs.stat = self.stat.clone();
+@@ -227,6 +237,7 @@ where
+         for id in self.quorum_set.ids() {
+             new_qs.update(&id, *self.get(&id));
+         }
++        crate::specula_trace::emit_progress_upgrade(specula_pre, &new_qs.quorum_set, &new_qs.vector, &new_qs.committed);
+         new_qs
+     }
+ }
+diff --git a/openraft/src/specula_trace.rs b/openraft/src/specula_trace.rs
+new file mode 100644
+index 0000000..6fa97f0
+--- /dev/null
++++ b/openraft/src/specula_trace.rs
+@@ -0,0 +1,356 @@
++//! Neutral, environment-gated NDJSON probes for the Specula incremental suite.
++//! This module is instrumentation only and is not enabled without SPECULA_TRACE.
++//! Rebased from the V0 prior onto the updated revision: the Engine snapshot
++//! now includes the Engine leader state (VecProgress order/values/committed),
++//! and VecProgress probes are generic over the value and quorum-set types used
++//! by the updated code (u64 test values and Option<LogId>; Vec, Joint and
++//! Arc<EffectiveMembership> quorum sets).
++
++use std::fmt::Display;
++use std::fs::OpenOptions;
++use std::io::Write;
++use std::sync::Arc;
++use std::sync::Mutex;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use crate::engine::Engine;
++use crate::progress::Progress;
++use crate::quorum::Joint;
++use crate::EffectiveMembership;
++use crate::LogId;
++use crate::Membership;
++use crate::NodeId;
++
++static TRACE_LOCK: Mutex<()> = Mutex::new(());
++
++thread_local! {
++    /// Nesting depth of instrumented Engine calls on this thread.  Engine
++    /// events carry the depth at which they were captured so the preprocessor
++    /// can keep only outermost Engine transitions (nested calls are already
++    /// contained in the outer transition's pre/post snapshots).
++    static ENGINE_DEPTH: std::cell::Cell<usize> = std::cell::Cell::new(0);
++}
++
++/// Pre-state capture at the entry of an instrumented Engine method.  Every call
++/// must be paired with exactly one `emit_engine` on every exit path.
++pub(crate) fn capture_engine_pre<NID: NodeId>(engine: &Engine<NID>) -> Option<(usize, String)> {
++    let snap = capture_engine(engine)?;
++    let depth = ENGINE_DEPTH.with(|d| {
++        let v = d.get();
++        d.set(v + 1);
++        v
++    });
++    Some((depth, snap))
++}
++
++pub(crate) fn enabled() -> bool {
++    std::env::var_os("SPECULA_TRACE").is_some() && std::env::var_os("SPECULA_TRACE_FILE").is_some()
++}
++
++fn quote(value: impl Display) -> String {
++    let s = value.to_string();
++    let escaped = s.replace('\\', "\\\\").replace('"', "\\\"");
++    format!("\"{}\"", escaped)
++}
++
++fn emit(event_json: String) {
++    if !enabled() {
++        return;
++    }
++
++    let path = match std::env::var("SPECULA_TRACE_FILE") {
++        Ok(path) => path,
++        Err(_) => return,
++    };
++    let ts = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
++    let line = format!("{{\"tag\":\"trace\",\"ts\":\"{}\",\"event\":{}}}\n", ts, event_json);
++
++    let _guard = TRACE_LOCK.lock().expect("Specula trace mutex poisoned");
++    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(path) {
++        let _ = file.write_all(line.as_bytes());
++        let _ = file.flush();
++    }
++}
++
++fn groups_json<ID: Display>(groups: &[Vec<ID>]) -> String {
++    let groups = groups
++        .iter()
++        .map(|group| {
++            let ids = group.iter().map(quote).collect::<Vec<_>>().join(",");
++            format!("[{}]", ids)
++        })
++        .collect::<Vec<_>>()
++        .join(",");
++    format!("[{}]", groups)
++}
++
++pub(crate) fn configs_json<NID: NodeId>(membership: &Membership<NID>) -> String {
++    let groups = membership
++        .get_joint_config()
++        .iter()
++        .map(|group| group.iter().copied().collect::<Vec<_>>())
++        .collect::<Vec<_>>();
++    groups_json(&groups)
++}
++
++/// Rendering of a progress value as a log id: `{"term":t,"index":i}`.
++/// `None` is `{"term":0,"index":-1}`; a plain u64 test value `v` is `{"term":0,"index":v}`.
++pub(crate) trait SpeculaValue {
++    fn specula_json(&self) -> String;
++}
++
++impl SpeculaValue for u64 {
++    fn specula_json(&self) -> String {
++        format!("\"term\":0,\"index\":{}", self)
++    }
++}
++
++impl<NID: NodeId> SpeculaValue for Option<LogId<NID>> {
++    fn specula_json(&self) -> String {
++        match self {
++            None => "\"term\":0,\"index\":-1".to_string(),
++            Some(l) => format!(
++                "\"term\":{},\"node\":{},\"index\":{}",
++                l.leader_id.term,
++                quote(l.leader_id.node_id),
++                l.index
++            ),
++        }
++    }
++}
++
++/// Rendering of a quorum set as its majority groups.
++pub(crate) trait SpeculaQuorum {
++    fn specula_groups(&self) -> String;
++}
++
++impl<ID: Display + Copy + Ord> SpeculaQuorum for Vec<ID> {
++    fn specula_groups(&self) -> String {
++        groups_json(&[self.clone()])
++    }
++}
++
++impl<ID: Display + Copy + Ord + 'static> SpeculaQuorum for Joint<ID, Vec<ID>, Vec<Vec<ID>>> {
++    fn specula_groups(&self) -> String {
++        groups_json(self.children())
++    }
++}
++
++impl<NID: NodeId> SpeculaQuorum for Arc<EffectiveMembership<NID>> {
++    fn specula_groups(&self) -> String {
++        configs_json(&self.membership)
++    }
++}
++
++fn vector_json<ID: Display, V: SpeculaValue>(vector: &[(ID, V)]) -> String {
++    vector.iter().map(|(id, v)| format!("{{\"id\":{},{}}}", quote(id), v.specula_json())).collect::<Vec<_>>().join(",")
++}
++
++fn option_log_parts<NID: NodeId>(log_id: Option<LogId<NID>>) -> (i64, u64) {
++    match log_id {
++        None => (-1, 0),
++        Some(id) => (id.index as i64, id.leader_id.term),
++    }
++}
++
++pub(crate) fn capture_engine<NID: NodeId>(engine: &Engine<NID>) -> Option<String> {
++    if !enabled() {
++        return None;
++    }
++
++    let (last_index, _) = option_log_parts(engine.state.last_log_id());
++    let logs = if last_index < 0 {
++        String::new()
++    } else {
++        (0..=last_index as u64)
++            .map(|idx| engine.state.get_log_id(idx).map(|id| id.leader_id.term).unwrap_or(0).to_string())
++            .collect::<Vec<_>>()
++            .join(",")
++    };
++    let (committed_index, _) = option_log_parts(engine.state.committed);
++    let (committed_mem_index, committed_mem_term) = option_log_parts(engine.state.membership_state.committed.log_id);
++    let (effective_mem_index, effective_mem_term) = option_log_parts(engine.state.membership_state.effective.log_id);
++    let role = match engine.state.server_state {
++        crate::ServerState::Leader => "leader",
++        crate::ServerState::Candidate => "candidate",
++        crate::ServerState::Follower => "follower",
++        crate::ServerState::Learner => "learner",
++        crate::ServerState::Shutdown => "follower",
++    };
++
++    // Engine leader state (RaftState.leader) and its VecProgress.
++    let (leader_active, vote_granted, progress_configs, progress_vector, progress_committed) =
++        match &engine.state.leader {
++            None => (false, String::new(), "[]".to_string(), String::new(), None::<LogId<NID>>.specula_json()),
++            Some(leader) => (
++                true,
++                leader.vote_granted_by.iter().map(quote).collect::<Vec<_>>().join(","),
++                leader.progress.quorum_set().specula_groups(),
++                vector_json(leader.progress.specula_vector()),
++                leader.progress.committed().specula_json(),
++            ),
++        };
++
++    Some(format!(
++        concat!(
++            "{{\"term\":{},\"vote_node\":{},\"vote_committed\":{},\"role\":\"{}\",",
++            "\"last_log\":{},\"logs\":[{}],\"committed\":{},",
++            "\"committed_mem_index\":{},\"committed_mem_term\":{},",
++            "\"effective_mem_index\":{},\"effective_mem_term\":{},",
++            "\"committed_configs\":{},\"effective_configs\":{},",
++            "\"leader_active\":{},\"vote_granted\":[{}],\"progress_configs\":{},",
++            "\"progress_vector\":[{}],\"progress_committed\":{{{}}}}}"
++        ),
++        engine.state.vote.term,
++        quote(engine.state.vote.node_id),
++        engine.state.vote.committed,
++        role,
++        last_index,
++        logs,
++        committed_index,
++        committed_mem_index,
++        committed_mem_term,
++        effective_mem_index,
++        effective_mem_term,
++        configs_json(&engine.state.membership_state.committed.membership),
++        configs_json(&engine.state.membership_state.effective.membership),
++        leader_active,
++        vote_granted,
++        progress_configs,
++        progress_vector,
++        progress_committed,
++    ))
++}
++
++pub(crate) fn emit_engine<NID: NodeId>(
++    name: &str,
++    nid: NID,
++    pre: Option<(usize, String)>,
++    post: &Engine<NID>,
++    args: String,
++) {
++    let (depth, pre) = match pre {
++        Some(pre) => pre,
++        None => return,
++    };
++    ENGINE_DEPTH.with(|d| d.set(depth));
++    let post = capture_engine(post).expect("trace enabled after pre-state capture");
++    emit(format!(
++        "{{\"name\":\"{}\",\"depth\":{},\"nid\":{},\"pre\":{},\"post\":{},\"args\":{}}}",
++        name,
++        depth,
++        quote(nid),
++        pre,
++        post,
++        args
++    ));
++}
++
++pub(crate) fn vote_resp_args<NID: NodeId>(target: NID, vote: &crate::Vote<NID>, granted: bool) -> String {
++    if !enabled() {
++        return String::new();
++    }
++    format!(
++        "{{\"target\":{},\"resp_term\":{},\"resp_node\":{},\"resp_committed\":{},\"granted\":{}}}",
++        quote(target),
++        vote.term,
++        quote(vote.node_id),
++        vote.committed,
++        granted
++    )
++}
++
++pub(crate) fn update_progress_args<NID: NodeId>(node_id: NID, log_id: Option<LogId<NID>>) -> String {
++    if !enabled() {
++        return String::new();
++    }
++    format!("{{\"target\":{},{}}}", quote(node_id), log_id.specula_json())
++}
++
++/// Capture `configs`, `pre_vector` and `pre_committed` of a VecProgress.
++pub(crate) fn capture_progress<ID: Display, V: SpeculaValue, QS: SpeculaQuorum>(
++    quorum_set: &QS,
++    vector: &[(ID, V)],
++    committed: &V,
++) -> Option<String> {
++    if !enabled() {
++        return None;
++    }
++    Some(format!(
++        "\"configs\":{},\"pre_vector\":[{}],\"pre_committed\":{{{}}}",
++        quorum_set.specula_groups(),
++        vector_json(vector),
++        committed.specula_json()
++    ))
++}
++
++pub(crate) fn emit_progress_update<ID: Display, V: SpeculaValue>(
++    pre: Option<String>,
++    post_vector: &[(ID, V)],
++    post_committed: &V,
++    target: &ID,
++    value: &V,
++) {
++    let pre = match pre {
++        Some(pre) => pre,
++        None => return,
++    };
++    emit(format!(
++        "{{\"name\":\"ProgressUpdate\",{},\"post_vector\":[{}],\"post_committed\":{{{}}},\"args\":{{\"target\":{},{}}}}}",
++        pre,
++        vector_json(post_vector),
++        post_committed.specula_json(),
++        quote(target),
++        value.specula_json()
++    ));
++}
++
++pub(crate) fn emit_progress_upgrade<ID: Display, V: SpeculaValue + Default, QS: SpeculaQuorum>(
++    pre: Option<String>,
++    new_quorum_set: &QS,
++    post_vector: &[(ID, V)],
++    post_committed: &V,
++) {
++    let pre = match pre {
++        Some(pre) => pre,
++        None => return,
++    };
++    emit(format!(
++        concat!(
++            "{{\"name\":\"ProgressUpgrade\",{},\"new_configs\":{},\"default\":{{{}}},",
++            "\"post_vector\":[{}],\"post_committed\":{{{}}}}}"
++        ),
++        pre,
++        new_quorum_set.specula_groups(),
++        V::default().specula_json(),
++        vector_json(post_vector),
++        post_committed.specula_json()
++    ));
++}
++
++pub(crate) fn emit_quorum<NID: NodeId>(membership: &Membership<NID>, granted: &[NID], result: bool) {
++    if !enabled() {
++        return;
++    }
++    let granted = granted.iter().map(quote).collect::<Vec<_>>().join(",");
++    emit(format!(
++        "{{\"name\":\"QuorumCheck\",\"configs\":{},\"granted\":[{}],\"result\":{}}}",
++        configs_json(membership),
++        granted,
++        result
++    ));
++}
++
++pub(crate) fn emit_replication_lag(matched_index: i64, last_index: i64, threshold: u64, result: bool) {
++    if !enabled() {
++        return;
++    }
++    emit(format!(
++        concat!(
++            "{{\"name\":\"ReplicationLagCheck\",\"matched_index\":{},",
++            "\"last_index\":{},\"threshold\":{},\"result\":{}}}"
++        ),
++        matched_index, last_index, threshold, result
++    ));
++}

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "run_id": "case-012-incremental",
+  "summary": "Model updated for the leader-commit move to Engine::update_progress/VecProgress; fresh traces validate; model checking found an update-introduced commit-quorum violation, reproduced on the runtime with applied-entry divergence.",
+  "validation_limits": [
+    "Model checking is bounded (3 servers, small term/index/action budgets) and most BFS runs stopped at their time budget with states queued.",
+    "Trace validation uses Engine-level unit environments; async LeaderState/replication paths are exercised only by the runtime reproduction tests.",
+    "The specula CLI is not installed here; ci-result generation and persistent-finding registration were not run."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Leader commits a joint-membership entry without a quorum of the joint configuration (VecProgress cached commit)",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "VecProgress::update raises values above the cached committed in place without re-sorting, while its prefix scan assumes they are sorted; upgrade_quorum_set orders a tied lower-id follower ahead of the leader, so after the leader's next append a later acknowledgement makes the scan accept a prefix containing a node that lacks the entry.",
+      "trigger": "A leader whose id is larger than a caught-up follower starts a joint membership change in which the tied pair is not a joint quorum; another follower acknowledges the joint entry before the caught-up follower does.",
+      "consequence": "The leader commits and applies the joint entry without a joint quorum; with 5 voters a leader elected by an old-config majority commits a different entry at that index, so two nodes apply different entries at the same index.",
+      "severity": "Critical",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/upd-hunt-u1-consequence-final.log",
+        "spec/output/repro-new-runtime-both.log",
+        "spec/output/repro-old-control-runtime-both.log",
+        "harness/repro/t90_specula_joint_commit_repro.rs",
+        "harness/repro/t91_specula_joint_commit_divergence.rs"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/progress/mod.rs:VecProgress::update",
+          "openraft/src/progress/mod.rs:VecProgress::upgrade_quorum_set",
+          "openraft/src/engine/engine_impl.rs:Engine::update_progress",
+          "openraft/src/engine/engine_impl.rs:Engine::leader_append_entries"
+        ],
+        "premises": [
+          "Leader commit is decided by Leader.progress (VecProgress) via Engine::update_progress.",
+          "upgrade_quorum_set replays old quorum ids in ascending id order through update()."
+        ],
+        "dependencies": [
+          {"root": "source", "path": "openraft/src/progress/mod.rs"},
+          {"root": "source", "path": "openraft/src/engine/engine_impl.rs"},
+          {"root": "source", "path": "openraft/src/core/replication.rs"},
+          {"root": "work", "path": "spec/base.tla"},
+          {"root": "work", "path": "spec/Update.tla"}
+        ]
+      }
+    }
+  ]
+}

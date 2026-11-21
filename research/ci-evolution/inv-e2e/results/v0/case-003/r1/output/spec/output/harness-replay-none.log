@@ -1,0 +1,406 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/replay_none.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/consensus -run '^TestHandshakeReplayNone$/^mode_0_single$' -count=1 -v
+=== RUN   TestHandshakeReplayNone
+=== RUN   TestHandshakeReplayNone/mode_0_single
+I[2026-11-18|18:02:39.878] generating WAL (last height msg excluded)    wal_generator=wal_generator numBlocks=6
+I[2026-11-18|18:02:39.879] service start                                module=proxy wal_generator=wal_generator msg="Starting multiAppConn service" impl=multiAppConn
+I[2026-11-18|18:02:39.879] service start                                module=abci-client wal_generator=wal_generator connection=query msg="Starting localClient service" impl=localClient
+I[2026-11-18|18:02:39.879] service start                                module=abci-client wal_generator=wal_generator connection=snapshot msg="Starting localClient service" impl=localClient
+I[2026-11-18|18:02:39.879] service start                                module=abci-client wal_generator=wal_generator connection=mempool msg="Starting localClient service" impl=localClient
+I[2026-11-18|18:02:39.879] service start                                module=abci-client wal_generator=wal_generator connection=consensus msg="Starting localClient service" impl=localClient
+I[2026-11-18|18:02:39.879] service start                                module=events wal_generator=wal_generator msg="Starting EventBus service" impl=EventBus
+I[2026-11-18|18:02:39.879] service start                                module=pubsub wal_generator=wal_generator msg="Starting PubSub service" impl=PubSub
+D[2026-11-18|18:02:39.879] WAL write end height message                 wal_generator=wal_generator height=0 stopHeight=6
+D[2026-11-18|18:02:39.879] WAL Write Message                            wal_generator=wal_generator msg={Height:0}
+I[2026-11-18|18:02:39.879] service start                                wal_generator=wal_generator msg="Starting State service" impl=ConsensusState
+I[2026-11-18|18:02:39.879] service start                                wal_generator=wal_generator msg="Starting TimeoutTicker service" impl=TimeoutTicker
+E[2026-11-18|18:02:39.879] error on catchup replay; proceeding to start state anyway wal_generator=wal_generator err="cannot replay height 1. WAL does not contain #ENDHEIGHT for 0"
+D[2026-11-18|18:02:39.879] Starting timeout routine                     wal_generator=wal_generator
+D[2026-11-18|18:02:39.879] Received tick                                wal_generator=wal_generator old_ti="{Duration:0s Height:0 Round:0 Step:RoundStepUnknown}" new_ti="{Duration:9.8554ms Height:1 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:39.879] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:39.879] Scheduled timeout                            wal_generator=wal_generator dur=9.8554ms height=1 round=0 step=RoundStepNewHeight
+I[2026-11-18|18:02:39.890] Timed out                                    wal_generator=wal_generator dur=9.8554ms height=1 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:39.890] WAL Write Message                            wal_generator=wal_generator msg="{Duration:9.8554ms Height:1 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:39.890] received tock                                wal_generator=wal_generator timeout=9.8554ms height=1 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:39.890] entering new round                           wal_generator=wal_generator height=1 round=0 previous=1/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:39.890] entering propose step                        wal_generator=wal_generator height=1 round=0 current=1/0/RoundStepNewRound
+D[2026-11-18|18:02:39.890] node is a validator                          wal_generator=wal_generator height=1 round=0
+D[2026-11-18|18:02:39.890] propose step; our turn to propose            wal_generator=wal_generator height=1 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:39.890] Received tick                                wal_generator=wal_generator old_ti="{Duration:9.8554ms Height:1 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:40ms Height:1 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:39.890] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:39.890] Scheduled timeout                            wal_generator=wal_generator dur=40ms height=1 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:39.902] signed proposal                              wal_generator=wal_generator height=1 round=0 proposal="Proposal{1/0 (A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208:1:15944506D35E, -1) CA59C1C5EB74 @ 2026-11-19T00:02:39.890536655Z}"
+D[2026-11-18|18:02:39.902] WAL Write Message                            wal_generator=wal_generator msg="{Height:1 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:39.902] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Proposal Proposal{1/0 (A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208:1:15944506D35E, -1) CA59C1C5EB74 @ 2026-11-19T00:02:39.890536655Z}] PeerID:}"
+I[2026-11-18|18:02:39.903] received proposal                            wal_generator=wal_generator proposal="Proposal{1/0 (A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208:1:15944506D35E, -1) CA59C1C5EB74 @ 2026-11-19T00:02:39.890536655Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:39.903] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[BlockPart H:1 R:0 P:Part{#0\n  Bytes: 0A88020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:39.903] received complete proposal block             wal_generator=wal_generator height=1 hash=A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208
+D[2026-11-18|18:02:39.903] entering prevote step                        wal_generator=wal_generator height=1 round=0 current=1/0/RoundStepPropose
+D[2026-11-18|18:02:39.903] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=1 round=0
+D[2026-11-18|18:02:39.915] signed and pushed vote                       wal_generator=wal_generator height=1 round=0 vote="Vote{0:A3258DCBF45D 1/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) A1F87B8B7620 90162948D5AD 000000000000 @ 2026-11-19T00:02:39.903635016Z}"
+D[2026-11-18|18:02:39.915] WAL Write Message                            wal_generator=wal_generator msg="{Height:1 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:39.915] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 1/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) A1F87B8B7620 90162948D5AD 000000000000 @ 2026-11-19T00:02:39.903635016Z}] PeerID:}"
+D[2026-11-18|18:02:39.915] adding vote                                  wal_generator=wal_generator vote_height=1 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=1 extLen=0 extSigLen=0
+D[2026-11-18|18:02:39.915] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 1/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) A1F87B8B7620 90162948D5AD 000000000000 @ 2026-11-19T00:02:39.903635016Z}" prevotes="VoteSet{H:1 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208:1:15944506D35E(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:39.915] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:39.915] entering precommit step                      wal_generator=wal_generator height=1 round=0 current=1/0/RoundStepPrevote
+D[2026-11-18|18:02:39.915] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=1 round=0 hash=A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208
+D[2026-11-18|18:02:39.927] signed and pushed vote                       wal_generator=wal_generator height=1 round=0 vote="Vote{0:A3258DCBF45D 1/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) A1F87B8B7620 DD76BC1CFED0 000000000000 @ 2026-11-19T00:02:39.915793833Z}"
+D[2026-11-18|18:02:39.927] WAL Write Message                            wal_generator=wal_generator msg="{Height:1 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:39.927] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 1/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) A1F87B8B7620 DD76BC1CFED0 000000000000 @ 2026-11-19T00:02:39.915793833Z}] PeerID:}"
+D[2026-11-18|18:02:39.927] adding vote                                  wal_generator=wal_generator vote_height=1 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=1 extLen=0 extSigLen=0
+D[2026-11-18|18:02:39.927] added vote to precommit                      wal_generator=wal_generator height=1 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:39.915793833 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:39.927] entering new round with invalid args         wal_generator=wal_generator height=1 round=0 current=1/0/RoundStepPrecommit
+D[2026-11-18|18:02:39.927] entering precommit step with invalid args    wal_generator=wal_generator height=1 round=0 current=1/0/RoundStepPrecommit
+D[2026-11-18|18:02:39.927] entering commit step                         wal_generator=wal_generator height=1 commit_round=0 current=1/0/RoundStepPrecommit
+D[2026-11-18|18:02:39.927] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=1 commit_round=0 block_hash=A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208
+D[2026-11-18|18:02:39.928] WAL Write Message                            wal_generator=wal_generator msg="{Height:1 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:39.928] finalizing commit of block                   wal_generator=wal_generator height=1 hash=A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208 root= num_txs=0
+D[2026-11-18|18:02:39.928] committed block                              wal_generator=wal_generator height=1 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         1\n    Time:           2018-10-10 08:20:13.695936996 +0000 UTC\n    LastBlockID:    :0:000000000000\n    LastCommit:     E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            \n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        \n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     0\n    Round:      0\n    BlockID:    :0:000000000000\n    Signatures:\n      \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n}#A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208"
+D[2026-11-18|18:02:39.928] WAL write end height message                 wal_generator=wal_generator height=1 stopHeight=6
+D[2026-11-18|18:02:39.928] WAL Write Message                            wal_generator=wal_generator msg={Height:1}
+I[2026-11-18|18:02:39.931] Timed out                                    wal_generator=wal_generator dur=40ms height=1 round=0 step=RoundStepPropose
+I[2026-11-18|18:02:39.963] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:39.963] executed block                               height=1 app_hash=0000000000000000
+I[2026-11-18|18:02:39.988] committed state                              height=1 block_app_hash=
+D[2026-11-18|18:02:40.012] WAL Write Message                            wal_generator=wal_generator msg="{Height:2 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.012] entering new round                           wal_generator=wal_generator height=2 round=0 previous=2/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.012] entering propose step                        wal_generator=wal_generator height=2 round=0 current=2/0/RoundStepNewRound
+D[2026-11-18|18:02:40.012] node is a validator                          wal_generator=wal_generator height=2 round=0
+D[2026-11-18|18:02:40.012] propose step; our turn to propose            wal_generator=wal_generator height=2 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.012] Received tick                                wal_generator=wal_generator old_ti="{Duration:40ms Height:1 Round:0 Step:RoundStepPropose}" new_ti="{Duration:-74.481894ms Height:2 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.012] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.012] Scheduled timeout                            wal_generator=wal_generator dur=-74.481894ms height=2 round=0 step=RoundStepNewHeight
+I[2026-11-18|18:02:40.012] Timed out                                    wal_generator=wal_generator dur=-74.481894ms height=2 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.012] Received tick                                wal_generator=wal_generator old_ti="{Duration:-74.481894ms Height:2 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:40ms Height:2 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.012] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.012] Scheduled timeout                            wal_generator=wal_generator dur=40ms height=2 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.024] signed proposal                              wal_generator=wal_generator height=2 round=0 proposal="Proposal{2/0 (E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C:1:B51B3E757286, -1) D151877C1A99 @ 2026-11-19T00:02:40.012692248Z}"
+D[2026-11-18|18:02:40.024] WAL Write Message                            wal_generator=wal_generator msg="{Height:2 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.024] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Proposal Proposal{2/0 (E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C:1:B51B3E757286, -1) D151877C1A99 @ 2026-11-19T00:02:40.012692248Z}] PeerID:}"
+I[2026-11-18|18:02:40.025] received proposal                            wal_generator=wal_generator proposal="Proposal{2/0 (E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C:1:B51B3E757286, -1) D151877C1A99 @ 2026-11-19T00:02:40.012692248Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.025] WAL Write Message                            wal_generator=wal_generator msg="{Duration:40ms Height:1 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.025] received tock                                wal_generator=wal_generator timeout=40ms height=1 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.025] ignoring tock because we are ahead           wal_generator=wal_generator height=2 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.025] WAL Write Message                            wal_generator=wal_generator msg="{Duration:-74.481894ms Height:2 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.025] received tock                                wal_generator=wal_generator timeout=-74.481894ms height=2 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.025] ignoring tock because we are ahead           wal_generator=wal_generator height=2 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.025] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[BlockPart H:2 R:0 P:Part{#0\n  Bytes: 0AFA020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:40.025] received complete proposal block             wal_generator=wal_generator height=2 hash=E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C
+D[2026-11-18|18:02:40.025] entering prevote step                        wal_generator=wal_generator height=2 round=0 current=2/0/RoundStepPropose
+D[2026-11-18|18:02:40.025] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=2 round=0
+D[2026-11-18|18:02:40.037] signed and pushed vote                       wal_generator=wal_generator height=2 round=0 vote="Vote{0:A3258DCBF45D 2/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) E26B30197DEF 379D5FB87C68 000000000000 @ 2026-11-19T00:02:40.025824117Z}"
+D[2026-11-18|18:02:40.037] WAL Write Message                            wal_generator=wal_generator msg="{Height:2 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:40.037] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 2/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) E26B30197DEF 379D5FB87C68 000000000000 @ 2026-11-19T00:02:40.025824117Z}] PeerID:}"
+D[2026-11-18|18:02:40.037] adding vote                                  wal_generator=wal_generator vote_height=2 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=2 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.037] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 2/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) E26B30197DEF 379D5FB87C68 000000000000 @ 2026-11-19T00:02:40.025824117Z}" prevotes="VoteSet{H:2 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C:1:B51B3E757286(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:40.038] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:40.038] entering precommit step                      wal_generator=wal_generator height=2 round=0 current=2/0/RoundStepPrevote
+D[2026-11-18|18:02:40.038] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=2 round=0 hash=E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C
+D[2026-11-18|18:02:40.049] signed and pushed vote                       wal_generator=wal_generator height=2 round=0 vote="Vote{0:A3258DCBF45D 2/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) E26B30197DEF 0F2B31A16FBC 000000000000 @ 2026-11-19T00:02:40.038295022Z}"
+D[2026-11-18|18:02:40.049] WAL Write Message                            wal_generator=wal_generator msg="{Height:2 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:40.049] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 2/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) E26B30197DEF 0F2B31A16FBC 000000000000 @ 2026-11-19T00:02:40.038295022Z}] PeerID:}"
+D[2026-11-18|18:02:40.049] adding vote                                  wal_generator=wal_generator vote_height=2 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=2 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.050] added vote to precommit                      wal_generator=wal_generator height=2 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:40.038295022 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:40.050] entering new round with invalid args         wal_generator=wal_generator height=2 round=0 current=2/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.050] entering precommit step with invalid args    wal_generator=wal_generator height=2 round=0 current=2/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.050] entering commit step                         wal_generator=wal_generator height=2 commit_round=0 current=2/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.050] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=2 commit_round=0 block_hash=E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C
+D[2026-11-18|18:02:40.050] WAL Write Message                            wal_generator=wal_generator msg="{Height:2 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:40.050] finalizing commit of block                   wal_generator=wal_generator height=2 hash=E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C root=0000000000000000 num_txs=0
+D[2026-11-18|18:02:40.050] committed block                              wal_generator=wal_generator height=2 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         2\n    Time:           2026-11-19 00:02:39.915793833 +0000 UTC\n    LastBlockID:    A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208:1:15944506D35E\n    LastCommit:     D7681372C1455C547D79C1FFE38474D530206E6E4CB7254CA586038638A81725\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            0000000000000000\n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     1\n    Round:      0\n    BlockID:    A1F87B8B76205C2B43E5EF925DB1373FE279B9D5BAA4620B3FE3C4FB0D81B208:1:15944506D35E\n    Signatures:\n      CommitSig{DD76BC1CFED0 by A3258DCBF45D on 2 @ 2026-11-19T00:02:39.915793833Z}\n  }#D7681372C1455C547D79C1FFE38474D530206E6E4CB7254CA586038638A81725\n}#E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C"
+D[2026-11-18|18:02:40.050] WAL write end height message                 wal_generator=wal_generator height=2 stopHeight=6
+D[2026-11-18|18:02:40.051] WAL Write Message                            wal_generator=wal_generator msg={Height:2}
+I[2026-11-18|18:02:40.053] Timed out                                    wal_generator=wal_generator dur=40ms height=2 round=0 step=RoundStepPropose
+I[2026-11-18|18:02:40.086] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.086] executed block                               height=2 app_hash=0000000000000000
+I[2026-11-18|18:02:40.110] committed state                              height=2 block_app_hash=0000000000000000
+D[2026-11-18|18:02:40.134] WAL Write Message                            wal_generator=wal_generator msg="{Height:3 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.134] entering new round                           wal_generator=wal_generator height=3 round=0 previous=3/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.135] Received tick                                wal_generator=wal_generator old_ti="{Duration:40ms Height:2 Round:0 Step:RoundStepPropose}" new_ti="{Duration:-74.636222ms Height:3 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.135] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.135] entering propose step                        wal_generator=wal_generator height=3 round=0 current=3/0/RoundStepNewRound
+D[2026-11-18|18:02:40.135] Scheduled timeout                            wal_generator=wal_generator dur=-74.636222ms height=3 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.135] Received tick                                wal_generator=wal_generator old_ti="{Duration:-74.636222ms Height:3 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:40ms Height:3 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.135] Scheduled timeout                            wal_generator=wal_generator dur=40ms height=3 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.135] node is a validator                          wal_generator=wal_generator height=3 round=0
+D[2026-11-18|18:02:40.135] propose step; our turn to propose            wal_generator=wal_generator height=3 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.147] signed proposal                              wal_generator=wal_generator height=3 round=0 proposal="Proposal{3/0 (FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE:1:31075168D99F, -1) 1813B8F75E15 @ 2026-11-19T00:02:40.13531155Z}"
+D[2026-11-18|18:02:40.147] WAL Write Message                            wal_generator=wal_generator msg="{Height:3 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.147] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Proposal Proposal{3/0 (FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE:1:31075168D99F, -1) 1813B8F75E15 @ 2026-11-19T00:02:40.13531155Z}] PeerID:}"
+I[2026-11-18|18:02:40.147] received proposal                            wal_generator=wal_generator proposal="Proposal{3/0 (FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE:1:31075168D99F, -1) 1813B8F75E15 @ 2026-11-19T00:02:40.13531155Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.147] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[BlockPart H:3 R:0 P:Part{#0\n  Bytes: 0AF9020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:40.147] received complete proposal block             wal_generator=wal_generator height=3 hash=FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE
+D[2026-11-18|18:02:40.147] entering prevote step                        wal_generator=wal_generator height=3 round=0 current=3/0/RoundStepPropose
+D[2026-11-18|18:02:40.148] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=3 round=0
+D[2026-11-18|18:02:40.159] signed and pushed vote                       wal_generator=wal_generator height=3 round=0 vote="Vote{0:A3258DCBF45D 3/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) FE2A6A5D67AF 2BEE5374E246 000000000000 @ 2026-11-19T00:02:40.148096175Z}"
+D[2026-11-18|18:02:40.159] WAL Write Message                            wal_generator=wal_generator msg="{Height:3 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:40.159] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 3/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) FE2A6A5D67AF 2BEE5374E246 000000000000 @ 2026-11-19T00:02:40.148096175Z}] PeerID:}"
+D[2026-11-18|18:02:40.159] adding vote                                  wal_generator=wal_generator vote_height=3 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=3 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.160] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 3/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) FE2A6A5D67AF 2BEE5374E246 000000000000 @ 2026-11-19T00:02:40.148096175Z}" prevotes="VoteSet{H:3 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE:1:31075168D99F(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:40.160] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:40.160] entering precommit step                      wal_generator=wal_generator height=3 round=0 current=3/0/RoundStepPrevote
+D[2026-11-18|18:02:40.160] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=3 round=0 hash=FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE
+D[2026-11-18|18:02:40.172] signed and pushed vote                       wal_generator=wal_generator height=3 round=0 vote="Vote{0:A3258DCBF45D 3/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) FE2A6A5D67AF C4B9D8538AD6 000000000000 @ 2026-11-19T00:02:40.16039038Z}"
+D[2026-11-18|18:02:40.172] WAL Write Message                            wal_generator=wal_generator msg="{Height:3 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:40.172] WAL Write Message                            wal_generator=wal_generator msg="{Duration:40ms Height:2 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.172] received tock                                wal_generator=wal_generator timeout=40ms height=2 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.172] ignoring tock because we are ahead           wal_generator=wal_generator height=3 round=0 step=RoundStepPrecommit
+D[2026-11-18|18:02:40.172] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 3/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) FE2A6A5D67AF C4B9D8538AD6 000000000000 @ 2026-11-19T00:02:40.16039038Z}] PeerID:}"
+D[2026-11-18|18:02:40.172] adding vote                                  wal_generator=wal_generator vote_height=3 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=3 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.172] added vote to precommit                      wal_generator=wal_generator height=3 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:40.16039038 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:40.172] entering new round with invalid args         wal_generator=wal_generator height=3 round=0 current=3/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.172] entering precommit step with invalid args    wal_generator=wal_generator height=3 round=0 current=3/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.172] entering commit step                         wal_generator=wal_generator height=3 commit_round=0 current=3/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.172] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=3 commit_round=0 block_hash=FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE
+D[2026-11-18|18:02:40.172] WAL Write Message                            wal_generator=wal_generator msg="{Height:3 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:40.172] finalizing commit of block                   wal_generator=wal_generator height=3 hash=FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE root=0000000000000000 num_txs=0
+D[2026-11-18|18:02:40.173] committed block                              wal_generator=wal_generator height=3 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         3\n    Time:           2026-11-19 00:02:40.038295022 +0000 UTC\n    LastBlockID:    E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C:1:B51B3E757286\n    LastCommit:     F6BCCD2165B533A0B44EE60D02D2E262A89DCE8952B2923388BC0782C90B508D\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            0000000000000000\n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     2\n    Round:      0\n    BlockID:    E26B30197DEF19128BF354DAC1058CCD780FC24A856E2ED94EDD8E811564F33C:1:B51B3E757286\n    Signatures:\n      CommitSig{0F2B31A16FBC by A3258DCBF45D on 2 @ 2026-11-19T00:02:40.038295022Z}\n  }#F6BCCD2165B533A0B44EE60D02D2E262A89DCE8952B2923388BC0782C90B508D\n}#FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE"
+D[2026-11-18|18:02:40.173] WAL write end height message                 wal_generator=wal_generator height=3 stopHeight=6
+D[2026-11-18|18:02:40.173] WAL Write Message                            wal_generator=wal_generator msg={Height:3}
+I[2026-11-18|18:02:40.175] Timed out                                    wal_generator=wal_generator dur=40ms height=3 round=0 step=RoundStepPropose
+I[2026-11-18|18:02:40.208] finalized block                              height=3 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.208] executed block                               height=3 app_hash=0000000000000000
+I[2026-11-18|18:02:40.232] committed state                              height=3 block_app_hash=0000000000000000
+D[2026-11-18|18:02:40.257] WAL Write Message                            wal_generator=wal_generator msg="{Height:4 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.257] entering new round                           wal_generator=wal_generator height=4 round=0 previous=4/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.257] Received tick                                wal_generator=wal_generator old_ti="{Duration:40ms Height:3 Round:0 Step:RoundStepPropose}" new_ti="{Duration:-74.527044ms Height:4 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.257] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.257] entering propose step                        wal_generator=wal_generator height=4 round=0 current=4/0/RoundStepNewRound
+D[2026-11-18|18:02:40.257] node is a validator                          wal_generator=wal_generator height=4 round=0
+D[2026-11-18|18:02:40.257] propose step; our turn to propose            wal_generator=wal_generator height=4 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.257] Scheduled timeout                            wal_generator=wal_generator dur=-74.527044ms height=4 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.257] Received tick                                wal_generator=wal_generator old_ti="{Duration:-74.527044ms Height:4 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:40ms Height:4 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.257] Scheduled timeout                            wal_generator=wal_generator dur=40ms height=4 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.269] signed proposal                              wal_generator=wal_generator height=4 round=0 proposal="Proposal{4/0 (B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4:1:1696A63B7FFB, -1) E9860D2F2C29 @ 2026-11-19T00:02:40.257428579Z}"
+D[2026-11-18|18:02:40.269] WAL Write Message                            wal_generator=wal_generator msg="{Height:4 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.269] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Proposal Proposal{4/0 (B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4:1:1696A63B7FFB, -1) E9860D2F2C29 @ 2026-11-19T00:02:40.257428579Z}] PeerID:}"
+I[2026-11-18|18:02:40.269] received proposal                            wal_generator=wal_generator proposal="Proposal{4/0 (B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4:1:1696A63B7FFB, -1) E9860D2F2C29 @ 2026-11-19T00:02:40.257428579Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.269] WAL Write Message                            wal_generator=wal_generator msg="{Duration:40ms Height:3 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.269] received tock                                wal_generator=wal_generator timeout=40ms height=3 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.269] ignoring tock because we are ahead           wal_generator=wal_generator height=4 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.269] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[BlockPart H:4 R:0 P:Part{#0\n  Bytes: 0AF9020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:40.269] received complete proposal block             wal_generator=wal_generator height=4 hash=B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4
+D[2026-11-18|18:02:40.269] entering prevote step                        wal_generator=wal_generator height=4 round=0 current=4/0/RoundStepPropose
+D[2026-11-18|18:02:40.270] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=4 round=0
+D[2026-11-18|18:02:40.281] signed and pushed vote                       wal_generator=wal_generator height=4 round=0 vote="Vote{0:A3258DCBF45D 4/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) B4E594F54F1D 612B50BCC2D9 000000000000 @ 2026-11-19T00:02:40.270229808Z}"
+D[2026-11-18|18:02:40.281] WAL Write Message                            wal_generator=wal_generator msg="{Height:4 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:40.281] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 4/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) B4E594F54F1D 612B50BCC2D9 000000000000 @ 2026-11-19T00:02:40.270229808Z}] PeerID:}"
+D[2026-11-18|18:02:40.281] adding vote                                  wal_generator=wal_generator vote_height=4 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=4 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.282] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 4/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) B4E594F54F1D 612B50BCC2D9 000000000000 @ 2026-11-19T00:02:40.270229808Z}" prevotes="VoteSet{H:4 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4:1:1696A63B7FFB(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:40.282] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:40.282] entering precommit step                      wal_generator=wal_generator height=4 round=0 current=4/0/RoundStepPrevote
+D[2026-11-18|18:02:40.282] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=4 round=0 hash=B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4
+D[2026-11-18|18:02:40.294] signed and pushed vote                       wal_generator=wal_generator height=4 round=0 vote="Vote{0:A3258DCBF45D 4/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) B4E594F54F1D 985E0A5EFA9E 000000000000 @ 2026-11-19T00:02:40.282498497Z}"
+D[2026-11-18|18:02:40.294] WAL Write Message                            wal_generator=wal_generator msg="{Height:4 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:40.294] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 4/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) B4E594F54F1D 985E0A5EFA9E 000000000000 @ 2026-11-19T00:02:40.282498497Z}] PeerID:}"
+D[2026-11-18|18:02:40.294] adding vote                                  wal_generator=wal_generator vote_height=4 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=4 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.294] added vote to precommit                      wal_generator=wal_generator height=4 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:40.282498497 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:40.294] entering new round with invalid args         wal_generator=wal_generator height=4 round=0 current=4/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.294] entering precommit step with invalid args    wal_generator=wal_generator height=4 round=0 current=4/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.294] entering commit step                         wal_generator=wal_generator height=4 commit_round=0 current=4/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.294] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=4 commit_round=0 block_hash=B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4
+D[2026-11-18|18:02:40.294] WAL Write Message                            wal_generator=wal_generator msg="{Height:4 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:40.294] finalizing commit of block                   wal_generator=wal_generator height=4 hash=B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4 root=0000000000000000 num_txs=0
+D[2026-11-18|18:02:40.295] committed block                              wal_generator=wal_generator height=4 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         4\n    Time:           2026-11-19 00:02:40.16039038 +0000 UTC\n    LastBlockID:    FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE:1:31075168D99F\n    LastCommit:     478E5760DE74C3117C4F0480842F2AF93D09631F6A6F8ABD8F96FD3D528CDC20\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            0000000000000000\n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     3\n    Round:      0\n    BlockID:    FE2A6A5D67AFB35CB85E48CD14BA46358B065EC7977F43DD371EFA7A75D13DDE:1:31075168D99F\n    Signatures:\n      CommitSig{C4B9D8538AD6 by A3258DCBF45D on 2 @ 2026-11-19T00:02:40.16039038Z}\n  }#478E5760DE74C3117C4F0480842F2AF93D09631F6A6F8ABD8F96FD3D528CDC20\n}#B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4"
+D[2026-11-18|18:02:40.295] WAL write end height message                 wal_generator=wal_generator height=4 stopHeight=6
+D[2026-11-18|18:02:40.295] WAL Write Message                            wal_generator=wal_generator msg={Height:4}
+I[2026-11-18|18:02:40.297] Timed out                                    wal_generator=wal_generator dur=40ms height=4 round=0 step=RoundStepPropose
+I[2026-11-18|18:02:40.330] finalized block                              height=4 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.330] executed block                               height=4 app_hash=0000000000000000
+I[2026-11-18|18:02:40.361] committed state                              height=4 block_app_hash=0000000000000000
+D[2026-11-18|18:02:40.385] WAL Write Message                            wal_generator=wal_generator msg="{Height:5 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.385] entering new round                           wal_generator=wal_generator height=5 round=0 previous=5/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.385] entering propose step                        wal_generator=wal_generator height=5 round=0 current=5/0/RoundStepNewRound
+D[2026-11-18|18:02:40.385] node is a validator                          wal_generator=wal_generator height=5 round=0
+D[2026-11-18|18:02:40.385] propose step; our turn to propose            wal_generator=wal_generator height=5 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.385] Received tick                                wal_generator=wal_generator old_ti="{Duration:40ms Height:4 Round:0 Step:RoundStepPropose}" new_ti="{Duration:-80.879891ms Height:5 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.385] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.385] Scheduled timeout                            wal_generator=wal_generator dur=-80.879891ms height=5 round=0 step=RoundStepNewHeight
+I[2026-11-18|18:02:40.385] Timed out                                    wal_generator=wal_generator dur=-80.879891ms height=5 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.385] Received tick                                wal_generator=wal_generator old_ti="{Duration:-80.879891ms Height:5 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:40ms Height:5 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.385] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.385] Scheduled timeout                            wal_generator=wal_generator dur=40ms height=5 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.397] signed proposal                              wal_generator=wal_generator height=5 round=0 proposal="Proposal{5/0 (9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F:1:62CA2F212FE1, -1) 754F28CAD616 @ 2026-11-19T00:02:40.385744133Z}"
+D[2026-11-18|18:02:40.397] WAL Write Message                            wal_generator=wal_generator msg="{Height:5 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.397] WAL Write Message                            wal_generator=wal_generator msg="{Duration:40ms Height:4 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.397] received tock                                wal_generator=wal_generator timeout=40ms height=4 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.397] ignoring tock because we are ahead           wal_generator=wal_generator height=5 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.397] WAL Write Message                            wal_generator=wal_generator msg="{Duration:-80.879891ms Height:5 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.397] received tock                                wal_generator=wal_generator timeout=-80.879891ms height=5 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.397] ignoring tock because we are ahead           wal_generator=wal_generator height=5 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.397] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Proposal Proposal{5/0 (9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F:1:62CA2F212FE1, -1) 754F28CAD616 @ 2026-11-19T00:02:40.385744133Z}] PeerID:}"
+I[2026-11-18|18:02:40.398] received proposal                            wal_generator=wal_generator proposal="Proposal{5/0 (9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F:1:62CA2F212FE1, -1) 754F28CAD616 @ 2026-11-19T00:02:40.385744133Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.398] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[BlockPart H:5 R:0 P:Part{#0\n  Bytes: 0AFA020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:40.398] received complete proposal block             wal_generator=wal_generator height=5 hash=9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F
+D[2026-11-18|18:02:40.398] entering prevote step                        wal_generator=wal_generator height=5 round=0 current=5/0/RoundStepPropose
+D[2026-11-18|18:02:40.398] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=5 round=0
+D[2026-11-18|18:02:40.410] signed and pushed vote                       wal_generator=wal_generator height=5 round=0 vote="Vote{0:A3258DCBF45D 5/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) 9DA733DDC169 86A810CCAAC8 000000000000 @ 2026-11-19T00:02:40.398709385Z}"
+D[2026-11-18|18:02:40.410] WAL Write Message                            wal_generator=wal_generator msg="{Height:5 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:40.410] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 5/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) 9DA733DDC169 86A810CCAAC8 000000000000 @ 2026-11-19T00:02:40.398709385Z}] PeerID:}"
+D[2026-11-18|18:02:40.410] adding vote                                  wal_generator=wal_generator vote_height=5 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=5 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.410] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 5/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) 9DA733DDC169 86A810CCAAC8 000000000000 @ 2026-11-19T00:02:40.398709385Z}" prevotes="VoteSet{H:5 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F:1:62CA2F212FE1(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:40.410] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:40.410] entering precommit step                      wal_generator=wal_generator height=5 round=0 current=5/0/RoundStepPrevote
+D[2026-11-18|18:02:40.410] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=5 round=0 hash=9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F
+D[2026-11-18|18:02:40.422] signed and pushed vote                       wal_generator=wal_generator height=5 round=0 vote="Vote{0:A3258DCBF45D 5/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) 9DA733DDC169 AF84E6E411DF 000000000000 @ 2026-11-19T00:02:40.410820379Z}"
+D[2026-11-18|18:02:40.422] WAL Write Message                            wal_generator=wal_generator msg="{Height:5 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:40.422] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 5/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) 9DA733DDC169 AF84E6E411DF 000000000000 @ 2026-11-19T00:02:40.410820379Z}] PeerID:}"
+D[2026-11-18|18:02:40.422] adding vote                                  wal_generator=wal_generator vote_height=5 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=5 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.422] added vote to precommit                      wal_generator=wal_generator height=5 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:40.410820379 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:40.422] entering new round with invalid args         wal_generator=wal_generator height=5 round=0 current=5/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.422] entering precommit step with invalid args    wal_generator=wal_generator height=5 round=0 current=5/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.422] entering commit step                         wal_generator=wal_generator height=5 commit_round=0 current=5/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.422] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=5 commit_round=0 block_hash=9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F
+D[2026-11-18|18:02:40.422] WAL Write Message                            wal_generator=wal_generator msg="{Height:5 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:40.423] finalizing commit of block                   wal_generator=wal_generator height=5 hash=9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F root=0000000000000000 num_txs=0
+D[2026-11-18|18:02:40.423] committed block                              wal_generator=wal_generator height=5 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         5\n    Time:           2026-11-19 00:02:40.282498497 +0000 UTC\n    LastBlockID:    B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4:1:1696A63B7FFB\n    LastCommit:     5BC3D026138A210E768C29F09A252C212D3C14B3E5BF4745594CAAE1CAD13156\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            0000000000000000\n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     4\n    Round:      0\n    BlockID:    B4E594F54F1DC5E4E8CA87114B13C621C00BB6E30F69FF558D495F60F16799C4:1:1696A63B7FFB\n    Signatures:\n      CommitSig{985E0A5EFA9E by A3258DCBF45D on 2 @ 2026-11-19T00:02:40.282498497Z}\n  }#5BC3D026138A210E768C29F09A252C212D3C14B3E5BF4745594CAAE1CAD13156\n}#9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F"
+D[2026-11-18|18:02:40.423] WAL write end height message                 wal_generator=wal_generator height=5 stopHeight=6
+D[2026-11-18|18:02:40.423] WAL Write Message                            wal_generator=wal_generator msg={Height:5}
+I[2026-11-18|18:02:40.426] Timed out                                    wal_generator=wal_generator dur=40ms height=5 round=0 step=RoundStepPropose
+I[2026-11-18|18:02:40.458] finalized block                              height=5 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.458] executed block                               height=5 app_hash=0000000000000000
+I[2026-11-18|18:02:40.489] committed state                              height=5 block_app_hash=0000000000000000
+D[2026-11-18|18:02:40.513] WAL Write Message                            wal_generator=wal_generator msg="{Height:6 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.513] entering new round                           wal_generator=wal_generator height=6 round=0 previous=6/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.513] entering propose step                        wal_generator=wal_generator height=6 round=0 current=6/0/RoundStepNewRound
+D[2026-11-18|18:02:40.513] node is a validator                          wal_generator=wal_generator height=6 round=0
+D[2026-11-18|18:02:40.513] propose step; our turn to propose            wal_generator=wal_generator height=6 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.513] Received tick                                wal_generator=wal_generator old_ti="{Duration:40ms Height:5 Round:0 Step:RoundStepPropose}" new_ti="{Duration:-80.627054ms Height:6 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.513] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.513] Scheduled timeout                            wal_generator=wal_generator dur=-80.627054ms height=6 round=0 step=RoundStepNewHeight
+I[2026-11-18|18:02:40.513] Timed out                                    wal_generator=wal_generator dur=-80.627054ms height=6 round=0 step=RoundStepNewHeight
+D[2026-11-18|18:02:40.513] Received tick                                wal_generator=wal_generator old_ti="{Duration:-80.627054ms Height:6 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:40ms Height:6 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.513] Timer already stopped                        wal_generator=wal_generator
+D[2026-11-18|18:02:40.513] Scheduled timeout                            wal_generator=wal_generator dur=40ms height=6 round=0 step=RoundStepPropose
+D[2026-11-18|18:02:40.525] signed proposal                              wal_generator=wal_generator height=6 round=0 proposal="Proposal{6/0 (E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75:1:C5AF71CD1C87, -1) D674C7B5C3F0 @ 2026-11-19T00:02:40.513819728Z}"
+D[2026-11-18|18:02:40.525] WAL Write Message                            wal_generator=wal_generator msg="{Height:6 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.526] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Proposal Proposal{6/0 (E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75:1:C5AF71CD1C87, -1) D674C7B5C3F0 @ 2026-11-19T00:02:40.513819728Z}] PeerID:}"
+I[2026-11-18|18:02:40.526] received proposal                            wal_generator=wal_generator proposal="Proposal{6/0 (E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75:1:C5AF71CD1C87, -1) D674C7B5C3F0 @ 2026-11-19T00:02:40.513819728Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.526] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[BlockPart H:6 R:0 P:Part{#0\n  Bytes: 0AFA020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:40.526] received complete proposal block             wal_generator=wal_generator height=6 hash=E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75
+D[2026-11-18|18:02:40.526] entering prevote step                        wal_generator=wal_generator height=6 round=0 current=6/0/RoundStepPropose
+D[2026-11-18|18:02:40.526] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=6 round=0
+D[2026-11-18|18:02:40.538] signed and pushed vote                       wal_generator=wal_generator height=6 round=0 vote="Vote{0:A3258DCBF45D 6/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) E16DBBB65F96 0B712E40F35D 000000000000 @ 2026-11-19T00:02:40.526812651Z}"
+D[2026-11-18|18:02:40.538] WAL Write Message                            wal_generator=wal_generator msg="{Height:6 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:40.538] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 6/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) E16DBBB65F96 0B712E40F35D 000000000000 @ 2026-11-19T00:02:40.526812651Z}] PeerID:}"
+D[2026-11-18|18:02:40.538] adding vote                                  wal_generator=wal_generator vote_height=6 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=6 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.538] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 6/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) E16DBBB65F96 0B712E40F35D 000000000000 @ 2026-11-19T00:02:40.526812651Z}" prevotes="VoteSet{H:6 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75:1:C5AF71CD1C87(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:40.538] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:40.538] entering precommit step                      wal_generator=wal_generator height=6 round=0 current=6/0/RoundStepPrevote
+D[2026-11-18|18:02:40.538] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=6 round=0 hash=E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75
+D[2026-11-18|18:02:40.550] signed and pushed vote                       wal_generator=wal_generator height=6 round=0 vote="Vote{0:A3258DCBF45D 6/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) E16DBBB65F96 751E56C3832E 000000000000 @ 2026-11-19T00:02:40.539031319Z}"
+D[2026-11-18|18:02:40.550] WAL Write Message                            wal_generator=wal_generator msg="{Height:6 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:40.550] WAL Write Message                            wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 6/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) E16DBBB65F96 751E56C3832E 000000000000 @ 2026-11-19T00:02:40.539031319Z}] PeerID:}"
+D[2026-11-18|18:02:40.550] adding vote                                  wal_generator=wal_generator vote_height=6 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=6 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.551] added vote to precommit                      wal_generator=wal_generator height=6 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:40.539031319 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:40.551] entering new round with invalid args         wal_generator=wal_generator height=6 round=0 current=6/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.551] entering precommit step with invalid args    wal_generator=wal_generator height=6 round=0 current=6/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.551] entering commit step                         wal_generator=wal_generator height=6 commit_round=0 current=6/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.551] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=6 commit_round=0 block_hash=E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75
+D[2026-11-18|18:02:40.551] WAL Write Message                            wal_generator=wal_generator msg="{Height:6 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:40.551] finalizing commit of block                   wal_generator=wal_generator height=6 hash=E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75 root=0000000000000000 num_txs=0
+D[2026-11-18|18:02:40.551] committed block                              wal_generator=wal_generator height=6 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         6\n    Time:           2026-11-19 00:02:40.410820379 +0000 UTC\n    LastBlockID:    9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F:1:62CA2F212FE1\n    LastCommit:     A90CB8BC52928104A9ED5B8F9CD608A925587F391947CA5A466EA13BA30DE26A\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            0000000000000000\n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     5\n    Round:      0\n    BlockID:    9DA733DDC169DC09D063A512527D91C5CC1247EFD2EC94E3BDDBC83A74D22B0F:1:62CA2F212FE1\n    Signatures:\n      CommitSig{AF84E6E411DF by A3258DCBF45D on 2 @ 2026-11-19T00:02:40.410820379Z}\n  }#A90CB8BC52928104A9ED5B8F9CD608A925587F391947CA5A466EA13BA30DE26A\n}#E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75"
+D[2026-11-18|18:02:40.551] WAL write end height message                 wal_generator=wal_generator height=6 stopHeight=6
+D[2026-11-18|18:02:40.551] Stopping WAL at height                       wal_generator=wal_generator height=6
+I[2026-11-18|18:02:40.552] service stop                                 wal_generator=wal_generator msg="Stopping State service" impl=ConsensusState
+I[2026-11-18|18:02:40.552] service stop                                 wal_generator=wal_generator msg="Stopping TimeoutTicker service" impl=TimeoutTicker
+I[2026-11-18|18:02:40.553] service start                                msg="Starting baseWAL service" impl=baseWAL
+I[2026-11-18|18:02:40.553] service start                                msg="Starting Group service" impl=Group
+I[2026-11-18|18:02:40.553] Searching for height                         height=0 min=0 max=0
+I[2026-11-18|18:02:40.553] Found                                        height=0 index=0
+I[2026-11-18|18:02:40.599] finalized block                              height=6 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.600] executed block                               height=6 app_hash=0000000000000000
+I[2026-11-18|18:02:40.655] committed state                              height=6 block_app_hash=0000000000000000
+D[2026-11-18|18:02:40.679] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:7 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.679] entering new round                           wal_generator=wal_generator height=7 round=0 previous=7/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.679] entering propose step                        wal_generator=wal_generator height=7 round=0 current=7/0/RoundStepNewRound
+D[2026-11-18|18:02:40.679] node is a validator                          wal_generator=wal_generator height=7 round=0
+D[2026-11-18|18:02:40.679] propose step; our turn to propose            wal_generator=wal_generator height=7 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.703] signed proposal                              wal_generator=wal_generator height=7 round=0 proposal="Proposal{7/0 (D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA:1:7860EA3E5280, -1) 6A730E336A18 @ 2026-11-19T00:02:40.679678461Z}"
+D[2026-11-18|18:02:40.703] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:7 Round:0 Step:RoundStepPropose}"
+D[2026-11-18|18:02:40.703] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Msg:[Proposal Proposal{7/0 (D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA:1:7860EA3E5280, -1) 6A730E336A18 @ 2026-11-19T00:02:40.679678461Z}] PeerID:}"
+I[2026-11-18|18:02:40.704] received proposal                            wal_generator=wal_generator proposal="Proposal{7/0 (D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA:1:7860EA3E5280, -1) 6A730E336A18 @ 2026-11-19T00:02:40.679678461Z}" proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.704] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Msg:[BlockPart H:7 R:0 P:Part{#0\n  Bytes: 0AFA020A0408...\n  Proof: Proof{\n    Aunts: []\n  }\n}] PeerID:}"
+I[2026-11-18|18:02:40.704] received complete proposal block             wal_generator=wal_generator height=7 hash=D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA
+D[2026-11-18|18:02:40.704] entering prevote step                        wal_generator=wal_generator height=7 round=0 current=7/0/RoundStepPropose
+D[2026-11-18|18:02:40.704] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal wal_generator=wal_generator height=7 round=0
+D[2026-11-18|18:02:40.728] signed and pushed vote                       wal_generator=wal_generator height=7 round=0 vote="Vote{0:A3258DCBF45D 7/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) D95419B6700D 809F33FDC099 000000000000 @ 2026-11-19T00:02:40.704635074Z}"
+D[2026-11-18|18:02:40.728] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:7 Round:0 Step:RoundStepPrevote}"
+D[2026-11-18|18:02:40.728] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 7/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) D95419B6700D 809F33FDC099 000000000000 @ 2026-11-19T00:02:40.704635074Z}] PeerID:}"
+D[2026-11-18|18:02:40.728] adding vote                                  wal_generator=wal_generator vote_height=7 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=7 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.728] added vote to prevote                        wal_generator=wal_generator vote="Vote{0:A3258DCBF45D 7/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) D95419B6700D 809F33FDC099 000000000000 @ 2026-11-19T00:02:40.704635074Z}" prevotes="VoteSet{H:7 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA:1:7860EA3E5280(1) BA{1:x} map[]}"
+D[2026-11-18|18:02:40.728] updating valid block because of POL          wal_generator=wal_generator valid_round=-1 pol_round=0
+D[2026-11-18|18:02:40.728] entering precommit step                      wal_generator=wal_generator height=7 round=0 current=7/0/RoundStepPrevote
+D[2026-11-18|18:02:40.728] precommit step; +2/3 prevoted proposal block; locking wal_generator=wal_generator height=7 round=0 hash=D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA
+I[2026-11-18|18:02:40.740] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.740] executed block                               height=1 app_hash=0000000000000000
+D[2026-11-18|18:02:40.752] signed and pushed vote                       wal_generator=wal_generator height=7 round=0 vote="Vote{0:A3258DCBF45D 7/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) D95419B6700D 8218F5E2462C 000000000000 @ 2026-11-19T00:02:40.729155274Z}"
+D[2026-11-18|18:02:40.752] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:7 Round:0 Step:RoundStepPrecommit}"
+D[2026-11-18|18:02:40.752] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Msg:[Vote Vote{0:A3258DCBF45D 7/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) D95419B6700D 8218F5E2462C 000000000000 @ 2026-11-19T00:02:40.729155274Z}] PeerID:}"
+D[2026-11-18|18:02:40.752] adding vote                                  wal_generator=wal_generator vote_height=7 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=7 extLen=0 extSigLen=0
+D[2026-11-18|18:02:40.753] added vote to precommit                      wal_generator=wal_generator height=7 round=0 validator=A3258DCBF45DCA0DF052981870F2D1441A36D145 vote_timestamp="2026-11-19 00:02:40.729155274 +0000 UTC" data=Votes:10/10(1.000)
+D[2026-11-18|18:02:40.753] entering new round with invalid args         wal_generator=wal_generator height=7 round=0 current=7/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.753] entering precommit step with invalid args    wal_generator=wal_generator height=7 round=0 current=7/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.753] entering commit step                         wal_generator=wal_generator height=7 commit_round=0 current=7/0/RoundStepPrecommit
+D[2026-11-18|18:02:40.753] commit is for a locked block; set ProposalBlock=LockedBlock wal_generator=wal_generator height=7 commit_round=0 block_hash=D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA
+D[2026-11-18|18:02:40.753] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:7 Round:0 Step:RoundStepCommit}"
+I[2026-11-18|18:02:40.753] finalizing commit of block                   wal_generator=wal_generator height=7 hash=D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA root=0000000000000000 num_txs=0
+D[2026-11-18|18:02:40.753] committed block                              wal_generator=wal_generator height=7 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain\n    Height:         7\n    Time:           2026-11-19 00:02:40.539031319 +0000 UTC\n    LastBlockID:    E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75:1:C5AF71CD1C87\n    LastCommit:     5B7E8CBFF2974B68E06812FF8F1E8B7E1E2251D61D6F4F28ACB3A85041A3C8B7\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    NextValidators: 8C591E1C1B36B19BD29F16971023819E0C2CCAF634CDAA81ECDD30337DCC078D\n    App:            0000000000000000\n    Consensus:      048091BC7DDC283F77BFBF91D73C44DA58C3DF8A9CBC867405D8B7F3DAADA22F\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       A3258DCBF45DCA0DF052981870F2D1441A36D145\n  }#D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     6\n    Round:      0\n    BlockID:    E16DBBB65F968BB415F7371E899BCF1EF9A8F25F571932879111944915A87F75:1:C5AF71CD1C87\n    Signatures:\n      CommitSig{751E56C3832E by A3258DCBF45D on 2 @ 2026-11-19T00:02:40.539031319Z}\n  }#5B7E8CBFF2974B68E06812FF8F1E8B7E1E2251D61D6F4F28ACB3A85041A3C8B7\n}#D95419B6700D756AADAA5AD6E0D4A8C0465E3002CDBD2778C1D8C041308AE8FA"
+D[2026-11-18|18:02:40.753] WAL already stopped. Not writing message     wal_generator=wal_generator msg={Height:7}
+I[2026-11-18|18:02:40.801] committed state                              height=1 block_app_hash=
+I[2026-11-18|18:02:40.825] finalized block                              height=7 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.825] executed block                               height=7 app_hash=0000000000000000
+I[2026-11-18|18:02:40.874] committed state                              height=7 block_app_hash=0000000000000000
+D[2026-11-18|18:02:40.910] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:8 Round:0 Step:RoundStepNewHeight}"
+D[2026-11-18|18:02:40.910] entering new round                           wal_generator=wal_generator height=8 round=0 previous=8/0/RoundStepNewHeight proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+D[2026-11-18|18:02:40.910] entering propose step                        wal_generator=wal_generator height=8 round=0 current=8/0/RoundStepNewRound
+D[2026-11-18|18:02:40.910] node is a validator                          wal_generator=wal_generator height=8 round=0
+D[2026-11-18|18:02:40.910] propose step; our turn to propose            wal_generator=wal_generator height=8 round=0 proposer=A3258DCBF45DCA0DF052981870F2D1441A36D145
+I[2026-11-18|18:02:40.922] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:40.922] executed block                               height=2 app_hash=0000000000000000
+D[2026-11-18|18:02:40.934] signed proposal                              wal_generator=wal_generator height=8 round=0 proposal="Proposal{8/0 (3BA277A07AB39D4F2EF85FF45BB5AF02CAA34C82204B59BD452005610CBC296D:1:BE2E78E1DC90, -1) 4996D92C70A7 @ 2026-11-19T00:02:40.910722557Z}"
+D[2026-11-18|18:02:40.934] WAL already stopped. Not writing message     wal_generator=wal_generator msg="{Height:8 Round:0 Step:RoundStepPropose}"
+I[2026-11-18|18:02:40.959] committed state                              height=2 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.026] finalized block                              height=3 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.026] executed block                               height=3 app_hash=0000000000000000
+I[2026-11-18|18:02:41.050] committed state                              height=3 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.110] finalized block                              height=4 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.110] executed block                               height=4 app_hash=0000000000000000
+I[2026-11-18|18:02:41.134] committed state                              height=4 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.195] finalized block                              height=5 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.195] executed block                               height=5 app_hash=0000000000000000
+I[2026-11-18|18:02:41.219] committed state                              height=5 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.280] finalized block                              height=6 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.280] executed block                               height=6 app_hash=0000000000000000
+I[2026-11-18|18:02:41.304] committed state                              height=6 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.497] finalized block                              height=1 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.497] executed block                               height=1 app_hash=0000000000000000
+I[2026-11-18|18:02:41.522] committed state                              height=1 block_app_hash=
+I[2026-11-18|18:02:41.582] finalized block                              height=2 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.582] executed block                               height=2 app_hash=0000000000000000
+I[2026-11-18|18:02:41.607] committed state                              height=2 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.667] finalized block                              height=3 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.667] executed block                               height=3 app_hash=0000000000000000
+I[2026-11-18|18:02:41.691] committed state                              height=3 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.752] finalized block                              height=4 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.752] executed block                               height=4 app_hash=0000000000000000
+I[2026-11-18|18:02:41.776] committed state                              height=4 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.837] finalized block                              height=5 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.837] executed block                               height=5 app_hash=0000000000000000
+I[2026-11-18|18:02:41.861] committed state                              height=5 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.933] finalized block                              height=6 num_txs_res=0 num_val_updates=0 block_app_hash=0000000000000000
+I[2026-11-18|18:02:41.933] executed block                               height=6 app_hash=0000000000000000
+I[2026-11-18|18:02:41.958] committed state                              height=6 block_app_hash=0000000000000000
+I[2026-11-18|18:02:42.006] service stop                                 msg="Stopping baseWAL service" impl=baseWAL
+I[2026-11-18|18:02:42.018] service stop                                 msg="Stopping Group service" impl=Group
+I[2026-11-18|18:02:42.019] service stop                                 module=events wal_generator=wal_generator msg="Stopping EventBus service" impl=EventBus
+I[2026-11-18|18:02:42.019] service stop                                 module=pubsub wal_generator=wal_generator msg="Stopping PubSub service" impl=PubSub
+I[2026-11-18|18:02:42.019] service stop                                 module=proxy wal_generator=wal_generator msg="Stopping multiAppConn service" impl=multiAppConn
+I[2026-11-18|18:02:42.019] service stop                                 module=abci-client wal_generator=wal_generator connection=consensus msg="Stopping localClient service" impl=localClient
+I[2026-11-18|18:02:42.019] service stop                                 module=abci-client wal_generator=wal_generator connection=mempool msg="Stopping localClient service" impl=localClient
+I[2026-11-18|18:02:42.019] service stop                                 module=abci-client wal_generator=wal_generator connection=query msg="Stopping localClient service" impl=localClient
+I[2026-11-18|18:02:42.019] service stop                                 module=abci-client wal_generator=wal_generator connection=snapshot msg="Stopping localClient service" impl=localClient
+--- PASS: TestHandshakeReplayNone (2.22s)
+    --- PASS: TestHandshakeReplayNone/mode_0_single (2.22s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/consensus	2.250s

@@ -1,0 +1,342 @@
+{
+ "entries": [
+  {
+   "property": "UpdIdleDbBackedByDisk",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening",
+   "affected_because": "Learner.shutdown now clears the in-memory DB only for an unfinished SNAP sync (Learner.java:862-864; ZooKeeperServer.java:803-810); the reused DB is what getLastLoggedZxid reports (QuorumPeer.java:1257-1262).",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "mixed (no-unpersisted-reuse: requirement; queued-or-leaked-allowed: impl-abstraction)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E1",
+    "E1k",
+    "E1c"
+   ]
+  },
+  {
+   "property": "UpdDurableCoversCommitted",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening",
+   "affected_because": "the update's test asserts that after reload from disk every committed node exists (QuorumPeerMainTest.java:1733); the reference now lets FlushTxnLog/LeakedFlush append non-contiguous records as FileTxnLog.append does (FileTxnLog.java:274-282).",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E2",
+    "E2k"
+   ]
+  },
+  {
+   "property": "MonotoneUnlessRecovery",
+   "replaces": "MonotoneUnlessRecovery (prior: exemption only when syncComplete flips)",
+   "decision": "modify",
+   "kind": "weakening",
+   "affected_because": "the previously atomic CompleteLearnerSync is split at real source boundaries; TRUNC truncation now happens at the mode packet (Learner.java:587-599) and the follower pipeline is rebased at NEWLEADER ACK (Learner.java:744-759).",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "ledger_status": "mixed (durable-shrinks-only-in-sync: requirement; committed-and-applied-shrink-only-in-sync: requirement; sync-step-exemption: impl-abstraction)",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E3",
+    "E3c"
+   ]
+  },
+  {
+   "property": "OrderedHistories",
+   "replaces": null,
+   "decision": "keep",
+   "kind": null,
+   "affected_because": "watch Learner.java:syncWithLeader/shutdown; durable can now become non-contiguous through the update-visible reuse/leak paths.",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E4",
+    "E4k",
+    "E4r"
+   ]
+  },
+  {
+   "property": "CommittedPrefixAgreement",
+   "replaces": null,
+   "decision": "keep",
+   "kind": null,
+   "affected_because": "representation: follower committed/applied are rebased on the synchronized tree at NEWLEADER ACK (LearnerAckNewLeader).",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E5k"
+   ]
+  },
+  {
+   "property": "ApplyHasCommitCertificate",
+   "replaces": null,
+   "decision": "keep",
+   "kind": null,
+   "affected_because": "representation: SNAP image and direct in-memory COMMIT application now feed the follower applied history.",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E5k"
+   ]
+  },
+  {
+   "property": "TypeOK",
+   "replaces": "TypeOK",
+   "decision": "modify",
+   "kind": "representation-only",
+   "affected_because": "six incremental variables added.",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E5k"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E1",
+   "property": "UpdIdleDbBackedByDisk",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "traces/diff-sync-after-snap-oldcontrol.ndjson (replay state 172; TraceUpdate, CodeVersion=old)",
+   "how_populated": "real exact-old implementation (commit baseline) running the update's testDiffSyncAfterSnap; follower s1 left a SNAP session before NEWLEADER and kept the received image in memory (dbInitialized=true, recoveryVisible=<<1..10>>, durable=<<>>)",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/trace-upd-diff-sync-after-snap-oldcontrol.log (Invariant UpdIdleDbBackedByDisk is violated, cursor = 172)",
+   "impl_produces": {
+    "value": "yes (old revision); no for the SNAP path in the new revision",
+    "basis": "spec/output/harness/diff-sync-after-snap-oldcontrol.log (AssertionFailedError node 0 should exist) vs traces/diff-sync-after-snap-new.ndjson (LearnerShutdown fully=true, dbInitialized=false, ReloadDatabase)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1619",
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1623",
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1733",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:862"
+    ]
+   },
+   "cell": "strengthening justified (old implementation produces a forbidden state; the update removes it for SNAP)"
+  },
+  {
+   "id": "E1k",
+   "property": "UpdIdleDbBackedByDisk",
+   "role": "keep/accept",
+   "state_source": "trace",
+   "state": "every replayed state of traces/{election-ordered,restart-catchup,diff-sync-after-snap,snap-complete}-new.ndjson",
+   "how_populated": "fresh new-revision traces incl. the SNAP abort with zkDb.clear and reload",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-{election-ordered,restart-catchup,diff-sync-after-snap,snap-complete}-new.log"
+  },
+  {
+   "id": "E1c",
+   "property": "UpdIdleDbBackedByDisk",
+   "role": "control",
+   "state_source": "trace",
+   "state": "traces/repro-trunc-abort-new.ndjson (replay state 65, after LearnerShutdown of s0 with syncMode=TRUNC, fully=false)",
+   "how_populated": "real updated implementation running harness/repro/SpeculaTruncAbortReproTest (TRUNC session, toBeApplied COMMIT applied in memory, failure at NEWLEADER)",
+   "expected": false,
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/trace-upd-repro-trunc-abort-new.log (Invariant UpdIdleDbBackedByDisk is violated, cursor = 65)",
+   "impl_produces": {
+    "value": "yes (new and old revisions)",
+    "basis": "spec/output/repro/trunc-abort-new.out and trunc-abort-old.out: node1AfterRestart=false while node1OnLeader=true"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1619"
+    ]
+   },
+   "cell": "bug candidate (MC-1): implementation produces a forbidden state; property kept"
+  },
+  {
+   "id": "E2",
+   "property": "UpdDurableCoversCommitted",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "traces/diff-sync-after-snap-oldcontrol.ndjson (replay state 202: follower durable lacks committed 1..10 when tx 11 is flushed)",
+   "how_populated": "real exact-old run; FlushTxnLog of tx 11 on top of a log that lacks committed 1..10",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/trace-e2e-diff-sync-after-snap-oldcontrol.log (Invariant UpdDurableCoversCommitted is violated, cursor = 202)",
+   "impl_produces": {
+    "value": "yes (old)",
+    "basis": "spec/output/harness/diff-sync-after-snap-oldcontrol.log: AssertionFailedError node 0 should exist"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:229",
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/QuorumPeerMainTest.java:1733"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E2k",
+   "property": "UpdDurableCoversCommitted",
+   "role": "keep/accept",
+   "state_source": "trace",
+   "state": "every replayed state of the four fresh new-revision traces",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-*-new.log"
+  },
+  {
+   "id": "E3",
+   "property": "MonotoneUnlessRecovery",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/E3/E3t.tla (pre-state = replay state before line 62 of traces/repro-trunc-abort-new.ndjson, spec/evidence/E3/S0-trace.txt; step = ReceiveSyncMode(s0,s2,TRUNC), durable[s0] <<1>> -> <<>>)",
+   "how_populated": "real updated implementation trace replayed to the TRUNC packet (spec/output/trace-E3-stop.log)",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E3/tlc-trace.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "Learner.java:587-599 truncateLog at the TRUNC packet"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/persistence/TxnLog.java:83",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:830"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E3c",
+   "property": "MonotoneUnlessRecovery",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E3/E3t.tla with Ctl=TRUE",
+   "expected": false,
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E3/tlc-trace.log"
+  },
+  {
+   "id": "E4",
+   "property": "OrderedHistories",
+   "role": "keep/reject",
+   "state_source": "trace",
+   "state": "traces/diff-sync-after-snap-oldcontrol.ndjson replay state 202",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/trace-base-diff-sync-after-snap-oldcontrol.log (Invariant OrderedHistories is violated, cursor = 202)",
+   "impl_produces": {
+    "value": "yes (old)",
+    "basis": "old-control harness run"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:229"
+    ]
+   },
+   "cell": "keep: property rejects the forbidden state"
+  },
+  {
+   "id": "E4k",
+   "property": "OrderedHistories",
+   "role": "keep/accept",
+   "state_source": "trace",
+   "state": "every replayed state of the four fresh new-revision traces",
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-*-new.log"
+  },
+  {
+   "id": "E5k",
+   "property": "CommittedPrefixAgreement, ApplyHasCommitCertificate, TypeOK",
+   "role": "keep/accept",
+   "state_source": "trace",
+   "state": "traces/snap-complete-new.ndjson (SNAP image persisted at NEWLEADER, follower pipeline rebased, later setData applied) and the other fresh traces",
+   "how_populated": "fresh new-revision trace; follower committed/applied non-empty after LearnerAckNewLeader",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/trace-upd-snap-complete-new.log"
+  },
+  {
+   "id": "E4r",
+   "property": "OrderedHistories",
+   "role": "keep/reject",
+   "state_source": "trace",
+   "state": "traces/repro-trunc-abort-new.ndjson replay state 95 (s0 flushes tx 2 on a log lacking committed tx 1)",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/trace-e2e-repro-trunc-abort-new.log (Invariant OrderedHistories is violated, cursor = 95)",
+   "impl_produces": {
+    "value": "yes (new revision)",
+    "basis": "spec/output/repro/trunc-abort-new.out"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-docs/src/main/resources/markdown/zookeeperInternals.md:229"
+    ]
+   },
+   "cell": "bug candidate (MC-1)"
+  }
+ ],
+ "bug_candidates": [
+  "E1c",
+  "E4r"
+ ],
+ "unresolved": []
+}

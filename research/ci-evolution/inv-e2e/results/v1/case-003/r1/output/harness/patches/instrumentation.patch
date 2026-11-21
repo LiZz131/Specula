@@ -1,0 +1,867 @@
+diff --git a/internal/consensus/replay.go b/internal/consensus/replay.go
+index 19c7eb5..5802b38 100644
+--- a/internal/consensus/replay.go
++++ b/internal/consensus/replay.go
+@@ -11,6 +11,7 @@ import (
+ 
+ 	abci "github.com/cometbft/cometbft/abci/types"
+ 	"github.com/cometbft/cometbft/crypto/merkle"
++	"github.com/cometbft/cometbft/internal/speculatrace"
+ 	sm "github.com/cometbft/cometbft/internal/state"
+ 	"github.com/cometbft/cometbft/libs/log"
+ 	"github.com/cometbft/cometbft/proxy"
+@@ -250,6 +251,27 @@ func (h *Handshaker) Handshake(ctx context.Context, proxyApp proxy.AppConns) err
+ 		return fmt.Errorf("got a negative last block height (%d) from the app", blockHeight)
+ 	}
+ 	appHash := res.LastBlockAppHash
++	if speculatrace.Enabled() {
++		_ = speculatrace.Reset()
++		speculatrace.SetAppHeight(blockHeight)
++		storeHeight := h.store.Height()
++		stateHeight := h.initialState.LastBlockHeight
++		if storeHeight == stateHeight+1 {
++			if saved, loadErr := h.stateStore.LoadLastFinalizeBlockResponse(storeHeight); loadErr == nil {
++				param, abciPresent, _ := speculatrace.Proposal(
++					h.initialState.ConsensusParams, saved.ConsensusParamUpdates)
++				speculatrace.SetResponse(storeHeight, param, abciPresent)
++			}
++		}
++		_ = speculatrace.Emit("HandshakeStart", h.speculaLifecycleState(
++			h.initialState, "handshake", 0, speculatrace.NoParam, false, "none",
++		), map[string]any{
++			"appHeight":        blockHeight,
++			"blockStoreBase":   h.store.Base(),
++			"blockStoreHeight": storeHeight,
++			"stateStoreHeight": stateHeight,
++		})
++	}
+ 
+ 	h.logger.Info("ABCI Handshake App Info",
+ 		"height", blockHeight,
+@@ -268,6 +290,15 @@ func (h *Handshaker) Handshake(ctx context.Context, proxyApp proxy.AppConns) err
+ 	if err != nil {
+ 		return fmt.Errorf("error on replay: %v", err)
+ 	}
++	if speculatrace.Enabled() {
++		if syncedState, loadErr := h.stateStore.Load(); loadErr == nil {
++			speculatrace.SetReplay(false)
++			speculatrace.SetAppHeight(h.store.Height())
++			_ = speculatrace.Emit("HandshakeComplete", h.speculaLifecycleState(
++				syncedState, "normal", 0, speculatrace.NoParam, false, "none",
++			), map[string]any{"height": syncedState.LastBlockHeight})
++		}
++	}
+ 
+ 	h.logger.Info("Completed ABCI Handshake - CometBFT and App are synced",
+ 		"appHeight", blockHeight, "appHash", log.NewLazySprintf("%X", appHash))
+@@ -411,6 +442,7 @@ func (h *Handshaker) ReplayBlocks(
+ 			// NOTE: We could instead use the cs.WAL on cs.Start,
+ 			// but we'd have to allow the WAL to replay a block that wrote it's #ENDHEIGHT
+ 			h.logger.Info("Replay last block using real app")
++			h.speculaStartStateReplay(state, storeBlockHeight, "real")
+ 			state, err = h.replayBlock(state, storeBlockHeight, proxyApp.Consensus())
+ 			return state.AppHash, err
+ 
+@@ -429,6 +461,7 @@ func (h *Handshaker) ReplayBlocks(
+ 			}
+ 			mockApp := newMockProxyApp(finalizeBlockResponse)
+ 			h.logger.Info("Replay last block using mock app")
++			h.speculaStartStateReplay(state, storeBlockHeight, "mock")
+ 			state, err = h.replayBlock(state, storeBlockHeight, mockApp)
+ 			return state.AppHash, err
+ 		}
+@@ -484,12 +517,19 @@ func (h *Handshaker) replayBlocks(
+ 		if err != nil {
+ 			return nil, err
+ 		}
++		if speculatrace.Enabled() {
++			speculatrace.SetAppHeight(i)
++			_ = speculatrace.Emit("ReplayAppBlock", h.speculaLifecycleState(
++				state, "handshake", 0, speculatrace.NoParam, false, "none",
++			), map[string]any{"height": i})
++		}
+ 
+ 		h.nBlocks++
+ 	}
+ 
+ 	if mutateState {
+ 		// sync the final block
++		h.speculaStartStateReplay(state, storeBlockHeight, "real")
+ 		state, err = h.replayBlock(state, storeBlockHeight, proxyApp.Consensus())
+ 		if err != nil {
+ 			return nil, err
+@@ -501,6 +541,40 @@ func (h *Handshaker) replayBlocks(
+ 	return appHash, nil
+ }
+ 
++func (h *Handshaker) speculaLifecycleState(
++	state sm.State,
++	phase string,
++	pendingBlockHeight int64,
++	pendingParam map[string]any,
++	pendingAbci bool,
++	validationOutcome string,
++) map[string]any {
++	return speculatrace.LifecycleState(
++		h.store.Height(),
++		state.LastBlockHeight,
++		state.LastBlockHeight,
++		state.ConsensusParams,
++		state.ConsensusParams,
++		state.LastHeightConsensusParamsChanged,
++		state.LastHeightConsensusParamsChanged,
++		phase,
++		pendingBlockHeight,
++		pendingParam,
++		pendingAbci,
++		validationOutcome,
++	)
++}
++
++func (h *Handshaker) speculaStartStateReplay(state sm.State, height int64, mode string) {
++	if !speculatrace.Enabled() {
++		return
++	}
++	speculatrace.SetReplay(true)
++	_ = speculatrace.Emit("ReplayStateBlockStart", h.speculaLifecycleState(
++		state, "blockStored", height, speculatrace.NoParam, false, "none",
++	), map[string]any{"height": height, "mode": mode})
++}
++
+ // ApplyBlock on the proxyApp with the last block.
+ func (h *Handshaker) replayBlock(state sm.State, height int64, proxyApp proxy.AppConnConsensus) (sm.State, error) {
+ 	block, meta := h.store.LoadBlock(height)
+diff --git a/internal/speculatrace/trace.go b/internal/speculatrace/trace.go
+new file mode 100644
+index 0000000..893909c
+--- /dev/null
++++ b/internal/speculatrace/trace.go
+@@ -0,0 +1,214 @@
++// Package speculatrace provides opt-in NDJSON tracing for the Specula V0
++// harness. When SPECULA_TRACE_FILE is unset every operation is a no-op.
++package speculatrace
++
++import (
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"os"
++	"sync"
++	"time"
++
++	cmtproto "github.com/cometbft/cometbft/api/cometbft/types/v1"
++	"github.com/cometbft/cometbft/types"
++)
++
++// NoOther is the "other" identity of the distinguished NoParam record.
++const NoOther = "NoOther"
++
++// NoParam is the V1 record for "no ConsensusParamUpdates".
++var NoParam = map[string]any{"other": NoOther, "veh": int64(0)}
++
++var traceState struct {
++	sync.Mutex
++	file           *os.File
++	path           string
++	replay         bool
++	appHeight      int64
++	responseHeight int64
++	responseParam  map[string]any
++	responseAbci   bool
++}
++
++// Enabled reports whether this process was launched for trace collection.
++func Enabled() bool {
++	return os.Getenv("SPECULA_TRACE_FILE") != ""
++}
++
++// Reset truncates the configured trace file. It is used at the real Handshake
++// entry point so test-fixture setup does not contaminate recovery traces.
++func Reset() error {
++	path := os.Getenv("SPECULA_TRACE_FILE")
++	if path == "" {
++		return nil
++	}
++	traceState.Lock()
++	defer traceState.Unlock()
++	if traceState.file != nil {
++		_ = traceState.file.Close()
++	}
++	f, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
++	if err != nil {
++		return err
++	}
++	traceState.file = f
++	traceState.path = path
++	traceState.replay = false
++	traceState.appHeight = 0
++	traceState.responseHeight = 0
++	traceState.responseParam = NoParam
++	traceState.responseAbci = false
++	return nil
++}
++
++// Fingerprint gives a stable symbolic identity to a complete consensus
++// parameter value without baking its large Go representation into the model.
++func Fingerprint(v any) string {
++	b, err := json.Marshal(v)
++	if err != nil {
++		return "marshal-error"
++	}
++	sum := sha256.Sum256(b)
++	return hex.EncodeToString(sum[:])
++}
++
++// ParamRecord is the V1 parameter encoding: a fingerprint of every non-ABCI
++// field (the complete value with VoteExtensionsEnableHeight forced to 0) and
++// the integer VoteExtensionsEnableHeight read by ValidateUpdate.
++func ParamRecord(p types.ConsensusParams) map[string]any {
++	other := p
++	other.ABCI.VoteExtensionsEnableHeight = 0
++	return map[string]any{
++		"other": Fingerprint(other),
++		"veh":   p.ABCI.VoteExtensionsEnableHeight,
++	}
++}
++
++// OtherValid reports the outcome of ValidateBasic on the non-ABCI part.
++func OtherValid(p types.ConsensusParams) bool {
++	other := p
++	other.ABCI.VoteExtensionsEnableHeight = 0
++	return other.ValidateBasic() == nil
++}
++
++// Proposal returns the V1 record of current.Update(updates), whether
++// updates.Abci was present, and the non-ABCI ValidateBasic outcome.
++func Proposal(current types.ConsensusParams, updates *cmtproto.ConsensusParams) (map[string]any, bool, bool) {
++	if updates == nil {
++		return NoParam, false, true
++	}
++	next := current.Update(updates)
++	return ParamRecord(next), updates.Abci != nil, OtherValid(next)
++}
++
++func SetReplay(v bool) {
++	traceState.Lock()
++	defer traceState.Unlock()
++	traceState.replay = v
++}
++
++func IsReplay() bool {
++	traceState.Lock()
++	defer traceState.Unlock()
++	return traceState.replay
++}
++
++func SetAppHeight(h int64) {
++	traceState.Lock()
++	defer traceState.Unlock()
++	traceState.appHeight = h
++}
++
++func AppHeight() int64 {
++	traceState.Lock()
++	defer traceState.Unlock()
++	return traceState.appHeight
++}
++
++func SetResponse(height int64, param map[string]any, abci bool) {
++	traceState.Lock()
++	defer traceState.Unlock()
++	traceState.responseHeight = height
++	traceState.responseParam = param
++	traceState.responseAbci = abci
++}
++
++// LifecycleState constructs the state object consumed by Trace.tla.
++func LifecycleState(
++	blockStoreHeight, stateStoreHeight, inMemoryStateHeight int64,
++	activeParams, persistedParams types.ConsensusParams,
++	lastParamChange, persistedLastParamChange int64,
++	phase string,
++	pendingBlockHeight int64,
++	pendingParam map[string]any,
++	pendingAbci bool,
++	validationOutcome string,
++) map[string]any {
++	activeParam := ParamRecord(activeParams)
++	persistedParam := ParamRecord(persistedParams)
++	activeOtherValid := OtherValid(activeParams)
++	traceState.Lock()
++	defer traceState.Unlock()
++	responseParam := traceState.responseParam
++	if responseParam == nil {
++		responseParam = NoParam
++	}
++	return map[string]any{
++		"blockStoreHeight":         blockStoreHeight,
++		"appHeight":                traceState.appHeight,
++		"stateStoreHeight":         stateStoreHeight,
++		"stateHeight":              inMemoryStateHeight,
++		"activeParam":              activeParam,
++		"persistedParam":           persistedParam,
++		"activeOtherValid":         activeOtherValid,
++		"lastParamChange":          lastParamChange,
++		"persistedLastParamChange": persistedLastParamChange,
++		"phase":                    phase,
++		"replayMutatesState":       traceState.replay,
++		"responseHeight":           traceState.responseHeight,
++		"responseParam":            responseParam,
++		"responseAbciPresent":      traceState.responseAbci,
++		"pendingBlockHeight":       pendingBlockHeight,
++		"pendingParam":             pendingParam,
++		"pendingAbciPresent":       pendingAbci,
++		"validationOutcome":        validationOutcome,
++	}
++}
++
++// Emit appends one mutex-serialized event with a real wall-clock timestamp.
++// Instrumentation deliberately ignores its returned error at call sites so it
++// cannot change the system's functional error paths.
++func Emit(name string, state map[string]any, msg map[string]any) error {
++	path := os.Getenv("SPECULA_TRACE_FILE")
++	if path == "" {
++		return nil
++	}
++	traceState.Lock()
++	defer traceState.Unlock()
++	if traceState.file == nil || traceState.path != path {
++		if traceState.file != nil {
++			_ = traceState.file.Close()
++		}
++		f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
++		if err != nil {
++			return err
++		}
++		traceState.file = f
++		traceState.path = path
++	}
++	event := map[string]any{
++		"tag": "trace",
++		"ts":  time.Now().UnixNano(),
++		"event": map[string]any{
++			"name":  name,
++			"nid":   "node",
++			"state": state,
++			"msg":   msg,
++		},
++	}
++	if err := json.NewEncoder(traceState.file).Encode(event); err != nil {
++		return err
++	}
++	return traceState.file.Sync()
++}
+diff --git a/internal/state/execution.go b/internal/state/execution.go
+index 6b3411b..cf04a3b 100644
+--- a/internal/state/execution.go
++++ b/internal/state/execution.go
+@@ -4,12 +4,14 @@ import (
+ 	"bytes"
+ 	"context"
+ 	"fmt"
++	"strings"
+ 	"time"
+ 
+ 	abci "github.com/cometbft/cometbft/abci/types"
+ 	cmtproto "github.com/cometbft/cometbft/api/cometbft/types/v1"
+ 	cryptoenc "github.com/cometbft/cometbft/crypto/encoding"
+ 	"github.com/cometbft/cometbft/internal/fail"
++	"github.com/cometbft/cometbft/internal/speculatrace"
+ 	"github.com/cometbft/cometbft/libs/log"
+ 	"github.com/cometbft/cometbft/mempool"
+ 	"github.com/cometbft/cometbft/proxy"
+@@ -211,6 +213,18 @@ func (blockExec *BlockExecutor) ValidateBlock(state State, block *types.Block) e
+ func (blockExec *BlockExecutor) ApplyBlock(
+ 	state State, blockID types.BlockID, block *types.Block,
+ ) (State, error) {
++	persistedState := state
++	if speculatrace.Enabled() {
++		if !speculatrace.IsReplay() {
++			speculatrace.SetAppHeight(state.LastBlockHeight)
++			_ = speculatrace.Emit("BlockStored", blockExec.speculaLifecycleState(
++				state, persistedState, "blockStored", block.Height, speculatrace.NoParam, false, "none",
++			), map[string]any{"height": block.Height})
++		}
++		_ = speculatrace.Emit("ApplyBlockStart", blockExec.speculaLifecycleState(
++			state, persistedState, "applying", block.Height, speculatrace.NoParam, false, "none",
++		), map[string]any{"height": block.Height})
++	}
+ 	if err := validateBlock(state, block); err != nil {
+ 		return state, ErrInvalidBlock(err)
+ 	}
+@@ -232,6 +246,19 @@ func (blockExec *BlockExecutor) ApplyBlock(
+ 		blockExec.logger.Error("error in proxyAppConn.FinalizeBlock", "err", err)
+ 		return state, err
+ 	}
++	proposedParam, proposedAbci, proposedOtherValid := speculatrace.Proposal(
++		state.ConsensusParams, abciResponse.ConsensusParamUpdates)
++	if speculatrace.Enabled() {
++		_ = speculatrace.Emit("FinalizeBlock", blockExec.speculaLifecycleState(
++			state, persistedState, "finalized", block.Height, proposedParam, proposedAbci, "none",
++		), map[string]any{
++			"height":             block.Height,
++			"updatePresent":      abciResponse.ConsensusParamUpdates != nil,
++			"proposedParam":      proposedParam,
++			"abciPresent":        proposedAbci,
++			"proposedOtherValid": proposedOtherValid,
++		})
++	}
+ 
+ 	blockExec.logger.Info(
+ 		"finalized block",
+@@ -254,6 +281,12 @@ func (blockExec *BlockExecutor) ApplyBlock(
+ 	if err := blockExec.store.SaveFinalizeBlockResponse(block.Height, abciResponse); err != nil {
+ 		return state, err
+ 	}
++	if speculatrace.Enabled() {
++		speculatrace.SetResponse(block.Height, proposedParam, proposedAbci)
++		_ = speculatrace.Emit("SaveFinalizeBlockResponse", blockExec.speculaLifecycleState(
++			state, persistedState, "responseSaved", block.Height, proposedParam, proposedAbci, "none",
++		), map[string]any{"height": block.Height})
++	}
+ 
+ 	fail.Fail() // XXX
+ 
+@@ -278,14 +311,49 @@ func (blockExec *BlockExecutor) ApplyBlock(
+ 	// Update the state with the block and responses.
+ 	state, err = updateState(state, blockID, &block.Header, abciResponse, validatorUpdates)
+ 	if err != nil {
++		if speculatrace.Enabled() {
++			reason := "other"
++			switch {
++			case strings.HasPrefix(err.Error(), "validating new consensus params:"):
++				reason = "basic"
++			case strings.HasPrefix(err.Error(), "updating consensus params:"):
++				reason = "update"
++			}
++			_ = speculatrace.Emit("UpdateStateRejected", blockExec.speculaLifecycleState(
++				state, persistedState, "rejected", block.Height, proposedParam, proposedAbci, "rejected",
++			), map[string]any{
++				"height":        block.Height,
++				"updatePresent": abciResponse.ConsensusParamUpdates != nil,
++				"proposedParam": proposedParam,
++				"abciPresent":   proposedAbci,
++				"reason":        reason,
++				"error":         err.Error(),
++			})
++		}
+ 		return state, fmt.Errorf("commit failed for application: %w", err)
+ 	}
++	if speculatrace.Enabled() {
++		_ = speculatrace.Emit("UpdateStateAccepted", blockExec.speculaLifecycleState(
++			state, persistedState, "updated", block.Height, proposedParam, proposedAbci, "accepted",
++		), map[string]any{
++			"height":        block.Height,
++			"updatePresent": abciResponse.ConsensusParamUpdates != nil,
++			"proposedParam": proposedParam,
++			"abciPresent":   proposedAbci,
++		})
++	}
+ 
+ 	// Lock mempool, commit app state, update mempoool.
+ 	retainHeight, err := blockExec.Commit(state, block, abciResponse)
+ 	if err != nil {
+ 		return state, fmt.Errorf("commit failed for application: %w", err)
+ 	}
++	if speculatrace.Enabled() {
++		speculatrace.SetAppHeight(block.Height)
++		_ = speculatrace.Emit("CommitApp", blockExec.speculaLifecycleState(
++			state, persistedState, "committed", block.Height, proposedParam, proposedAbci, "accepted",
++		), map[string]any{"height": block.Height})
++	}
+ 
+ 	// Update evpool with the latest state.
+ 	blockExec.evpool.Update(state, block.Evidence.Evidence)
+@@ -297,6 +365,15 @@ func (blockExec *BlockExecutor) ApplyBlock(
+ 	if err := blockExec.store.Save(state); err != nil {
+ 		return state, err
+ 	}
++	if speculatrace.Enabled() {
++		phase := "normal"
++		if speculatrace.IsReplay() {
++			phase = "handshake"
++		}
++		_ = speculatrace.Emit("SaveState", blockExec.speculaLifecycleState(
++			state, state, phase, 0, speculatrace.NoParam, false, "none",
++		), map[string]any{"height": block.Height})
++	}
+ 
+ 	fail.Fail() // XXX
+ 
+@@ -315,6 +392,35 @@ func (blockExec *BlockExecutor) ApplyBlock(
+ 	return state, nil
+ }
+ 
++// speculaLifecycleState captures the complete abstract state used by the V0
++// model. Consensus parameter records are represented by stable fingerprints;
++// equality and installation are preserved without serializing Go-only detail
++// into TLA+ values.
++func (blockExec *BlockExecutor) speculaLifecycleState(
++	current State,
++	persisted State,
++	phase string,
++	pendingBlockHeight int64,
++	pendingParam map[string]any,
++	pendingAbci bool,
++	validationOutcome string,
++) map[string]any {
++	return speculatrace.LifecycleState(
++		blockExec.blockStore.Height(),
++		persisted.LastBlockHeight,
++		current.LastBlockHeight,
++		current.ConsensusParams,
++		persisted.ConsensusParams,
++		current.LastHeightConsensusParamsChanged,
++		persisted.LastHeightConsensusParamsChanged,
++		phase,
++		pendingBlockHeight,
++		pendingParam,
++		pendingAbci,
++		validationOutcome,
++	)
++}
++
+ func (blockExec *BlockExecutor) ExtendVote(
+ 	ctx context.Context,
+ 	vote *types.Vote,
+diff --git a/internal/state/specula_trace_test.go b/internal/state/specula_trace_test.go
+new file mode 100644
+index 0000000..f19392e
+--- /dev/null
++++ b/internal/state/specula_trace_test.go
+@@ -0,0 +1,335 @@
++package state_test
++
++import (
++	"context"
++	"os"
++	"testing"
++
++	"github.com/stretchr/testify/mock"
++	"github.com/stretchr/testify/require"
++
++	dbm "github.com/cometbft/cometbft-db"
++	abci "github.com/cometbft/cometbft/abci/types"
++	cmtproto "github.com/cometbft/cometbft/api/cometbft/types/v1"
++	"github.com/cometbft/cometbft/crypto/ed25519"
++	"github.com/cometbft/cometbft/internal/consensus"
++	"github.com/cometbft/cometbft/internal/speculatrace"
++	sm "github.com/cometbft/cometbft/internal/state"
++	"github.com/cometbft/cometbft/internal/store"
++	"github.com/cometbft/cometbft/libs/log"
++	mpmocks "github.com/cometbft/cometbft/mempool/mocks"
++	"github.com/cometbft/cometbft/proxy"
++	"github.com/cometbft/cometbft/types"
++)
++
++type speculaInvalidParamsApp struct {
++	abci.BaseApplication
++}
++
++func (speculaInvalidParamsApp) FinalizeBlock(
++	_ context.Context,
++	req *abci.FinalizeBlockRequest,
++) (*abci.FinalizeBlockResponse, error) {
++	txResults := make([]*abci.ExecTxResult, len(req.Txs))
++	for i := range txResults {
++		txResults[i] = &abci.ExecTxResult{Code: abci.CodeTypeOK}
++	}
++	return &abci.FinalizeBlockResponse{
++		TxResults: txResults,
++		ConsensusParamUpdates: &cmtproto.ConsensusParams{
++			Block: &cmtproto.BlockParams{MaxBytes: 0, MaxGas: 1},
++		},
++	}, nil
++}
++
++func speculaApplyOneBlock(
++	t *testing.T,
++	app abci.Application,
++) (sm.State, sm.Store, error) {
++	t.Helper()
++	require.NoError(t, speculatrace.Reset())
++
++	clientCreator := proxy.NewLocalClientCreator(app)
++	proxyApp := proxy.NewAppConns(clientCreator, proxy.NopMetrics())
++	require.NoError(t, proxyApp.Start())
++	t.Cleanup(func() { require.NoError(t, proxyApp.Stop()) })
++
++	state, stateDB, _ := makeState(1, 1)
++	stateStore := sm.NewStore(stateDB, sm.StoreOptions{DiscardABCIResponses: false})
++	blockStore := store.NewBlockStore(dbm.NewMemDB())
++
++	mp := &mpmocks.Mempool{}
++	mp.On("Lock").Return()
++	mp.On("Unlock").Return()
++	mp.On("FlushAppConn", mock.Anything).Return(nil)
++	mp.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
++
++	blockExec := sm.NewBlockExecutor(
++		stateStore,
++		log.TestingLogger(),
++		proxyApp.Consensus(),
++		mp,
++		sm.EmptyEvidencePool{},
++		blockStore,
++	)
++	block := makeBlock(state, 1, new(types.Commit))
++	parts, err := block.MakePartSet(testPartSize)
++	require.NoError(t, err)
++	blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: parts.Header()}
++	seenCommit := &types.Commit{Height: block.Height, BlockID: blockID}
++	blockStore.SaveBlock(block, parts, seenCommit)
++
++	newState, err := blockExec.ApplyBlock(state, blockID, block)
++	return newState, stateStore, err
++}
++
++func TestSpeculaTraceApplyValidUpdate(t *testing.T) {
++	state, _, err := speculaApplyOneBlock(t, &testApp{})
++	require.NoError(t, err)
++	require.EqualValues(t, 1, state.LastBlockHeight)
++	require.EqualValues(t, 1, state.Version.Consensus.App)
++	require.EqualValues(t, 2, state.LastHeightConsensusParamsChanged)
++}
++
++func TestSpeculaTraceApplyRejectedUpdate(t *testing.T) {
++	state, stateStore, err := speculaApplyOneBlock(t, speculaInvalidParamsApp{})
++	require.Error(t, err)
++	require.EqualValues(t, 0, state.LastBlockHeight)
++	persisted, loadErr := stateStore.Load()
++	require.NoError(t, loadErr)
++	require.EqualValues(t, 0, persisted.LastBlockHeight)
++	require.Equal(t, persisted.ConsensusParams, state.ConsensusParams)
++}
++
++// ---------------------------------------------------------------------------
++// V1 update-focused scenarios (Specula incremental run).  Each scenario is
++// derived from a row of the ValidateUpdate table in types/params.go:208-261.
++// Outcomes are logged, not asserted: Trace.tla computes the expected
++// accept/reject decision from the logged inputs and must agree with the
++// implementation's actual event.
++// ---------------------------------------------------------------------------
++
++// speculaVEApp returns a fixed ConsensusParamUpdates per height and reports
++// its committed height through Info, like a restarted application would.
++type speculaVEApp struct {
++	abci.BaseApplication
++	updates   map[int64]*cmtproto.ConsensusParams
++	committed int64
++}
++
++func (app *speculaVEApp) Info(context.Context, *abci.InfoRequest) (*abci.InfoResponse, error) {
++	return &abci.InfoResponse{LastBlockHeight: app.committed}, nil
++}
++
++func (app *speculaVEApp) FinalizeBlock(
++	_ context.Context,
++	req *abci.FinalizeBlockRequest,
++) (*abci.FinalizeBlockResponse, error) {
++	txResults := make([]*abci.ExecTxResult, len(req.Txs))
++	for i := range txResults {
++		txResults[i] = &abci.ExecTxResult{Code: abci.CodeTypeOK}
++	}
++	return &abci.FinalizeBlockResponse{
++		TxResults:             txResults,
++		ConsensusParamUpdates: app.updates[req.Height],
++	}, nil
++}
++
++func (app *speculaVEApp) Commit(context.Context, *abci.CommitRequest) (*abci.CommitResponse, error) {
++	app.committed++
++	return &abci.CommitResponse{}, nil
++}
++
++func speculaMempool() *mpmocks.Mempool {
++	mp := &mpmocks.Mempool{}
++	mp.On("Lock").Return()
++	mp.On("Unlock").Return()
++	mp.On("FlushAppConn", mock.Anything).Return(nil)
++	mp.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
++	return mp
++}
++
++func speculaStartApp(t *testing.T, app abci.Application) proxy.AppConns {
++	t.Helper()
++	proxyApp := proxy.NewAppConns(proxy.NewLocalClientCreator(app), proxy.NopMetrics())
++	require.NoError(t, proxyApp.Start())
++	t.Cleanup(func() { _ = proxyApp.Stop() })
++	return proxyApp
++}
++
++func speculaAbci(veh int64) *cmtproto.ConsensusParams {
++	return &cmtproto.ConsensusParams{Abci: &cmtproto.ABCIParams{VoteExtensionsEnableHeight: veh}}
++}
++
++// speculaEcho returns the complete parameter value as an update, the way an
++// application that forwards its full parameter set would (cf. the in-tree
++// pattern makeHeaderPartsResponsesParams(state, cp.ToProto()) in
++// state_test.go:TestConsensusParamsChangesSaveLoad).
++func speculaEcho(p types.ConsensusParams, veh int64) *cmtproto.ConsensusParams {
++	p.ABCI.VoteExtensionsEnableHeight = veh
++	pb := p.ToProto()
++	return &pb
++}
++
++// speculaApplyHeights saves and applies consecutive blocks starting at
++// state.LastBlockHeight+1 until one is rejected or all are applied.
++func speculaApplyHeights(
++	t *testing.T,
++	state sm.State,
++	stateStore sm.Store,
++	blockStore *store.BlockStore,
++	privVals map[string]types.PrivValidator,
++	proxyApp proxy.AppConns,
++	n int,
++) (sm.State, error) {
++	t.Helper()
++	blockExec := sm.NewBlockExecutor(stateStore, log.TestingLogger(), proxyApp.Consensus(),
++		speculaMempool(), sm.EmptyEvidencePool{}, blockStore)
++	lastCommit := new(types.Commit)
++	for i := 0; i < n; i++ {
++		height := state.LastBlockHeight + 1
++		block := makeBlock(state, height, lastCommit)
++		parts, err := block.MakePartSet(testPartSize)
++		require.NoError(t, err)
++		blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: parts.Header()}
++		blockStore.SaveBlock(block, parts, &types.Commit{Height: height, BlockID: blockID})
++		next, err := blockExec.ApplyBlock(state, blockID, block)
++		if err != nil {
++			t.Logf("SPECULA_OBSERVED height=%d outcome=rejected err=%v", height, err)
++			return next, err
++		}
++		t.Logf("SPECULA_OBSERVED height=%d outcome=accepted veh=%d lastParamChange=%d",
++			height, next.ConsensusParams.ABCI.VoteExtensionsEnableHeight, next.LastHeightConsensusParamsChanged)
++		ec, err := makeValidCommit(height, blockID, next.Validators, privVals)
++		require.NoError(t, err)
++		lastCommit = ec.ToCommit()
++		state = next
++	}
++	return state, nil
++}
++
++// speculaVEState builds a height-0 state whose genesis VoteExtensionsEnableHeight
++// is initialVEH and persists it, as MakeGenesisState + state-store save do.
++func speculaVEState(t *testing.T, initialVEH int64) (sm.State, sm.Store, *store.BlockStore, map[string]types.PrivValidator) {
++	t.Helper()
++	state, stateDB, privVals := makeState(1, 1)
++	state.ConsensusParams.ABCI.VoteExtensionsEnableHeight = initialVEH
++	stateStore := sm.NewStore(stateDB, sm.StoreOptions{DiscardABCIResponses: false})
++	require.NoError(t, stateStore.Save(state))
++	return state, stateStore, store.NewBlockStore(dbm.NewMemDB()), privVals
++}
++
++// TestSpeculaTraceVE: one block at height 1 per subtest.  Run each subtest in
++// its own process with SPECULA_TRACE_FILE set (see harness/run.sh).
++func TestSpeculaTraceVE(t *testing.T) {
++	type tc struct {
++		name       string
++		initialVEH int64
++		update     func(types.ConsensusParams) *cmtproto.ConsensusParams
++	}
++	cases := []tc{
++		// row 7: enable from disabled to a future height (old code rejected)
++		{"enable_future", 0, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(3) }},
++		// row 6: enable to the current height
++		{"enable_current", 0, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(1) }},
++		// row 3: forwarding the complete, unchanged parameter set while disabled
++		{"echo_disabled", 0, func(p types.ConsensusParams) *cmtproto.ConsensusParams { return speculaEcho(p, 0) }},
++		// row 6 (changed): forwarding the complete, unchanged parameter set at the
++		// genesis enable height 1 (old code accepted via its equality short-cut)
++		{"echo_reached", 1, func(p types.ConsensusParams) *cmtproto.ConsensusParams { return speculaEcho(p, 1) }},
++		// row 9: forwarding the unchanged set before the enable height
++		{"echo_future", 5, func(p types.ConsensusParams) *cmtproto.ConsensusParams { return speculaEcho(p, 5) }},
++		// row 4: disabling a reached enable height
++		{"disable_reached", 1, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(0) }},
++		// row 5 (changed): cancelling a future enable height (old code rejected)
++		{"disable_future", 5, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(0) }},
++		// row 8: moving a reached enable height
++		{"move_reached", 1, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(5) }},
++		// row 9: moving a future enable height
++		{"move_future", 5, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(7) }},
++		// row 2 (new): negative height; masked by ValidateBasic (execution.go:617-620)
++		{"negative", 0, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(-1) }},
++	}
++	for _, c := range cases {
++		c := c
++		t.Run(c.name, func(t *testing.T) {
++			require.NoError(t, speculatrace.Reset())
++			state, stateStore, blockStore, privVals := speculaVEState(t, c.initialVEH)
++			app := &speculaVEApp{updates: map[int64]*cmtproto.ConsensusParams{1: c.update(state.ConsensusParams)}}
++			_, _ = speculaApplyHeights(t, state, stateStore, blockStore, privVals, speculaStartApp(t, app), 1)
++		})
++	}
++}
++
++// TestSpeculaTraceVEEnableThenEcho: changed action -> changed action.  Block 1
++// enables vote extensions at height 2 (row 7); block 2 forwards the complete,
++// unchanged parameter set at height 2 (row 6).
++func TestSpeculaTraceVEEnableThenEcho(t *testing.T) {
++	require.NoError(t, speculatrace.Reset())
++	state, stateStore, blockStore, privVals := speculaVEState(t, 0)
++	app := &speculaVEApp{updates: map[int64]*cmtproto.ConsensusParams{
++		1: speculaAbci(2),
++		2: speculaEcho(state.ConsensusParams, 2),
++	}}
++	_, _ = speculaApplyHeights(t, state, stateStore, blockStore, privVals, speculaStartApp(t, app), 2)
++}
++
++// TestSpeculaTraceVEEchoRestart: changed action -> abort -> restart.  The node
++// starts from a genesis with VoteExtensionsEnableHeight = 1 (the documented
++// "enable at InitialHeight" setup), the application forwards its complete,
++// unchanged parameter set at height 1, and the node restarts.  The apply part
++// goes to SPECULA_TRACE_FILE, the restart handshake to SPECULA_TRACE_FILE_RESTART.
++func TestSpeculaTraceVEEchoRestart(t *testing.T) {
++	applyTrace := os.Getenv("SPECULA_TRACE_FILE")
++	restartTrace := os.Getenv("SPECULA_TRACE_FILE_RESTART")
++	require.NotEmpty(t, applyTrace)
++	require.NotEmpty(t, restartTrace)
++	scratch := applyTrace + ".setup"
++	t.Cleanup(func() { _ = os.Remove(scratch) })
++
++	pk := ed25519.GenPrivKeyFromSecret([]byte("specula-ve"))
++	params := types.DefaultConsensusParams()
++	params.ABCI.VoteExtensionsEnableHeight = 1
++	genDoc := &types.GenesisDoc{
++		ChainID:         chainID,
++		ConsensusParams: params,
++		Validators: []types.GenesisValidator{{
++			Address: pk.PubKey().Address(), PubKey: pk.PubKey(), Power: 1000, Name: "v0",
++		}},
++	}
++	state, err := sm.MakeGenesisState(genDoc)
++	require.NoError(t, err)
++	stateStore := sm.NewStore(dbm.NewMemDB(), sm.StoreOptions{DiscardABCIResponses: false})
++	require.NoError(t, stateStore.Save(state))
++	blockStore := store.NewBlockStore(dbm.NewMemDB())
++	echo := speculaEcho(state.ConsensusParams, 1)
++	newApp := func() *speculaVEApp {
++		return &speculaVEApp{updates: map[int64]*cmtproto.ConsensusParams{1: echo}}
++	}
++
++	// First start: InitChain handshake (fixture; traced to a scratch file).
++	t.Setenv("SPECULA_TRACE_FILE", scratch)
++	proxyApp := speculaStartApp(t, newApp())
++	require.NoError(t, consensus.NewHandshaker(stateStore, state, blockStore, genDoc).
++		Handshake(context.Background(), proxyApp))
++	state, err = stateStore.Load()
++	require.NoError(t, err)
++
++	// Height 1 is decided, saved and applied.
++	t.Setenv("SPECULA_TRACE_FILE", applyTrace)
++	require.NoError(t, speculatrace.Reset())
++	privVals := map[string]types.PrivValidator{
++		pk.PubKey().Address().String(): types.NewMockPVWithParams(pk, false, false),
++	}
++	_, applyErr := speculaApplyHeights(t, state, stateStore, blockStore, privVals, proxyApp, 1)
++	t.Logf("SPECULA_OBSERVED apply_error=%v", applyErr)
++
++	// Restart: a fresh application process with no committed height and the
++	// same deterministic FinalizeBlock behaviour, then the startup handshake.
++	t.Setenv("SPECULA_TRACE_FILE", restartTrace)
++	restarted, err := stateStore.Load()
++	require.NoError(t, err)
++	handshakeErr := consensus.NewHandshaker(stateStore, restarted, blockStore, genDoc).
++		Handshake(context.Background(), speculaStartApp(t, newApp()))
++	t.Logf("SPECULA_OBSERVED restart_handshake_error=%v", handshakeErr)
++}

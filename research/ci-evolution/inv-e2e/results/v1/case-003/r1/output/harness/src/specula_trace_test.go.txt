@@ -1,0 +1,335 @@
+package state_test
+
+import (
+	"context"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmtproto "github.com/cometbft/cometbft/api/cometbft/types/v1"
+	"github.com/cometbft/cometbft/crypto/ed25519"
+	"github.com/cometbft/cometbft/internal/consensus"
+	"github.com/cometbft/cometbft/internal/speculatrace"
+	sm "github.com/cometbft/cometbft/internal/state"
+	"github.com/cometbft/cometbft/internal/store"
+	"github.com/cometbft/cometbft/libs/log"
+	mpmocks "github.com/cometbft/cometbft/mempool/mocks"
+	"github.com/cometbft/cometbft/proxy"
+	"github.com/cometbft/cometbft/types"
+)
+
+type speculaInvalidParamsApp struct {
+	abci.BaseApplication
+}
+
+func (speculaInvalidParamsApp) FinalizeBlock(
+	_ context.Context,
+	req *abci.FinalizeBlockRequest,
+) (*abci.FinalizeBlockResponse, error) {
+	txResults := make([]*abci.ExecTxResult, len(req.Txs))
+	for i := range txResults {
+		txResults[i] = &abci.ExecTxResult{Code: abci.CodeTypeOK}
+	}
+	return &abci.FinalizeBlockResponse{
+		TxResults: txResults,
+		ConsensusParamUpdates: &cmtproto.ConsensusParams{
+			Block: &cmtproto.BlockParams{MaxBytes: 0, MaxGas: 1},
+		},
+	}, nil
+}
+
+func speculaApplyOneBlock(
+	t *testing.T,
+	app abci.Application,
+) (sm.State, sm.Store, error) {
+	t.Helper()
+	require.NoError(t, speculatrace.Reset())
+
+	clientCreator := proxy.NewLocalClientCreator(app)
+	proxyApp := proxy.NewAppConns(clientCreator, proxy.NopMetrics())
+	require.NoError(t, proxyApp.Start())
+	t.Cleanup(func() { require.NoError(t, proxyApp.Stop()) })
+
+	state, stateDB, _ := makeState(1, 1)
+	stateStore := sm.NewStore(stateDB, sm.StoreOptions{DiscardABCIResponses: false})
+	blockStore := store.NewBlockStore(dbm.NewMemDB())
+
+	mp := &mpmocks.Mempool{}
+	mp.On("Lock").Return()
+	mp.On("Unlock").Return()
+	mp.On("FlushAppConn", mock.Anything).Return(nil)
+	mp.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	blockExec := sm.NewBlockExecutor(
+		stateStore,
+		log.TestingLogger(),
+		proxyApp.Consensus(),
+		mp,
+		sm.EmptyEvidencePool{},
+		blockStore,
+	)
+	block := makeBlock(state, 1, new(types.Commit))
+	parts, err := block.MakePartSet(testPartSize)
+	require.NoError(t, err)
+	blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: parts.Header()}
+	seenCommit := &types.Commit{Height: block.Height, BlockID: blockID}
+	blockStore.SaveBlock(block, parts, seenCommit)
+
+	newState, err := blockExec.ApplyBlock(state, blockID, block)
+	return newState, stateStore, err
+}
+
+func TestSpeculaTraceApplyValidUpdate(t *testing.T) {
+	state, _, err := speculaApplyOneBlock(t, &testApp{})
+	require.NoError(t, err)
+	require.EqualValues(t, 1, state.LastBlockHeight)
+	require.EqualValues(t, 1, state.Version.Consensus.App)
+	require.EqualValues(t, 2, state.LastHeightConsensusParamsChanged)
+}
+
+func TestSpeculaTraceApplyRejectedUpdate(t *testing.T) {
+	state, stateStore, err := speculaApplyOneBlock(t, speculaInvalidParamsApp{})
+	require.Error(t, err)
+	require.EqualValues(t, 0, state.LastBlockHeight)
+	persisted, loadErr := stateStore.Load()
+	require.NoError(t, loadErr)
+	require.EqualValues(t, 0, persisted.LastBlockHeight)
+	require.Equal(t, persisted.ConsensusParams, state.ConsensusParams)
+}
+
+// ---------------------------------------------------------------------------
+// V1 update-focused scenarios (Specula incremental run).  Each scenario is
+// derived from a row of the ValidateUpdate table in types/params.go:208-261.
+// Outcomes are logged, not asserted: Trace.tla computes the expected
+// accept/reject decision from the logged inputs and must agree with the
+// implementation's actual event.
+// ---------------------------------------------------------------------------
+
+// speculaVEApp returns a fixed ConsensusParamUpdates per height and reports
+// its committed height through Info, like a restarted application would.
+type speculaVEApp struct {
+	abci.BaseApplication
+	updates   map[int64]*cmtproto.ConsensusParams
+	committed int64
+}
+
+func (app *speculaVEApp) Info(context.Context, *abci.InfoRequest) (*abci.InfoResponse, error) {
+	return &abci.InfoResponse{LastBlockHeight: app.committed}, nil
+}
+
+func (app *speculaVEApp) FinalizeBlock(
+	_ context.Context,
+	req *abci.FinalizeBlockRequest,
+) (*abci.FinalizeBlockResponse, error) {
+	txResults := make([]*abci.ExecTxResult, len(req.Txs))
+	for i := range txResults {
+		txResults[i] = &abci.ExecTxResult{Code: abci.CodeTypeOK}
+	}
+	return &abci.FinalizeBlockResponse{
+		TxResults:             txResults,
+		ConsensusParamUpdates: app.updates[req.Height],
+	}, nil
+}
+
+func (app *speculaVEApp) Commit(context.Context, *abci.CommitRequest) (*abci.CommitResponse, error) {
+	app.committed++
+	return &abci.CommitResponse{}, nil
+}
+
+func speculaMempool() *mpmocks.Mempool {
+	mp := &mpmocks.Mempool{}
+	mp.On("Lock").Return()
+	mp.On("Unlock").Return()
+	mp.On("FlushAppConn", mock.Anything).Return(nil)
+	mp.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	return mp
+}
+
+func speculaStartApp(t *testing.T, app abci.Application) proxy.AppConns {
+	t.Helper()
+	proxyApp := proxy.NewAppConns(proxy.NewLocalClientCreator(app), proxy.NopMetrics())
+	require.NoError(t, proxyApp.Start())
+	t.Cleanup(func() { _ = proxyApp.Stop() })
+	return proxyApp
+}
+
+func speculaAbci(veh int64) *cmtproto.ConsensusParams {
+	return &cmtproto.ConsensusParams{Abci: &cmtproto.ABCIParams{VoteExtensionsEnableHeight: veh}}
+}
+
+// speculaEcho returns the complete parameter value as an update, the way an
+// application that forwards its full parameter set would (cf. the in-tree
+// pattern makeHeaderPartsResponsesParams(state, cp.ToProto()) in
+// state_test.go:TestConsensusParamsChangesSaveLoad).
+func speculaEcho(p types.ConsensusParams, veh int64) *cmtproto.ConsensusParams {
+	p.ABCI.VoteExtensionsEnableHeight = veh
+	pb := p.ToProto()
+	return &pb
+}
+
+// speculaApplyHeights saves and applies consecutive blocks starting at
+// state.LastBlockHeight+1 until one is rejected or all are applied.
+func speculaApplyHeights(
+	t *testing.T,
+	state sm.State,
+	stateStore sm.Store,
+	blockStore *store.BlockStore,
+	privVals map[string]types.PrivValidator,
+	proxyApp proxy.AppConns,
+	n int,
+) (sm.State, error) {
+	t.Helper()
+	blockExec := sm.NewBlockExecutor(stateStore, log.TestingLogger(), proxyApp.Consensus(),
+		speculaMempool(), sm.EmptyEvidencePool{}, blockStore)
+	lastCommit := new(types.Commit)
+	for i := 0; i < n; i++ {
+		height := state.LastBlockHeight + 1
+		block := makeBlock(state, height, lastCommit)
+		parts, err := block.MakePartSet(testPartSize)
+		require.NoError(t, err)
+		blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: parts.Header()}
+		blockStore.SaveBlock(block, parts, &types.Commit{Height: height, BlockID: blockID})
+		next, err := blockExec.ApplyBlock(state, blockID, block)
+		if err != nil {
+			t.Logf("SPECULA_OBSERVED height=%d outcome=rejected err=%v", height, err)
+			return next, err
+		}
+		t.Logf("SPECULA_OBSERVED height=%d outcome=accepted veh=%d lastParamChange=%d",
+			height, next.ConsensusParams.ABCI.VoteExtensionsEnableHeight, next.LastHeightConsensusParamsChanged)
+		ec, err := makeValidCommit(height, blockID, next.Validators, privVals)
+		require.NoError(t, err)
+		lastCommit = ec.ToCommit()
+		state = next
+	}
+	return state, nil
+}
+
+// speculaVEState builds a height-0 state whose genesis VoteExtensionsEnableHeight
+// is initialVEH and persists it, as MakeGenesisState + state-store save do.
+func speculaVEState(t *testing.T, initialVEH int64) (sm.State, sm.Store, *store.BlockStore, map[string]types.PrivValidator) {
+	t.Helper()
+	state, stateDB, privVals := makeState(1, 1)
+	state.ConsensusParams.ABCI.VoteExtensionsEnableHeight = initialVEH
+	stateStore := sm.NewStore(stateDB, sm.StoreOptions{DiscardABCIResponses: false})
+	require.NoError(t, stateStore.Save(state))
+	return state, stateStore, store.NewBlockStore(dbm.NewMemDB()), privVals
+}
+
+// TestSpeculaTraceVE: one block at height 1 per subtest.  Run each subtest in
+// its own process with SPECULA_TRACE_FILE set (see harness/run.sh).
+func TestSpeculaTraceVE(t *testing.T) {
+	type tc struct {
+		name       string
+		initialVEH int64
+		update     func(types.ConsensusParams) *cmtproto.ConsensusParams
+	}
+	cases := []tc{
+		// row 7: enable from disabled to a future height (old code rejected)
+		{"enable_future", 0, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(3) }},
+		// row 6: enable to the current height
+		{"enable_current", 0, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(1) }},
+		// row 3: forwarding the complete, unchanged parameter set while disabled
+		{"echo_disabled", 0, func(p types.ConsensusParams) *cmtproto.ConsensusParams { return speculaEcho(p, 0) }},
+		// row 6 (changed): forwarding the complete, unchanged parameter set at the
+		// genesis enable height 1 (old code accepted via its equality short-cut)
+		{"echo_reached", 1, func(p types.ConsensusParams) *cmtproto.ConsensusParams { return speculaEcho(p, 1) }},
+		// row 9: forwarding the unchanged set before the enable height
+		{"echo_future", 5, func(p types.ConsensusParams) *cmtproto.ConsensusParams { return speculaEcho(p, 5) }},
+		// row 4: disabling a reached enable height
+		{"disable_reached", 1, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(0) }},
+		// row 5 (changed): cancelling a future enable height (old code rejected)
+		{"disable_future", 5, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(0) }},
+		// row 8: moving a reached enable height
+		{"move_reached", 1, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(5) }},
+		// row 9: moving a future enable height
+		{"move_future", 5, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(7) }},
+		// row 2 (new): negative height; masked by ValidateBasic (execution.go:617-620)
+		{"negative", 0, func(types.ConsensusParams) *cmtproto.ConsensusParams { return speculaAbci(-1) }},
+	}
+	for _, c := range cases {
+		c := c
+		t.Run(c.name, func(t *testing.T) {
+			require.NoError(t, speculatrace.Reset())
+			state, stateStore, blockStore, privVals := speculaVEState(t, c.initialVEH)
+			app := &speculaVEApp{updates: map[int64]*cmtproto.ConsensusParams{1: c.update(state.ConsensusParams)}}
+			_, _ = speculaApplyHeights(t, state, stateStore, blockStore, privVals, speculaStartApp(t, app), 1)
+		})
+	}
+}
+
+// TestSpeculaTraceVEEnableThenEcho: changed action -> changed action.  Block 1
+// enables vote extensions at height 2 (row 7); block 2 forwards the complete,
+// unchanged parameter set at height 2 (row 6).
+func TestSpeculaTraceVEEnableThenEcho(t *testing.T) {
+	require.NoError(t, speculatrace.Reset())
+	state, stateStore, blockStore, privVals := speculaVEState(t, 0)
+	app := &speculaVEApp{updates: map[int64]*cmtproto.ConsensusParams{
+		1: speculaAbci(2),
+		2: speculaEcho(state.ConsensusParams, 2),
+	}}
+	_, _ = speculaApplyHeights(t, state, stateStore, blockStore, privVals, speculaStartApp(t, app), 2)
+}
+
+// TestSpeculaTraceVEEchoRestart: changed action -> abort -> restart.  The node
+// starts from a genesis with VoteExtensionsEnableHeight = 1 (the documented
+// "enable at InitialHeight" setup), the application forwards its complete,
+// unchanged parameter set at height 1, and the node restarts.  The apply part
+// goes to SPECULA_TRACE_FILE, the restart handshake to SPECULA_TRACE_FILE_RESTART.
+func TestSpeculaTraceVEEchoRestart(t *testing.T) {
+	applyTrace := os.Getenv("SPECULA_TRACE_FILE")
+	restartTrace := os.Getenv("SPECULA_TRACE_FILE_RESTART")
+	require.NotEmpty(t, applyTrace)
+	require.NotEmpty(t, restartTrace)
+	scratch := applyTrace + ".setup"
+	t.Cleanup(func() { _ = os.Remove(scratch) })
+
+	pk := ed25519.GenPrivKeyFromSecret([]byte("specula-ve"))
+	params := types.DefaultConsensusParams()
+	params.ABCI.VoteExtensionsEnableHeight = 1
+	genDoc := &types.GenesisDoc{
+		ChainID:         chainID,
+		ConsensusParams: params,
+		Validators: []types.GenesisValidator{{
+			Address: pk.PubKey().Address(), PubKey: pk.PubKey(), Power: 1000, Name: "v0",
+		}},
+	}
+	state, err := sm.MakeGenesisState(genDoc)
+	require.NoError(t, err)
+	stateStore := sm.NewStore(dbm.NewMemDB(), sm.StoreOptions{DiscardABCIResponses: false})
+	require.NoError(t, stateStore.Save(state))
+	blockStore := store.NewBlockStore(dbm.NewMemDB())
+	echo := speculaEcho(state.ConsensusParams, 1)
+	newApp := func() *speculaVEApp {
+		return &speculaVEApp{updates: map[int64]*cmtproto.ConsensusParams{1: echo}}
+	}
+
+	// First start: InitChain handshake (fixture; traced to a scratch file).
+	t.Setenv("SPECULA_TRACE_FILE", scratch)
+	proxyApp := speculaStartApp(t, newApp())
+	require.NoError(t, consensus.NewHandshaker(stateStore, state, blockStore, genDoc).
+		Handshake(context.Background(), proxyApp))
+	state, err = stateStore.Load()
+	require.NoError(t, err)
+
+	// Height 1 is decided, saved and applied.
+	t.Setenv("SPECULA_TRACE_FILE", applyTrace)
+	require.NoError(t, speculatrace.Reset())
+	privVals := map[string]types.PrivValidator{
+		pk.PubKey().Address().String(): types.NewMockPVWithParams(pk, false, false),
+	}
+	_, applyErr := speculaApplyHeights(t, state, stateStore, blockStore, privVals, proxyApp, 1)
+	t.Logf("SPECULA_OBSERVED apply_error=%v", applyErr)
+
+	// Restart: a fresh application process with no committed height and the
+	// same deterministic FinalizeBlock behaviour, then the startup handshake.
+	t.Setenv("SPECULA_TRACE_FILE", restartTrace)
+	restarted, err := stateStore.Load()
+	require.NoError(t, err)
+	handshakeErr := consensus.NewHandshaker(stateStore, restarted, blockStore, genDoc).
+		Handshake(context.Background(), speculaStartApp(t, newApp()))
+	t.Logf("SPECULA_OBSERVED restart_handshake_error=%v", handshakeErr)
+}

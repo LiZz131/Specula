@@ -1,0 +1,18 @@
++ cd /work/current/.specula-output/artifact && timeout 10m go test -mod=readonly ./internal/state -run '^TestSpeculaMC1' -count=1 -v
++ tree types/params.go sha256: ed9e08e265a6031def169f7f3e44608af2ac4e9576dbcf10a58fa4a2b41327b1
+=== RUN   TestSpeculaMC1UnchangedEnableHeightNotRejected
+        	Error Trace:	/work/current/.specula-output/artifact/internal/state/specula_mc1_repro_test.go:108
+        	Error:      	Received unexpected error:
+        	            	commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 1
+        	Messages:   	ApplyBlock failed at height 1
+--- FAIL: TestSpeculaMC1UnchangedEnableHeightNotRejected (0.00s)
+=== RUN   TestSpeculaMC1UnchangedAbciOnlyNotRejected
+        	Error Trace:	/work/current/.specula-output/artifact/internal/state/specula_mc1_repro_test.go:117
+        	Error:      	Received unexpected error:
+        	            	commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 2
+        	Messages:   	ApplyBlock failed at height 2
+--- FAIL: TestSpeculaMC1UnchangedAbciOnlyNotRejected (0.00s)
+FAIL
+FAIL	github.com/cometbft/cometbft/internal/state	0.039s
+FAIL
+exit_code: 1

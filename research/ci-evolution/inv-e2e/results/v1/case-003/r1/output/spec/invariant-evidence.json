@@ -1,0 +1,635 @@
+{
+ "version": 1,
+ "generated_in": "Generation (constructed) + Validation (trace-sourced, code observation on both revisions)",
+ "entries": [
+  {
+   "property": "UnchangedVENotRejected",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new property)",
+   "affected_because": "ValidateUpdate row 6 (types/params.go:243-248) now rejects an Abci update whose VEH equals an already reached enable height; the old equality short-cut (9dd6e50:types/params.go:212-214) was removed",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E1",
+    "E1c",
+    "T1",
+    "T1r",
+    "T6",
+    "T5"
+   ]
+  },
+  {
+   "property": "EnableFromDisabledNotRejected",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new property)",
+   "affected_because": "ValidateUpdate row 7 (types/params.go:249-252) now accepts P=0 -> U>h which the old code rejected (9dd6e50:types/params.go:223-228); the property guards against regression",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E2",
+    "E2c",
+    "T2old",
+    "T2"
+   ]
+  },
+  {
+   "property": "VEReachedImmutable",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new property)",
+   "affected_because": "rows 4/5/8/9 (types/params.go:232-258) now distinguish reached (P<=h) from future (P>h) enable heights",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E3",
+    "E3c",
+    "T3",
+    "T7"
+   ]
+  },
+  {
+   "property": "VEChangeOnlyToFuture",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new property)",
+   "affected_because": "row 6/7/9 (types/params.go:243-260) decide which non-zero targets are accepted",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E4",
+    "E4c",
+    "T4",
+    "T7",
+    "T2"
+   ]
+  },
+  {
+   "property": "InstalledParamsBasicValid",
+   "replaces": null,
+   "decision": "add",
+   "kind": "structural (representation repair)",
+   "affected_because": "V1 makes VEH explicit; ValidateBasic's VEH>=0 clause (types/params.go:188-190) now constrains installed records",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E5",
+    "E5c",
+    "T1",
+    "T2s"
+   ]
+  },
+  {
+   "property": "ValidationInputStable",
+   "replaces": null,
+   "decision": "add",
+   "kind": "structural (needed by Update.tla to read the pre-update receiver)",
+   "affected_because": "update properties read persistedParam as ValidateUpdate's receiver",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E6",
+    "E6c",
+    "T1"
+   ]
+  },
+  {
+   "property": "RejectedUpdateDoesNotInstall",
+   "replaces": "RejectedUpdateDoesNotInstall",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "UpdateStateRejected was split into Basic/VE variants and its enabling set changed",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E1",
+    "T1",
+    "T1r",
+    "T5",
+    "T6"
+   ]
+  },
+  {
+   "property": "ParameterUpdateReflected",
+   "replaces": "ParameterUpdateReflected",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "UpdateStateAccepted's guard changed (row 7/5 now accepted, row 6 unchanged-reached now rejected)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E4c",
+    "T2",
+    "T3",
+    "T7"
+   ]
+  },
+  {
+   "property": "SuccessfulApplyAdvancesExactlyOne",
+   "replaces": "SuccessfulApplyAdvancesExactlyOne",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "reads phase updated/committed whose reachability depends on the changed guard",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E4c",
+    "T2"
+   ]
+  },
+  {
+   "property": "NormalPhaseIsSynchronized",
+   "replaces": "NormalPhaseIsSynchronized",
+   "decision": "keep",
+   "kind": "keep",
+   "affected_because": "reads activeParam/persistedParam that the changed acceptance can now install with a new VEH",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E5c",
+    "T2s"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E1",
+   "property": "UnchangedVENotRejected",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1/E1.tla",
+   "how_populated": "UpdateStateRejectedVE post-state with P=U=1 at h=1 (genesis VE height 1, as internal/test/params.go:12)",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E1/tlc.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "observed: T1/T1r/T6 trace states on 401753b; control trace on 9dd6e50 accepts the same input (spec/output/control-old-ve-echo-reached.log)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "artifact/spec/abci/abci++_app_requirements.md:776-777 (only a *change* of a non-zero value is forbidden)",
+     "artifact/spec/abci/abci++_app_requirements.md:783-790 (non-empty fields are applied in full; apps re-send unchanged values)",
+     "artifact/spec/abci/abci++_app_requirements.md:800-807 (non-nil ConsensusParams is used)",
+     "old-source/types/params_test.go:196-204 (\"no error when unchanged\")"
+    ],
+    "counter_evidence": [
+     "new-source/types/params_test.go:168-169 (test data expects an error for 100->100 at heights 100 and 300)",
+     "artifact/types/params.go:214 (row-6 comment: '* | <=height | vote extensions cannot be updated to a past height')"
+    ],
+    "assessment": "contested at unit level; the system-level contract defines only changes as forbidden, and a ValidateUpdate error after the response is durable is a permanent chain halt (consensus/state.go:1834-1836, replay.go:409-415). Recorded as a bug candidate, not resolved by editing the property."
+   },
+   "cell": "bug candidate"
+  },
+  {
+   "id": "E1c",
+   "property": "UnchangedVENotRejected",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E1c/E1c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E1c/tlc.log",
+   "note": "disabling a reached height (row 4) must still be rejectable"
+  },
+  {
+   "id": "E2",
+   "property": "EnableFromDisabledNotRejected",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E2/E2.tla",
+   "how_populated": "rejection of P=0 -> U=2 at h=1 (old-code decision)",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E2/tlc.log",
+   "impl_produces": {
+    "value": "no (new) / yes (old)",
+    "basis": "observed: spec/output/harness-ve-enable-future.log vs spec/output/control-old-ve-enable-future.log"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "artifact/spec/abci/abci++_app_requirements.md:1118-1131 (VE may be enabled via app logic to a height higher than the current height)",
+     "artifact/spec/abci/abci++_app_requirements.md:776"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E2c",
+   "property": "EnableFromDisabledNotRejected",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E2c/E2c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E2c/tlc.log",
+   "note": "enable to the current height (not future) may be rejected"
+  },
+  {
+   "id": "E3",
+   "property": "VEReachedImmutable",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E3/E3.tla",
+   "how_populated": "accepted disable of reached P=1 at h=1",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E3/tlc.log",
+   "impl_produces": {
+    "value": "no",
+    "basis": "row 4 types/params.go:234-239 (new); 9dd6e50:types/params.go:215-217 (old)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "artifact/spec/abci/abci++_app_requirements.md:760-777"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E3c",
+   "property": "VEReachedImmutable",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E3c/E3c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E3c/tlc.log",
+   "note": "cancelling a not-yet-reached height is not constrained by this property"
+  },
+  {
+   "id": "E4",
+   "property": "VEChangeOnlyToFuture",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E4/E4.tla",
+   "how_populated": "accepted enable to the current height h=1",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E4/tlc.log",
+   "impl_produces": {
+    "value": "no",
+    "basis": "row 6 types/params.go:243-248; old 9dd6e50:types/params.go:218-222"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "artifact/spec/abci/abci++_app_requirements.md:776",
+     "artifact/spec/abci/abci++_app_requirements.md:1126-1129"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E4c",
+   "property": "VEChangeOnlyToFuture",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E4c/E4c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "old_kept": {
+    "ParameterUpdateReflected": true,
+    "SuccessfulApplyAdvancesExactlyOne": true
+   },
+   "log": "spec/evidence/E4c/tlc.log",
+   "note": "also keep-evidence (constructed) for ParameterUpdateReflected and SuccessfulApplyAdvancesExactlyOne; upgraded with trace states in Validation"
+  },
+  {
+   "id": "E5",
+   "property": "InstalledParamsBasicValid",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E5/E5.tla",
+   "how_populated": "normal state holding VEH=-1",
+   "old": {
+    "claimed": "not expressible (V0 symbolic params)",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E5/tlc.log",
+   "impl_produces": {
+    "value": "no",
+    "basis": "execution.go:617-620 + types/params.go:188-190"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "artifact/spec/abci/abci++_app_requirements.md:760-762 (value is 0 or a positive height)"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E5c",
+   "property": "InstalledParamsBasicValid",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E5c/E5c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "old_kept": {
+    "NormalPhaseIsSynchronized": true
+   },
+   "log": "spec/evidence/E5c/tlc.log"
+  },
+  {
+   "id": "E6",
+   "property": "ValidationInputStable",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E6/E6.tla",
+   "how_populated": "responseSaved with diverging active/persisted params",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E6/tlc.log",
+   "impl_produces": {
+    "value": "no",
+    "basis": "ApplyBlock receives the saved state (consensus/state.go:1820-1826, replay.go:504-521)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "internal/state/execution.go:205-211 (ApplyBlock validates against the passed state)"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E6c",
+   "property": "ValidationInputStable",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E6c/E6c.tla",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E6c/tlc.log"
+  },
+  {
+   "id": "T1",
+   "property": "UnchangedVENotRejected",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/T1/T1.tla",
+   "how_populated": "post-state of event 5 (UpdateStateRejected, reason=update) in traces/ve_echo_reached.ndjson (updated code 401753b)",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/T1/tlc.log",
+   "kept_checks": {
+    "RejectedUpdateDoesNotInstall": {
+     "old_tlc": true,
+     "new_tlc": true
+    }
+   },
+   "impl_produces": {
+    "value": "yes (new) / no (old)",
+    "basis": "spec/output/harness-ve-echo-reached.log (rejected) vs spec/output/control-old-ve-echo-reached.log (accepted, baseline 9dd6e50)"
+   },
+   "requirement": "same as E1",
+   "cell": "bug candidate"
+  },
+  {
+   "id": "T1r",
+   "property": "UnchangedVENotRejected",
+   "role": "separating (consequence)",
+   "state_source": "trace",
+   "state": "spec/evidence/T1r/T1r.tla",
+   "how_populated": "post-state of event 6 (UpdateStateRejected during real final-block replay) in traces/ve_echo_restart_handshake.ndjson",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/T1r/tlc.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "spec/output/harness-ve-echo-restart-apply.log: restart_handshake_error=error on replay ... cannot be updated to a past or current height"
+   }
+  },
+  {
+   "id": "T6",
+   "property": "UnchangedVENotRejected",
+   "role": "separating (changed->changed)",
+   "state_source": "trace",
+   "state": "spec/evidence/T6/T6.tla",
+   "how_populated": "post-state of event 12 in traces/ve_enable_then_echo.ndjson (row 7 accepted at h=1, row 6 rejects the unchanged set at h=2)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/T6/tlc.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "spec/output/harness-ve-enable-then-echo.log"
+   }
+  },
+  {
+   "id": "T5",
+   "property": "UnchangedVENotRejected",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/T5/T5.tla",
+   "how_populated": "post-state of event 5 in traces/ve_disable_reached.ndjson (row 4)",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/T5/tlc.log"
+  },
+  {
+   "id": "T2old",
+   "property": "EnableFromDisabledNotRejected",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/T2old/T2old.tla",
+   "how_populated": "post-state of event 5 (UpdateStateRejected) in traces/controls-old-code/ve_enable_future.ndjson (baseline 9dd6e50)",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/T2old/tlc.log",
+   "impl_produces": {
+    "value": "yes (old) / no (new)",
+    "basis": "spec/output/control-old-ve-enable-future.log (rejected) vs spec/output/harness-ve-enable-future.log (accepted)"
+   },
+   "requirement": "same as E2",
+   "cell": "strengthening justified (detects regression to the old behaviour)"
+  },
+  {
+   "id": "T2",
+   "property": "ParameterUpdateReflected",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/T2/T2.tla",
+   "how_populated": "post-state of event 5 (UpdateStateAccepted, row 7) in traces/ve_enable_future.ndjson",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "also": {
+    "SuccessfulApplyAdvancesExactlyOne": {
+     "old": true,
+     "new": true
+    },
+    "EnableFromDisabledNotRejected": true,
+    "VEChangeOnlyToFuture": true,
+    "VEReachedImmutable": true
+   },
+   "log": "spec/evidence/T2/tlc.log",
+   "requirement": {
+    "value": "allowed (installation of an accepted update at H+1)",
+    "citations": [
+     "artifact/spec/abci/abci++_app_requirements.md:806-807"
+    ]
+   }
+  },
+  {
+   "id": "T2s",
+   "property": "NormalPhaseIsSynchronized",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/T2s/T2s.tla",
+   "how_populated": "post-state of event 7 (SaveState) in traces/ve_enable_future.ndjson",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/evidence/T2s/tlc.log"
+  },
+  {
+   "id": "T3",
+   "property": "VEReachedImmutable",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/T3/T3.tla",
+   "how_populated": "post-state of event 5 (UpdateStateAccepted, row 5 cancel) in traces/ve_disable_future.ndjson",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "also": {
+    "ParameterUpdateReflected": {
+     "old": true,
+     "new": true
+    }
+   },
+   "log": "spec/evidence/T3/tlc.log"
+  },
+  {
+   "id": "T4",
+   "property": "VEChangeOnlyToFuture",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/T4/T4.tla",
+   "how_populated": "post-state of event 5 (row 9 move-future) in traces/ve_move_future.ndjson",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/T4/tlc.log"
+  },
+  {
+   "id": "T7",
+   "property": "VEChangeOnlyToFuture",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/T7/T7.tla",
+   "how_populated": "post-state of event 5 (row 9 unchanged-future echo) in traces/ve_echo_future.ndjson",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "also": {
+    "VEReachedImmutable": true,
+    "ParameterUpdateReflected": {
+     "old": true,
+     "new": true
+    }
+   },
+   "log": "spec/evidence/T7/tlc.log"
+  }
+ ],
+ "bug_candidates": [
+  "E1",
+  "T1",
+  "T1r",
+  "T6"
+ ],
+ "unresolved": [],
+ "unaffected_controls": [
+  "PersistedHeightRelationships",
+  "RecoveryNormalOnlySupported"
+ ],
+ "limitations": [
+  "Separating states for the strengthenings E3/E4/E5/E6 are constructed: neither implementation produces them (they are the forbidden states). Their controls are trace-sourced (T3, T4, T7, T1).",
+  "UnchangedVENotRejected rests on a contested requirement: ABCI contract text and the old unit test treat an unchanged value as compliant; the new unit-test data asserts ValidateUpdate errors for it. The property was not edited toward the implementation."
+ ]
+}

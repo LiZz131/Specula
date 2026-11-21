@@ -1,0 +1,145 @@
+{
+ "version": 1,
+ "run_id": "case-011",
+ "summary": "Pre-Vote update modeled (MODEL_CHANGE_REQUIRED); 16 fresh traces validate; two update-introduced defects found by model checking and reproduced end-to-end.",
+ "validation_limits": [
+  "All TLC campaigns are bounded (3 nodes, MaxTerm 2, MaxLogIndex 4, small fault/election/Pre-Vote/membership budgets, <=5 messages) and stopped at a 30-minute budget with non-empty queues: LIMITED_COVERAGE, not exhaustive.",
+  "Engine-level traces: the RaftCore correlation check, RPC timeouts, default-network fallback grant and runtime enable_pre_vote toggle are covered by code review, the model and end-to-end tests, not by trace replay.",
+  "Follower-side membership change through replication and timing (timeouts, tick rate limits) are abstracted in the model.",
+  "Prior suite defect repaired: LogLE treated absent logs as different, so the prior 3-voter MC.cfg could never elect a leader.",
+  "The pinned nightly toolchain is unavailable; the stable toolchain was used for all builds and tests.",
+  "No old-revision control: the reproductions use APIs (Config::enable_pre_vote, trigger().elect(bool)) that do not exist in the baseline."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "A timer Pre-Vote round outlives the node's own leader establishment and demotes the new leader",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "establish_leader/become_leader keep pre_candidate and handle_pre_vote_resp calls elect() without the timer's leader/voter checks.",
+   "trigger": "With Pre-Vote enabled the election timer starts a Pre-Vote round on a Candidate whose election then wins; a late Pre-Vote grant for that round arrives.",
+   "consequence": "The healthy new leader steps down to Candidate at term+1 keeping its Leader object; RaftCore panics on the leader.vote >= state.vote assertion (debug builds).",
+   "severity": "High",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/output/MC-1_TimerPreVoteElectsOnlyNonLeader_fullMCNext_cex.out",
+    "spec/output/repro-MC-1-run1.log",
+    "spec/output/repro-MC-1-run1-timeline.txt",
+    "harness/src/t90_specula_repro_stale_prevote_leader.rs",
+    "spec/bug-report.md"
+   ],
+   "persistence": {
+    "sites": [
+     "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+     "openraft/src/engine/engine_impl.rs:establish_leader",
+     "openraft/src/engine/handler/vote_handler/mod.rs:become_leader",
+     "openraft/src/core/raft_core.rs:handle_tick_election"
+    ],
+    "actions": [
+     "TickPreElect",
+     "HandleVoteResponse",
+     "HandlePreVoteResponse",
+     "ElectEffects"
+    ],
+    "invariants": [
+     "TimerPreVoteElectsOnlyNonLeader"
+    ],
+    "premises": [
+     "Pre-Vote is enabled (Config::enable_pre_vote = Some(true) or runtime toggle).",
+     "Vote responses can arrive after the Candidate's election timer fired but within the vote RPC timeout (vote persistence/command-drain latency exceeds election_timeout - election_timeout_min plus tick phase)."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free."
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/handler/vote_handler/mod.rs"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn handle_tick_election(&mut self) {",
+      "end": "    /// If a message is sent by a previous Candidate but is received by current Candidate,"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateProps.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/MC_hunt_U2_prevote_leader.cfg"
+     }
+    ]
+   }
+  },
+  {
+   "id": "MC-2",
+   "title": "Pre-Vote responses of an earlier round are counted by a later round with the same probe; after a membership change grant_by panics",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "does_pre_candidate_vote_match correlates Pre-Vote responses only by the probed leader id, which successive rounds at the same term share.",
+   "trigger": "Two operator Pre-Vote rounds at the same term with a grant of the first still in flight; for the crash, a membership change removing that responder in between.",
+   "consequence": "The later round counts the stale grant; with the responder removed, Candidate::grant_by panics and the RaftCore dies.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/confirmation-MC-2.md",
+    "spec/output/MC-2_StalePreVoteResponseIgnored_fullMCNext_cex.out",
+    "spec/output/MC-2_PreVoteResponseNeverPanics_cex.out",
+    "spec/output/repro-MC-2-run1.log",
+    "harness/src/t91_specula_repro_prevote_stale_round_panic.rs",
+    "spec/bug-report.md"
+   ],
+   "persistence": {
+    "sites": [
+     "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+     "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+     "openraft/src/proposer/candidate.rs:grant_by"
+    ],
+    "actions": [
+     "ExternalPreElect",
+     "HandlePreVoteResponse"
+    ],
+    "invariants": [
+     "StalePreVoteResponseIgnored",
+     "PreVoteResponseNeverPanics"
+    ],
+    "premises": [
+     "Operator-triggered Pre-Vote rounds are not rate limited.",
+     "A Pre-Vote response can be delayed up to election_timeout_min."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    /// If a Pre-Vote response is for a previous Pre-Vote round, it is stale and should be ignored.",
+      "end": "    /// If a message is sent by a previous Leader but is received by current Leader,"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateProps.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/MC_hunt_U4_prevote_stale_round.cfg"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,54 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 53 and seed 6712637600289640319 with 2 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 11084] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-936969742904057517/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-936969742904057517/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-936969742904057517/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-936969742904057517/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-936969742904057517/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-936969742904057517/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-936969742904057517/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-20 05:19:05)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-20 05:19:05.
+Error: Invariant NotReachUpgradedWithFollowerProgress is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCStartElection(n1) line 38, col 5 to line 41, col 70 of module MC>
+
+State 3: <MCGrantVote(n1,n2) line 75, col 5 to line 76, col 27 of module MC>
+
+State 4: <MCLeaderWriteBlank(n1) line 71, col 5 to line 72, col 27 of module MC>
+
+State 5: <MCProposeMembership(n1,{n1, n2}) line 50, col 5 to line 53, col 68 of module MC>
+
+State 6: <MCSendAppendEntries(n1,n2) line 79, col 5 to line 80, col 27 of module MC>
+
+State 7: <MCNext line 109, col 8 to line 109, col 51 of module MC>
+
+State 8: <MCNext line 111, col 8 to line 111, col 50 of module MC>
+
+992 states generated, 717 distinct states found, 484 states left on queue.
+The depth of the complete state graph search is 8.
+Finished in 01s at (2026-11-20 05:19:06)
+Trace exploration spec path: ./Update_TTrace_1795151944.tla
+CMD: Update.tla -config Update_reach_UpgradedWithFollowerProgress.cfg -workers 2  (outer timeout 10m)
+EXIT: rc=12 elapsed=3s

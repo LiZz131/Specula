@@ -1,0 +1,50 @@
+# run=sim-s6-linearizable module=Update.tla cfg=MC_hunt_s6_linearizable.cfg budget=30m workers=8 extra=-simulate num=999999999 -depth 60 start=2026-11-18T04:57:32Z
+# cmd: timeout 30m java -Xmx20g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 8 -metadir /dev/shm/specula-e2e-case-006/sim-s6-linearizable -noGenerateSpecTE -dumpTrace json output/sim-s6-linearizable.cex.json -config MC_hunt_s6_linearizable.cfg -simulate num=999999999 -depth 60 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed -7182601325871195220 with 8 workers on 40 cores with 18204MB heap and 64MB offheap memory [pid: 10247] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-7147348881503985253/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-7147348881503985253/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7147348881503985253/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7147348881503985253/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7147348881503985253/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7147348881503985253/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7147348881503985253/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-7147348881503985253/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module Update
+line 182, col 44 to line 182, col 49 of module base
+
+The field name "leader" in the record constructor is identical to the existing definition or declaration
+named leader, located at line 67, col 23 to line 67, col 28 of module base.
+The field in the record will not take the value of the leader definition or declaration.
+In TLA+, field names in records are strings, regardless of any similarly named declarations or definitions.
+Therefore, DOMAIN [leader |-> ...] = {"leader"} holds true.
+
+
+
+Starting... (2026-11-18 04:57:33)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-18 04:57:33.
+Progress: 1195312 states checked, 7443 traces generated (trace length: mean=24, var(x)=342, sd=18)
+# end=2026-11-18T04:59:12Z rc=143 outcome=STOPPED_MANUALLY (low-yield: mean walk length 24 < ~36-step target; replaced by guided BFS) rc=143

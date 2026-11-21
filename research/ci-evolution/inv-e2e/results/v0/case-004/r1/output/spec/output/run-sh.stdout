@@ -1,0 +1,39 @@
+source: d7176ef916c7d2e3f2a0eed612875d7ce3e646b1 (update)
+toolchain: cargo 1.100.0 (3acc79c0c 2026-11-05)
+applied instrumentation.patch
+unit specula_trace_election -> election.ndjson (4 lines)
+unit specula_trace_vote_request -> vote-request.ndjson (2 lines)
+unit specula_trace_follower_append -> follower-append.ndjson (2 lines)
+unit specula_trace_learner_membership -> learner-membership.ndjson (2 lines)
+unit specula_trace_joint_membership -> joint-membership.ndjson (2 lines)
+unit specula_trace_uniform_membership -> uniform-membership.ndjson (2 lines)
+unit specula_trace_partial_replication -> partial-replication.ndjson (4 lines)
+unit specula_trace_restart -> restart.ndjson (2 lines)
+unit specula_trace_lease_touch -> lease-touch.ndjson (3 lines)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 1.24s
+CHAIN core-t14-n0-c0.ndjson real_node=0 events=2 [VoteResponse,VoteResponse]
+CHAIN core-t14-n0-c1.ndjson real_node=0 events=1 [VoteRequest]
+CHAIN core-t14-n1-c0.ndjson real_node=1 events=2 [TransferLeader,VoteRequest]
+CHAIN core-t14-n1-c1.ndjson real_node=1 events=1 [TransferLeader]
+CHAIN core-t14-n2-c0.ndjson real_node=2 events=5 [TransferLeader,VoteResponse,VoteResponse,VoteResponse,VoteResponse]
+SUMMARY raw_events=11 chains_written=5
+test t14_specula_transfer_to_learner::specula_transfer_leader_to_learner ... SPECULA-OBS before: leader_vote=<T1-N0:Q> last_log_id=Some(LogId { leader_id: LeaderId { term: 1, node_id: 0 }, index: 6 }) n3.state=Learner n3.vote=<T1-N0:Q>
+SPECULA-OBS transfer_leader on n0 -> Ok(())
+SPECULA-OBS transfer_leader on n1 -> Ok(())
+SPECULA-OBS transfer_leader on n2 -> Ok(())
+SPECULA-OBS transfer_leader on n3 -> Ok(())
+SPECULA-OBS after: n3.is_initialized() = Err(Panicked)
+SPECULA-OBS after: n0 state=Leader vote=<T3-N0:Q> current_leader=Some(0)
+SPECULA-OBS after: n1 state=Follower vote=<T3-N0:Q> current_leader=Some(0)
+SPECULA-OBS after: n2 state=Follower vote=<T3-N0:Q> current_leader=Some(0)
+SPECULA-OBS after: n3 state=Learner vote=<T1-N0:Q> current_leader=Some(0)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 1.25s
+CHAIN core-learner-n0-c0.ndjson real_node=0 events=2 [VoteResponse,VoteResponse]
+CHAIN core-learner-n0-c1.ndjson real_node=0 events=2 [TransferLeader,VoteRequest]
+CHAIN core-learner-n0-c2.ndjson real_node=0 events=3 [VoteResponse,VoteResponse,VoteResponse]
+CHAIN core-learner-n1-c0.ndjson real_node=1 events=3 [TransferLeader,VoteRequest,VoteRequest]
+CHAIN core-learner-n2-c0.ndjson real_node=2 events=3 [TransferLeader,VoteRequest,VoteRequest]
+CHAIN core-learner-n3-c0.ndjson real_node=3 events=2 [TransferLeader,VoteResponsePanic]
+SUMMARY raw_events=15 chains_written=6
+fresh traces: 20
+EXIT 0

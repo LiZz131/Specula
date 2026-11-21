@@ -1,0 +1,638 @@
+{
+ "schema_version": 1,
+ "case_id": "case-003",
+ "purpose": "incremental_specula_v1",
+ "prior": {
+  "path": "/work/previous/.specula-output",
+  "suite_manifest_sha256": "8ac49afe99c1a9cecc7cbe3cb6074982de9103effed7ac38b21aa7e0770e6934"
+ },
+ "source": {
+  "artifact_commits": [
+   "401753b049219c7a8c1c26d5fcc44d7922e2fbc3 update",
+   "9dd6e50860f6f96fd0e05a8b961843dfc4a56bac baseline"
+  ],
+  "changed_files": [
+   "types/params.go",
+   "types/params_test.go",
+   ".changelog/unreleased/bug-fixes/0000-asa-2024-001-fix-validate.md"
+  ],
+  "artifact_worktree_clean": true
+ },
+ "decision": "MODEL_CHANGE_REQUIRED",
+ "instrumentation": {
+  "patch": "harness/patches/instrumentation.patch",
+  "sha256": "3a6785edbc1682241d36da1aae832d6eaf1f4bd791bbba9a45e7898b873aefba",
+  "prior_patch": "harness/patches/instrumentation-v0-prior.patch",
+  "prior_patch_sha256": "d9c8c96a6a4db223249c8e2e5a0c6522e0c40c66a4f6be4911499ee3008f3ed9"
+ },
+ "trace_validation": {
+  "status": "LIMITED_COVERAGE",
+  "all_fresh_traces_matched": true,
+  "count": 20,
+  "traces": [
+   {
+    "file": "traces/apply_rejected.ndjson",
+    "events": 5,
+    "sha256": "29c56d2216d9ec34d7d11170f3e34cce975a9426af36938898877f43b1535399"
+   },
+   {
+    "file": "traces/apply_valid.ndjson",
+    "events": 7,
+    "sha256": "e21c9f78be0677fad6ef5d68adaccabb08ce5ad9c58e84deb5190246a558e0c5"
+   },
+   {
+    "file": "traces/apply_ve_cancel_future.ndjson",
+    "events": 7,
+    "sha256": "8185759b6165631c6d8c9fb38791bfe08d180f5a844c57cf5ae415abb0c41aaf"
+   },
+   {
+    "file": "traces/apply_ve_disable_after_enable.ndjson",
+    "events": 5,
+    "sha256": "69789ffa5bd091c1b2a3a6ab69d88c1ba5ba7b8b984c16ed42d250360a566edd"
+   },
+   {
+    "file": "traces/apply_ve_enable_from_zero.ndjson",
+    "events": 7,
+    "sha256": "11e16de8aaf716fabc7ba3fd35447c4f45f216131541c866f2f7d8cad84d325a"
+   },
+   {
+    "file": "traces/apply_ve_modify_after_enable.ndjson",
+    "events": 5,
+    "sha256": "104addad9a3854fa6b4f39abe321d5b2ead78bb216b3921b2261d9621d5248d0"
+   },
+   {
+    "file": "traces/apply_ve_modify_future.ndjson",
+    "events": 7,
+    "sha256": "f329e06e260c5dfc591c317c0618d6a53dfa8c5a0212c12275d42b64c222037b"
+   },
+   {
+    "file": "traces/apply_ve_negative.ndjson",
+    "events": 5,
+    "sha256": "e498c54296bc90adf33264042b1a50710861f265057c1be40189690f24f3acbb"
+   },
+   {
+    "file": "traces/apply_ve_past_height.ndjson",
+    "events": 5,
+    "sha256": "1339367b9bcff17431b82825f9c50e3d1257dd12818ebb576169ea1e386f498f"
+   },
+   {
+    "file": "traces/apply_ve_unchanged_after_enable.ndjson",
+    "events": 12,
+    "sha256": "b7aa15c4f2095b42ce6d44411c932efca7e5e4909d9a3c25547d24dbc6a535a4"
+   },
+   {
+    "file": "traces/apply_ve_unchanged_echo.ndjson",
+    "events": 5,
+    "sha256": "3f71a03f42d99e1eead55e446902b3b7429a2db1abbc1787ed017bb3786092ce"
+   },
+   {
+    "file": "traces/apply_ve_zero_to_zero.ndjson",
+    "events": 7,
+    "sha256": "32162842d14f41e703afdfc5fc5789302778921cbf72219bc4bb7dcb549b0eac"
+   },
+   {
+    "file": "traces/replay_app_only.ndjson",
+    "events": 6,
+    "sha256": "c0f8935728cc085d16bed2099c13357fc7bf151d559675bd2efcd7248eaa325b"
+   },
+   {
+    "file": "traces/replay_mock.ndjson",
+    "events": 9,
+    "sha256": "077b177336cedf344c1c0115230597bf02c4789adcdc3431d5b15b318e6cdf59"
+   },
+   {
+    "file": "traces/replay_mock_ve_enable_prefix.ndjson",
+    "events": 8,
+    "sha256": "ca8d6f1665a9b29b5ef4624c9f0f0a4ac903b33223c3eac5c79f217f01aadd73"
+   },
+   {
+    "file": "traces/replay_mock_ve_enable_restart.ndjson",
+    "events": 9,
+    "sha256": "90ff970dc0d76caf074191c41109011f84820a26fb5157ba2851bc8d93033838"
+   },
+   {
+    "file": "traces/replay_none.ndjson",
+    "events": 2,
+    "sha256": "53c3235418b2a295e21c0e1d561376e0922f4f176817d82f227577b0bffea028"
+   },
+   {
+    "file": "traces/replay_real.ndjson",
+    "events": 9,
+    "sha256": "c7732a28fb1058815c40ee7cedb1bb8104dafe272e2745807975c010cb47eb83"
+   },
+   {
+    "file": "traces/replay_ve_unchanged_prefix.ndjson",
+    "events": 7,
+    "sha256": "e6a9f53ef5308e312b161565cb652f757444fd91dbde1a548f14fb6701449e89"
+   },
+   {
+    "file": "traces/replay_ve_unchanged_restart.ndjson",
+    "events": 6,
+    "sha256": "51300d90783a9e72030c3e5f02f9e396abef7ad5bac0d0ceae3ef3dda77eb8cf"
+   }
+  ],
+  "negative_controls_rejected": 6
+ },
+ "model_checking": {
+  "status": "LIMITED_COVERAGE",
+  "runs": [
+   {
+    "label": "MC-1-cex",
+    "cfg": "Update_full.cfg",
+    "mode": "BFS",
+    "distinct": 838,
+    "generated": 1026,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-MC-1-cex.log"
+   },
+   {
+    "label": "final-std-MC",
+    "cfg": "MC.cfg",
+    "mode": "BFS",
+    "distinct": 75944,
+    "generated": 107820,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-final-std-MC.log"
+   },
+   {
+    "label": "final-upd-full-safety",
+    "cfg": "Update_full_safety.cfg",
+    "mode": "BFS",
+    "distinct": 75944,
+    "generated": 107820,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-final-upd-full-safety.log"
+   },
+   {
+    "label": "final-upd-full",
+    "cfg": "Update_full.cfg",
+    "mode": "BFS",
+    "distinct": 489,
+    "generated": 588,
+    "traces": null,
+    "depth": 10,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-final-upd-full.log"
+   },
+   {
+    "label": "hunt-U1_enable_from_zero-safety",
+    "cfg": "Update_hunt_U1_enable_from_zero_safety.cfg",
+    "mode": "BFS",
+    "distinct": 5498,
+    "generated": 6877,
+    "traces": null,
+    "depth": 38,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-U1_enable_from_zero-safety.log"
+   },
+   {
+    "label": "hunt-U1_enable_from_zero",
+    "cfg": "Update_hunt_U1_enable_from_zero.cfg",
+    "mode": "BFS",
+    "distinct": 989,
+    "generated": 1140,
+    "traces": null,
+    "depth": 18,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-hunt-U1_enable_from_zero.log"
+   },
+   {
+    "label": "hunt-U2_unchanged_after_enable-safety",
+    "cfg": "Update_hunt_U2_unchanged_after_enable_safety.cfg",
+    "mode": "BFS",
+    "distinct": 2373,
+    "generated": 2949,
+    "traces": null,
+    "depth": 31,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-U2_unchanged_after_enable-safety.log"
+   },
+   {
+    "label": "hunt-U2_unchanged_after_enable",
+    "cfg": "Update_hunt_U2_unchanged_after_enable.cfg",
+    "mode": "BFS",
+    "distinct": 411,
+    "generated": 464,
+    "traces": null,
+    "depth": 15,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-hunt-U2_unchanged_after_enable.log"
+   },
+   {
+    "label": "hunt-U3_ve_safety",
+    "cfg": "Update_hunt_U3_ve_safety.cfg",
+    "mode": "BFS",
+    "distinct": 7625,
+    "generated": 9556,
+    "traces": null,
+    "depth": 38,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-U3_ve_safety.log"
+   },
+   {
+    "label": "hunt-U4_recovery-safety",
+    "cfg": "Update_hunt_U4_recovery_safety.cfg",
+    "mode": "BFS",
+    "distinct": 29037,
+    "generated": 45761,
+    "traces": null,
+    "depth": 36,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-U4_recovery-safety.log"
+   },
+   {
+    "label": "hunt-U4_recovery",
+    "cfg": "Update_hunt_U4_recovery.cfg",
+    "mode": "BFS",
+    "distinct": 778,
+    "generated": 940,
+    "traces": null,
+    "depth": 12,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-hunt-U4_recovery.log"
+   },
+   {
+    "label": "hunt-U5_deep_safety",
+    "cfg": "Update_hunt_U5_deep_safety.cfg",
+    "mode": "BFS",
+    "distinct": 289761,
+    "generated": 419047,
+    "traces": null,
+    "depth": 48,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-U5_deep_safety.log"
+   },
+   {
+    "label": "hunt-scenario1_params",
+    "cfg": "MC_hunt_scenario1_params.cfg",
+    "mode": "BFS",
+    "distinct": 1728,
+    "generated": 2200,
+    "traces": null,
+    "depth": 18,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-scenario1_params.log"
+   },
+   {
+    "label": "hunt-scenario2_durability",
+    "cfg": "MC_hunt_scenario2_durability.cfg",
+    "mode": "BFS",
+    "distinct": 6201,
+    "generated": 8623,
+    "traces": null,
+    "depth": 31,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-scenario2_durability.log"
+   },
+   {
+    "label": "hunt-scenario3_recovery",
+    "cfg": "MC_hunt_scenario3_recovery.cfg",
+    "mode": "BFS",
+    "distinct": 14570,
+    "generated": 20213,
+    "traces": null,
+    "depth": 33,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-hunt-scenario3_recovery.log"
+   },
+   {
+    "label": "reach-accepted",
+    "cfg": "MC_reach_accepted.cfg",
+    "mode": "BFS",
+    "distinct": 98,
+    "generated": 98,
+    "traces": null,
+    "depth": 7,
+    "outcome": "VIOLATION: Invariant NeverReachedAcceptedUpdate is violated",
+    "log": "spec/output/mc-v1-reach-accepted.log"
+   },
+   {
+    "label": "reach-app_replay",
+    "cfg": "MC_reach_app_replay.cfg",
+    "mode": "BFS",
+    "distinct": 516,
+    "generated": 613,
+    "traces": null,
+    "depth": 15,
+    "outcome": "VIOLATION: Invariant NeverReachedAppOnlyReplay is violated",
+    "log": "spec/output/mc-v1-reach-app_replay.log"
+   },
+   {
+    "label": "reach-crash",
+    "cfg": "MC_reach_crash.cfg",
+    "mode": "BFS",
+    "distinct": 26,
+    "generated": 29,
+    "traces": null,
+    "depth": 8,
+    "outcome": "VIOLATION: Invariant NeverReachedCrash is violated",
+    "log": "spec/output/mc-v1-reach-crash.log"
+   },
+   {
+    "label": "reach-handshake_complete",
+    "cfg": "MC_reach_handshake_complete.cfg",
+    "mode": "BFS",
+    "distinct": 169,
+    "generated": 189,
+    "traces": null,
+    "depth": 12,
+    "outcome": "VIOLATION: Invariant NeverReachedHandshakeComplete is violated",
+    "log": "spec/output/mc-v1-reach-handshake_complete.log"
+   },
+   {
+    "label": "reach-mock_replay",
+    "cfg": "MC_reach_mock_replay.cfg",
+    "mode": "BFS",
+    "distinct": 243,
+    "generated": 299,
+    "traces": null,
+    "depth": 12,
+    "outcome": "VIOLATION: Invariant NeverReachedMockReplay is violated",
+    "log": "spec/output/mc-v1-reach-mock_replay.log"
+   },
+   {
+    "label": "reach-real_replay",
+    "cfg": "MC_reach_real_replay.cfg",
+    "mode": "BFS",
+    "distinct": 103,
+    "generated": 111,
+    "traces": null,
+    "depth": 10,
+    "outcome": "VIOLATION: Invariant NeverReachedRealReplay is violated",
+    "log": "spec/output/mc-v1-reach-real_replay.log"
+   },
+   {
+    "label": "reach-rejected",
+    "cfg": "MC_reach_rejected.cfg",
+    "mode": "BFS",
+    "distinct": 102,
+    "generated": 102,
+    "traces": null,
+    "depth": 8,
+    "outcome": "VIOLATION: Invariant NeverReachedRejectedUpdate is violated",
+    "log": "spec/output/mc-v1-reach-rejected.log"
+   },
+   {
+    "label": "reach_CancelFutureAccepted",
+    "cfg": "Update_reach_CancelFutureAccepted.cfg",
+    "mode": "BFS",
+    "distinct": 315,
+    "generated": 345,
+    "traces": null,
+    "depth": 9,
+    "outcome": "VIOLATION: Invariant NeverCancelFutureAccepted is violated",
+    "log": "spec/output/mc-v1-reach_CancelFutureAccepted.log"
+   },
+   {
+    "label": "reach_DisableAfterEnableRejected",
+    "cfg": "Update_reach_DisableAfterEnableRejected.cfg",
+    "mode": "BFS",
+    "distinct": 329,
+    "generated": 368,
+    "traces": null,
+    "depth": 10,
+    "outcome": "VIOLATION: Invariant NeverDisableAfterEnableRejected is violated",
+    "log": "spec/output/mc-v1-reach_DisableAfterEnableRejected.log"
+   },
+   {
+    "label": "reach_EnableFromZeroAccepted",
+    "cfg": "Update_reach_EnableFromZeroAccepted.cfg",
+    "mode": "BFS",
+    "distinct": 430,
+    "generated": 467,
+    "traces": null,
+    "depth": 10,
+    "outcome": "VIOLATION: Invariant NeverEnableFromZeroAccepted is violated",
+    "log": "spec/output/mc-v1-reach_EnableFromZeroAccepted.log"
+   },
+   {
+    "label": "reach_LegalUpdateRejectedOnReplay",
+    "cfg": "Update_reach_LegalUpdateRejectedOnReplay.cfg",
+    "mode": "BFS",
+    "distinct": 795,
+    "generated": 940,
+    "traces": null,
+    "depth": 13,
+    "outcome": "VIOLATION: Invariant NeverLegalUpdateRejectedOnReplay is violated",
+    "log": "spec/output/mc-v1-reach_LegalUpdateRejectedOnReplay.log"
+   },
+   {
+    "label": "reach_MockReplayRevalidatedVE",
+    "cfg": "Update_reach_MockReplayRevalidatedVE.cfg",
+    "mode": "BFS",
+    "distinct": 1595,
+    "generated": 1860,
+    "traces": null,
+    "depth": 16,
+    "outcome": "VIOLATION: Invariant NeverMockReplayRevalidatedVE is violated",
+    "log": "spec/output/mc-v1-reach_MockReplayRevalidatedVE.log"
+   },
+   {
+    "label": "reach_ModifyAfterEnableRejected",
+    "cfg": "Update_reach_ModifyAfterEnableRejected.cfg",
+    "mode": "BFS",
+    "distinct": 438,
+    "generated": 479,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant NeverModifyAfterEnableRejected is violated",
+    "log": "spec/output/mc-v1-reach_ModifyAfterEnableRejected.log"
+   },
+   {
+    "label": "reach_ModifyFutureAccepted",
+    "cfg": "Update_reach_ModifyFutureAccepted.cfg",
+    "mode": "BFS",
+    "distinct": 362,
+    "generated": 400,
+    "traces": null,
+    "depth": 9,
+    "outcome": "VIOLATION: Invariant NeverModifyFutureAccepted is violated",
+    "log": "spec/output/mc-v1-reach_ModifyFutureAccepted.log"
+   },
+   {
+    "label": "reach_PastHeightRejected",
+    "cfg": "Update_reach_PastHeightRejected.cfg",
+    "mode": "BFS",
+    "distinct": 420,
+    "generated": 459,
+    "traces": null,
+    "depth": 10,
+    "outcome": "VIOLATION: Invariant NeverPastHeightRejected is violated",
+    "log": "spec/output/mc-v1-reach_PastHeightRejected.log"
+   },
+   {
+    "label": "reach_RealReplayRejected",
+    "cfg": "Update_reach_RealReplayRejected.cfg",
+    "mode": "BFS",
+    "distinct": 549,
+    "generated": 593,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant NeverRealReplayRejected is violated",
+    "log": "spec/output/mc-v1-reach_RealReplayRejected.log"
+   },
+   {
+    "label": "reach_UnchangedAfterEnableRejected",
+    "cfg": "Update_reach_UnchangedAfterEnableRejected.cfg",
+    "mode": "BFS",
+    "distinct": 486,
+    "generated": 528,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant NeverUnchangedAfterEnableRejected is violated",
+    "log": "spec/output/mc-v1-reach_UnchangedAfterEnableRejected.log"
+   },
+   {
+    "label": "reach_ZeroToZeroAccepted",
+    "cfg": "Update_reach_ZeroToZeroAccepted.cfg",
+    "mode": "BFS",
+    "distinct": 487,
+    "generated": 527,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant NeverZeroToZeroAccepted is violated",
+    "log": "spec/output/mc-v1-reach_ZeroToZeroAccepted.log"
+   },
+   {
+    "label": "sim-deep-safety",
+    "cfg": "Update_sim_deep_safety.cfg",
+    "mode": "simulation",
+    "distinct": null,
+    "generated": 1406389302,
+    "traces": 14063898,
+    "depth": null,
+    "outcome": "budget-limited simulation, no violation",
+    "log": "spec/output/mc-v1-sim-deep-safety.log"
+   },
+   {
+    "label": "sim-scenario1_params",
+    "cfg": "MC_hunt_scenario1_params.cfg",
+    "mode": "simulation",
+    "distinct": null,
+    "generated": 725627224,
+    "traces": 7256277,
+    "depth": null,
+    "outcome": "budget-limited simulation, no violation",
+    "log": "spec/output/mc-v1-sim-scenario1_params.log"
+   },
+   {
+    "label": "std-MC",
+    "cfg": "MC.cfg",
+    "mode": "BFS",
+    "distinct": 75944,
+    "generated": 107820,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-std-MC.log"
+   },
+   {
+    "label": "upd-discharge-canary",
+    "cfg": "Update_discharge_canary.cfg",
+    "mode": "BFS",
+    "distinct": 610,
+    "generated": 760,
+    "traces": null,
+    "depth": 10,
+    "outcome": "VIOLATION: Action property DischargeCanaryOmittedNeverFires is violated",
+    "log": "spec/output/mc-v1-upd-discharge-canary.log"
+   },
+   {
+    "label": "upd-discharge",
+    "cfg": "Update_discharge.cfg",
+    "mode": "BFS",
+    "distinct": 75944,
+    "generated": 107820,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-upd-discharge.log"
+   },
+   {
+    "label": "upd-focused-safety",
+    "cfg": "Update_focused_safety.cfg",
+    "mode": "BFS",
+    "distinct": 32634,
+    "generated": 46146,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-upd-focused-safety.log"
+   },
+   {
+    "label": "upd-focused",
+    "cfg": "Update_focused.cfg",
+    "mode": "BFS",
+    "distinct": 822,
+    "generated": 1013,
+    "traces": null,
+    "depth": 12,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-upd-focused.log"
+   },
+   {
+    "label": "upd-full-safety",
+    "cfg": "Update_full_safety.cfg",
+    "mode": "BFS",
+    "distinct": 75944,
+    "generated": 107820,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-upd-full-safety.log"
+   },
+   {
+    "label": "upd-full",
+    "cfg": "Update_full.cfg",
+    "mode": "BFS",
+    "distinct": 805,
+    "generated": 969,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-upd-full.log"
+   },
+   {
+    "label": "upd-open-safety",
+    "cfg": "Update_open_safety.cfg",
+    "mode": "BFS",
+    "distinct": 306868,
+    "generated": 976302,
+    "traces": null,
+    "depth": 34,
+    "outcome": "completed, no violation (bounded space exhausted)",
+    "log": "spec/output/mc-v1-upd-open-safety.log"
+   },
+   {
+    "label": "upd-open",
+    "cfg": "Update_open.cfg",
+    "mode": "BFS",
+    "distinct": 787,
+    "generated": 966,
+    "traces": null,
+    "depth": 11,
+    "outcome": "VIOLATION: Invariant ContractLegalUpdateAccepted is violated",
+    "log": "spec/output/mc-v1-upd-open.log"
+   }
+  ]
+ },
+ "findings": [
+  {
+   "id": "MC-1",
+   "status": "REPRODUCED",
+   "invariant": "ContractLegalUpdateAccepted",
+   "evidence": "spec/confirmation-MC-1.md"
+  }
+ ],
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specula-e2e-case-003/",
+  "state_directories_remaining": 0,
+  "background_processes_remaining": 0
+ }
+}

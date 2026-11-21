@@ -1,0 +1,41 @@
+{
+  "schema_version": "2",
+  "system": "openraft (Engine/RaftCore consensus boundary), update d7176ef9 RaftMsg::TransferLeader",
+  "generated_by": "validation-workflow (incremental-modeling Part 3)",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "TransferLeader to a learner makes it elect and panics its RaftCore (`target not in quorum set`)",
+      "source": "model-checking",
+      "scenario": "U1 non-voter transfer target",
+      "severity": "High",
+      "invariant": "NoCorePanic (also ElectionInitiatorIsVoter, CandidateIsVoterOfSnapshot)",
+      "config": "Update_full_NoCorePanic.cfg",
+      "counterexample": "spec/output/upd-full-NoCorePanic.log",
+      "affected_code": [
+        "openraft/src/core/raft_core.rs:1190-1202",
+        "openraft/src/raft/mod.rs:645-703",
+        "openraft/src/proposer/candidate.rs:91-92",
+        "openraft/src/core/raft_core.rs:1670-1682"
+      ],
+      "summary": "RaftCore handles RaftMsg::TransferLeader{from,to} by checking only engine.state.vote == from and then calling Engine::elect() when self.id == to, without the is_voter guard used by every older election trigger. A learner holds the leader's committed vote (it receives AppendEntries), so transfer_leader(leader_vote, learner) makes the learner elect. Its candidate progress contains only voters; after SaveVote, RaftCore delivers the local self-grant, Candidate::grant_by(self) hits .expect(\"target not in quorum set\") and the learner's RaftCore panics (Fatal::Panicked). The vote requests already sent with a higher term depose the current leader. Reproduced on the real implementation (harness/repro, spec/output/repro/repro-new-update.log); unreachable on the baseline (spec/output/repro/control-old-baseline.log)."
+    },
+    {
+      "id": "MC-2",
+      "title": "Persisted committed id can run ahead of the leader's durable log (pre-existing, not update-related)",
+      "source": "model-checking",
+      "scenario": "U1 absent-target hunt configuration (3 initial voters), before any transfer",
+      "severity": "Medium",
+      "invariant": "DurableStateBounded",
+      "config": "Update_hunt_U1_absent.cfg",
+      "counterexample": "spec/output/upd-hunt-U1-absent-DurableStateBounded.log",
+      "affected_code": [
+        "openraft/src/engine/command.rs:240",
+        "openraft/src/engine/handler/replication_handler/mod.rs:219-248",
+        "openraft/src/raft_state/mod.rs:177",
+        "openraft/src/storage/helper.rs:63-100"
+      ],
+      "summary": "With three voters, the leader commits an entry from two follower acks before its own log is flushed, and SaveCommitted has no flush condition, so the persisted committed id may exceed the leader's durable log. docs/data/log_pointers.md:28-34 allows committed > flushed, but RaftState::validate requires committed <= last_log_id after restart. Whether this is reachable depends on the unspecified storage ordering of save_committed versus append flush. Unchanged by the update; left unresolved (NEEDS MORE INFO), invariant not edited."
+    }
+  ]
+}

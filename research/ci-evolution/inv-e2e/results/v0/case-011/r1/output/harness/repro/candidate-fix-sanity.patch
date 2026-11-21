@@ -1,0 +1,14 @@
+diff --git a/openraft/src/engine/engine_impl.rs b/openraft/src/engine/engine_impl.rs
+index 62b9bcc..942565b 100644
+--- a/openraft/src/engine/engine_impl.rs
++++ b/openraft/src/engine/engine_impl.rs
+@@ -856,6 +856,9 @@ where C: RaftTypeConfig
+         tracing::info!("{}", func_name!());
+ 
+         let candidate = self.candidate.take().unwrap();
++        // SPECULA CANDIDATE FIX (sanity control only): a Pre-Vote round started
++        // before this node became leader is superseded by the established leadership.
++        self.pre_candidate = None;
+         let leader = self.establish_handler().establish(candidate);
+ 
+         // There may already be a Leader with higher vote

@@ -1,0 +1,35 @@
+{
+  "id": "MC-1",
+  "title": "TransferLeader to a learner makes it elect and panics its RaftCore (target not in quorum set)",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "cause": "RaftCore handles RaftMsg::TransferLeader by calling Engine::elect() when self.id == to after checking only vote == from; unlike every other election trigger it does not require the node to be a voter, and Candidate::grant_by panics when the non-voter candidate handles its own SaveVote self-grant.",
+  "trigger": "Call Raft::transfer_leader(leader_vote, to = a learner holding leader_vote, last_log_id) on the learner (or on every node).",
+  "consequence": "The learner's RaftCore panics (Fatal::Panicked, node down); when called on every node, the higher-term vote requests also depose the current leader.",
+  "severity": "High",
+  "sites": ["openraft/src/core/raft_core.rs:RaftMsg::TransferLeader", "openraft/src/proposer/candidate.rs:grant_by", "openraft/src/raft/mod.rs:transfer_leader"],
+  "actions": ["HandleTransferLeader", "TransferLeaderElect", "Elect", "CoreVoteResponsePanic", "ReceiveVoteResponse"],
+  "invariants": ["NoCorePanic", "ElectionInitiatorIsVoter", "CandidateIsVoterOfSnapshot"],
+  "premises": [
+    "A learner receives AppendEntries from the leader and therefore holds the leader's committed vote.",
+    "transfer_leader does not validate that `to` is a voter, and the documented usage calls it on every node.",
+    "SaveVote completion always delivers the local self VoteResponse before remote responses."
+  ],
+  "dependencies": [
+    {"root": "source", "path": "openraft/src/core/raft_core.rs", "start": "            RaftMsg::TransferLeader {", "end": "            RaftMsg::ExternalCommand { cmd } => {"},
+    {"root": "source", "path": "openraft/src/proposer/candidate.rs", "start": "    pub(crate) fn grant_by(&mut self, target: &C::NodeId) -> bool {", "end": "        granted"},
+    {"root": "source", "path": "openraft/src/engine/engine_impl.rs", "start": "    pub(crate) fn elect(&mut self) {", "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {"},
+    {"root": "source", "path": "openraft/src/raft/mod.rs", "start": "    pub async fn transfer_leader(", "end": "    /// Return `true` if this node is already initialized and can not be initialized again with"},
+    {"root": "work", "path": "spec/base.tla", "start": "Elect(n) ==", "end": "(* Runtime persistence is separate. Send becomes eligible only afterward. *)"},
+    {"root": "work", "path": "spec/Update.tla"},
+    {"root": "work", "path": "spec/Update_full_NoCorePanic.cfg"}
+  ],
+  "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/output/upd-full-NoCorePanic.log",
+    "spec/output/repro/repro-new-update.log",
+    "spec/output/repro/control-old-baseline.log",
+    "harness/repro/t98_specula_repro_transfer_leader_to_learner.rs",
+    "harness/repro/run_repro.sh"
+  ]
+}

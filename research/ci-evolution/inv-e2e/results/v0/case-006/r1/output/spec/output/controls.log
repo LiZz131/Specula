@@ -1,0 +1,37 @@
+=== update c780d355cfeae6ee6be52c50c1f0bd7d30c6657a
+    specula_s6_stale_read_test.go:99: first ReadState index=2; w committed by term-2 leader at index 4; second-read ReadStates=[{2 [99 116 120]}]
+    specula_s6_stale_read_test.go:103: stale read: old leader (term 1) produced ReadState{Index: 2, Ctx: "ctx"} for a read issued after index 4 was committed in term 2
+--- FAIL: TestSpeculaS6StaleReadAfterContextReuse (0.00s)
+    specula_update_probe_test.go:37: first read: readStates=1 queue=0 pending=0
+    specula_update_probe_test.go:40: second read enqueue: heartbeats=2 queue=1 pending=1
+    specula_update_probe_test.go:42: second read after fresh ack: readStates=1 queue=0 pending=0
+--- PASS: TestSpeculaProbeContextReuse (0.00s)
+    specula_update_probe_test.go:55: first read: readStates=1
+    specula_update_probe_test.go:60: second read after delayed first-round ack only: readStates=1 queue=0 pending=0
+--- PASS: TestSpeculaProbeDelayedAck (0.00s)
+    specula_update_probe_test.go:79: after ack a: readStates=1 queue=["" "b"] pending=2
+    specula_update_probe_test.go:81: after ack b: readStates=3 queue=[] pending=0
+--- PASS: TestSpeculaProbeEmptyContext (0.00s)
+FAIL
+FAIL	github.com/coreos/etcd/raft	0.005s
+FAIL
+=== baseline 7289d1c5e049933b90a9692bbf508714bee02fce
+    specula_s6_stale_read_test.go:99: first ReadState index=2; w committed by term-2 leader at index 4; second-read ReadStates=[]
+--- PASS: TestSpeculaS6StaleReadAfterContextReuse (0.00s)
+    specula_update_probe_test.go:37: first read: readStates=1 queue=0 pending=1
+    specula_update_probe_test.go:40: second read enqueue: heartbeats=2 queue=0 pending=1
+    specula_update_probe_test.go:42: second read after fresh ack: readStates=0 queue=0 pending=1
+--- PASS: TestSpeculaProbeContextReuse (0.00s)
+    specula_update_probe_test.go:55: first read: readStates=1
+    specula_update_probe_test.go:60: second read after delayed first-round ack only: readStates=0 queue=0 pending=1
+--- PASS: TestSpeculaProbeDelayedAck (0.00s)
+    specula_update_probe_test.go:79: after ack a: readStates=1 queue=["" "b"] pending=2
+    specula_update_probe_test.go:71: PANIC: cannot find corresponding read state from pending map
+--- PASS: TestSpeculaProbeEmptyContext (0.00s)
+ok  	github.com/coreos/etcd/raft	0.011s
+=== baseline source + updated raft_test.go: TestRaftFreesReadOnlyMem
+    raft_test.go:1291: len(pendingReadIndex) = 1, want 0
+--- FAIL: TestRaftFreesReadOnlyMem (0.00s)
+FAIL
+FAIL	github.com/coreos/etcd/raft	0.018s
+FAIL

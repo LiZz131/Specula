@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "run_id": "case-003",
+  "summary": "Model updated for the ValidateUpdate rewrite (explicit enable height, height-dependent validation, per-height enable-height history). Prior harness rebased; 16 fresh traces validated. One finding: the update rejects an unchanged, already reached VoteExtensionsEnableHeight, halting the chain; the baseline accepts it.",
+  "validation_limits": [
+    "Bounded BFS (heights <= 3-5, <= 3 crashes, 1 app rollback, finite enable-height domains) plus 30-minute random simulations; exhausted bounds are not a proof.",
+    "Runtime traces use in-memory stores and scripted ABCI apps; crashes are injected by a failing state Save or app Commit, not by process kill.",
+    "Extended-commit storage itself is not observed; veHist is read from the state-store params history.",
+    "The after-reached clause of UnchangedVEUpdateNotRejected rests on contested requirement evidence (the updated unit test expects the rejection).",
+    "Bug-confirmation (Part 4) controller was not invoked; MC-1 status reflects in-run reproduction against the updated and baseline trees."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Unchanged, already reached VoteExtensionsEnableHeight is rejected, halting the chain",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "The rewritten ValidateUpdate dropped the unchanged-value acceptance; row 6 (updated <= h) rejects U == E once 0 < E <= h.",
+      "trigger": "After the enable height E is reached, FinalizeBlock returns ConsensusParamUpdates whose Abci subrecord repeats E (e.g. complete params via ToProto).",
+      "consequence": "ApplyBlock fails before Commit, consensus panics, and every restart re-executes and rejects the same block; all nodes halt at that height.",
+      "severity": "High",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/mc/MC-1_Update_full_counterexample.log",
+        "spec/repro/MC-1/repro-updated-401753b.log",
+        "spec/repro/MC-1/control-baseline-9dd6e50.log",
+        "traces/ve_unchanged_after_enable.ndjson",
+        "traces/replay_real_ve_unchanged_rejected.ndjson"
+      ],
+      "persistence": {
+        "sites": ["types/params.go:ConsensusParams.ValidateUpdate", "internal/state/execution.go:updateState"],
+        "actions": ["UpdateStateRejected", "SelectRealReplay"],
+        "invariants": ["UnchangedVEUpdateNotRejected"],
+        "premises": [
+          "The application may return a non-nil Abci subrecord equal to the current enable height after that height is reached.",
+          "ApplyBlock errors are fatal in consensus and handshake replay re-executes the same block deterministically."
+        ],
+        "dependencies": [
+          {"root": "source", "path": "types/params.go"},
+          {"root": "source", "path": "internal/state/execution.go"},
+          {"root": "work", "path": "spec/base.tla"},
+          {"root": "work", "path": "spec/UpdateProps.tla"},
+          {"root": "work", "path": "spec/Update_full.cfg"}
+        ]
+      }
+    }
+  ]
+}

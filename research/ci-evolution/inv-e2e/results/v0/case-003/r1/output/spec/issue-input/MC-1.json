@@ -1,0 +1,66 @@
+{
+  "id": "MC-1",
+  "title": "Updated ValidateUpdate rejects an unchanged VoteExtensionsEnableHeight once vote extensions are enabled, halting the chain",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "cause": "The update removed ValidateUpdate's equality short-circuit; row 6 rejects any present Abci enable height <= the block height, including one equal to the current, already-reached value.",
+  "trigger": "With vote extensions enabled, the application's FinalizeBlockResponse re-sends its unchanged Abci.VoteExtensionsEnableHeight (e.g. a complete ConsensusParams echo with a Block change).",
+  "consequence": "updateState fails, ApplyBlock errors before Commit, consensus panics (CONSENSUS FAILURE) and the restart replay rejects the same block again: every node halts at that height.",
+  "severity": "High",
+  "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/mc-v1-MC-1-cex.log",
+    "spec/repro/test_bugMC1_unchanged_veh_halt_test.go",
+    "spec/repro/run_MC-1.sh",
+    "spec/repro/output-MC-1-update.log",
+    "spec/repro/output-MC-1-baseline.log",
+    "spec/output/harness-replay-ve-unchanged-restart.log"
+  ],
+  "sites": [
+    "types/params.go:ValidateUpdate",
+    "internal/state/execution.go:updateState",
+    "internal/consensus/state.go:finalizeCommit",
+    "internal/consensus/replay.go:ReplayBlocks"
+  ],
+  "actions": [
+    "UpdateStateRejected",
+    "FinalizeBlock",
+    "AbortRejectedApply",
+    "SelectRealReplay"
+  ],
+  "invariants": [
+    "ContractLegalUpdateAccepted"
+  ],
+  "premises": [
+    "Vote extensions are enabled at the executed height (0 < VoteExtensionsEnableHeight <= header.Height).",
+    "The application returns ConsensusParamUpdates with a non-nil Abci sub-record equal to the current VoteExtensionsEnableHeight, which the ABCI contract permits (abci++_app_requirements.md:776-789).",
+    "Any ApplyBlock error is fatal in consensus and the restart replays the block through the real application deterministically."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "types/params.go",
+      "start": "func (params ConsensusParams) ValidateUpdate(updated *cmtproto.ConsensusParams, h int64) error {",
+      "end": "// Hash returns a hash of a subset of the parameters to store in the block header."
+    },
+    {
+      "root": "source",
+      "path": "internal/state/execution.go",
+      "start": "func updateState(",
+      "end": "// Fire NewBlock, NewBlockHeader."
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_full.cfg"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
++ (cd controls/old-baseline [git archive HEAD~1 = baseline 9dd6e50] && timeout 10m go test -mod=readonly ./internal/state -run '^TestSpeculaObserveValidateUpdate$' -count=1 -v)
+SPECULA-OBS scenario=O1_enable_from_0_at_h_plus_1 height=1 current_ve=0 result=REJECTED err="commit failed for application: updating consensus params: VoteExtensionsEnableHeight cannot be modified oncethe initial height has occurred, initial height: 0, current height 1"
+SPECULA-OBS scenario=O2_cancel_scheduled height=1 current_ve=5 result=REJECTED err="commit failed for application: updating consensus params: vote extensions cannot be disabled once enabled"
+SPECULA-OBS scenario=O3_unchanged_after_enable_abci_only height=2 final_ve=1 result=ACCEPTED_ALL
+SPECULA-OBS scenario=O4_unchanged_before_enable height=1 final_ve=5 result=ACCEPTED_ALL
+SPECULA-OBS scenario=O5_modify_scheduled height=1 final_ve=7 result=ACCEPTED_ALL
+SPECULA-OBS scenario=O6_disable_after_enable height=1 current_ve=1 result=REJECTED err="commit failed for application: updating consensus params: vote extensions cannot be disabled once enabled"
+SPECULA-OBS scenario=O7_modify_after_enable height=1 current_ve=1 result=REJECTED err="commit failed for application: updating consensus params: VoteExtensionsEnableHeight cannot be modified oncethe initial height has occurred, initial height: 1, current height 1"
+SPECULA-OBS scenario=O8_enable_at_current_height height=2 current_ve=0 result=REJECTED err="commit failed for application: updating consensus params: VoteExtensionsEnableHeight cannot be updated to a past height, initial height: 0, current height 2"
+SPECULA-OBS scenario=O9_negative height=1 current_ve=0 result=REJECTED err="commit failed for application: validating new consensus params: ABCI.VoteExtensionsEnableHeight cannot be negative. Got: -1"
+SPECULA-OBS scenario=O10_full_params_ve0_every_block height=3 final_ve=0 result=ACCEPTED_ALL
+SPECULA-OBS scenario=O11_full_params_ve_enabled_every_block height=3 final_ve=1 result=ACCEPTED_ALL
+SPECULA-OBS scenario=O12_enable_then_full_params_after_reached height=1 current_ve=0 result=REJECTED err="commit failed for application: updating consensus params: VoteExtensionsEnableHeight cannot be modified oncethe initial height has occurred, initial height: 0, current height 1"
+SPECULA-OBS scenario=O13_block_only_update_after_enable height=2 final_ve=1 result=ACCEPTED_ALL
+--- PASS: TestSpeculaObserveValidateUpdate (0.01s)
+ok  	github.com/cometbft/cometbft/internal/state	0.031s

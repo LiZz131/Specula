@@ -1,0 +1,71 @@
+CMD: timeout 6m java -Xmx24g -XX:+UseParallelGC tlc2.TLC -config Update_canary_OmittedApply.cfg -workers 4 -deadlock -metadir /dev/shm/specula-e2e-case-004/canary-OmittedApply   Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 2 and seed 1230243069384319559 with 4 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 21514] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-14165655866239404260/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14165655866239404260/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14165655866239404260/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14165655866239404260/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14165655866239404260/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14165655866239404260/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14165655866239404260/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 04:48:45)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 04:48:45.
+Progress(14) at 2026-11-19 04:48:48: 52,201 states generated (52,201 s/min), 13,400 distinct states found (13,400 ds/min), 9,875 states left on queue.
+Error: Invariant CanaryOmittedApply is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 38, col 5 to line 42, col 53 of module MC>
+
+State 3: <MCPersistVote(1) line 60, col 21 to line 60, col 54 of module MC>
+
+State 4: <MCSendVote(1) line 61, col 18 to line 61, col 56 of module MC>
+
+State 5: <MCVoteRequest(2) line 65, col 5 to line 69, col 23 of module MC>
+
+State 6: <MCPersistVote(2) line 60, col 21 to line 60, col 54 of module MC>
+
+State 7: <MCVoteResponse(1,1) line 75, col 5 to line 93, col 23 of module MC>
+
+State 8: <MCVoteResponse(1,2) line 75, col 5 to line 93, col 23 of module MC>
+
+State 9: <MCFollowerAppend(2,1) line 130, col 5 to line 138, col 53 of module MC>
+
+State 10: <MCSubmit(1) line 141, col 16 to line 141, col 47 of module MC>
+
+State 11: <MCFlush(1) line 142, col 15 to line 142, col 45 of module MC>
+
+State 12: <MCSubmit(2) line 141, col 16 to line 141, col 47 of module MC>
+
+State 13: <MCFlush(2) line 142, col 15 to line 142, col 45 of module MC>
+
+State 14: <MCAck(1,2) line 149, col 5 to line 156, col 60 of module MC>
+
+State 15: <MCSaveCommit(1) line 144, col 20 to line 144, col 52 of module MC>
+
+State 16: <MCApply(1) line 145, col 15 to line 145, col 51 of module MC>
+
+1638249 states generated, 329119 distinct states found, 204444 states left on queue.
+The depth of the complete state graph search is 16.
+Finished in 38s at (2026-11-19 04:49:22)
+Trace exploration spec path: ./Update_TTrace_1795063724.tla
+EXIT rc=12 elapsed=40s

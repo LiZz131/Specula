@@ -1,0 +1,55 @@
+{
+ "schema_version": "2",
+ "system": "OpenRaft (Pre-Vote revision, artifact commit update 3ab6cdd)",
+ "generated_by": "validation-workflow (incremental)",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "A timer Pre-Vote round outlives the node's own leader establishment and demotes the new leader",
+   "source": "model-checking",
+   "scenario": "U2",
+   "severity": "High",
+   "invariant": "TimerPreVoteElectsOnlyNonLeader",
+   "config": "MC_hunt_U2_prevote_leader.cfg",
+   "counterexample": "spec/output/MC-1_TimerPreVoteElectsOnlyNonLeader_cex.out",
+   "affected_code": [
+    "openraft/src/core/raft_core.rs:1959-2036",
+    "openraft/src/engine/engine_impl.rs:297-322",
+    "openraft/src/engine/engine_impl.rs:516-554",
+    "openraft/src/engine/engine_impl.rs:855-881",
+    "openraft/src/engine/handler/vote_handler/mod.rs:154-249",
+    "openraft/src/engine/engine_impl.rs:977-982"
+   ],
+   "summary": "With Pre-Vote enabled, the election timer runs pre_elect on a Candidate whose election is still in flight, leaving the real candidate untouched. When the original election then wins, establish_leader/become_leader do not clear pre_candidate. Late Pre-Vote grants pass RaftCore's leader-id correlation and handle_pre_vote_resp calls elect() on the established Leader without the timer's leader/voter checks. do_elect moves the vote to (term+1, self) while the Leader object of the previous term is kept, so the healthy leader steps down and try_leader_handler's leader.vote >= state.vote assertion panics RaftCore (debug builds); reproduced end-to-end (spec/confirmation-MC-1.md).",
+   "counterexample_full_mcnext": "spec/output/MC-1_TimerPreVoteElectsOnlyNonLeader_fullMCNext_cex.out",
+   "reproduction": [
+    "spec/confirmation-MC-1.md",
+    "harness/src/t90_specula_repro_stale_prevote_leader.rs"
+   ]
+  },
+  {
+   "id": "MC-2",
+   "title": "Pre-Vote responses of an earlier round are counted by a later round with the same probe; after a membership change grant_by panics",
+   "source": "model-checking",
+   "scenario": "U4",
+   "severity": "Medium",
+   "invariant": "StalePreVoteResponseIgnored",
+   "config": "MC_hunt_U4_prevote_stale_round.cfg",
+   "counterexample": "spec/output/MC-2_StalePreVoteResponseIgnored_cex.out",
+   "affected_code": [
+    "openraft/src/core/raft_core.rs:1803-1820",
+    "openraft/src/core/raft_core.rs:2066-2090",
+    "openraft/src/core/raft_core.rs:1683-1696",
+    "openraft/src/engine/engine_impl.rs:534-539",
+    "openraft/src/proposer/candidate.rs:106-112"
+   ],
+   "summary": "A Pre-Vote round never changes the vote, so successive rounds at the same term probe the same leader id. RaftCore correlates PreVoteResponse notifications only by that leader id (does_pre_candidate_vote_match), contrary to its own comment that previous-round responses must be ignored. Operator rounds (trigger().elect(true)) have no rate limit, so a delayed grant of round A advances round B. If the membership changed between the rounds and removed the responder, Candidate::grant_by's expect panics and the RaftCore dies; reproduced end-to-end (spec/confirmation-MC-2.md).",
+   "counterexample_full_mcnext": "spec/output/MC-2_StalePreVoteResponseIgnored_fullMCNext_cex.out",
+   "counterexample_panic": "spec/output/MC-2_PreVoteResponseNeverPanics_cex.out",
+   "reproduction": [
+    "spec/confirmation-MC-2.md",
+    "harness/src/t91_specula_repro_prevote_stale_round_panic.rs"
+   ]
+  }
+ ]
+}

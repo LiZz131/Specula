@@ -1,0 +1,76 @@
+# cmd: run_tlc.sh Update.tla Update_canary_CanaryLearnerPanic.cfg Update_canary_CanaryLearnerPanic 15  (workers=4 heap=6g)
+# started: 2026-11-19T01:51:55Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 57 and seed 765158463097421481 with 4 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 10462] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-14132708255637985169/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14132708255637985169/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14132708255637985169/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14132708255637985169/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14132708255637985169/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14132708255637985169/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14132708255637985169/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-19 01:51:56)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 01:51:57.
+Error: Invariant CanaryLearnerPanic is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCElect(1) line 78, col 5 to line 83, col 64 of module MC>
+
+State 3: <MCPersistVote(1) line 106, col 5 to line 109, col 55 of module MC>
+
+State 4: <MCSendVote(1) line 115, col 5 to line 119, col 55 of module MC>
+
+State 5: <MCVoteRequest(2,1) line 124, col 5 to line 129, col 23 of module MC>
+
+State 6: <MCPersistVote(2) line 106, col 5 to line 109, col 55 of module MC>
+
+State 7: <MCVoteRequest(2,1) line 124, col 5 to line 129, col 23 of module MC>
+
+State 8: <MCVoteResponse(1,1) line 142, col 5 to line 148, col 23 of module MC>
+
+State 9: <MCVoteResponse(1,2) line 142, col 5 to line 148, col 23 of module MC>
+
+State 10: <MCSubmit(1) line 215, col 16 to line 215, col 47 of module MC>
+
+State 11: <MCFollowerAppend(3,1) line 199, col 5 to line 213, col 23 of module MC>
+
+State 12: <MCPersistVote(3) line 106, col 5 to line 109, col 55 of module MC>
+
+State 13: <MCTransferLeader(3) line 94, col 5 to line 101, col 51 of module MC>
+
+State 14: <MCPersistVote(3) line 106, col 5 to line 109, col 55 of module MC>
+
+State 15: <MCSendVote(3) line 115, col 5 to line 119, col 55 of module MC>
+
+State 16: <MCVoteResponse(3,3) line 142, col 5 to line 148, col 23 of module MC>
+
+Error: Evaluating postcondition _TLCTraceSilent at line 28, col 5 to line 28, col 21 of module _TLCTrace failed.
+Attempted to apply the operator overridden by the Java method
+public static final tlc2.value.IValue tlc2.module._TLCTrace.ioSerialize(tlc2.value.IValue,tlc2.value.impl.StringValue) throws java.io.IOException,
+but it produced the following error:
+/work/current/.specula-output/spec/output/ttrace-Update_canary_CanaryLearnerPanic/Update_TTrace_1795053115.bin (No such file or directory)
+28112 states generated, 7770 distinct states found, 4691 states left on queue.
+The depth of the complete state graph search is 16.
+Finished in 03s at (2026-11-19 01:51:59)
+Trace exploration spec path: /work/current/.specula-output/spec/output/ttrace-Update_canary_CanaryLearnerPanic/Update_TTrace_1795053115.tla
+# finished: 2026-11-19T01:51:59Z rc=12

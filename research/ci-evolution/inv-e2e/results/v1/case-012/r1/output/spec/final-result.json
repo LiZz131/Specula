@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "run_id": "case-012",
+  "summary": "MODEL_CHANGE_REQUIRED: leader commit now uses Engine::update_progress over an order-sensitive VecProgress; reference/MC/Trace/Update suite and harness updated; 17 fresh traces validated; MC-1 (commit without a joint quorum, leading to committed-log divergence) found by model checking and reproduced at the Engine level.",
+  "validation_limits": [
+    "Model checking is bounded (3 servers, small term/index/action budgets, <=4 in-flight messages); time-bounded BFS/simulation runs did not exhaust their queues.",
+    "HandleUpdateMatched early-return/ReplicationState, DeliverAppendEntries, RejectAppendConflict, the voter side of GrantVote and Crash are validated only through Engine-level constituents, not by direct traces.",
+    "OneOutstandingMembership is checked only in crash-free configurations (pre-existing restart mismatch, identical on the V0 model).",
+    "Harness builds use cargo +stable because the pinned nightly-2022-03-30 toolchain is unavailable.",
+    "MC-1 is reproduced at the Engine API level (real entry points in runtime order); a multi-node cluster reproduction was not attempted.",
+    "Two pre-existing model defects were repaired (stale ReplicationState across leaderships; follower membership/truncation abstraction) and one pre-existing property mismatch (OneOutstandingMembership under restart) was scoped; all are recorded in spec/changelog.md.",
+    "The specula ci-result command is not installed in this environment; generated CI reports were not produced."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Leader commits an entry without a quorum of every joint-membership group",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "VecProgress::update stores a value in place without move_up when prev > committed, leaving the vector unsorted; the recompute counts vector[0..=i] as a quorum of ids holding vector[i]. The update made this the leader commit path, and upgrade_quorum_set makes the unsorted case reachable after a membership append.",
+      "trigger": "3 voters, leader n2: n1 acks index 0 (committed), n2 proposes next_safe joint [{1,2,3},{1,3}] at index 1, only n3 acks index 1.",
+      "consequence": "An entry is committed and applied without a majority of every joint group; with a voter-adding joint config a stale leader can commit a different entry at an index already committed by a newer leader (CommittedLogAgreement violated in the directed 5-server model run).",
+      "severity": "Critical",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/MC-1_counterexample_Update_full_cws.out",
+        "spec/output/new-observe-u1.log",
+        "spec/output/old-control-u1.log",
+        "traces/u1_joint_commit_order.ndjson",
+        "spec/output/trace-u1_joint_commit_order-r3.log",
+        "spec/output/MC-1_consequence_counterexample_MC5_divergence.out",
+        "spec/output/new-observe-add-voters.log",
+        "harness/src/specula_observe_test.rs"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/progress/mod.rs:VecProgress::update",
+          "openraft/src/progress/mod.rs:upgrade_quorum_set",
+          "openraft/src/engine/engine_impl.rs:update_progress"
+        ],
+        "premises": [
+          "Leader commit is computed by Engine::update_progress over Leader.progress (VecProgress)."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/progress/mod.rs"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs"
+          }
+        ]
+      }
+    }
+  ]
+}

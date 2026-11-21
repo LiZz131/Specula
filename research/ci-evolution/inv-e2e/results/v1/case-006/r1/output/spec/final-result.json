@@ -1,0 +1,75 @@
+{
+ "version": 1,
+ "run_id": "case-006-incremental-v1",
+ "summary": "Model updated for the read_only.go advance delete-key change (released ReadIndex requests are now freed); reference repaired for readOnly reset and forwarded-read handling. Fresh traces of the update revision validate. Model checking found and the real update revision reproduces a stale ReadIndex when a released context is reused and an earlier heartbeat acknowledgement completes the new request.",
+ "validation_limits": [
+  "Update_full, Update_open, Update_discharge, inherited replication/ReadIndex/forwarded hunts and all simulations stopped at their time budgets (LIMITED_COVERAGE, not exhaustive).",
+  "The US4 stale-read counterexample was found only by a scenario-guided BFS (search-pruning CONSTRAINT over full MCSpec); unguided BFS/simulation within budget did not reach it.",
+  "Fresh traces do not observe higher-term reset with non-empty readOnly via vote/append/heartbeat, higher-term MsgReadIndexResp, BroadcastHeartbeat, ReadyAdvance, crash/restart or loss; these rely on model checking only.",
+  "Independent pre-existing abstractions not repaired: leader Progress reset in becomeLeader, append retransmission after rejection, lower-term append/heartbeat response branches, higher-term response step-down.",
+  "The specula CLI (findings registry, ci-result) and the controller confirmation workflow are not available in this environment; reproduction was performed in-run (spec/confirmation-MC-1.md)."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Reused ReadIndex context completed by a stale heartbeat acknowledgement yields a stale read index",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "read_only.go advance now deletes released requests, so addRequest admits the same caller context again in the same term, and recvAck attributes any in-flight MsgHeartbeatResp carrying that context to the new request.",
+   "trigger": "Release ReadIndex(C) while one follower's ack for that heartbeat round is delayed (or duplicated by MsgBeat); that follower helps elect a newer leader which commits; the old leader, still leader of its term, accepts ReadIndex(C) again; the delayed ack arrives.",
+   "consequence": "The old leader returns a ReadState whose index is below an entry committed before the request was issued, so a linearizable read served from it is stale.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/mc/final_hunt_us4_guided.log",
+    "spec/output/mc/final_update_focused.log",
+    "spec/output/mc/sim_update_full.log",
+    "spec/output/repro/repro-new-update.log",
+    "spec/output/repro/repro-old-baseline.log",
+    "harness/repro/specula_repro_readindex_test.go",
+    "traces/stale_read.ndjson"
+   ],
+   "persistence": {
+    "sites": [
+     "read_only.go:advance",
+     "read_only.go:recvAck",
+     "read_only.go:addRequest",
+     "raft.go:stepLeader"
+    ],
+    "premises": [
+     "Callers may reuse a ReadIndex context after the earlier request with it completed.",
+     "Heartbeat acknowledgements can be delayed or duplicated.",
+     "The old leader has not stepped down when the stale acknowledgement arrives."
+    ],
+    "actions": [
+     "HandleHeartbeatResponse",
+     "ProcessReadIndex",
+     "HandleHeartbeat"
+    ],
+    "invariants": [
+     "ReadIndexFreshness",
+     "ReadDeliveryJustifiedFresh"
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "read_only.go"
+     },
+     {
+      "root": "source",
+      "path": "raft.go"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateProps.tla"
+     }
+    ]
+   }
+  }
+ ]
+}

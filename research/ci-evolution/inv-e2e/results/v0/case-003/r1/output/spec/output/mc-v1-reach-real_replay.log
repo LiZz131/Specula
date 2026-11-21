@@ -1,0 +1,47 @@
+cmd: cd /work/current/.specula-output/spec && timeout --signal=TERM 12m java -XX:+UseParallelGC -Xmx8g -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC_reach_real_replay.cfg -metadir /dev/shm/specula-e2e-case-003/mc-reach-real_replay-38069 -workers 8 -cleanup  MC.tla
+spec sha256: base.tla=add413227a379952 MC.tla=3d94958e93491e2f Update.tla=a94c29ed9a183e89 MC_reach_real_replay.cfg=c23831e40d8b12f1 
+start: 2026-11-18T18:06:45-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 99 and seed 7313468809976201202 with 8 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 38080] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13070408360882626635/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-13070408360882626635/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13070408360882626635/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13070408360882626635/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13070408360882626635/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13070408360882626635/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13070408360882626635/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-19 00:06:45)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 00:06:46.
+Error: Invariant NeverReachedRealReplay is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCSaveBlock line 22, col 5 to line 24, col 53 of module MC>
+
+State 3: <MCCrash line 27, col 5 to line 29, col 54 of module MC>
+
+State 4: <MCBeginHandshake line 44, col 21 to line 44, col 56 of module MC>
+
+State 5: <MCSelectRealReplay line 46, col 23 to line 46, col 60 of module MC>
+
+111 states generated, 103 distinct states found, 25 states left on queue.
+The depth of the complete state graph search is 10.
+Finished in 00s at (2026-11-19 00:06:46)
+Trace exploration spec path: ./MC_TTrace_1795046805.tla
+end: 2026-11-18T18:06:46-06:00 tlc exit=12

@@ -1,0 +1,68 @@
+{
+  "id": "MC-1",
+  "title": "transfer_leader to a learner makes the learner run an election and panics its RaftCore",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "cause": "The RaftMsg::TransferLeader handler calls Engine::elect() for to == self.id without the is_voter guard used by the other elect() callers; a learner candidate then grants itself and Candidate::grant_by panics because its progress holds voters only.",
+  "trigger": "Call Raft::transfer_leader(leader_vote, learner_id, last_log_id) on the cluster nodes (as documented) with a caught-up learner as the target.",
+  "consequence": "The learner's RaftCore panics (Fatal::Panicked) and the voters, whose leases the transfer disabled, grant the learner's higher vote, deposing the healthy leader until an election timeout.",
+  "sites": [
+    "openraft/src/core/raft_core.rs:RaftMsg::TransferLeader",
+    "openraft/src/proposer/candidate.rs:grant_by"
+  ],
+  "actions": [
+    "TransferLeader",
+    "ElectCore",
+    "ReceiveVoteResponse"
+  ],
+  "invariants": [
+    "ElectOnlyByVoter",
+    "NoCorePanic"
+  ],
+  "premises": [
+    "A learner holds the leader's committed vote after replication.",
+    "The public transfer_leader API forwards a TransferLeader message to the target without validating that it is a voter.",
+    "SaveVote delivers the self vote response before any remote response on the FIFO notification channel."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "            RaftMsg::TransferLeader {",
+      "end": "            RaftMsg::ExternalCommand { cmd } => {"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/raft/mod.rs"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/MC.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_full_NoCorePanic.cfg"
+    }
+  ],
+  "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/output/MC-1_NoCorePanic_violation.out",
+    "spec/output/MC-1_ElectOnlyByVoter_violation.out",
+    "spec/output/repro-MC-1.log",
+    "spec/output/control-MC-1-baseline.log",
+    "harness/repro/test_bugMC-1_transfer_leader_to_learner.rs",
+    "harness/repro/run_repro.sh"
+  ]
+}

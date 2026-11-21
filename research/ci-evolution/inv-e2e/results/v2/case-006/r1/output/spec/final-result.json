@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "run_id": "case-006",
+  "summary": "Source update (read_only.go advance frees released ReadIndex requests) required a model change; reference, MC, Trace and Update suites were updated with three implementation-backed repairs, the prior harness was rebased and six fresh traces validated. Model checking found one real defect (MC-1): a reused read context can be released by an acknowledgement produced for its earlier request, yielding a stale ReadIndex; reproduced on the update revision, absent on the baseline.",
+  "validation_limits": [
+    "All BFS/simulation campaigns except MC.cfg and MC_complete_core.cfg stopped at their time budgets (LIMITED_COVERAGE); none is an exhaustive proof.",
+    "The inherited MCView excludes fault counters, so even exhausted BFS runs merge states that differ only in remaining fault budget; full-reference admission of focused counterexamples was checked separately (spec/admit/).",
+    "Bounded model: 3 servers, 1-2 read contexts, MaxTerm <= 2, MaxLogLen <= 3, counter-bounded faults; snapshots, membership change, PreVote, leader transfer and lease reads remain out of scope.",
+    "Fresh traces cover 6 scenarios in a 3-server cluster; captured acknowledgement sets are always empty at observation points (first peer ack completes quorum).",
+    "No specula CLI or persistent-findings store is installed; ci-result generation and registry lookup could not be run (prior suite had no findings)."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Reused ReadIndex context released by an acknowledgement produced for the earlier request",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "readOnly.advance now frees released requests, so addRequest re-registers a context released earlier in the same leader term, while recvAck matches heartbeat responses only by context; a delayed response produced for the earlier registration completes the new one.",
+      "trigger": "Release ctx with one follower's ack while another follower's ack for ctx is delayed; a newer-term leader commits while the old leader is partitioned; the old leader registers ctx again and then receives the delayed ack.",
+      "consequence": "The old leader returns a ReadState whose index is lower than an entry committed before the read was issued (stale linearizable read, violating node.go:155-157).",
+      "severity": "Medium",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/repro.log",
+        "spec/output/mc-upd_hunt_linearizable_directed.log",
+        "spec/output/mc-upd_hunt_stale_ack.log",
+        "spec/output/mc-upd_full_sim.log",
+        "traces/stale_ack_reuse.ndjson",
+        "harness/src/specula_repro_test.go"
+      ],
+      "persistence": {
+        "sites": ["read_only.go:advance", "read_only.go:recvAck", "read_only.go:addRequest", "raft.go:stepLeader"],
+        "premises": [
+          "The application may reuse a ReadIndex request context after the previous request with that context completed (read_only.go:19-23 leaves the context to the caller).",
+          "Heartbeat responses can be delayed past a re-registration; the old leader has not yet stepped down (CheckQuorum is optional)."
+        ],
+        "dependencies": [
+          {"root": "source", "path": "read_only.go"},
+          {"root": "source", "path": "raft.go"},
+          {"root": "work", "path": "spec/base.tla"},
+          {"root": "work", "path": "spec/Update.tla"}
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+cmd: timeout 10m env SPECULA_TRACE_FILE=/work/current/.specula-output/traces/apply_ve_unchanged_echo.ndjson SPECULA_TRACE_PREFIX_FILE= go test -mod=readonly ./internal/state -run '^TestSpeculaTraceApplyVEUnchangedEcho$' -count=1 -v
+=== RUN   TestSpeculaTraceApplyVEUnchangedEcho
+I[2026-11-18|18:02:51.471] finalized block                              height=1 num_txs_res=10 num_val_updates=0 block_app_hash=
+I[2026-11-18|18:02:51.471] executed block                               height=1 app_hash=
+    specula_trace_test.go:235: height 1: ApplyBlock rejected: commit failed for application: updating consensus params: vote extensions cannot be updated to a past or current height, enable height: 1, current height 1
+--- PASS: TestSpeculaTraceApplyVEUnchangedEcho (0.08s)
+PASS
+ok  	github.com/cometbft/cometbft/internal/state	0.107s

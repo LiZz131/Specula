@@ -1,0 +1,26 @@
+{
+  "schema_version": "2",
+  "system": "CometBFT state execution and recovery (case-003 updated revision 401753b)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Re-sending an unchanged, already reached VoteExtensionsEnableHeight is rejected and halts the chain",
+      "source": "model-checking",
+      "scenario": "Scenario 4 (enable-height lifecycle); also reached in Scenario 5 and the focused/open/full update checks",
+      "severity": "High",
+      "invariant": "UnchangedVEUpdateNotRejected",
+      "config": "Update_full.cfg",
+      "counterexample": "spec/output/mc/MC-1_Update_full_counterexample.log",
+      "affected_code": [
+        "types/params.go:243-248",
+        "types/params.go:219-231",
+        "internal/state/execution.go:622-625",
+        "internal/state/execution.go:279-282",
+        "internal/consensus/state.go:1834-1836",
+        "internal/consensus/replay.go:266-270"
+      ],
+      "summary": "After the update, ConsensusParams.ValidateUpdate no longer accepts an Abci subrecord that equals the current enable height: when 0 < E <= h, row 6 (updated <= h) rejects U = E with 'vote extensions cannot be updated to a past or current height'. The old revision accepted exactly this input (first branch params == updated). updateState returns the error, ApplyBlock fails before the application Commit, and consensus panics; on restart the real-app replay re-executes the same block, the deterministic app returns the same response, and validation rejects it again, so the node (and every node, since validation is deterministic) cannot advance past that height. Counterexample: genesis enable height 2; block 2's FinalizeBlock returns Abci{VoteExtensionsEnableHeight: 2} (unchanged) -> UpdateStateRejected (rule r6). Real-code traces ve_unchanged_after_enable and replay_real_ve_unchanged_rejected reproduce the rejection and the failed handshake; observe-old/new O3, O11, O12 show old ACCEPTED vs new REJECTED. The requirement is contested: the updated unit test (types/params_test.go:168-169) expects this rejection, while the protocol text (abci++_app_requirements.md:776-777,785-786,803), the removed V0 test 'no error when unchanged', and the in-tree complete-params producer pattern (state_test.go:1044 cp.ToProto()) support acceptance."
+    }
+  ]
+}

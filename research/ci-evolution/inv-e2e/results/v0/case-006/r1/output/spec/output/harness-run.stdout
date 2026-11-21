@@ -1,0 +1,246 @@
+dependency overlay present: /work/current/.specula-output/build/gopath/src
+instrumentation applied to /work/current/.specula-output/build/worktrees/instr-c780d355cfeae6ee6be52c50c1f0bd7d30c6657a (rev c780d355cfeae6ee6be52c50c1f0bd7d30c6657a)
+source_rev=c780d355cfeae6ee6be52c50c1f0bd7d30c6657a target=/work/current/.specula-output/build/worktrees/instr-c780d355cfeae6ee6be52c50c1f0bd7d30c6657a go=go version go1.27.4 linux/amd64
+=== scenario quorum_read (TestSpeculaTraceQuorumRead)
+=== RUN   TestSpeculaTraceQuorumRead
+raft2026/11/17 23:08:13 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:13 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:13 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:13 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:13 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:13 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:13 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:13 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:13 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:13 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:13 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:13 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:13 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:13 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:13 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:13 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:13 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:13 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:13 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:13 INFO: 1 became leader at term 1
+--- PASS: TestSpeculaTraceQuorumRead (0.35s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.385s
+trace_records=28 sha256=dc10e57e0f6d9f3e3a2a513e24e50ed09083f0738b371893cc252402f0014db1 trace=/work/current/.specula-output/traces/quorum_read.ndjson
+=== scenario quorum_loss (TestSpeculaTraceQuorumLoss)
+=== RUN   TestSpeculaTraceQuorumLoss
+raft2026/11/17 23:08:15 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:15 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:15 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:15 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:15 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:15 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:15 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:15 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:15 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:15 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:15 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:15 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:15 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:15 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:15 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:15 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:15 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:15 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:15 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:15 INFO: 1 became leader at term 1
+raft2026/11/17 23:08:15 WARN: 1 stepped down to follower since quorum is not active
+raft2026/11/17 23:08:15 INFO: 1 became follower at term 1
+--- PASS: TestSpeculaTraceQuorumLoss (0.18s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.210s
+trace_records=15 sha256=5d8ffd6cc2f5f17ca38da1fb93fcbb446702f74b87333d675ad4d52b89d81419 trace=/work/current/.specula-output/traces/quorum_loss.ndjson
+=== scenario read_reuse (TestSpeculaTraceReadReuse)
+=== RUN   TestSpeculaTraceReadReuse
+raft2026/11/17 23:08:16 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:16 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:16 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:16 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:16 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:16 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:16 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:16 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:16 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:16 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:16 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:16 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:16 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:16 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:16 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:16 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:16 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:16 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:16 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:16 INFO: 1 became leader at term 1
+    specula_trace_test.go:125: readStates=2 pending=0 queue=0
+--- PASS: TestSpeculaTraceReadReuse (0.51s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.516s
+trace_records=33 sha256=c4a10159d01371a61902f5cd910c829b871f44deaa4fdbc4e3eaee38bc0f0a72 trace=/work/current/.specula-output/traces/read_reuse.ndjson
+=== scenario forwarded_read (TestSpeculaTraceForwardedRead)
+=== RUN   TestSpeculaTraceForwardedRead
+raft2026/11/17 23:08:18 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:18 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:18 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:18 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:18 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:18 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:18 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:18 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:18 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:18 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:18 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:18 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:18 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:18 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:18 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:18 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:18 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:18 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:18 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:18 INFO: 1 became leader at term 1
+    specula_trace_test.go:153: follower readStates=2 leader pending=0 queue=0
+--- PASS: TestSpeculaTraceForwardedRead (0.47s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.497s
+trace_records=37 sha256=37674a44fb1b6b49052875b5c0afef542b5dd9a0eb9c8e361e5d95c85e1ba5b6 trace=/work/current/.specula-output/traces/forwarded_read.ndjson
+=== scenario delayed_ack (TestSpeculaTraceDelayedAck)
+=== RUN   TestSpeculaTraceDelayedAck
+raft2026/11/17 23:08:19 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:19 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:19 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:19 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:19 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:19 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:19 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:19 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:19 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:19 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:19 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:19 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:19 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:19 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:19 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:19 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:19 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:19 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:19 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:19 INFO: 1 became leader at term 1
+    specula_trace_test.go:203: withheld second-round heartbeats=2 readStates=2
+--- PASS: TestSpeculaTraceDelayedAck (0.36s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.383s
+trace_records=29 sha256=a497149621461564ef0d6a590d4bfdb8fd7d49504c2198c8c0143c029730f600 trace=/work/current/.specula-output/traces/delayed_ack.ndjson
+=== scenario step_down_reads (TestSpeculaTraceStepDownClearsReads)
+=== RUN   TestSpeculaTraceStepDownClearsReads
+raft2026/11/17 23:08:21 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:21 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:21 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:21 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:21 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:21 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:21 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:21 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:21 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:21 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:21 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:21 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:21 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:21 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:21 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:21 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:21 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:21 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:21 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:21 INFO: 1 became leader at term 1
+raft2026/11/17 23:08:21 WARN: 1 stepped down to follower since quorum is not active
+raft2026/11/17 23:08:21 INFO: 1 became follower at term 1
+    specula_trace_test.go:243: after step-down pending=0 queue=0
+--- PASS: TestSpeculaTraceStepDownClearsReads (0.34s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.346s
+trace_records=27 sha256=d3b409c9b766af1a34511dfc8c74789532a504dd0a16670c3554dd91ee01f7b3 trace=/work/current/.specula-output/traces/step_down_reads.ndjson
+=== scenario higher_term_reads (TestSpeculaTraceHigherTermClearsReads)
+=== RUN   TestSpeculaTraceHigherTermClearsReads
+raft2026/11/17 23:08:22 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:22 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:22 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:22 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:22 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:22 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:22 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:22 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:22 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:22 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:22 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:22 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:22 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:22 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:22 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:22 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:22 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:22 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:22 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:22 INFO: 1 became leader at term 1
+raft2026/11/17 23:08:22 INFO: 2 is starting a new election at term 1
+raft2026/11/17 23:08:22 INFO: 2 became candidate at term 2
+raft2026/11/17 23:08:22 INFO: 2 received MsgVoteResp from 2 at term 2
+raft2026/11/17 23:08:22 INFO: 2 [logterm: 1, index: 2] sent MsgVote request to 1 at term 2
+raft2026/11/17 23:08:22 INFO: 2 [logterm: 1, index: 2] sent MsgVote request to 3 at term 2
+raft2026/11/17 23:08:22 INFO: 1 [term: 1] received a MsgVote message with higher term from 2 [term: 2]
+raft2026/11/17 23:08:22 INFO: 1 became follower at term 2
+raft2026/11/17 23:08:22 INFO: 1 [logterm: 1, index: 2, vote: 0] cast MsgVote for 2 [logterm: 1, index: 2] at term 2
+raft2026/11/17 23:08:22 INFO: 3 [term: 1] received a MsgVote message with higher term from 2 [term: 2]
+raft2026/11/17 23:08:22 INFO: 3 became follower at term 2
+raft2026/11/17 23:08:22 INFO: 3 [logterm: 1, index: 2, vote: 0] cast MsgVote for 2 [logterm: 1, index: 2] at term 2
+raft2026/11/17 23:08:22 INFO: 2 received MsgVoteResp from 1 at term 2
+raft2026/11/17 23:08:22 INFO: 2 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:22 INFO: 2 became leader at term 2
+    specula_trace_test.go:287: old leader pending=0 queue=0
+--- PASS: TestSpeculaTraceHigherTermClearsReads (0.35s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.375s
+trace_records=28 sha256=ed9d54592bb8cb9d4a7e8f18853b744ff2094e5004fac686b1678e6c834c2e1f trace=/work/current/.specula-output/traces/higher_term_reads.ndjson
+=== scenario stale_read_reuse (TestSpeculaTraceStaleReadReuse)
+=== RUN   TestSpeculaTraceStaleReadReuse
+raft2026/11/17 23:08:23 INFO: 1 became follower at term 0
+raft2026/11/17 23:08:23 INFO: newRaft 1 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:23 INFO: 2 became follower at term 0
+raft2026/11/17 23:08:23 INFO: newRaft 2 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:23 INFO: 3 became follower at term 0
+raft2026/11/17 23:08:23 INFO: newRaft 3 [peers: [1,2,3], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]
+raft2026/11/17 23:08:23 INFO: 1 is starting a new election at term 0
+raft2026/11/17 23:08:23 INFO: 1 became candidate at term 1
+raft2026/11/17 23:08:23 INFO: 1 received MsgVoteResp from 1 at term 1
+raft2026/11/17 23:08:23 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 2 at term 1
+raft2026/11/17 23:08:23 INFO: 1 [logterm: 0, index: 0] sent MsgVote request to 3 at term 1
+raft2026/11/17 23:08:23 INFO: 2 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:23 INFO: 2 became follower at term 1
+raft2026/11/17 23:08:23 INFO: 2 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:23 INFO: 3 [term: 0] received a MsgVote message with higher term from 1 [term: 1]
+raft2026/11/17 23:08:23 INFO: 3 became follower at term 1
+raft2026/11/17 23:08:23 INFO: 3 [logterm: 0, index: 0, vote: 0] cast MsgVote for 1 [logterm: 0, index: 0] at term 1
+raft2026/11/17 23:08:23 INFO: 1 received MsgVoteResp from 2 at term 1
+raft2026/11/17 23:08:23 INFO: 1 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:23 INFO: 1 became leader at term 1
+raft2026/11/17 23:08:24 INFO: 2 is starting a new election at term 1
+raft2026/11/17 23:08:24 INFO: 2 became candidate at term 2
+raft2026/11/17 23:08:24 INFO: 2 received MsgVoteResp from 2 at term 2
+raft2026/11/17 23:08:24 INFO: 2 [logterm: 1, index: 2] sent MsgVote request to 1 at term 2
+raft2026/11/17 23:08:24 INFO: 2 [logterm: 1, index: 2] sent MsgVote request to 3 at term 2
+raft2026/11/17 23:08:24 INFO: 3 [term: 1] received a MsgVote message with higher term from 2 [term: 2]
+raft2026/11/17 23:08:24 INFO: 3 became follower at term 2
+raft2026/11/17 23:08:24 INFO: 3 [logterm: 1, index: 2, vote: 0] cast MsgVote for 2 [logterm: 1, index: 2] at term 2
+raft2026/11/17 23:08:24 INFO: 2 received MsgVoteResp from 3 at term 2
+raft2026/11/17 23:08:24 INFO: 2 [quorum:2] has received 2 MsgVoteResp votes and 0 vote rejections
+raft2026/11/17 23:08:24 INFO: 2 became leader at term 2
+    specula_trace_test.go:364: s2 term=2 committed=4; s1 term=1 readStates=[{2 [99 116 120 49]}]
+--- PASS: TestSpeculaTraceStaleReadReuse (0.52s)
+PASS
+ok  	github.com/coreos/etcd/raft	0.522s
+trace_records=42 sha256=49a0dc6e73d44ba51effd79610efd985eb3fe70c9469fbf9830736644003b09d trace=/work/current/.specula-output/traces/stale_read_reuse.ndjson

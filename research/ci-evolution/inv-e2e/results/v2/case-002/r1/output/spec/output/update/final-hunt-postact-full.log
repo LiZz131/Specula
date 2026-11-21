@@ -1,0 +1,71 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 2100s env JSON= java -XX:+UseParallelGC -Xmx10g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -cleanup -metadir /dev/shm/specula-e2e-case-002/final-hunt-postact-full -config Update-hunt-postact-full.cfg -workers 4 Update.tla
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 82 and seed -1731132097879865223 with 4 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 15478] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-16801481611872666573/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-16801481611872666573/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-16801481611872666573/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-16801481611872666573/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-16801481611872666573/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-16801481611872666573/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-16801481611872666573/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-18 11:39:45)
+Computing initial states...
+Computed 2 initial states...
+Computed 4 initial states...
+Finished computing initial states: 6 states generated, with 1 of them distinct at 2026-11-18 11:39:46.
+Progress(9) at 2026-11-18 11:39:49: 53,066 states generated (53,066 s/min), 14,318 distinct states found (14,318 ds/min), 8,087 states left on queue.
+Error: Invariant LeaderCompleteness is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s2) line 19, col 23 to line 19, col 85 of module MC>
+
+State 3: <MCCastVote(s1,s2) line 20, col 21 to line 20, col 59 of module MC>
+
+State 4: <MCWinElection(s2) line 21, col 21 to line 21, col 79 of module MC>
+
+State 5: <MCFollowLeader(s1,s2) line 22, col 25 to line 22, col 67 of module MC>
+
+State 6: <MCAcceptEpoch(s1) line 23, col 21 to line 23, col 59 of module MC>
+
+State 7: <MCFinishDiscovery(s2) line 24, col 25 to line 24, col 67 of module MC>
+
+State 8: <MCEnterSyncPhase(s1,s2) line 25, col 27 to line 25, col 71 of module MC>
+
+State 9: <MCSelectSync(s1,s2,"DIFF") line 27, col 5 to line 29, col 25 of module MC>
+
+State 10: <MCReceiveSyncPayload(s1) line 32, col 5 to line 34, col 25 of module MC>
+
+State 11: <MCPersistCurrentEpoch(s1) line 35, col 29 to line 35, col 75 of module MC>
+
+State 12: <MCClearSyncMode(s1) line 37, col 23 to line 37, col 63 of module MC>
+
+State 13: <MCAckNewLeader(s1) line 40, col 5 to line 43, col 25 of module MC>
+
+State 14: <MCLeaderBroadcast(s2) line 48, col 5 to line 51, col 25 of module MC>
+
+1293976 states generated, 274775 distinct states found, 94993 states left on queue.
+The depth of the complete state graph search is 14.
+Finished in 44s at (2026-11-18 11:40:29)
+Trace exploration spec path: ./Update_TTrace_1795001984.tla

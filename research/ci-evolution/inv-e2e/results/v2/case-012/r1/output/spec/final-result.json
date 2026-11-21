@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "run_id": "case-012",
+  "summary": "Model updated for the Engine-owned leader progress and commit path. Fresh traces validated, and bounded model checking found no implementation defect.",
+  "validation_limits": [
+    "Model checking is bounded to 3 servers and small term/index/fault budgets; most update campaigns stopped at their 30-minute budget with states still queued (LIMITED_COVERAGE).",
+    "Message-level actions (SendAppendEntries, DeliverAppendEntries, RejectAppendConflict, HandleUpdateMatched, GrantVote) are not directly traced; their Engine cores are.",
+    "RejectAppendConflict and DiscardNegativeAck had no positive coverage at the explored depths.",
+    "OneOutstandingMembership is checked only in crash-free configurations because the restart path resets the volatile commit index (pre-existing Case A).",
+    "The U-S3 covered-but-unpromoted membership state was not reached in the model within budget; the implementation produces it only from a hand-built unit-test fixture.",
+    "RaftCore paths that change vote or role without clearing Engine leader data (install_snapshot, revert-to-follower) are outside the modeled Next relation."
+  ],
+  "findings": []
+}

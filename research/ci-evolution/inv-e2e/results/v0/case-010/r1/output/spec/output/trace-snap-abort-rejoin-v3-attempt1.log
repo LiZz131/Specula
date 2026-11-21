@@ -1,0 +1,87 @@
+# cmd: timeout 20m java -XX:+UseParallelGC -Xmx24g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/trace-snap-abort-rejoin-v3-attempt1.q8wT -config Trace.cfg -workers 1 Trace
+# started: 2026-11-19T20:27:14Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 107 and seed -3981753695309398556 with 1 worker on 40 cores with 21845MB heap and 64MB offheap memory [pid: 4219] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Trace.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-8909648005287966632/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-8909648005287966632/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-8909648005287966632/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-8909648005287966632/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-8909648005287966632/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-8909648005287966632/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-8909648005287966632/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-8909648005287966632/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-8909648005287966632/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Trace
+Starting... (2026-11-19 20:27:15)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 20:27:15.
+Progress(19) at 2026-11-19 20:27:15: 19 states generated, 19 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 19 total distinct states at (2026-11-19 20:27:15)
+Error: Temporal property TraceMatched was violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+
+State 2: <LoadIfLogged line 69, col 9 to line 74, col 21 of module Trace>
+
+State 3: <LoadIfLogged line 69, col 9 to line 74, col 21 of module Trace>
+
+State 4: <LoadIfLogged line 69, col 9 to line 74, col 21 of module Trace>
+
+State 5: <PeerStateIfLogged line 103, col 9 to line 107, col 21 of module Trace>
+
+State 6: <PeerStateIfLogged line 103, col 9 to line 107, col 21 of module Trace>
+
+State 7: <PeerStateIfLogged line 103, col 9 to line 107, col 21 of module Trace>
+
+State 8: <ElectionIfLogged line 95, col 9 to line 99, col 21 of module Trace>
+
+State 9: <ElectionIfLogged line 95, col 9 to line 99, col 21 of module Trace>
+
+State 10: <ElectionIfLogged line 95, col 9 to line 99, col 21 of module Trace>
+
+State 11: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 12: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 13: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 14: <BeginSnapshotIfLogged line 270, col 9 to line 272, col 21 of module Trace>
+
+State 15: <FinishSnapshotIfLogged line 276, col 9 to line 278, col 21 of module Trace>
+
+State 16: <AcceptedEpochIfLogged line 126, col 9 to line 128, col 21 of module Trace>
+
+State 17: <AcceptedEpochIfLogged line 126, col 9 to line 128, col 21 of module Trace>
+
+State 18: <ReportedIfLogged line 148, col 9 to line 152, col 21 of module Trace>
+
+State 19: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 20: Stuttering
+Finished checking temporal properties in 00s at 2026-11-19 20:27:16
+19 states generated, 19 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 19.
+Finished in 01s at (2026-11-19 20:27:16)
+Trace exploration spec path: ./Trace_TTrace_1795120034.tla
+# exit: 13 finished: 2026-11-19T20:27:16Z

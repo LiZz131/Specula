@@ -1,0 +1,65 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab (incremental case-002: baseline -> update)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK precedes durability of synchronized records (MC-1)",
+      "source": "model-checking",
+      "scenario": "Scenario 5: NEWLEADER ACK versus durability of synchronized records",
+      "severity": "High",
+      "invariant": "CommittedPersistedOnQuorum; LeaderCompleteness (crash variant)",
+      "config": "Update-concrete.cfg; Update-concrete2-A2-crash.cfg",
+      "counterexample": "spec/output/mc-Z3-update-concrete-A1.log",
+      "additional_counterexamples": [
+        "spec/output/mc-Z3c-update-concrete2-A2-crash.log",
+        "spec/output/mc-Z4a-update-open-bfs.log",
+        "spec/output/mc-Z5-update-full-focusinit.log",
+        "spec/evidence/trace-A1/tlc.log",
+        "spec/output/mc-R3-update-concrete-A1.log",
+        "spec/output/mc-R3c-update-concrete2-A2-crash.log"
+      ],
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743-760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82-89",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:181-249",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1497-1586"
+      ],
+      "summary": "In the updated Learner.syncWithLeader NEWLEADER branch the learner persists the new current epoch, hands the DIFF-synchronized records to FollowerZooKeeperServer.logRequest (which only enqueues them for the asynchronous SyncRequestProcessor) and immediately writes the NEWLEADER ACK. The leader treats a NEWLEADER-ACK quorum as commitment of its whole loaded history and starts serving it, so committed records can be persisted only on the leader (CommittedPersistedOnQuorum fails; observed on the real trace diff-sync-consistency at event 94). If an acknowledging learner process crashes before its SyncThread forces the records, it restarts with the new epoch but without them, can win the next election, and activates a history missing a transaction that was already served as committed (LeaderCompleteness, TLC crash variant). Update attribution: the update moved logging to NEWLEADER but kept it asynchronous; the window remains.",
+      "reachability": "FocusInit reachable from MCInit: spec/output/mc-Z6-reach-focusinit-exact.log"
+    },
+    {
+      "id": "MC-2",
+      "title": "learner failure between NEWLEADER and UPTODATE hides logged committed records (MC-2)",
+      "source": "model-checking",
+      "scenario": "Scenario 6: learner failure in the INITIAL server state",
+      "severity": "Critical",
+      "invariant": "LeaderCompleteness",
+      "config": "Update-concrete2-A2.cfg",
+      "counterexample": "spec/output/mc-Z3b-update-concrete2-A2-initial.log",
+      "additional_counterexamples": [
+        "spec/evidence/trace-A2/tlc.log",
+        "spec/evidence/trace-A2/tlc-CommittedHistoriesPrefix.log",
+        "spec/output/mc-R3b-update-concrete2-A2-initial.log",
+        "spec/output/mc-hunt-A2-from-focus2.log"
+      ],
+      "reproduction": {
+        "test": "harness/repro/SpeculaInitialStateFailureReproTest.java",
+        "command": "SPECULA_SCENARIOS=repro-initial-state-failure bash harness/run.sh",
+        "updated_result": "FAIL: clients on both remaining servers see exists(/zk2)=null after the old leader served it (spec/output/repro-surefire-update.txt, spec/output/repro-surefire-update-summary.txt)",
+        "baseline_control": "FAIL as well (spec/output/old-control-repro.log): pre-existing mechanism not fixed by the update",
+        "trace": "traces/repro-initial-state-failure.ndjson (conforms under Trace-conformance.cfg; LeaderCompleteness violated after event 139, CommittedHistoriesPrefix after event 211)"
+      },
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-767",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-851",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-173",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java:1257-1262",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:480-512"
+      ],
+      "summary": "After the update a learner's server is INITIAL between NEWLEADER (startupWithoutServing) and UPTODATE (startServing), and the DIFF records are applied to its data tree only after UPTODATE. If the learner fails in between (socket timeout, leader loss) LearnerZooKeeperServer.shutdown returns early because canShutdown() is false, so the data tree is never fast-forwarded from the log. The FLE vote and a new leader's loaded database are based on that stale in-memory data tree, so two learners that acknowledged NEWLEADER can elect a leader whose history lacks a transaction the previous leader already committed and served. No process crash is needed. Reproduced on the updated implementation (new leader's database lacks /zk2) and on the baseline control; the update's DIFFSyncConsistencyTest passes only because it restarts the learners.",
+      "reachability": "FocusInit2 = final state of spec/output/mc-Z3-update-concrete-A1.log; FocusInit reachable from MCInit (spec/output/mc-Z6-reach-focusinit-exact.log)"
+    }
+  ]
+}

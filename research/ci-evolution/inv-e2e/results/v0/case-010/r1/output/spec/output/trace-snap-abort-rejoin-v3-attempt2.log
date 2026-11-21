@@ -1,0 +1,135 @@
+# cmd: timeout 20m java -XX:+UseParallelGC -Xmx24g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -metadir /dev/shm/specula-e2e-case-010/trace-snap-abort-rejoin-v3-attempt2.ajeC -config Trace.cfg -workers 1 Trace
+# started: 2026-11-19T20:28:59Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 39 and seed 5111938892530079262 with 1 worker on 40 cores with 21845MB heap and 64MB offheap memory [pid: 4390] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Trace.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14299261113550966137/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-14299261113550966137/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-14299261113550966137/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14299261113550966137/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14299261113550966137/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-14299261113550966137/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14299261113550966137/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14299261113550966137/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14299261113550966137/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Trace
+Starting... (2026-11-19 20:29:00)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-19 20:29:00.
+Progress(43) at 2026-11-19 20:29:00: 45 states generated, 43 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 43 total distinct states at (2026-11-19 20:29:00)
+Error: Temporal property TraceMatched was violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+
+State 2: <LoadIfLogged line 69, col 9 to line 74, col 21 of module Trace>
+
+State 3: <LoadIfLogged line 69, col 9 to line 74, col 21 of module Trace>
+
+State 4: <LoadIfLogged line 69, col 9 to line 74, col 21 of module Trace>
+
+State 5: <PeerStateIfLogged line 103, col 9 to line 107, col 21 of module Trace>
+
+State 6: <PeerStateIfLogged line 103, col 9 to line 107, col 21 of module Trace>
+
+State 7: <PeerStateIfLogged line 103, col 9 to line 107, col 21 of module Trace>
+
+State 8: <ElectionIfLogged line 95, col 9 to line 99, col 21 of module Trace>
+
+State 9: <ElectionIfLogged line 95, col 9 to line 99, col 21 of module Trace>
+
+State 10: <ElectionIfLogged line 95, col 9 to line 99, col 21 of module Trace>
+
+State 11: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 12: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 13: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 14: <BeginSnapshotIfLogged line 276, col 9 to line 278, col 21 of module Trace>
+
+State 15: <FinishSnapshotIfLogged line 282, col 9 to line 284, col 21 of module Trace>
+
+State 16: <AcceptedEpochIfLogged line 126, col 9 to line 130, col 21 of module Trace>
+
+State 17: <AcceptedEpochIfLogged line 126, col 9 to line 130, col 21 of module Trace>
+
+State 18: <ReportedIfLogged line 150, col 9 to line 158, col 21 of module Trace>
+
+State 19: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 20: <SyncModeIfLogged line 142, col 9 to line 146, col 21 of module Trace>
+
+State 21: <AcceptedEpochIfLogged line 126, col 9 to line 130, col 21 of module Trace>
+
+State 22: <ReportedIfLogged line 150, col 9 to line 158, col 21 of module Trace>
+
+State 23: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 24: <SyncModeIfLogged line 142, col 9 to line 146, col 21 of module Trace>
+
+State 25: <CurrentEpochIfLogged line 134, col 9 to line 138, col 21 of module Trace>
+
+State 26: <CurrentEpochIfLogged line 134, col 9 to line 138, col 21 of module Trace>
+
+State 27: <SyncModeIfLogged line 142, col 9 to line 146, col 21 of module Trace>
+
+State 28: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 29: <CurrentEpochIfLogged line 134, col 9 to line 138, col 21 of module Trace>
+
+State 30: <SyncModeIfLogged line 142, col 9 to line 146, col 21 of module Trace>
+
+State 31: <AckNewLeaderIfLogged line 200, col 9 to line 202, col 21 of module Trace>
+
+State 32: <AckNewLeaderIfLogged line 200, col 9 to line 202, col 21 of module Trace>
+
+State 33: <NewLeaderQuorumIfLogged line 206, col 9 to line 208, col 21 of module Trace>
+
+State 34: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 35: <UpToDateIfLogged line 212, col 9 to line 215, col 21 of module Trace>
+
+State 36: <UpToDateIfLogged line 212, col 9 to line 215, col 21 of module Trace>
+
+State 37: <SyncCompleteIfLogged line 219, col 9 to line 222, col 21 of module Trace>
+
+State 38: <SyncCompleteIfLogged line 219, col 9 to line 222, col 21 of module Trace>
+
+State 39: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 40: <PhaseIfLogged line 111, col 9 to line 122, col 21 of module Trace>
+
+State 41: <ShutdownIfLogged line 78, col 9 to line 80, col 21 of module Trace>
+
+State 42: <LearnerShutdownIfLogged line 86, col 9 to line 91, col 21 of module Trace>
+
+State 43: <LearnerShutdownIfLogged line 86, col 9 to line 91, col 21 of module Trace>
+
+State 44: Stuttering
+Finished checking temporal properties in 00s at 2026-11-19 20:29:00
+45 states generated, 43 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 43.
+Finished in 01s at (2026-11-19 20:29:00)
+Trace exploration spec path: ./Trace_TTrace_1795120139.tla
+# exit: 13 finished: 2026-11-19T20:29:00Z
