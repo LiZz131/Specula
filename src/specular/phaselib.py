@@ -167,6 +167,16 @@ class _LaunchRequest:
     ready_at: float = 0.0
 
 
+@dataclass
+class _PolicyTlcWait:
+    """A policy-stopped turn whose running TLC tasks the scheduler lets finish."""
+
+    agent: progress.RunningAgent
+    deadline: float
+    next_check: float
+    retry_dropped: bool = False
+
+
 _POLICY_RECOVERY_NOTE = """
 
 ## Continue After Provider Policy Interruption
@@ -184,6 +194,49 @@ _POLICY_SESSION_RESUME_PROMPT = """Continue the same legitimate formal-verificat
 def _policy_recovery_prompt(prompt: str) -> str:
     """Change a blocked request while retaining its phase contract."""
     return prompt.rstrip() + _POLICY_RECOVERY_NOTE
+
+
+# A content-policy stop ends an agent turn, not the TLC tasks that turn started.
+# Before the retry or teardown, wait for them as long as one wait_tlc call could
+# have: long enough for typical checks to leave their results on disk, without
+# holding the run indefinitely on a task with a long or disabled time budget.
+POLICY_TLC_WAIT_SECONDS: float = tlc_tasks.MAX_WAIT_SECONDS
+# Worker threads never see the main thread's Ctrl-C; this ends their waits instead.
+_POLICY_TLC_WAIT_CANCEL = threading.Event()
+
+
+class PolicyTlcWaitCancelled(BaseException):
+    """The run was interrupted while a worker thread waited for its TLC tasks."""
+
+
+@contextlib.contextmanager
+def cancel_policy_tlc_waits_on_interrupt() -> Iterator[None]:
+    """End worker threads' policy TLC waits when the code joining them is interrupted.
+
+    Enter it inside a thread pool's ``with`` so it runs before the pool joins.
+    """
+    _POLICY_TLC_WAIT_CANCEL.clear()
+    try:
+        yield
+    except (KeyboardInterrupt, SystemExit):
+        _POLICY_TLC_WAIT_CANCEL.set()
+        raise
+
+
+def _wait_policy_tlc(name: str, work_dir: Path, log: Path) -> None:
+    """Wait (bounded) for the running TLC tasks owned by a policy-stopped turn."""
+    if _POLICY_TLC_WAIT_CANCEL.is_set():
+        raise PolicyTlcWaitCancelled
+    live = tlc_tasks.live_owned_tasks(work_dir, log)
+    if not live:
+        return
+    print(f"[{_ts()}] {name}: waiting for {len(live)} running TLC task(s) to finish before continuing", flush=True)
+    left = tlc_tasks.wait_owned_tasks(work_dir, log, POLICY_TLC_WAIT_SECONDS, _POLICY_TLC_WAIT_CANCEL)
+    if _POLICY_TLC_WAIT_CANCEL.is_set():
+        # Do not start another attempt; the caller's cleanup stops what is left.
+        print(f"[{_ts()}] {name}: TLC wait cancelled by the interrupt", flush=True)
+        raise PolicyTlcWaitCancelled
+    print(f"[{_ts()}] {name}: TLC wait over ({len(left)} task(s) still running)", flush=True)
 
 
 def _parse_policy_retries(raw: str) -> int:
@@ -723,13 +776,60 @@ class Phase:
                 completed.append((agent, rc))
                 # A completed adapter can still leave background descendants in
                 # its session. They are phase-scoped and must not outlive it.
-                if rc == POLICY_BLOCKED_RC and agent.policy_attempt < self._policy_retries:
-                    # The policy retry continues this conversation and can still
-                    # wait for its TLC tasks, which run in their own sessions.
+                if rc == POLICY_BLOCKED_RC:
+                    # TLC tasks run in their own sessions. The caller lets them
+                    # finish, then retries or stops them (_end_policy_tlc_wait).
                     self._terminate_processes([agent.proc], announce=False)
                 else:
                     self._terminate_agents([agent], announce=False)
         return live, completed
+
+    def _end_policy_tlc_wait(self, agent: progress.RunningAgent) -> None:
+        """A policy retry continues this conversation with its TLC tasks; a final stop ends them."""
+        if agent.policy_attempt >= self._policy_retries:
+            tlc_tasks.stop_owned_tasks(agent.work_dir, agent.log)
+
+    def _policy_tlc_wait_over(self, agent: progress.RunningAgent, *, retry_dropped: bool = False) -> None:
+        """Release a policy-stopped target to its retry or its end; its wait counted as runtime."""
+        if retry_dropped:
+            tlc_tasks.stop_owned_tasks(agent.work_dir, agent.log)
+        else:
+            self._end_policy_tlc_wait(agent)
+        if agent.policy_attempt < self._policy_retries:
+            _resource_pause_target(agent.name)
+        else:
+            _resource_finish_target(agent.name)
+
+    def _begin_policy_tlc_wait(self, agent: progress.RunningAgent, waits: dict[str, _PolicyTlcWait]) -> None:
+        """Track a policy-stopped turn's running TLC tasks without blocking the scheduler."""
+        live = tlc_tasks.live_owned_tasks(agent.work_dir, agent.log)
+        if not live:
+            self._policy_tlc_wait_over(agent)
+            return
+        print(
+            f"[{_ts()}] {agent.name}: waiting for {len(live)} running TLC task(s) to finish before continuing",
+            flush=True,
+        )
+        now = time.monotonic()
+        waits[agent.name] = _PolicyTlcWait(
+            agent,
+            deadline=now + POLICY_TLC_WAIT_SECONDS,
+            next_check=now + min(tlc_tasks.OWNED_WAIT_POLL_SECONDS, POLICY_TLC_WAIT_SECONDS),
+        )
+
+    def _settle_policy_tlc_waits(self, waits: dict[str, _PolicyTlcWait]) -> None:
+        """End each wait whose tasks finished or whose deadline passed."""
+        now = time.monotonic()
+        for name, wait in list(waits.items()):
+            if now < wait.next_check:
+                continue
+            left = tlc_tasks.live_owned_tasks(wait.agent.work_dir, wait.agent.log)
+            if left and now < wait.deadline:
+                wait.next_check = min(now + tlc_tasks.OWNED_WAIT_POLL_SECONDS, wait.deadline)
+                continue
+            del waits[name]
+            print(f"[{_ts()}] {name}: TLC wait over ({len(left)} task(s) still running)", flush=True)
+            self._policy_tlc_wait_over(wait.agent, retry_dropped=wait.retry_dropped)
 
     @staticmethod
     def _group_exists(pgid: int) -> bool:
@@ -1113,13 +1213,28 @@ class Phase:
         waiting_announced = False
         retry_limit = self._rate_limit_retries()
         kept_tlc_tasks: dict[str, progress.RunningAgent] = {}
+        # Policy-stopped targets whose TLC tasks may still finish. A wait before a
+        # retry keeps the target's slot; other targets keep running meanwhile.
+        tlc_waits: dict[str, _PolicyTlcWait] = {}
         with _cleanup_on_signal():
             try:
-                while pending or running:
-                    while pending and len(running) < max_parallel and not pause_for_rate_limit and not stop_launching:
+                while pending or running or tlc_waits:
+                    self._settle_policy_tlc_waits(tlc_waits)
+                    while (
+                        pending
+                        and len(running)
+                        + sum(wait.agent.policy_attempt < self._policy_retries for wait in tlc_waits.values())
+                        < max_parallel
+                        and not pause_for_rate_limit
+                        and not stop_launching
+                    ):
                         now = time.monotonic()
                         ready_index = next(
-                            (index for index, candidate in enumerate(pending) if candidate.ready_at <= now),
+                            (
+                                index
+                                for index, candidate in enumerate(pending)
+                                if candidate.ready_at <= now and self.target_name(candidate.target) not in tlc_waits
+                            ),
                             None,
                         )
                         if ready_index is None:
@@ -1179,8 +1294,10 @@ class Phase:
                             _resource_finish_target(completed_agent.name)
                             continue
                         if rc == POLICY_BLOCKED_RC:
+                            # Its retry or teardown, and its resource pause or
+                            # finish, wait until its TLC wait is over.
+                            self._begin_policy_tlc_wait(completed_agent, tlc_waits)
                             if completed_agent.policy_attempt < self._policy_retries:
-                                _resource_pause_target(completed_agent.name)
                                 kept_tlc_tasks[completed_agent.name] = completed_agent
                                 next_policy_attempt = completed_agent.policy_attempt + 1
                                 print(
@@ -1201,7 +1318,6 @@ class Phase:
                                 )
                             else:
                                 failures.append((completed_agent.name, rc))
-                                _resource_finish_target(completed_agent.name)
                             continue
                         transient_limit = _transient_resume_limit(rc, self._transient_resumes)
                         if transient_limit is not None:
@@ -1275,13 +1391,17 @@ class Phase:
                                 f"[{_ts()}] Rate limit stopped new launches; "
                                 f"skipping {len(skipped)} unstarted target(s): {', '.join(skipped)}"
                             )
-                        for dropped in kept_tlc_tasks.values():
-                            tlc_tasks.stop_owned_tasks(dropped.work_dir, dropped.log)
+                        for name, dropped in kept_tlc_tasks.items():
+                            if name in tlc_waits:
+                                # Its tasks still get the wait; they stop when it ends.
+                                tlc_waits[name].retry_dropped = True
+                            else:
+                                tlc_tasks.stop_owned_tasks(dropped.work_dir, dropped.log)
                         kept_tlc_tasks.clear()
                         pending.clear()
                         rate_limited.clear()
                         pause_for_rate_limit = False
-                    elif pause_for_rate_limit and not running:
+                    elif pause_for_rate_limit and not running and not tlc_waits:
                         names_to_retry = ", ".join(self.target_name(request.target) for request in rate_limited)
                         print(f"[{_ts()}] Rate limited: waiting before retrying {names_to_retry}")
                         self._wait_for_rate_limit()
@@ -1291,7 +1411,7 @@ class Phase:
                         rate_limited = []
                         pause_for_rate_limit = False
 
-                    if running:
+                    if running or tlc_waits:
                         time.sleep(self.progress_config.poll_seconds)
                     elif pending and not pause_for_rate_limit and not stop_launching:
                         next_ready = min(request.ready_at for request in pending)
@@ -1303,6 +1423,8 @@ class Phase:
                     print(f"[{_ts()}] All agents completed.")
             except BaseException:
                 self._terminate_agents(running)
+                for wait in tlc_waits.values():
+                    tlc_tasks.stop_owned_tasks(wait.agent.work_dir, wait.agent.log)
                 if not dry_run:
                     for name in sorted(started_names):
                         try:
@@ -1907,6 +2029,8 @@ def run_agent_blocking(
         *_system_prompt_argv(prompt_file),
     ]
     state = policy_state if policy_state is not None else PolicyRetryState()
+    # Parallel confirmation turns share a phase key; name the target and finding.
+    tlc_wait_name = " ".join(filter(None, (resume_target, resume_finding_id))) or phase_key
     claim = resumelib.ResumeClaim(attempt=1, manual=False, resumable=False)
     if resume_logical is not None:
         checkpoint_model, checkpoint_effort = _checkpoint_tuning(adapter, model, effort)
@@ -2008,6 +2132,8 @@ def run_agent_blocking(
                         cwd=run_cwd,
                         pass_fds=resumelib.inherited_run_lock_fds(),
                     ).returncode
+                    if rc == POLICY_BLOCKED_RC:
+                        _wait_policy_tlc(tlc_wait_name, work_dir, log_file)
                     # The policy retry below continues this conversation; keep its TLC tasks.
                     keep_tlc_tasks = rc == POLICY_BLOCKED_RC and policy_attempt < policy_retries
                 finally:
@@ -3802,7 +3928,13 @@ Output:
                     progress.report([running], self.progress_config)
                 _, completed = self._reap_agents([running], show_progress)
                 if completed:
-                    return completed[0][1]
+                    rc = completed[0][1]
+                    if rc == POLICY_BLOCKED_RC:
+                        # Reaped: an interrupt during the wait must not signal its reused PID.
+                        proc = None
+                        _wait_policy_tlc(name, wd, log_file)
+                        self._end_policy_tlc_wait(running)
+                    return rc
                 time.sleep(self.progress_config.poll_seconds)
         except BaseException:
             if proc is not None:

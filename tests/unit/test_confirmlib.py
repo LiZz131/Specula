@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 import unittest
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -27,7 +28,7 @@ from typing import Any
 from unittest import mock
 
 from specular import confirmlib as C
-from specular import notes, persistent_findings, resumelib, rules
+from specular import notes, persistent_findings, resumelib, rules, tlc_tasks
 from specular import phaselib as PhaseLib
 from specular import pipelinelib as PL
 from specular import prompts as P
@@ -1223,6 +1224,50 @@ class TestDriver(ConfirmCase):
         self.assertIn("| 4 | MC-4 | INCOMPLETE |", report)
         self.assertFalse((ws.work_dir("T") / "confirmation" / "MC-3" / "verdict.json").exists())
         self.assertFalse((ws.work_dir("T") / "confirmation" / "MC-4" / "verdict.json").exists())
+
+    def test_interrupt_ends_a_workers_policy_tlc_wait_before_the_pool_joins(self) -> None:
+        ws = self.seed("T", [{"id": "MC-1", "source": "model-checking", "title": "t", "summary": "s"}])
+        work = ws.work_dir("T")
+        log = work / "turn.log"
+        job = work / ".tlc-tasks/jobs" / ("a" * 32)
+        job.mkdir(parents=True)
+        (job / "request.json").write_text(json.dumps({"owner": str(log.resolve()), "created_at": time.time()}))
+        lock = tlc_tasks._hold_lock(job / "worker.lock")
+        self.addCleanup(os.close, lock)
+        (job / "worker.json").write_text("{}")
+        # Only the cancellation can end this wait promptly.
+        for module, attr in ((PhaseLib, "POLICY_TLC_WAIT_SECONDS"), (tlc_tasks, "OWNED_WAIT_POLL_SECONDS")):
+            patcher = mock.patch.object(module, attr, 60)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.addCleanup(PhaseLib._POLICY_TLC_WAIT_CANCEL.clear)
+        entered = threading.Event()
+        cancelled: list[BaseException] = []
+
+        def worker(_cfg: C.ConfirmConfig, finding: C.Finding) -> C.Outcome:
+            entered.set()
+            try:
+                PhaseLib._wait_policy_tlc(finding.id, work, log)
+            except BaseException as exc:
+                cancelled.append(exc)
+                raise
+            return C.Outcome(finding, "NEEDS MORE INFO", True, 0, EVIDENCE)
+
+        def interrupt(*_args: Any, **_kwargs: Any) -> Any:
+            entered.wait(5)
+            time.sleep(0.2)
+            raise KeyboardInterrupt
+
+        started = time.monotonic()
+        with (
+            mock.patch.object(C, "run_finding_safe", side_effect=worker),
+            mock.patch("specular.confirmlib.wait", side_effect=interrupt),
+            self.assertRaises(KeyboardInterrupt),
+        ):
+            C.run_parallel_confirmation(self.cfg(ws, "T"))
+
+        self.assertLess(time.monotonic() - started, 10)
+        self.assertEqual([type(exc) for exc in cancelled], [PhaseLib.PolicyTlcWaitCancelled])
 
     def test_rate_limit_finding_is_incomplete_delivers(self) -> None:
         # A rate-limited finding no longer withholds the whole target: it becomes an

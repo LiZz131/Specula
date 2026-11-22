@@ -52,6 +52,7 @@ from specular.phaselib import (
     SPECULAR_ROOT,
     PolicyRetryState,
     Workspace,
+    cancel_policy_tlc_waits_on_interrupt,
     run_agent_blocking,
 )
 from specular.prompts import render
@@ -4920,7 +4921,8 @@ def _drive_confirmation(cfg: ConfirmConfig, *, rate_limit_replay: bool = False) 
             rate_limit_seen.set()
         return outcome
 
-    with ThreadPoolExecutor(max_workers=cfg.max_parallel) as ex:
+    # Exits before the pool joins, so a Ctrl-C ends workers' policy TLC waits.
+    with ThreadPoolExecutor(max_workers=cfg.max_parallel) as ex, cancel_policy_tlc_waits_on_interrupt():
         in_flight: dict[Future[Outcome | None], Finding] = {}
 
         def fill_wave() -> None:
