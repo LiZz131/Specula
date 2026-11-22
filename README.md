@@ -24,9 +24,9 @@ Scaling formal specs for autonomous bug finding
 > **Specula is now Specular.** To update an existing install, follow [Switching from Specula](docs/Usage.md#switching-from-specula).
 
 Specular (formerly Specula) finds deep bugs in concurrent and distributed system code. 
-It uses coding agents to write TLA+ specs of the target system, including invariants that capture the system's correctness properties and formal models that describe the system implementation. It then model-checks the specs and reproduces violations at the code level. Specular has been used to find deep bugs in many open-source projects. For more details, see our [paper](https://arxiv.org/abs/2607.25333).
+It uses coding agents to write TLA+ specs of the target system, including invariants that capture the system's correctness properties and formal models that describe the system implementation. It then model-checks the specs and reproduces violations at the code level. Specular has been used to find deep bugs in many open-source projects.
 
-We maintain [a list of bugs found by Specular](https://docs.google.com/spreadsheets/d/1AVXdKjNfD4952hZqyB-_wTdrzeTw0SD73f3F0zWJ0as). We would love to hear about the bugs you find using Specular.
+We maintain [a list of bugs found by Specular](https://docs.google.com/spreadsheets/d/1AVXdKjNfD4952hZqyB-_wTdrzeTw0SD73f3F0zWJ0as). We would love to hear about your experience using Specula and the bugs you found. Contact us!
 
 Browse the [case-study archive](https://github.com/specular-org/specula-case-studies) for reports, models, and reproduction evidence. The `case-studies` submodule pins the archive and its [system and run indexes](https://github.com/specular-org/specula-case-studies/blob/2797de3e0801442d3451f26491ccfe876aaf2f2f/catalog/README.md) for this checkout.
 
@@ -200,7 +200,7 @@ Specular is used by researchers and engineers at organizations including:
 
 ## Acknowledgement
 
-We are grateful to the generous support from
+We are grateful to the generous support from:
 * TLA+ Foundation
 * OpenAI
 * Anthropic (AI for Science Program)
