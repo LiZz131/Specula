@@ -12,14 +12,20 @@ results/grading.json, a hand-written file filled in after Gold is unsealed:
 
 The table reports, per run: outcome (if graded), final decision and workflow status,
 number of findings, cost, wall time, TLC and build/test command counts, invariant-evidence
-statistics, whether the arm's new skill files were actually read, and the network audit.
+statistics, whether the arm's new skill files were actually read, the network audit, and the
+skill version each run used. The "Skill versions" section lists, per arm, the base skill commit,
+the overlay files with their hashes and the skill tree hash (from WORK/skills/<arm>/manifest.json,
+or the frozen copy inputs/skills/<arm>-manifest.json), and flags any run whose recorded
+skills_tree_sha256 differs from its arm's manifest, or results that mix base commits or models.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from common import ARMS, RESULTS, WORK, read_json, write_json
+import subprocess
+
+from common import ARMS, HERE, RESULTS, WORK, read_json, write_json
 
 ARM_FILES = {"v1": ["divergence-evidence.md"], "v2": ["divergence-evidence.md", "ledger-usage.md"]}
 
@@ -39,6 +45,63 @@ def read_check(run: dict) -> str:
     return "/".join("y" if name in reads else "N" for name in want)
 
 
+def load_manifests() -> dict:
+    out = {}
+    for arm in ARMS:
+        for path in (WORK / "skills" / arm / "manifest.json", HERE / "inputs" / "skills" / f"{arm}-manifest.json"):
+            if path.is_file():
+                out[arm] = read_json(path)
+                break
+    return out
+
+
+def commit_subject(commit: str) -> str:
+    res = subprocess.run(["git", "log", "-1", "--format=%cs %s", commit], cwd=HERE,
+                         capture_output=True, text=True)
+    return res.stdout.strip() if res.returncode == 0 else "(commit not in this clone)"
+
+
+def skill_cell(run: dict, manifests: dict) -> str:
+    m = manifests.get(run["arm"])
+    got = run.get("skills_tree_sha256")
+    if not m or not got:
+        return "?"
+    return m["base_commit"][:8] if got == m["tree_sha256"] else f"MISMATCH {got[:8]}"
+
+
+def skill_section(runs: list, manifests: dict) -> list:
+    lines = ["", "## Skill versions", "",
+             "Every run must use its arm's tree; runs are comparable only with one base commit and one model.", "",
+             "| arm | base commit | tree sha256 | overlay files (sha256) | runs matching |",
+             "|---|---|---|---|---|"]
+    for arm in ARMS:
+        m = manifests.get(arm)
+        rs = [r for r in runs if r["arm"] == arm]
+        if not m:
+            if rs:
+                lines.append(f"| {arm} | ? | ? | no manifest found | 0/{len(rs)} |")
+            continue
+        files = [f"`{a['file'].split('/')[-1]}` {a['sha256'][:12]}"
+                 for layer in m.get("layers", []) for a in layer.get("applied", []) if "file" in a]
+        ok = sum(1 for r in rs if r.get("skills_tree_sha256") == m["tree_sha256"])
+        lines.append(f"| {arm} | `{m['base_commit'][:12]}` {commit_subject(m['base_commit'])} | "
+                     f"`{m['tree_sha256'][:16]}` | {'<br>'.join(files) or '(base only)'} | {ok}/{len(rs)} |")
+    warnings = []
+    bases = {m["base_commit"] for m in manifests.values()}
+    if len(bases) > 1:
+        warnings.append(f"arms use different base commits: {', '.join(sorted(b[:12] for b in bases))}")
+    models = {(r.get("model"), r.get("effort")) for r in runs}
+    if len(models) > 1:
+        warnings.append(f"runs use different model/effort: {sorted(models, key=str)}")
+    bad = [f"{r['arm']}/{r['case_id']}/r{r['rep']}" for r in runs if skill_cell(r, manifests).startswith("MISMATCH")]
+    if bad:
+        warnings.append(f"runs whose skill tree differs from the arm's manifest: {', '.join(bad)}")
+    lines += [""] + ([f"**WARNING:** {w}." for w in warnings] or
+                     [f"All runs match their arm's tree; base commit `{next(iter(bases))[:12]}`, "
+                      f"model/effort {next(iter(models))}." if bases and models else ""])
+    return lines
+
+
 def audit_cell(r: dict) -> str:
     if not r["behavior"]["network_audit"]["contaminated"]:
         return "no"
@@ -54,12 +117,16 @@ def main() -> int:
     # Hand review of network-audit hits: {"arm/case/rN": {"contaminated": false, "reason": "..."}}
     audit_path = RESULTS / "audit-review.json"
     audit = read_json(audit_path) if audit_path.exists() else {}
+    manifests = load_manifests()
     runs = []
     for path in sorted(RESULTS.glob("*/*/r*/run.json")):
         run = read_json(path)
         key = f"{run['arm']}/{run['case_id']}/r{run['rep']}"
         run["outcome"] = (grading.get(key) or {}).get("outcome")
         run["audit_review"] = audit.get(key)
+        m = manifests.get(run["arm"]) or {}
+        run["skill_base_commit"] = m.get("base_commit")
+        run["skill_tree_matches_manifest"] = (run.get("skills_tree_sha256") == m.get("tree_sha256")) if m else None
         runs.append(run)
     write_json(RESULTS / "summary.json", runs)
 
@@ -68,9 +135,10 @@ def main() -> int:
         "",
         "Generated by `collect.py`. `outcome` comes from `results/grading.json` (empty until graded).",
         "`read` = whether the arm's added skill files were read (v1: divergence-evidence; v2: divergence-evidence/ledger-usage).",
+        "`skill` = base skill commit of the arm's tree the run used (details in Skill versions below).",
         "",
-        "| case | arm | rep | outcome | status | decision | workflow | findings | USD | min | TLC cmds | build/test | evidence entries | read | contaminated |",
-        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+        "| case | arm | rep | outcome | status | decision | workflow | findings | USD | min | TLC cmds | build/test | evidence entries | read | skill | contaminated |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     order = {arm: i for i, arm in enumerate(ARMS)}
     for r in sorted(runs, key=lambda r: (r["case_id"], r["rep"], order.get(r["arm"], 9))):
@@ -82,7 +150,7 @@ def main() -> int:
             r.get("workflow_status") or "", len(r.get("findings_paths") or []),
             f"{cost:.2f}" if isinstance(cost, (int, float)) else "?", f"{r['wall_seconds'] / 60:.0f}",
             b.get("tlc_commands"), b.get("build_or_test_commands"), ev.get("entries", "-"),
-            read_check(r), audit_cell(r),
+            read_check(r), skill_cell(r, manifests), audit_cell(r),
         ]) + " |")
 
     lines += ["", "## Per arm", "", "| arm | runs | graded discovered | completed | USD total | USD mean | hours total |",
@@ -96,6 +164,7 @@ def main() -> int:
         graded = sum(1 for r in rs if r.get("outcome"))
         lines.append(f"| {arm} | {len(rs)} | {found}/{graded} | {sum(1 for r in rs if r.get('completed'))} | "
                      f"{sum(costs):.2f} | {sum(costs) / len(rs):.2f} | {sum(r['wall_seconds'] for r in rs) / 3600:.1f} |")
+    lines += skill_section(runs, manifests)
     (RESULTS / "summary.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
     return 0

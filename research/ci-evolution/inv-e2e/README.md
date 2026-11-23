@@ -33,7 +33,7 @@ The etcd V0–V3 experiments served as the dev set: the skill overlays were writ
 | 3. v2 annotation | `annotate.py --case ...` | `WORK/annotated/<case>/spec/` (frozen) + manifest |
 | 4. Workspaces | `prepare.py --arm ... --case ... --rep N` | `WORK/neutral/<hex>/` (the sandbox's `/work`); `WORK/attempts/<arm>/<case>/r<N>/{ws,attempt.json}` |
 | 5. Runs | `run.py --arm ... --case ... --rep N [--plan]` | `WORK/attempts/.../log/`; `results/<arm>/<case>/r<N>/` |
-| 6. Summary | `collect.py` | `results/summary.{md,json}` |
+| 6. Summary | `collect.py` | `results/summary.{md,json}`, including the skill version of every run |
 | 7. Export | `export.py all` | `results/<arm>/<case>/r<N>/{output,instrumentation,timeline.md,export.json}`; `inputs/` |
 | 8. Archive | `archive.py --epoch E` | `/proj/aiopslab-PG0/specula-ci/inv-e2e/E/` (logs and workspaces, outside git) |
 | Driver | `pipeline.py --case ...` | steps 3–5 and the per-run export (step 7) for several cases (run 6 and 8 by hand afterwards): arms in the fixed order v2, v0, v1, one at a time; the next case is annotated while the current one runs its last arm |
@@ -120,6 +120,15 @@ Every omission is listed in the run's `export.json` and its file is in the archi
 **Epochs.** Runs are compared only within one epoch: one base skill commit, one overlay set, one model and
 one set of limits. Epoch 1 is the 21 runs below (base `5880061f`, model `claude-opus-5-5`, effort `xhigh`,
 4 h, $100). A new base commit or overlay change starts a new epoch with its own v0 runs.
+
+| Epoch | Base skill commit | v0 tree | v1 tree | v2 tree | Model, effort |
+|---|---|---|---|---|---|
+| 1 | `5880061f19a6` (2026-11-16, "Add prefix branching for update-focused checking") | `285a0893559beac4` | `a227a3af28461121` | `8c85fc177d13e9cc` | `claude-opus-5-5`, `xhigh` |
+
+Tree hashes are `tree_sha256` in `inputs/skills/<arm>-manifest.json` (written by `build_skills.py`). Each run
+records the tree it used as `skills_tree_sha256` in `run.json`; `collect.py` checks every run against its arm's
+manifest and writes the result to the `skill` column and the "Skill versions" section of `results/summary.md`,
+with a warning if results mix base commits, models or trees.
 
 Grading (`BLIND_DISCOVERED` and so on) is entered by hand in `results/grading.json` after Gold is unsealed; `collect.py` merges it.
 
