@@ -1,0 +1,892 @@
+{
+  "spec": "results/v2/case-003/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCUpdateStateAccepted",
+      "formula": "MCUpdateStateAccepted"
+    },
+    {
+      "index": 2,
+      "group": "AffectedActions",
+      "label": "MCUpdateStateRejected",
+      "formula": "MCUpdateStateRejected"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 92392,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_scenario1_params.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 98871,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_scenario2_durability.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "NormalPhaseIsSynchronized": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 121584,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_scenario3_recovery.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 115560,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_accepted.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedAcceptedUpdate": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 131330,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_app_replay.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedAppOnlyReplay": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 106304,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_crash.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedCrash": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 117751,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_handshake_complete.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedHandshakeComplete": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 111579,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_mock_replay.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedMockReplay": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 110883,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_real_replay.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedRealReplay": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 110629,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_rejected.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedRejectedUpdate": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 135303,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_acc_row1.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEAcceptRow1": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 112680,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_acc_row3.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEAcceptRow3": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 112912,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_acc_row5.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEAcceptRow5": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 108971,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_acc_row7.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEAcceptRow7": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 112294,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_acc_row9.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEAcceptRow9": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 115201,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_enabled_block.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEEnabledBlock": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 103655,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_rej_basic.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVERejectBasic": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 114550,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_rej_identity.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVERejectIdentity": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 112342,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_rej_row4.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVERejectRow4": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 116778,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_rej_row6.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVERejectRow6": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 110770,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_rej_row8.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVERejectRow8": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 102499,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_update_mock_replay.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEUpdateMockReplay": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 105804,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_ve_update_real_replay.cfg",
+      "module": "Update",
+      "checks": {
+        "NeverReachedVEUpdateRealReplay": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 106846,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 114247,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_discharge_control.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeControlTooStrong": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 110495,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant",
+        "UnchangedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 100485,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_focused_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 102939,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant",
+        "UnchangedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 90195,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_full_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 91327,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_scenario4_ve_lifecycle.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant",
+        "UnchangedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 95548,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_scenario4_ve_lifecycle_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 95874,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_scenario5_ve_recovery.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant",
+        "UnchangedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 94895,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_scenario5_ve_recovery_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 92739,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant",
+        "UnchangedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 87443,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_open_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 99055,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_sim_deep.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant",
+        "UnchangedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 62102,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_sim_deep_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "VEHistoryStable": "invariant",
+        "VEEnableMonotone": "invariant",
+        "StartupLastCommitConsistent": "invariant",
+        "AcceptedVEUpdateRespectsRules": "invariant",
+        "PermittedVEUpdateNotRejected": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 61269,
+      "seconds": 120.2,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [],
+  "properties": [
+    "DischargeContext",
+    "DischargeControlTooStrong"
+  ],
+  "errors": [],
+  "ignored": [
+    "NeverReachedAcceptedUpdate",
+    "NeverReachedAppOnlyReplay",
+    "NeverReachedCrash",
+    "NeverReachedHandshakeComplete",
+    "NeverReachedMockReplay",
+    "NeverReachedRealReplay",
+    "NeverReachedRejectedUpdate",
+    "NeverReachedVEAcceptRow1",
+    "NeverReachedVEAcceptRow3",
+    "NeverReachedVEAcceptRow5",
+    "NeverReachedVEAcceptRow7",
+    "NeverReachedVEAcceptRow9",
+    "NeverReachedVEEnabledBlock",
+    "NeverReachedVERejectBasic",
+    "NeverReachedVERejectIdentity",
+    "NeverReachedVERejectRow4",
+    "NeverReachedVERejectRow6",
+    "NeverReachedVERejectRow8",
+    "NeverReachedVEUpdateMockReplay",
+    "NeverReachedVEUpdateRealReplay"
+  ],
+  "groups": []
+}

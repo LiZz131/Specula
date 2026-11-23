@@ -1,0 +1,910 @@
+{
+  "spec": "results/v1/case-002/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCPersistCurrentEpoch",
+      "formula": "\\E s \\in Server : MCPersistCurrentEpoch(s)"
+    },
+    {
+      "index": 2,
+      "group": "AffectedActions",
+      "label": "MCClearSyncMode",
+      "formula": "\\E s \\in Server : MCClearSyncMode(s)"
+    },
+    {
+      "index": 3,
+      "group": "AffectedActions",
+      "label": "MCStartupWithoutServing",
+      "formula": "\\E s \\in Server : MCStartupWithoutServing(s)"
+    },
+    {
+      "index": 4,
+      "group": "AffectedActions",
+      "label": "MCLogSyncProposal",
+      "formula": "\\E s \\in Server : MCLogSyncProposal(s)"
+    },
+    {
+      "index": 5,
+      "group": "AffectedActions",
+      "label": "MCSendNewLeaderAck",
+      "formula": "\\E s \\in Server : MCSendNewLeaderAck(s)"
+    },
+    {
+      "index": 6,
+      "group": "AffectedActions",
+      "label": "MCStartServing",
+      "formula": "\\E s \\in Server : MCStartServing(s)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC-canary-CanaryActivationCommitsOldEpoch.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryActivationCommitsOldEpoch": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 14805,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryCommittedApplied.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryCommittedApplied": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 12472,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryDiffAckBeforeFsync.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryDiffAckBeforeFsync": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 12890,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryFollowerBroadcast.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryFollowerBroadcast": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 14895,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryLeaderActive.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryLeaderActive": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 14254,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryLeaderEstablished.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryLeaderEstablished": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 16454,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryRecovery.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryRecovery": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 15162,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanarySnap.cfg",
+      "module": "Update",
+      "checks": {
+        "CanarySnap": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 14035,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanarySync.cfg",
+      "module": "Update",
+      "checks": {
+        "CanarySync": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 13526,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryTrunc-tight.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryTrunc": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 13922,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-canary-CanaryTrunc.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryTrunc": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 15897,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-hunt-election.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "EpochHistoryConsistency": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 56315,
+      "seconds": 360.5,
+      "retried": true
+    },
+    {
+      "name": "MC-hunt-mutation.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "ServingApplyCommitted": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "PipelinePrefix": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 57742,
+      "seconds": 360.7,
+      "retried": true
+    },
+    {
+      "name": "MC-hunt-recovery.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ServingApplyCommitted": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 55184,
+      "seconds": 360.6,
+      "retried": true
+    },
+    {
+      "name": "MC-hunt-sync.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "PipelinePrefix": "invariant",
+        "ServingApplyCommitted": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 55391,
+      "seconds": 360.6,
+      "retried": true
+    },
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "StructuralInvariants": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ServingApplyCommitted": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 84525,
+      "seconds": 360.6,
+      "retried": true
+    },
+    {
+      "name": "Update-concrete-A2.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 22519,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-concrete.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedPersistedOnQuorum": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 67067,
+      "seconds": 360.5,
+      "retried": true
+    },
+    {
+      "name": "Update-concrete2-A2-crash.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 22719,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-concrete2-A2.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 26771,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 96304,
+      "seconds": 360.5,
+      "retried": true
+    },
+    {
+      "name": "Update-full-focusinit.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedPersistedOnQuorum": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 68093,
+      "seconds": 360.5,
+      "retried": true
+    },
+    {
+      "name": "Update-full.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedPersistedOnQuorum": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 62597,
+      "seconds": 360.6,
+      "retried": true
+    },
+    {
+      "name": "Update-open.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedPersistedOnQuorum": "invariant",
+        "LeaderCompleteness": "invariant",
+        "UpdateControl": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 65729,
+      "seconds": 360.4,
+      "retried": true
+    },
+    {
+      "name": "Update-reach-focusinit-exact.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryFocusInitExact": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 21569,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-reach-focusinit.cfg",
+      "module": "Update",
+      "checks": {
+        "CanaryFocusInitShape": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "budget used",
+      "traces": 21873,
+      "seconds": 120.2,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [
+    {
+      "check": "CommittedHistoriesPrefix",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-mutation.cfg",
+        "MC-hunt-recovery.cfg",
+        "MC-hunt-sync.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "DischargeContext",
+      "kind": "property",
+      "configs": [
+        "Update-discharge.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "ElectionSafety",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-election.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "EpochHistoryConsistency",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-election.cfg",
+        "MC-hunt-recovery.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "HistoryPositionsMonotonicExceptRecovery",
+      "kind": "property",
+      "configs": [
+        "MC-hunt-recovery.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "MCTypeOK",
+      "kind": "invariant",
+      "configs": [
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "OneActiveLeaderPerEpoch",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-election.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "PipelinePrefix",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-mutation.cfg",
+        "MC-hunt-sync.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "ServingApplyCommitted",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-mutation.cfg",
+        "MC-hunt-recovery.cfg",
+        "MC-hunt-sync.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "StructuralInvariants",
+      "kind": "invariant",
+      "configs": [
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    },
+    {
+      "check": "SyncCompletionJustified",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-sync.cfg",
+        "MC.cfg"
+      ],
+      "missing": [
+        4,
+        6
+      ],
+      "possible": []
+    }
+  ],
+  "properties": [
+    "DischargeContext",
+    "HistoryPositionsMonotonicExceptRecovery"
+  ],
+  "errors": [],
+  "ignored": [
+    "CanaryActivationCommitsOldEpoch",
+    "CanaryCommittedApplied",
+    "CanaryDiffAckBeforeFsync",
+    "CanaryFocusInitExact",
+    "CanaryFocusInitShape",
+    "CanaryFollowerBroadcast",
+    "CanaryLeaderActive",
+    "CanaryLeaderEstablished",
+    "CanaryRecovery",
+    "CanarySnap",
+    "CanarySync",
+    "CanaryTrunc"
+  ],
+  "groups": [
+    {
+      "missing": [
+        [
+          4,
+          false
+        ],
+        [
+          6,
+          false
+        ]
+      ],
+      "checks": [
+        "CommittedHistoriesPrefix",
+        "DischargeContext",
+        "ElectionSafety",
+        "EpochHistoryConsistency",
+        "HistoryPositionsMonotonicExceptRecovery",
+        "MCTypeOK",
+        "OneActiveLeaderPerEpoch",
+        "PipelinePrefix",
+        "ServingApplyCommitted",
+        "StructuralInvariants",
+        "SyncCompletionJustified"
+      ]
+    }
+  ]
+}

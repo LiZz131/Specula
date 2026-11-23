@@ -1,0 +1,1038 @@
+{
+  "spec": "results/v1/case-010/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCLearnerExit",
+      "formula": "\\E f \\in Server : MCLearnerExit(f)"
+    },
+    {
+      "index": 2,
+      "group": "AffectedActions",
+      "label": "MCLearnerExitLeaderGone",
+      "formula": "\\E f \\in Server : MCLearnerExitLeaderGone(f)"
+    },
+    {
+      "index": 3,
+      "group": "AffectedActions",
+      "label": "MCReloadDatabase",
+      "formula": "\\E s \\in Server : MCReloadDatabase(s)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC-apply-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ApplyUnreachable": "invariant"
+      },
+      "taken": [],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 21165,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-commit-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "CommitUnreachable": "invariant"
+      },
+      "taken": [],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 25359,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-election-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 12023,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 16563,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-recovery-complete.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 15878,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-recovery-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoveryUnreachable": "invariant"
+      },
+      "taken": [
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 21413,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-snapshot-complete.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 23995,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC-snapshot-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "SnapshotUnreachable": "invariant"
+      },
+      "taken": [],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 21042,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC-sync-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "SyncUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 15795,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "OrderedHistories": "invariant",
+        "MonotoneUnlessRecoveryV1": "property"
+      },
+      "taken": [],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 11927,
+      "seconds": 360.3,
+      "retried": true
+    },
+    {
+      "name": "Update-canary-diffreload.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DiffAfterSnapReloadUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 10703,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-leakedflush.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeakedFlushAfterResyncUnreachable": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 15849,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-reload.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ReloadAfterSnapExitUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 10077,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-servingexit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ServingExitUnreachable": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 14840,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-snapcommit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "SnapExitThenCommittedRecoverableUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 10405,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-snapexit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "SnapExitUnpersistedUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 9981,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-steady.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "SteadyStateUnreachable": "invariant"
+      },
+      "taken": [],
+      "enabled": [],
+      "status": "budget used",
+      "traces": 6085,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-truncexit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "TruncExitUnpersistedUnreachable": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 14808,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior-gap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 21594,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior-leak-gap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 23757,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior-leak-prefix.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableCommittedPrefix": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 24444,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior-leak.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 23616,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior-trunc-noleak-gap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 20966,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior-trunc.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 20972,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-control-prior.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 17217,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 15439,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-focused-residual.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesMem": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 34442,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 22290,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-full-residual.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesMem": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 14739,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 15605,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-leak-gap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 15417,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-leak-order.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableReplayOrdered": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 17949,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-leak-prefix.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableCommittedPrefix": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 19989,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-leak.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 22066,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 22384,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc-gap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 21488,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc-noleak-gap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 20796,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc-noleak.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 20891,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant"
+      },
+      "taken": [
+        1,
+        3
+      ],
+      "enabled": [
+        1,
+        3
+      ],
+      "status": "budget used",
+      "traces": 21260,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-open-residual.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesMem": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 9109,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3
+      ],
+      "enabled": [
+        1,
+        2,
+        3
+      ],
+      "status": "budget used",
+      "traces": 9971,
+      "seconds": 120.2,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [
+    {
+      "check": "MonotoneUnlessRecoveryV1",
+      "kind": "property",
+      "configs": [
+        "MC.cfg"
+      ],
+      "missing": [
+        1,
+        2,
+        3
+      ],
+      "possible": [
+        1
+      ]
+    },
+    {
+      "check": "OrderedHistories",
+      "kind": "invariant",
+      "configs": [
+        "MC.cfg"
+      ],
+      "missing": [
+        1,
+        2,
+        3
+      ],
+      "possible": [
+        1
+      ]
+    }
+  ],
+  "properties": [
+    "DischargeContext",
+    "MonotoneUnlessRecoveryUpd",
+    "MonotoneUnlessRecoveryV1"
+  ],
+  "errors": [],
+  "ignored": [
+    "ApplyUnreachable",
+    "CommitUnreachable",
+    "DiffAfterSnapReloadUnreachable",
+    "ElectionUnreachable",
+    "LeakedFlushAfterResyncUnreachable",
+    "RecoveryUnreachable",
+    "ReloadAfterSnapExitUnreachable",
+    "ServingExitUnreachable",
+    "SnapExitThenCommittedRecoverableUnreachable",
+    "SnapExitUnpersistedUnreachable",
+    "SnapshotUnreachable",
+    "SteadyStateUnreachable",
+    "SyncUnreachable",
+    "TruncExitUnpersistedUnreachable"
+  ],
+  "groups": [
+    {
+      "missing": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          false
+        ],
+        [
+          3,
+          false
+        ]
+      ],
+      "checks": [
+        "MonotoneUnlessRecoveryV1",
+        "OrderedHistories"
+      ]
+    }
+  ]
+}

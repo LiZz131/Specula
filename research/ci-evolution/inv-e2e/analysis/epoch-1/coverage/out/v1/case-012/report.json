@@ -1,0 +1,1032 @@
+{
+  "spec": "results/v1/case-012/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "ClientAppendFocus",
+      "label": "MCClientAppend",
+      "formula": "\\E i \\in Server: MCClientAppend(i)"
+    },
+    {
+      "index": 2,
+      "group": "ProposeMembershipFocus",
+      "label": "MCProposeMembership",
+      "formula": "\\E i \\in Server, cfg \\in AllowedConfigs: MCProposeMembership(i, cfg)"
+    },
+    {
+      "index": 3,
+      "group": "HandleUpdateMatchedFocus",
+      "label": "MCHandleUpdateMatched",
+      "formula": "\\E m \\in messages: MCHandleUpdateMatched(m)"
+    },
+    {
+      "index": 4,
+      "group": "ElectionFocus",
+      "label": "MCStartElection",
+      "formula": "\\E i \\in Server: MCStartElection(i)"
+    },
+    {
+      "index": 5,
+      "group": "ElectionFocus",
+      "label": "MCGrantVote",
+      "formula": "\\E i, j \\in Server: MCGrantVote(i, j)"
+    },
+    {
+      "index": 6,
+      "group": "FollowerFocus",
+      "label": "MCDeliverAppendEntries",
+      "formula": "\\E m \\in messages: MCDeliverAppendEntries(m)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "ActiveLeaderHasCommittedVote": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant"
+      },
+      "taken": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 8003,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s1_progress.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "CommitWitnessSound": "invariant"
+      },
+      "taken": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7710,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s2_membership.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "CommitWitnessSound": "invariant"
+      },
+      "taken": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 6434,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s3_follower_commit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant"
+      },
+      "taken": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 9785,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s4_election.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "ActiveLeaderHasCommittedVote": "invariant"
+      },
+      "taken": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 12136,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_commit.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachCommitWitness": "invariant"
+      },
+      "taken": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 9799,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_reach_leader.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachLeader": "invariant"
+      },
+      "taken": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 39768,
+      "seconds": 360.5,
+      "retried": true
+    },
+    {
+      "name": "MC_reach_membership.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachOutstandingMembership": "invariant"
+      },
+      "taken": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 25628,
+      "seconds": 360.5,
+      "retried": true
+    },
+    {
+      "name": "MC_scale.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "ActiveLeaderHasCommittedVote": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 5407,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 8631,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7254,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_focused_control.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "OneOutstandingMembership": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 4917,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_focused_cws.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "UpdCommitWitnessSound": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7272,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 5083,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full_control.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 5103,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full_cws.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "UpdCommitWitnessSound": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 5152,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full_faults.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 8881,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full_faults_control.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 8598,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full_pcs.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ProgressCommittedSupported": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 5110,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_full_sorted.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ProgressSortedAboveCommitted": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7293,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_u1_deep.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 4096,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_u2_uniform.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "taken": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 5052,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_u3_follower.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7990,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_u4_election.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "ActiveLeaderHasCommittedVote": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "taken": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 11927,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "EnvRelyHolds": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 12419,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_open_control.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "EnvRelyHolds": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 12370,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_ElectedByVotes.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachElectedByVotes": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 6899,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_FollowerPromotion.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachFollowerPromotion": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 6128,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_JointCommit.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachJointCommit": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7162,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_LeaderProgressCommit.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachLeaderProgressCommit": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 6810,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_TwoAboveCommitted.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachTwoAboveCommitted": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 6719,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_UpgradedProgress.cfg",
+      "module": "Update",
+      "checks": {
+        "NotReachUpgradedProgress": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 7248,
+      "seconds": 120.3,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [],
+  "properties": [
+    "DischargeContext",
+    "EnvRelyHolds"
+  ],
+  "errors": [],
+  "ignored": [
+    "CommitWitnessSound",
+    "NotReachCommitWitness",
+    "NotReachElectedByVotes",
+    "NotReachFollowerPromotion",
+    "NotReachJointCommit",
+    "NotReachLeader",
+    "NotReachLeaderProgressCommit",
+    "NotReachOutstandingMembership",
+    "NotReachTwoAboveCommitted",
+    "NotReachUpgradedProgress",
+    "UpdCommitWitnessSound"
+  ],
+  "groups": []
+}

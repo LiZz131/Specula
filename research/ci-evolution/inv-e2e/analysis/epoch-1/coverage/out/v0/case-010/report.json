@@ -1,0 +1,1054 @@
+{
+  "spec": "results/v0/case-010/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCLearnerShutdown",
+      "formula": "\\E f \\in Server : MCLearnerShutdown(f)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC-apply-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverApply": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 18840,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-commit-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverCommit": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 17331,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-election-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverElection": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 21734,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 11453,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-recovery-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverRestart": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 17204,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-snapshot-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverSnapshot": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 19466,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-sync-hunt.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverCompleteSync": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 19039,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC-wide.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 9940,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 11992,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-diffabort.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverDiffAbortAfterNewLeader": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 18438,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-diffwindow-steered2.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverDiffAbortAfterNewLeader": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 5562,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-reload.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "CanaryNoReloadAfterClear": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 19541,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-snapabort.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "CanaryNoSnapAbort": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 20192,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-snapcommit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "CanaryNoInMemorySyncCommitSnap": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 14104,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-snaponly-steered-reload.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverReloadAfterClear": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 19804,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-snaponly-steered-snapcommit.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverInMemorySyncCommitSnap": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 17776,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-trunc-steered2.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "NeverTruncAbortMemoryOnly": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 5114,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-truncabort.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "CanaryNoTruncAbortMemoryOnly": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 15679,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-continue-mc1-consequence.cfg",
+      "module": "UpdateContinueMC1",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant"
+      },
+      "taken": [],
+      "enabled": [],
+      "status": "budget used",
+      "traces": 7842,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 13417,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 16630,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 14683,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-diffwindow-steered.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 8520,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-diffwindow-steered2.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 8042,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-diffwindow.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 15087,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-mc1-deterministic.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 24096,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-mc2-leadercompleteness.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 4985,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap-oldcontrol.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 24022,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap-only-steered-consequence.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 14942,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap-only-steered.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 25370,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap-steered-oldcontrol-consequence.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 23707,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap-steered-oldcontrol.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 21423,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap-steered.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 18760,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-snap.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 25252,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc-steered.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 4546,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc-steered2.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 3881,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunc.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 13691,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunclog-consequence-steered.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 8249,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-trunclog-steered.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 13860,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 307,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-smoke.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderUniquenessPerEpoch": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "DurableHistoryConsistent": "invariant",
+        "LeaderCompleteness": "invariant",
+        "ReportedHistoryDurable": "invariant",
+        "SnapExitReportsDisk": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 13891,
+      "seconds": 120.2,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [],
+  "properties": [
+    "DischargeContext",
+    "MonotoneUnlessRecovery"
+  ],
+  "errors": [],
+  "ignored": [
+    "CanaryNoInMemorySyncCommitSnap",
+    "CanaryNoReloadAfterClear",
+    "CanaryNoSnapAbort",
+    "CanaryNoTruncAbortMemoryOnly"
+  ],
+  "groups": []
+}

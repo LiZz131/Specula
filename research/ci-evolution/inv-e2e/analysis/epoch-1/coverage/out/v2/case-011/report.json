@@ -1,0 +1,583 @@
+{
+  "spec": "results/v2/case-011/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "PreElectAction",
+      "label": "MCTickPreElect",
+      "formula": "\\E i \\in Server :MCTickPreElect(i)"
+    },
+    {
+      "index": 2,
+      "group": "PreElectAction",
+      "label": "MCExternalPreElect",
+      "formula": "\\E i \\in Server :MCExternalPreElect(i)"
+    },
+    {
+      "index": 3,
+      "group": "TickElectAction",
+      "label": "MCTickElect",
+      "formula": "\\E i \\in Server :MCTickElect(i)"
+    },
+    {
+      "index": 4,
+      "group": "TickElectAction",
+      "label": "MCExternalElect",
+      "formula": "\\E i \\in Server :MCExternalElect(i)"
+    },
+    {
+      "index": 5,
+      "group": "HandlePreVoteRequestAction",
+      "label": "DeliverPreVoteRequest",
+      "formula": "/\\ \\E m \\in messages : Ref!DeliverPreVoteRequest(m)\n    /\\ UNCHANGED faultCounters"
+    },
+    {
+      "index": 6,
+      "group": "HandlePreVoteResponseAction",
+      "label": "DeliverPreVoteResponse",
+      "formula": "/\\ \\E m \\in messages : Ref!DeliverPreVoteResponse(m)\n    /\\ UNCHANGED faultCounters"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC-membership.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant"
+      },
+      "taken": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 2308,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1460,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_U2_prevote_leader.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "TimerPreVoteElectsOnlyNonLeader": "property",
+        "PreVoteProbeMatchesElection": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1180,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_U4_prevote_stale_round.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "StalePreVoteResponseIgnored": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1283,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_U4b_prevote_panic.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "PreVoteResponseNeverPanics": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1171,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_U4c_prevote_panic_operator.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "PreVoteResponseNeverPanics": "property"
+      },
+      "taken": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1208,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_U5_prevote_fallback.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "PreVoteResponseNeverPanics": "property",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1544,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1329,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-focused-residual.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property",
+        "PreVoteResponseNeverPanics": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 4592,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "TimerPreVoteElectsOnlyNonLeader": "property",
+        "StalePreVoteResponseIgnored": "property",
+        "PreVoteResponseNeverPanics": "property",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 4364,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-full-U2.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "TimerPreVoteElectsOnlyNonLeader": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1096,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-open-residual.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property",
+        "PreVoteResponseNeverPanics": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 2479,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "TimerPreVoteElectsOnlyNonLeader": "property",
+        "StalePreVoteResponseIgnored": "property",
+        "PreVoteResponseNeverPanics": "property",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 2951,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update-residual.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property",
+        "PreVoteResponseNeverPanics": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1468,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "PreCandidateProbeIsNextTerm": "invariant",
+        "TimerPreVoteElectsOnlyNonLeader": "property",
+        "StalePreVoteResponseIgnored": "property",
+        "PreVoteResponseNeverPanics": "property",
+        "PreVoteProbeMatchesElection": "property",
+        "PreVoteRoundPersistsNothing": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "status": "budget used",
+      "traces": 1312,
+      "seconds": 120.3,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [],
+  "properties": [
+    "DischargeContext",
+    "PreVoteProbeMatchesElection",
+    "PreVoteResponseNeverPanics",
+    "PreVoteRoundPersistsNothing",
+    "StalePreVoteResponseIgnored",
+    "TimerPreVoteElectsOnlyNonLeader"
+  ],
+  "errors": [],
+  "ignored": [],
+  "groups": []
+}

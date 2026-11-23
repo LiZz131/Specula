@@ -1,0 +1,508 @@
+{
+  "spec": "results/v1/case-006/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCHandleHeartbeatResponse",
+      "formula": "\\E i \\in Server, m \\in messages : MCHandleHeartbeatResponse(i, m)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 7505,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_complete_core.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [],
+      "enabled": [],
+      "status": "budget used",
+      "traces": 4018,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s1_election.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [],
+      "enabled": [],
+      "status": "budget used",
+      "traces": 8897,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s2_replication.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 3570,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s3_quorum.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 32669,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s4_readindex.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 12905,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "MC_hunt_s5_forwarded_read.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 2700,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 4710,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_discharge_negcontrol.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DischargeNegativeControl": "property"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 4382,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadDeliveryJustifiedFresh": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 2140,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_focused_reset.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadDeliveryJustifiedFresh": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 2351,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadDeliveryJustifiedFresh": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 2941,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_us4_focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 2130,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_us4_guided.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 2323,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_us4_sim.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 3075,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "PendingMatchesQueue": "invariant",
+        "ReadQueueDistinct": "invariant",
+        "ReadDeliveryJustifiedFresh": "invariant",
+        "ReadIndexFreshness": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 6372,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_freed.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "HuntReadFreed": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 6984,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_reenqueue.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "HuntReadReenqueue": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 6006,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_reset_drop.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "HuntResetDropsRead": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 8652,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_reach_reuse_release.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "HuntReuseRelease": "invariant"
+      },
+      "taken": [
+        1
+      ],
+      "enabled": [
+        1
+      ],
+      "status": "budget used",
+      "traces": 6134,
+      "seconds": 120.2,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [],
+  "properties": [
+    "DischargeContext",
+    "DischargeNegativeControl"
+  ],
+  "errors": [],
+  "ignored": [],
+  "groups": []
+}

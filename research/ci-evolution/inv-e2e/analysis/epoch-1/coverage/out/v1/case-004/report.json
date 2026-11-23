@@ -1,0 +1,686 @@
+{
+  "spec": "results/v1/case-004/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCTransferLeader",
+      "formula": "\\E n \\in Server : MCTransferLeader(n)"
+    },
+    {
+      "index": 2,
+      "group": "AffectedActions",
+      "label": "MCElect",
+      "formula": "\\E n \\in Server : MCElect(n)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5161,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_canary_CanaryAbsentElect.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "NoCorePanic": "invariant",
+        "CanaryAbsentElect": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5010,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_canary_CanaryCrashBeforeSaveVote.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CanaryCrashBeforeSaveVote": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5714,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_canary_CanaryNonVoterCandidate.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CanaryNonVoterCandidate": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 4735,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_canary_CanaryOldLeaderSuperseded.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CanaryOldLeaderSuperseded": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 3240,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_canary_CanaryTransferLeaderCommits.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CanaryTransferLeaderCommits": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 6342,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_canary_CanaryTransferVoterLeader.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CanaryTransferVoterLeader": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5726,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "DischargeContext": "property",
+        "PartitionComplete": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5564,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_focused.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5498,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_focused_voter.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5706,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 6032,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_full_ElectionInitiatorIsVoter.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5456,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_full_NoCorePanic.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "NoCorePanic": "invariant"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 3256,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_full_voter.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5002,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_U1_absent.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 4846,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_U1_absent_nodsb.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 5291,
+      "seconds": 120.4,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_U3_voter.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 9522,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_hunt_U4_crash.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 13681,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_open.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 10897,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update_open_voter.cfg",
+      "module": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCIOOrder": "invariant",
+        "MCCommitWithinAccepted": "invariant",
+        "MCMembershipOrder": "invariant",
+        "MCMembershipWellFormed": "invariant",
+        "MCLearnersExcluded": "invariant",
+        "MCCandidateGrantSound": "invariant",
+        "MCLeaderVoteCommitted": "invariant",
+        "MCMatchWithinLeaderLog": "invariant",
+        "MCDurableStateBounded": "invariant",
+        "MCCurrentTermCommit": "invariant",
+        "MCCommittedLogAgreement": "invariant",
+        "CandidateIsVoterOfSnapshot": "invariant",
+        "NoCorePanic": "invariant",
+        "ElectionInitiatorIsVoter": "property"
+      },
+      "taken": [
+        1,
+        2
+      ],
+      "enabled": [
+        1,
+        2
+      ],
+      "status": "budget used",
+      "traces": 11044,
+      "seconds": 120.2,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [],
+  "properties": [
+    "DischargeContext",
+    "ElectionInitiatorIsVoter",
+    "PartitionComplete"
+  ],
+  "errors": [],
+  "ignored": [
+    "CanaryAbsentElect",
+    "CanaryCrashBeforeSaveVote",
+    "CanaryNonVoterCandidate",
+    "CanaryOldLeaderSuperseded",
+    "CanaryTransferLeaderCommits",
+    "CanaryTransferVoterLeader"
+  ],
+  "groups": []
+}

@@ -1,0 +1,824 @@
+{
+  "spec": "results/v0/case-002/r1/output/spec",
+  "settings": {
+    "actions": "Update.tla:AffectedActions",
+    "seconds": 120,
+    "retry_seconds": 240,
+    "depth": 100,
+    "seed": 1,
+    "heap": "3g",
+    "wrapper": "run_coverage.py",
+    "ignore": "(?i)canary|NotReach|NeverReach|NotAppended|Reachable|Witness"
+  },
+  "probes": [
+    {
+      "index": 1,
+      "group": "AffectedActions",
+      "label": "MCLearnerNewLeader",
+      "formula": "\\E s \\in Server : MCLearnerNewLeader(s)"
+    },
+    {
+      "index": 2,
+      "group": "AffectedActions",
+      "label": "MCLearnerStartupWithoutServing",
+      "formula": "\\E s \\in Server : MCLearnerStartupWithoutServing(s)"
+    },
+    {
+      "index": 3,
+      "group": "AffectedActions",
+      "label": "MCLearnerLogPending",
+      "formula": "\\E s \\in Server : MCLearnerLogPending(s)"
+    },
+    {
+      "index": 4,
+      "group": "AffectedActions",
+      "label": "MCLearnerAckNewLeader",
+      "formula": "\\E s \\in Server : MCLearnerAckNewLeader(s)"
+    },
+    {
+      "index": 5,
+      "group": "AffectedActions",
+      "label": "MCLearnerUpToDate",
+      "formula": "\\E s \\in Server : MCLearnerUpToDate(s)"
+    },
+    {
+      "index": 6,
+      "group": "AffectedActions",
+      "label": "MCLearnerLogAfterUpToDate",
+      "formula": "\\E s \\in Server : MCLearnerLogAfterUpToDate(s)"
+    },
+    {
+      "index": 7,
+      "group": "AffectedActions",
+      "label": "MCLearnerCommitAfterUpToDate",
+      "formula": "\\E s \\in Server : MCLearnerCommitAfterUpToDate(s)"
+    },
+    {
+      "index": 8,
+      "group": "AffectedActions",
+      "label": "MCLearnerAbort",
+      "formula": "\\E s \\in Server : MCLearnerAbort(s)"
+    },
+    {
+      "index": 9,
+      "group": "AffectedActions",
+      "label": "MCBeginElection",
+      "formula": "\\E s \\in Server : MCBeginElection(s)"
+    }
+  ],
+  "configs": [
+    {
+      "name": "MC-hunt-election.cfg",
+      "module": "MC",
+      "checks": {
+        "NotElectionReached": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 15760,
+      "seconds": 360.4,
+      "retried": true
+    },
+    {
+      "name": "MC-hunt-mutation.cfg",
+      "module": "MC",
+      "checks": {
+        "NotMutationReached": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 15811,
+      "seconds": 360.4,
+      "retried": true
+    },
+    {
+      "name": "MC-hunt-recovery.cfg",
+      "module": "MC",
+      "checks": {
+        "NotRecoveryReached": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 13553,
+      "seconds": 360.4,
+      "retried": true
+    },
+    {
+      "name": "MC-hunt-sync.cfg",
+      "module": "MC",
+      "checks": {
+        "NotSyncReached": "invariant"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 15895,
+      "seconds": 360.4,
+      "retried": true
+    },
+    {
+      "name": "MC.cfg",
+      "module": "MC",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1592,
+      "seconds": 120.2,
+      "retried": false
+    },
+    {
+      "name": "Update-canary-npe.cfg",
+      "module": "Update",
+      "checks": {
+        "NotCommitAfterNewLeaderReached": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1369,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-discharge.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "DischargeContext": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1502,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-focused.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "NoSyncException": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "CommittedNeverLost": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property",
+        "NewLeaderAckDurable": "property",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1474,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-full.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "NoSyncException": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "CommittedNeverLost": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property",
+        "NewLeaderAckDurable": "property",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1504,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-dur.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "NewLeaderAckDurable": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1352,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-epoch-nocrash.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 716,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-epoch.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 779,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-loss-crash-tight.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        9
+      ],
+      "status": "budget used",
+      "traces": 710,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-loss-crash.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 743,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-loss-nocrash.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 712,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-loss-sim.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        9
+      ],
+      "status": "budget used",
+      "traces": 686,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-loss-tight.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 764,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-npe-strict.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "NoSyncException": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1310,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-hunt-npe.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "NoSyncException": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1345,
+      "seconds": 120.3,
+      "retried": false
+    },
+    {
+      "name": "Update-open.cfg",
+      "module": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "NoSyncException": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "CommittedNeverLost": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property",
+        "NewLeaderAckDurable": "property",
+        "LeaderCompleteness": "property"
+      },
+      "taken": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9
+      ],
+      "enabled": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9
+      ],
+      "status": "budget used",
+      "traces": 1121,
+      "seconds": 120.3,
+      "retried": false
+    }
+  ],
+  "unreached": [],
+  "never_enabled": [],
+  "gaps": [
+    {
+      "check": "NotElectionReached",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-election.cfg"
+      ],
+      "missing": [
+        3,
+        7,
+        8
+      ],
+      "possible": []
+    },
+    {
+      "check": "NotMutationReached",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-mutation.cfg"
+      ],
+      "missing": [
+        3,
+        7,
+        8
+      ],
+      "possible": []
+    },
+    {
+      "check": "NotRecoveryReached",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-recovery.cfg"
+      ],
+      "missing": [
+        3,
+        7,
+        8
+      ],
+      "possible": []
+    },
+    {
+      "check": "NotSyncReached",
+      "kind": "invariant",
+      "configs": [
+        "MC-hunt-sync.cfg"
+      ],
+      "missing": [
+        3,
+        7,
+        8
+      ],
+      "possible": []
+    }
+  ],
+  "properties": [
+    "DischargeContext",
+    "HistoryPositionsMonotonicExceptRecovery",
+    "LeaderCompleteness",
+    "NewLeaderAckDurable"
+  ],
+  "errors": [],
+  "ignored": [],
+  "groups": [
+    {
+      "missing": [
+        [
+          3,
+          false
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ]
+      ],
+      "checks": [
+        "NotElectionReached",
+        "NotMutationReached",
+        "NotRecoveryReached",
+        "NotSyncReached"
+      ]
+    }
+  ]
+}
