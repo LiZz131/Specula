@@ -1,5 +1,9 @@
 > Translated from the Chinese analysis of 2026-11-21; the rubric is [rubric.md](rubric.md).
 
+> **2026-11-23 correction from TLC evidence** ([evidence/case-010/](evidence/case-010/README.md))
+> - The "exhaustive oracle over 144,904 states" used the scenario-view cfg `Evidence-oldSPV.cfg`; the run on the main cfg did not finish. The original `SnapshotPublishedValid` has no violation on v1's two regular cfgs that finish.
+> - v0's miss is confirmed as unrepresentable: `base.tla:318-330` flushes the whole queue to `durable` on exit while serving; the premise is reachable at step 26 of v0's own MC-1 cfg. v1 and v2 reach the bug in 23 and 25 steps.
+
 # case-010: ZooKeeper Zab · follower sync and shutdown — invariant evolution quality and missed-report attribution
 
 > Per the [rubric](rubric.md) (epoch-1). Each arm has only r1, a single sample. No Gold or scoring material was read.

@@ -1,0 +1,38 @@
+[1] Initial
+[2] MCSaveBlock {counters.blocks < MaxBlocks}
+      phase: "blockStored"
+      blockStoreHeight: 1
+      pendingBlockHeight: 1
+[3] MCApplyBlockStart {MCApplyBlockStart == ApplyBlockStart /\ UNCHANGED counters}
+      phase: "applying"
+[4] MCFinalizeBlock([present |-> FALSE, abciPresent |-> FALSE, abci |-> 0, rest |-> "none"])
+      phase: "finalized"
+[5] MCSaveFinalizeBlockResponse {MCSaveFinalizeBlockResponse == SaveFinalizeBlockResponse /\ UNCHANGED counters}
+      phase: "responseSaved"
+[6] MCUpdateStateAccepted {MCUpdateStateAccepted == UpdateStateAccepted /\ UNCHANGED counters}
+      phase: "updated"
+      stateHeight: 1
+      validationOutcome: "accepted"
+[7] MCCommitApp {MCCommitApp == CommitApp /\ UNCHANGED counters}
+      phase: "committed"
+      appHeight: 1
+[8] MCSaveState {MCSaveState == SaveState /\ UNCHANGED counters}
+      phase: "normal"
+      pendingBlockHeight: 0
+      validationOutcome: "none"
+[9] MCSaveBlock {counters.blocks < MaxBlocks}
+      phase: "blockStored"
+      blockStoreHeight: 2
+      pendingBlockHeight: 2
+[10] MCApplyBlockStart {MCApplyBlockStart == ApplyBlockStart /\ UNCHANGED counters}
+      phase: "applying"
+[11] MCFinalizeBlock([present |-> TRUE, abciPresent |-> TRUE, abci |-> 2, rest |-> "r0"])
+      phase: "finalized"
+      pendingParam: [present |-> TRUE, abciPresent |-> TRUE, abci |-> 2, rest |-> "r0"]
+      updatePresent: TRUE
+[12] MCSaveFinalizeBlockResponse {MCSaveFinalizeBlockResponse == SaveFinalizeBlockResponse /\ UNCHANGED counters}
+      phase: "responseSaved"
+[13] MCUpdateStateRejected {MCUpdateStateRejected == UpdateStateRejected /\ UNCHANGED counters}
+      phase: "rejected"
+      validationOutcome: "rejected"
+      rejectRule: "r6"

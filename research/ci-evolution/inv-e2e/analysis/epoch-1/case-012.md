@@ -1,5 +1,10 @@
 > Translated from the Chinese analysis of 2026-11-21; the rubric is [rubric.md](rubric.md).
 
+> **2026-11-23 correction from TLC evidence** ([evidence/case-012/](evidence/case-012/README.md))
+> - "SYMMETRY and the abstraction together masked the bug" does **not** hold: with `SYMMETRY Permutations(Server)` added, v0 and v1 still reach MC-1 in 12/11 states. v2's miss comes only from the abstraction (commit is a set function independent of vector order); Q7 of the SYMMETRY row becomes none for this instance. The rule "no SYMMETRY when the model uses a constant id order" still stands.
+> - New: v2's raw trace serializes LogId as index only (term dropped).
+> - Both v2 BFS runs hit the 30-minute limit (one reached depth 26, no violation); "v2 cannot reach it" rests on the structural argument.
+
 # case-012: OpenRaft · replication progress and commit computation: invariant evolution quality and miss attribution
 
 > Follows the [rubric](rubric.md) (epoch-1). v0 and v1 report MC-1 and v2 misses it, so the attribution (section D) is done.

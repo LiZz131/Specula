@@ -1,0 +1,32 @@
+v1/case-012/r1/output/traces/leader_membership_no_voter_change.ndjson: 3 events match, 0 mismatch
+v2/case-012/r1/output/traces/raw/leader_fast_commit_upto_membership.raw.ndjson: 3 events match, 0 mismatch
+v0/case-012/r1/output/traces/progress.ndjson: 9 events match, 0 mismatch
+v0/case-012/r1/output/traces/progress_upgrade.ndjson: 4 events match, 0 mismatch
+v1/case-012/r1/output/traces/leader_fast_commit.ndjson: 1 events match, 0 mismatch
+v1/case-012/r1/output/traces/leader_membership_append.ndjson: 3 events match, 0 mismatch
+v1/case-012/r1/output/traces/progress_upgrade.ndjson: 13 events match, 0 mismatch
+v1/case-012/r1/output/traces/u1_joint_commit_order.ndjson: 8 events match, 0 mismatch
+v1/case-012/r1/output/traces/u2_uniform_commit.ndjson: 7 events match, 0 mismatch
+v1/case-012/r1/output/traces/update_effective_membership_leader.ndjson: 2 events match, 0 mismatch
+v1/case-012/r1/output/traces/update_progress.ndjson: 4 events match, 0 mismatch
+v1/case-012/r1/output/traces/leader_membership_to_1.ndjson: 4 events match, 0 mismatch
+v1/case-012/r1/output/traces/progress.ndjson: 9 events match, 0 mismatch
+v2/case-012/r1/output/traces/progress.ndjson: 9 events match, 0 mismatch
+v2/case-012/r1/output/traces/raw/leader_fast_commit_membership_no_voter_change.raw.ndjson: 3 events match, 0 mismatch
+v2/case-012/r1/output/traces/raw/leader_fast_commit.raw.ndjson: 1 events match, 0 mismatch
+  MISMATCH v2/case-012/r1/output/traces/raw/update_progress.raw.ndjson: port [['3', 2], ['2', 1], ['1', -1]] c=1 vs impl [['2', 1], ['3', 2], ['1', -1]] c=2
+v2/case-012/r1/output/traces/raw/update_progress.raw.ndjson: 2 events match, 2 mismatch
+v2/case-012/r1/output/traces/raw/progress.raw.ndjson: 9 events match, 0 mismatch
+v2/case-012/r1/output/traces/raw/update_effective_membership_leader.raw.ndjson: 2 events match, 0 mismatch
+v2/case-012/r1/output/traces/raw/leader_fast_commit_voter_change_to_1.raw.ndjson: 4 events match, 0 mismatch
+  MISMATCH v2/case-012/r1/output/traces/raw/leader_lifecycle.raw.ndjson: port [['1', 3], ['3', 3], ['2', -1]] c=3 vs impl [['1', 3], ['3', 3], ['2', -1]] c=-1
+v2/case-012/r1/output/traces/raw/leader_lifecycle.raw.ndjson: 16 events match, 1 mismatch
+total: 116 match, 3 mismatch
+
+== negative controls / mutants
+  MISMATCH v1/case-012/r1/output/traces/negative-controls/n2_vector_sorted.ndjson: port [['1', (1, 2, 1)], ['2', (1, 2, 2)], ['3', (0, 0, -1)]] c=(0, 0, -1) vs impl [['2', (1, 2, 2)], ['1', (1, 2, 1)], ['3', (0, 0, -1)]] c=(0, 0, -1)
+v1/case-012/r1/output/traces/negative-controls/n2_vector_sorted.ndjson: 7 events match, 1 mismatch
+v1/case-012/r1/output/traces/negative-controls/n3_progress_committed_mutated.ndjson: 8 events match, 0 mismatch
+  MISMATCH v2/case-012/r1/output/traces/mutations/m15_vp_committed.ndjson: port [['4', 5], ['0', 4], ['1', 4], ['2', 3], ['3', 3]] c=4 vs impl [['4', 5], ['0', 4], ['1', 4], ['2', 3], ['3', 3]] c=5
+v2/case-012/r1/output/traces/mutations/m15_vp_committed.ndjson: 8 events match, 1 mismatch
+total: 23 match, 2 mismatch

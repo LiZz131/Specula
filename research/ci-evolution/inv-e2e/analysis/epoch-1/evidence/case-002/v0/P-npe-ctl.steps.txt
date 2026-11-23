@@ -1,0 +1,72 @@
+[1] Initial
+[2] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[3] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[4] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "looking" @@ s3 :> "looking")
+      phase: (s1 :> "discovery" @@ s2 :> "election" @@ s3 :> "election")
+[5] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "looking")
+      phase: (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "election")
+[6] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[7] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "election")
+[8] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "sync" @@ s2 :> "sync" @@ s3 :> "election")
+[9] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "SNAP" @@ s3 :> "NONE")
+      syncStage: (s1 :> "none" @@ s2 :> "loop" @@ s3 :> "none")
+[10] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      lq: ( s1 :> <<>> @@ s2 :> <<[type |-> "NEWLEADER", ent |-> [id |-> Nil, epoch |-> 1]]>> @@ s3 :> <<>> )
+[11] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncStage: (s1 :> "none" @@ s2 :> "nlEpoch" @@ s3 :> "none")
+      lq: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      toLog: (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> FALSE)
+[12] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+      syncStage: (s1 :> "none" @@ s2 :> "nlStarted" @@ s3 :> "none")
+      zkState: (s1 :> "none" @@ s2 :> "initial" @@ s3 :> "none")
+[13] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  +nlack s2->s1 id=Nil
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "none")
+[14] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  -nlack s2->s1 id=Nil
+      nlAcked: (s1 :> {s2} @@ s2 :> {} @@ s3 :> {})
+[15] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "broadcast" @@ s2 :> "sync" @@ s3 :> "election")
+      zkState: (s1 :> "running" @@ s2 :> "initial" @@ s3 :> "none")
+[16] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+      phase: (s1 :> "broadcast" @@ s2 :> "sync" @@ s3 :> "discovery")
+[17] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[18] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "broadcast" @@ s2 :> "sync" @@ s3 :> "sync")
+[19] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "DIFF")
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "loop")
+      toLog: (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE)
+[20] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      lq: ( s1 :> <<>> @@ s2 :> <<[type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]]>> @@ s3 :> <<[type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]]>> )
+[21] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      lq: ( s1 :> <<>> @@ s2 :> <<[type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]]>> @@ s3 :> << [type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]], [type |-> "NEWLEADER", ent |-> [id |-> Nil, epoch |-> 1]] >> )
+[22] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      lq: ( s1 :> <<>> @@ s2 :> <<[type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]]>> @@ s3 :> <<[type |-> "NEWLEADER", ent |-> [id |-> Nil, epoch |-> 1]]>> )
+      pnc: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 1]>>)
+[23] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "nlEpoch")
+      lq: ( s1 :> <<>> @@ s2 :> <<[type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]]>> @@ s3 :> <<>> )
+[24] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "nlStarted")
+      zkState: (s1 :> "running" @@ s2 :> "initial" @@ s3 :> "initial")
+[25] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      pnc: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+[26] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  +nlack s3->s1 id=Nil
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "nlAcked")
+[27] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[28] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[29] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  +ack s3->s1 id=t1
+[30] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      acked: (t1 :> {s1})
+[31] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  -ack s3->s1 id=t1
+      acked: (t1 :> {s1, s3})
+[32] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      lq: ( s1 :> <<>> @@ s2 :> << [type |-> "PROPOSAL", ent |-> [id |-> t1, epoch |-> 1]], [type |-> "COMMIT", ent |-> [id |-> t1, epoch |-> 1]] >> @@ s3 :> <<[type |-> "COMMIT", ent |-> [id |-> t1, epoch |-> 1]]>> )
+      committed: (s1 :> <<[id |-> t1, epoch |-> 1]>> @@ s2 :> <<>> @@ s3 :> <<>>)

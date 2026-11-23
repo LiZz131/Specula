@@ -1,0 +1,18 @@
+[1] Initial
+[2] MCSaveBlock {counters.blocks < MaxBlocks}
+      phase: "blockStored"
+      blockStoreHeight: 1
+      pendingBlockHeight: 1
+[3] MCApplyBlockStart {MCApplyBlockStart == ApplyBlockStart /\ UNCHANGED counters}
+      phase: "applying"
+[4] MCFinalizeBlock([present |-> TRUE, abciPresent |-> TRUE, abci |-> 0, rest |-> "r0"])
+      phase: "finalized"
+      pendingParam: [present |-> TRUE, abciPresent |-> TRUE, abci |-> 0, rest |-> "r0"]
+      updatePresent: TRUE
+[5] MCSaveFinalizeBlockResponse {MCSaveFinalizeBlockResponse == SaveFinalizeBlockResponse /\ UNCHANGED counters}
+      phase: "responseSaved"
+[6] MCUpdateStateAccepted {MCUpdateStateAccepted == UpdateStateAccepted /\ UNCHANGED counters}
+      phase: "updated"
+      stateHeight: 1
+      activeParam: [ve |-> 0, rest |-> "r0"]
+      validationOutcome: "accepted"

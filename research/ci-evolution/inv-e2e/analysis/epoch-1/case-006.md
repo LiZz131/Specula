@@ -1,5 +1,10 @@
 > Translated from the Chinese analysis of 2026-11-21; the rubric is [rubric.md](rubric.md).
 
+> **2026-11-23 correction from TLC evidence** ([evidence/case-006/](evidence/case-006/README.md))
+> - The r1→r2 conclusion is confirmed exhaustively in the cfg where v0 found the stale read (10.1M states, depth 50).
+> - `ReadDeliveryJustified` helper drift: the old ack source gives empty evidence for forwarded reads in the new model (false positives), so the drift was needed; but the new source makes it hold almost by construction for forwarded reads, so Q4 becomes **vacuous (forwarded reads)**.
+> - New: v1's and v2's standard `MC.cfg` (`MaxReadLimit = 1`) cannot reach the stale read structurally; it appears only in the hunt cfgs.
+
 # case-006: etcd Raft · Linearizable ReadIndex — invariant evolution quality
 
 > Per the [rubric](rubric.md) (epoch-1). All three arms report the same defect, MC-1. There are no missed reports, so there is no section-D attribution.

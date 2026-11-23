@@ -1,0 +1,65 @@
+[1] Initial
+[2] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[3] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[4] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "looking" @@ s3 :> "looking")
+      phase: (s1 :> "discovery" @@ s2 :> "election" @@ s3 :> "election")
+[5] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "looking")
+      phase: (s1 :> "discovery" @@ s2 :> "discovery" @@ s3 :> "election")
+[6] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[7] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "sync" @@ s2 :> "discovery" @@ s3 :> "election")
+[8] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "sync" @@ s2 :> "sync" @@ s3 :> "election")
+[9] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "DIFF" @@ s3 :> "NONE")
+      syncStage: (s1 :> "none" @@ s2 :> "loop" @@ s3 :> "none")
+[10] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[11] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncStage: (s1 :> "none" @@ s2 :> "nlEpoch" @@ s3 :> "none")
+[12] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+      syncStage: (s1 :> "none" @@ s2 :> "nlStarted" @@ s3 :> "none")
+      zkState: (s1 :> "none" @@ s2 :> "initial" @@ s3 :> "none")
+[13] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  +nlack s2->s1 id=Nil
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "none")
+[14] MCNext {MCNext == MCActions /\ UpdateEverCommitted}  -nlack s2->s1 id=Nil
+[15] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "broadcast" @@ s2 :> "sync" @@ s3 :> "election")
+      zkState: (s1 :> "running" @@ s2 :> "initial" @@ s3 :> "none")
+[16] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[17] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "looking" @@ s2 :> "following" @@ s3 :> "looking")
+      phase: (s1 :> "election" @@ s2 :> "sync" @@ s3 :> "election")
+      zkState: (s1 :> "none" @@ s2 :> "initial" @@ s3 :> "none")
+      durable: (s1 :> <<[id |-> t1, epoch |-> 1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      recovered: (s1 :> <<[id |-> t1, epoch |-> 1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+[18] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[19] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "looking")
+      phase: (s1 :> "discovery" @@ s2 :> "sync" @@ s3 :> "election")
+[20] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+      phase: (s1 :> "discovery" @@ s2 :> "sync" @@ s3 :> "discovery")
+[21] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[22] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "sync" @@ s2 :> "sync" @@ s3 :> "discovery")
+[23] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      phase: (s1 :> "sync" @@ s2 :> "sync" @@ s3 :> "sync")
+[24] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncMode: (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "SNAP")
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "loop")
+      recovered: ( s1 :> <<[id |-> t1, epoch |-> 1]>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 1]>> )
+[25] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+[26] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "nlEpoch")
+      durable: ( s1 :> <<[id |-> t1, epoch |-> 1]>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 1]>> )
+      snapshot: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[id |-> t1, epoch |-> 1]>>)
+[27] MCNext {MCNext == MCActions /\ UpdateEverCommitted}
+      role: (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "looking")
+      phase: (s1 :> "sync" @@ s2 :> "sync" @@ s3 :> "offline")
+      syncMode: (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+      syncStage: (s1 :> "none" @@ s2 :> "nlAcked" @@ s3 :> "none")
+      recovered: (s1 :> <<[id |-> t1, epoch |-> 1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      counters: [snapshot |-> 0, drop |-> 0, crash |-> 1]

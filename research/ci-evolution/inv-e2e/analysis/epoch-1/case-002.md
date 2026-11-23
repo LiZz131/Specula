@@ -1,5 +1,11 @@
 > Translated from the Chinese analysis of 2026-11-21; the rubric is [rubric.md](rubric.md).
 
+> **2026-11-23 correction from TLC evidence** ([evidence/case-002/](evidence/case-002/README.md))
+> - §5.4 confirmed and stronger: v1 reaches the NPE trigger state with its own unmodified `MC.cfg` (depth 38); its last BFS (depth 42) passed through it by level order (inferred). The §5.4 canary ran on a modified cfg (`MaxEpoch=1`, no faults).
+> - §5.5 confirmed, with a second structural reason: v2's `ReceiveCommit` requires `phase = "broadcast"`, so no action consumes COMMIT during sync.
+> - Q7 of v0's second PipelinePrefix weakening: unclear → **none**.
+> - v0/v2 weakening of OneActiveLeaderPerEpoch in `Trace.cfg`: confirmed unregistered; both admit the same real state; harmless.
+
 # case-002: ZooKeeper Zab DIFF sync (invariant evolution quality and missed-bug attribution)
 
 Done under the [rubric](rubric.md) (epoch-1). Path abbreviations (all relative to `research/ci-evolution/inv-e2e/`): `R=..` (that is, `research/ci-evolution`), `E=.`, `OLD=../blind-incremental-bugs/blind-incremental-v0/case-002/.specula-output/spec`, `Va=results/<arm>/case-002/r1` (its timeline is `Va/timeline.md`, its evidence `Va/invariant-evidence.json`). `WORK` is the experiment's work directory, archived outside git (see `../../README.md`, section Storage); `WORK/subjects/case-002/buggy-tree` is the updated source tree (`buggy-tree` below) and `activity.jsonl` lives under `WORK`. Timeline turn `[N]` is the index of an assistant message in activity.jsonl; it matches the numbering in `timeline.md` (checked against v1 [17], v0 [298], v2 [76]). No Gold or scoring material was read.

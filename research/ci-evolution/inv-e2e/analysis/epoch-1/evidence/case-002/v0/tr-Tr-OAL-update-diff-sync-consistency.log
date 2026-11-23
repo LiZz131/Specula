@@ -1,0 +1,198 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 26 and seed 4425425750193284293 with 4 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 2487173] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /mydata/bingzhuo/evidence-work/case-002/v0/Trace.tla
+Parsing file /mydata/bingzhuo/evidence-work/case-002/v0/base.tla
+Parsing file /tmp/tlc-8605341139905876505/Json.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-8605341139905876505/IOUtils.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-8605341139905876505/Sequences.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-8605341139905876505/TLC.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-8605341139905876505/_TLCTrace.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-8605341139905876505/Naturals.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-8605341139905876505/Integers.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-8605341139905876505/FiniteSets.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-8605341139905876505/TLCExt.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module IOUtils
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module IOUtils
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Trace
+Starting... (2026-11-23 19:01:06)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-23 19:01:07.
+Error: Invariant OneActiveLeaderPerEpoch is violated.
+Error: The behavior up to this point is:
+... [116 earlier states omitted by evidence trimming] ...
+State 117: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+/\ rollbackAuthorized = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ recovered = [ s0 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ nlAcked = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ votes = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {"s2"} @@ 2 :> {"s2"} @@ 3 :> {} @@ 4 :> {})
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ syncTarget = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<>> ]
+/\ commitCertified = ( 0 :> FALSE @@
+  1 :> TRUE @@
+  2 :> TRUE @@
+  3 :> FALSE @@
+  4 :> FALSE @@
+  5 :> FALSE @@
+  6 :> FALSE @@
+  7 :> FALSE @@
+  1000 :> FALSE )
+/\ l = 107
+/\ syncSource = [s0 |-> Nil, s1 |-> Nil, s2 |-> Nil]
+/\ applied = [ s0 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ toLog = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ durable = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ acked = ( 0 :> {} @@
+  1 :> {} @@
+  2 :> {} @@
+  3 :> {} @@
+  4 :> {} @@
+  5 :> {} @@
+  6 :> {} @@
+  7 :> {} @@
+  1000 :> {} )
+/\ usedTxn = {1, 2}
+/\ appended = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ acceptedEpoch = [s0 |-> 2, s1 |-> 2, s2 |-> 2]
+/\ role = [s0 |-> "looking", s1 |-> "looking", s2 |-> "leading"]
+/\ pcm = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ syncJustified = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ phase = [s0 |-> "election", s1 |-> "election", s2 |-> "broadcast"]
+/\ lq = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ snapshot = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ currentEpoch = [s0 |-> 2, s1 |-> 2, s2 |-> 2]
+/\ queued = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ proposed = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ committed = [ s0 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ syncError = {}
+/\ syncStage = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ hstage = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ latestLeader = "s2"
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ zkState = [s0 |-> "none", s1 |-> "none", s2 |-> "running"]
+/\ pnc = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ epochTarget = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<>> ]
+/\ messages = { [id |-> Nil, epoch |-> 1, kind |-> "nlack", from |-> "s0", to |-> "s2"],
+  [id |-> Nil, epoch |-> 1, kind |-> "nlack", from |-> "s1", to |-> "s2"],
+  [id |-> Nil, epoch |-> 2, kind |-> "nlack", from |-> "s0", to |-> "s2"],
+  [id |-> Nil, epoch |-> 2, kind |-> "nlack", from |-> "s1", to |-> "s2"] }
+/\ leaderOf = [s0 |-> Nil, s1 |-> Nil, s2 |-> "s2"]
+
+State 118: <TraceNext line 493, col 8 to line 496, col 32 of module Trace>
+/\ rollbackAuthorized = [s0 |-> FALSE, s1 |-> TRUE, s2 |-> FALSE]
+/\ recovered = [ s0 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ nlAcked = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ votes = [s0 |-> {}, s1 |-> {}, s2 |-> {}]
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {"s2"} @@ 2 :> {"s2"} @@ 3 :> {} @@ 4 :> {})
+/\ syncMode = [s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]
+/\ syncTarget = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<>> ]
+/\ commitCertified = ( 0 :> FALSE @@
+  1 :> TRUE @@
+  2 :> TRUE @@
+  3 :> FALSE @@
+  4 :> FALSE @@
+  5 :> FALSE @@
+  6 :> FALSE @@
+  7 :> FALSE @@
+  1000 :> FALSE )
+/\ l = 108
+/\ syncSource = [s0 |-> Nil, s1 |-> Nil, s2 |-> Nil]
+/\ applied = [ s0 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ toLog = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ durable = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ acked = ( 0 :> {} @@
+  1 :> {} @@
+  2 :> {} @@
+  3 :> {} @@
+  4 :> {} @@
+  5 :> {} @@
+  6 :> {} @@
+  7 :> {} @@
+  1000 :> {} )
+/\ usedTxn = {1, 2}
+/\ appended = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ acceptedEpoch = [s0 |-> 2, s1 |-> 2, s2 |-> 2]
+/\ role = [s0 |-> "looking", s1 |-> "leading", s2 |-> "leading"]
+/\ pcm = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ syncJustified = [s0 |-> FALSE, s1 |-> FALSE, s2 |-> FALSE]
+/\ phase = [s0 |-> "election", s1 |-> "election", s2 |-> "broadcast"]
+/\ lq = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ snapshot = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ currentEpoch = [s0 |-> 2, s1 |-> 2, s2 |-> 2]
+/\ queued = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ proposed = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ committed = [ s0 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1]>>,
+  s2 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>> ]
+/\ syncError = {}
+/\ syncStage = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ hstage = [s0 |-> "none", s1 |-> "none", s2 |-> "none"]
+/\ latestLeader = "s1"
+/\ up = [s0 |-> TRUE, s1 |-> TRUE, s2 |-> TRUE]
+/\ zkState = [s0 |-> "none", s1 |-> "none", s2 |-> "running"]
+/\ pnc = [s0 |-> <<>>, s1 |-> <<>>, s2 |-> <<>>]
+/\ epochTarget = [ s0 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s1 |-> <<[id |-> 1, epoch |-> 1], [id |-> 2, epoch |-> 1]>>,
+  s2 |-> <<>> ]
+/\ messages = { [id |-> Nil, epoch |-> 1, kind |-> "nlack", from |-> "s0", to |-> "s2"],
+  [id |-> Nil, epoch |-> 1, kind |-> "nlack", from |-> "s1", to |-> "s2"],
+  [id |-> Nil, epoch |-> 2, kind |-> "nlack", from |-> "s0", to |-> "s2"],
+  [id |-> Nil, epoch |-> 2, kind |-> "nlack", from |-> "s1", to |-> "s2"] }
+/\ leaderOf = [s0 |-> Nil, s1 |-> "s1", s2 |-> "s2"]
+d |-> Nil, epoch |-> 2, kind |-> "nlack", from |-> "s0", to |-> "s2"],
+  [id |-> Nil, epoch |-> 2, kind |-> "nlack", from |-> "s1", to |-> "s2"] }
+/\ leaderOf = [s0 |-> Nil, s1 |-> "s1", s2 |-> "s2"]
+
+118 states generated, 118 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 118.
+Finished in 01s at (2026-11-23 19:01:08)
+Trace exploration spec path: ./Trace_TTrace_1795460466.tla
+exit=12
+

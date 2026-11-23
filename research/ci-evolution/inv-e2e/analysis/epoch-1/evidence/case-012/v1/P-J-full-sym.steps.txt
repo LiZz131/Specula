@@ -1,0 +1,35 @@
+[1] Initial
+[2] MCStartElection
+      role: (n1 :> follower @@ n2 :> candidate @@ n3 :> follower)
+      currentTerm: (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)
+      progress: ( n1 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@ n2 :> [ cfg |-> {{n1, n2, n3}}, committed |-> <<0, -1>>, order |-> <<n1, n2, n3>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@ n3 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+      leaderActive: (n1 :> FALSE @@ n2 :> TRUE @@ n3 :> FALSE)
+[3] MCGrantVote
+      role: (n1 :> follower @@ n2 :> leader @@ n3 :> follower)
+      currentTerm: (n1 :> 0 @@ n2 :> 1 @@ n3 :> 1)
+[4] MCClientAppend
+      lastLog: (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+      progress: ( n1 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@ n2 :> [ cfg |-> {{n1, n2, n3}}, committed |-> <<0, -1>>, order |-> <<n2, n1, n3>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<1, 0>> @@ n3 :> <<0, -1>>) ] @@ n3 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+      matchedIndex: ( n1 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@ n2 :> (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1) @@ n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
+[5] MCSendAppendEntries  +append n2->n1 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1
+[6] MCNext  +ack n1->n2 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1  -append n2->n1 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1
+      currentTerm: (n1 :> 1 @@ n2 :> 1 @@ n3 :> 1)
+      lastLog: (n1 :> 0 @@ n2 :> 0 @@ n3 :> -1)
+[7] MCNext  -ack n1->n2 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1
+      committed: (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+      progress: ( n1 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@ n2 :> [ cfg |-> {{n1, n2, n3}}, committed |-> <<1, 0>>, order |-> <<n2, n1, n3>>, val |-> (n1 :> <<1, 0>> @@ n2 :> <<1, 0>> @@ n3 :> <<0, -1>>) ] @@ n3 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+      matchedIndex: ( n1 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@ n2 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> -1) @@ n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
+[8] MCProposeMembership
+      lastLog: (n1 :> 0 @@ n2 :> 1 @@ n3 :> -1)
+      effectiveConfig: (n1 :> {{n1, n2, n3}} @@ n2 :> {{n1, n3}, {n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+      progress: ( n1 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@ n2 :> [ cfg |-> {{n1, n3}, {n1, n2, n3}}, committed |-> <<0, -1>>, order |-> <<n1, n2, n3>>, val |-> (n1 :> <<1, 0>> @@ n2 :> <<1, 1>> @@ n3 :> <<0, -1>>) ] @@ n3 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+      matchedIndex: ( n1 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@ n2 :> (n1 :> 0 @@ n2 :> 1 @@ n3 :> -1) @@ n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
+[9] MCSendAppendEntries  +append n2->n3 term=1 prev=-1 last=1 ok=TRUE leaderCommit=0
+[10] MCNext  +ack n3->n2 term=1 prev=-1 last=1 ok=TRUE leaderCommit=0  -append n2->n3 term=1 prev=-1 last=1 ok=TRUE leaderCommit=0
+      lastLog: (n1 :> 0 @@ n2 :> 1 @@ n3 :> 1)
+      committed: (n1 :> -1 @@ n2 :> 0 @@ n3 :> 0)
+      effectiveConfig: ( n1 :> {{n1, n2, n3}} @@ n2 :> {{n1, n3}, {n1, n2, n3}} @@ n3 :> {{n1, n3}, {n1, n2, n3}} )
+[11] MCNext  -ack n3->n2 term=1 prev=-1 last=1 ok=TRUE leaderCommit=0
+      committed: (n1 :> -1 @@ n2 :> 1 @@ n3 :> 0)
+      progress: ( n1 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@ n2 :> [ cfg |-> {{n1, n3}, {n1, n2, n3}}, committed |-> <<1, 1>>, order |-> <<n1, n2, n3>>, val |-> (n1 :> <<1, 0>> @@ n2 :> <<1, 1>> @@ n3 :> <<1, 1>>) ] @@ n3 :> [ cfg |-> {}, committed |-> <<0, -1>>, order |-> <<>>, val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+      matchedIndex: ( n1 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@ n2 :> (n1 :> 0 @@ n2 :> 1 @@ n3 :> 1) @@ n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )

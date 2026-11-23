@@ -1,0 +1,12 @@
+[1] Initial
+[2] MCLeaderPropose
+      syncQueued: (s1 :> <<1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+[3] MCFollowerLog
+      syncQueued: (s1 :> <<1>> @@ s2 :> <<1>> @@ s3 :> <<>>)
+[4] LeakScenarioNext
+      role: (s1 :> LEADING @@ s2 :> LOOKING @@ s3 :> FOLLOWING)
+      phase: (s1 :> BROADCAST @@ s2 :> ELECTION @@ s3 :> BROADCAST)
+      learnerStage: (s1 :> NONE @@ s2 :> NONE @@ s3 :> UPTODATE)
+      syncComplete: (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE)
+      syncQueued: (s1 :> <<1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      leakedQueued: (s1 :> <<>> @@ s2 :> <<<<1>>>> @@ s3 :> <<>>)

@@ -1,5 +1,10 @@
 > Translated from the Chinese analysis of 2026-11-21; the rubric is [rubric.md](rubric.md).
 
+> **2026-11-23 correction from TLC evidence** ([evidence/case-004/](evidence/case-004/README.md))
+> - The claim that v2's `LeaderAppend` guard makes leader self-transfer invisible does **not** hold: v0's MC-2 state (leader object kept, vote uncommitted) is reachable in v2's own `MC.cfg` in 10 states. Only the consequence is invisible (`debug_assert` not modeled). v2's gap is a missing property, not representation.
+> - v1's `TransferTargets={2,3}` excludes self-transfer in the main cfg, but v1's own `Update_hunt_U3_voter.cfg` reaches it in 9 steps unchanged; the miss is mainly a missing property.
+> - v2's `MembershipLimit≤1` confirmed: with 2, a removed node elects itself at step 24 while v2's `ElectionByVoterOnly` still holds.
+
 # case-004: OpenRaft leader transfer (TransferLeader): invariant evolution quality
 
 Rubric: [rubric](rubric.md) (epoch-1). Path abbreviations (relative to `research/ci-evolution/inv-e2e/`): `R=..` (`research/ci-evolution`), `E=.`. `v0/…`, `v1/…`, `v2/…` below mean `results/<arm>/case-004/r1/` (its timeline is `timeline.md`, its evidence `invariant-evidence.json`, its outputs `output/`). Old model `OLD=../blind-incremental-bugs/blind-incremental-v0/case-004/.specula-output/spec`. `WORK` is the experiment's work directory, archived outside git (see `../../README.md`, section Storage); `buggy-tree` is `WORK/subjects/case-004/buggy-tree`. No Gold or scoring material was read, and no run output was modified.

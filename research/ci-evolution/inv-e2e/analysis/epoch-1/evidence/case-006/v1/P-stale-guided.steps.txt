@@ -1,0 +1,55 @@
+[1] Initial
+[2] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgVote s1->s2 t1 ctx=Nil ; +MsgVote s1->s3 t1 ctx=Nil
+      role: (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+      term: (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+[3] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[4] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgVoteResp s2->s1 t1 ctx=Nil  -MsgVote s1->s2 t1 ctx=Nil
+      term: (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+[5] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[6] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[7] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  -MsgVoteResp s2->s1 t1 ctx=Nil
+[8] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgApp s1->s2 t1 ctx=Nil ; +MsgApp s1->s3 t1 ctx=Nil
+      role: (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+[9] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[10] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgAppResp s2->s1 t1 ctx=Nil  -MsgApp s1->s2 t1 ctx=Nil
+[11] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgAppResp s3->s1 t1 ctx=Nil  -MsgApp s1->s3 t1 ctx=Nil
+      term: (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+[12] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[13] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  -MsgAppResp s3->s1 t1 ctx=Nil
+      commitIndex: (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+      commitHistory: {[index |-> 1, entry |-> [term |-> 1, value |-> Nil], commitTerm |-> 1]}
+[14] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgHeartbeat s1->s2 t1 ctx=ctx1 ; +MsgHeartbeat s1->s3 t1 ctx=ctx1
+      readQueue: (s1 :> <<ctx1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+[15] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgHeartbeatResp s2->s1 t1 ctx=ctx1  -MsgHeartbeat s1->s2 t1 ctx=ctx1
+[16] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgVote s2->s1 t2 ctx=Nil ; +MsgVote s2->s3 t2 ctx=Nil
+      role: (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+      term: (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+[17] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  -MsgHeartbeatResp s2->s1 t1 ctx=ctx1
+      readQueue: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      readReleases: { [ index |-> 1, floor |-> 1, ctx |-> ctx1, acks |-> {s1, s2}, leader |-> s1, owner |-> s1, term |-> 1, fresh |-> {s1, s2}, justificationCtx |-> ctx1 ] }
+[18] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[19] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[20] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[21] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgHeartbeatResp s3->s1 t1 ctx=ctx1  -MsgHeartbeat s1->s3 t1 ctx=ctx1
+      commitIndex: (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+[22] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[23] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[24] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgVoteResp s3->s2 t2 ctx=Nil  -MsgVote s2->s3 t2 ctx=Nil
+      term: (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+[25] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[26] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  -MsgVoteResp s3->s2 t2 ctx=Nil
+[27] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgApp s2->s1 t2 ctx=Nil ; +MsgApp s2->s3 t2 ctx=Nil
+      role: (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+[28] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[29] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[30] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[31] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgAppResp s3->s2 t2 ctx=Nil  -MsgApp s2->s3 t2 ctx=Nil
+[32] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}
+[33] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  -MsgAppResp s3->s2 t2 ctx=Nil
+      commitIndex: (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+      commitHistory: { [index |-> 1, entry |-> [term |-> 1, value |-> Nil], commitTerm |-> 1], [index |-> 1, entry |-> [term |-> 1, value |-> Nil], commitTerm |-> 2], [index |-> 2, entry |-> [term |-> 2, value |-> Nil], commitTerm |-> 2] }
+[34] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  +MsgHeartbeat s1->s2 t1 ctx=ctx1 ; +MsgHeartbeat s1->s3 t1 ctx=ctx1
+      readQueue: (s1 :> <<ctx1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+[35] MCNext {Cardinality(messages) <= MaxMsgBufferLimit}  -MsgHeartbeatResp s3->s1 t1 ctx=ctx1
+      readQueue: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      readReleases: { [ index |-> 1, floor |-> 1, ctx |-> ctx1, acks |-> {s1, s2}, leader |-> s1, owner |-> s1, term |-> 1, fresh |-> {s1, s2}, justificationCtx |-> ctx1 ], [ index |-> 1, floor |-> 2, ctx |-> ctx1, acks |-> {s1, s3}, leader |-> s1, owner |-> s1, term |-> 1, fresh |-> {s1}, justificationCtx |-> ctx1 ] }

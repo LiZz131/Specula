@@ -1,0 +1,46 @@
+[1] Initial
+[2] MCCastVote
+[3] MCCastVote
+[4] MCFinishElection
+      role: (s1 :> LOOKING @@ s2 :> FOLLOWING @@ s3 :> LOOKING)
+[5] MCEnterDiscovery
+      phase: (s1 :> ELECTION @@ s2 :> DISCOVERY @@ s3 :> ELECTION)
+[6] MCFinishElection
+      role: (s1 :> LEADING @@ s2 :> FOLLOWING @@ s3 :> LOOKING)
+[7] MCEnterDiscovery
+      phase: (s1 :> DISCOVERY @@ s2 :> DISCOVERY @@ s3 :> ELECTION)
+[8] MCLeaderProposeEpoch
+[9] MCPersistFollowerAccepted
+[10] MCEnterFollowerSync
+      phase: (s1 :> DISCOVERY @@ s2 :> SYNCHRONIZATION @@ s3 :> ELECTION)
+[11] MCRecordEpochAck
+[12] MCChooseSync
+      syncStage: (s1 :> IDLE @@ s2 :> DATA @@ s3 :> IDLE)
+[13] MCPersistFollowerCurrent
+      syncStage: (s1 :> IDLE @@ s2 :> EPOCH @@ s3 :> IDLE)
+[14] MCNewLeaderModeNone
+      syncStage: (s1 :> IDLE @@ s2 :> NEWLEADER @@ s3 :> IDLE)
+[15] MCAckNewLeader
+      syncStage: (s1 :> IDLE @@ s2 :> ACKED @@ s3 :> IDLE)
+[16] MCLeaderEpochQuorum
+[17] MCLeaderStartSync
+      phase: (s1 :> SYNCHRONIZATION @@ s2 :> SYNCHRONIZATION @@ s3 :> ELECTION)
+[18] MCFormNewLeaderQuorum
+[19] MCLeaderBroadcast
+      phase: (s1 :> BROADCAST @@ s2 :> SYNCHRONIZATION @@ s3 :> ELECTION)
+[20] MCUpToDate
+      syncStage: (s1 :> IDLE @@ s2 :> UPTODATE @@ s3 :> IDLE)
+[21] MCLeaderPropose
+[22] MCCompleteSync
+      syncStage: (s1 :> IDLE @@ s2 :> IDLE @@ s3 :> IDLE)
+      syncComplete: (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> FALSE)
+[23] MCFollowerBroadcast
+      phase: (s1 :> BROADCAST @@ s2 :> BROADCAST @@ s3 :> ELECTION)
+[24] MCFollowerPending
+[25] MCQueue
+      syncQueued: (s1 :> <<>> @@ s2 :> <<1>> @@ s3 :> <<>>)
+[26] MCLearnerShutdown
+      syncStage: (s1 :> IDLE @@ s2 :> EXITED @@ s3 :> IDLE)
+      syncComplete: (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+      syncQueued: (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+      durable: (s1 :> <<>> @@ s2 :> <<1>> @@ s3 :> <<>>)

@@ -1,5 +1,10 @@
 > Translated from the Chinese analysis of 2026-11-21; the rubric is [rubric.md](rubric.md).
 
+> **2026-11-23 correction from TLC evidence** ([evidence/case-003/](evidence/case-003/README.md))
+> - The claim that v1's redefinition of `ValidParams` weakened PUR does **not** hold: the dropped ValidateUpdate conjunct holds on every reachable state of all three arms (exhaustive: 76K / 40K / 1.46M states); it only repeats the accepting action's guard. v1's problem is an inaccurate ledger entry (helper meaning changed, recorded keep, no separating state), not admitted states.
+> - v0's changelog "meaning unchanged" holds on reachable states; the text changed but the claim is not wrong.
+> - v1 keeping one legal non-ABCI parameter: the bug stays reachable, but the shape of the real reproduction (changing another parameter at the same time) is exhaustively unreachable in its cfg, so "no effect on detection" holds only partly.
+
 # case-003: invariant evolution quality (CometBFT consensus-parameter update and replay)
 
 Rubric: [rubric](rubric.md) (epoch-1). Abbreviations follow section A of the rubric, with paths relative to `research/ci-evolution/inv-e2e/`: `R = ..` (`research/ci-evolution`), `E = .`. `WORK` is the experiment's work directory, archived outside git (see `../../README.md`, section Storage); `buggy-tree` is `WORK/subjects/case-003/buggy-tree` and `old-tree` is `WORK/subjects/case-003/old-tree`.

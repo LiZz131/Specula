@@ -1,0 +1,160 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 85 and seed 3548584023768021751 with 8 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 2509862] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /mydata/bingzhuo/evidence-work/case-003/v0/Probe003.tla
+Parsing file /mydata/bingzhuo/evidence-work/case-003/v0/Update.tla
+Parsing file /tmp/tlc-14123442982171506538/_TLCTrace.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /mydata/bingzhuo/evidence-work/case-003/v0/MC.tla
+Parsing file /mydata/bingzhuo/evidence-work/case-003/v0/base.tla
+Parsing file /tmp/tlc-14123442982171506538/Integers.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14123442982171506538/FiniteSets.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14123442982171506538/TLC.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14123442982171506538/Naturals.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14123442982171506538/Sequences.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14123442982171506538/TLCExt.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module Update
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Probe003
+Linting of module base
+Linting of module MC
+Linting of module Update
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Probe003
+Starting... (2026-11-23 21:06:49)
+Computing initial states...
+Finished computing initial states: 2 distinct states generated at 2026-11-23 21:06:50.
+Error: Invariant ProbeNoBug is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ phase = "normal"
+/\ responseHeight = 0
+/\ coverage = {}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 0, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 0
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 2: <MCSaveBlock line 22, col 5 to line 24, col 53 of module MC>
+/\ phase = "blockStored"
+/\ responseHeight = 0
+/\ coverage = {"blockStored"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 3: <MCApplyBlockStart line 36, col 22 to line 36, col 58 of module MC>
+/\ phase = "applying"
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "applyStarted"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 4: <MCFinalizeBlock([abci |-> 1, body |-> "b0"]) line 37, col 23 to line 37, col 60 of module MC>
+/\ phase = "finalized"
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "finalized", "applyStarted"}
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = [abci |-> 1, body |-> "b0"]
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 5: <MCSaveFinalizeBlockResponse line 38, col 32 to line 38, col 78 of module MC>
+/\ phase = "responseSaved"
+/\ responseHeight = 1
+/\ coverage = {"blockStored", "finalized", "responseSaved", "applyStarted"}
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [abci |-> 1, body |-> "b0"]
+/\ pendingParam = [abci |-> 1, body |-> "b0"]
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 6: <MCUpdateStateRejected("update") line 40, col 29 to line 40, col 72 of module MC>
+/\ phase = "rejected"
+/\ responseHeight = 1
+/\ coverage = {"blockStored", "finalized", "responseSaved", "applyStarted", "rejectedUpdate"}
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "rejected"
+/\ responseParam = [abci |-> 1, body |-> "b0"]
+/\ pendingParam = [abci |-> 1, body |-> "b0"]
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+668 states generated, 546 distinct states found, 244 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 00s at (2026-11-23 21:06:50)
+Trace exploration spec path: ./Probe003_TTrace_1795468009.tla
+exit=12 wall=1s

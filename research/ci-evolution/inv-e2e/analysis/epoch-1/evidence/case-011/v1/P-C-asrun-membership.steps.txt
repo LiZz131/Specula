@@ -1,0 +1,21 @@
+[1] Initial
+[2] MCTickElect
+      role: (1 :> Candidate @@ 3 :> Learner @@ 2 :> Learner)
+[3] MCCrash
+      crashed: (1 :> FALSE @@ 3 :> TRUE @@ 2 :> FALSE)
+[4] MCNext  +VoteResp n1->n1 granted=TRUE
+[5] MCNext  -VoteResp n1->n1 granted=TRUE
+      role: (1 :> Leader @@ 3 :> Learner @@ 2 :> Learner)
+[6] MCAppendJointConfig
+      effectiveConfig: (1 :> <<{1}, {2}>> @@ 3 :> <<{1}>> @@ 2 :> <<{1}>>)
+[7] MCNext
+[8] MCExternalPreElect
+      preCandidateActive: (1 :> TRUE @@ 3 :> FALSE @@ 2 :> FALSE)
+      preCandidateVote: n1:(2), n3:(0), n2:(0)
+      preCandidateConfig: (1 :> <<{1}, {2}>> @@ 3 :> <<{1}>> @@ 2 :> <<{1}>>)
+      preGrants: (1 :> {1} @@ 3 :> {} @@ 2 :> {})
+[9] MCNext
+[10] MCAppendUniformConfig
+      effectiveConfig: (1 :> <<{2}>> @@ 3 :> <<{1}>> @@ 2 :> <<{1}>>)
+[11] MCNext  +PreVoteReq n1->n2 probe=(2,n1)
+[12] MCNext  +PreVoteResp n2->n1 probe=(2,n1) granted=TRUE  -PreVoteReq n1->n2 probe=(2,n1)

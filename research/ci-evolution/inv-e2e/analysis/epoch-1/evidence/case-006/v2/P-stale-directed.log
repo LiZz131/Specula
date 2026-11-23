@@ -1,0 +1,5207 @@
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 71 and seed 7841927086553797407 with 8 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 2500171] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /mydata/bingzhuo/evidence-work/case-006/v2/Probe006.tla
+Parsing file /mydata/bingzhuo/evidence-work/case-006/v2/Update.tla
+Parsing file /tmp/tlc-7295820250293589510/_TLCTrace.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /mydata/bingzhuo/evidence-work/case-006/v2/MC.tla
+Parsing file /mydata/bingzhuo/evidence-work/case-006/v2/base.tla
+Parsing file /tmp/tlc-7295820250293589510/Integers.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-7295820250293589510/Naturals.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7295820250293589510/Sequences.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7295820250293589510/FiniteSets.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7295820250293589510/TLC.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7295820250293589510/TLCExt.tla (jar:file:/mydata/bingzhuo/src/Specula/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module Update
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Probe006
+Linting of module base
+Linting of module MC
+Linting of module Update
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Probe006
+line 199, col 44 to line 199, col 49 of module base
+
+The field name "leader" in the record constructor is identical to the existing definition or declaration
+named leader, located at line 66, col 23 to line 66, col 28 of module base.
+The field in the record will not take the value of the leader definition or declaration.
+In TLA+, field names in records are strings, regardless of any similarly named declarations or definitions.
+Therefore, DOMAIN [leader |-> ...] = {"leader"} holds true.
+
+
+
+Starting... (2026-11-23 19:57:40)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-23 19:57:41.
+Progress(23) at 2026-11-23 19:57:44: 38,200 states generated (38,200 s/min), 13,246 distinct states found (13,246 ds/min), 6,040 states left on queue.
+Progress(32) at 2026-11-23 19:58:44: 3,626,368 states generated (3,588,168 s/min), 837,544 distinct states found (824,298 ds/min), 190,024 states left on queue.
+Progress(36) at 2026-11-23 19:59:44: 7,324,227 states generated (3,697,859 s/min), 1,512,833 distinct states found (675,289 ds/min), 131,946 states left on queue.
+Error: Invariant ProbeNoStale is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ durableVote = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Follower @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> FALSE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 0,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 0,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = {}
+/\ votesGranted = (s1 :> {} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 2: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ durableVote = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 0,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 3: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 1,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 4: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ durableVote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 1,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 5: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 1,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 6: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 7: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 8: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> Nil @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Candidate @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> FALSE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 9: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 2,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 10: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durableLogs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> FALSE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 3,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 11: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<>> )
+/\ durableLogs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 3,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 1,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 12: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> Nil)
+/\ readStamp = 0
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = (s1 :> <<[term |-> 1, value |-> Nil]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 0)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 3,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 13: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 0
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> FALSE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 14: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 0
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> FALSE,
+  readForward |-> FALSE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 0,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 15: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<ctx1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 1,
+              gcommit |-> 1,
+              active |-> TRUE,
+              acks |-> {},
+              requester |-> s1,
+              stamp |-> 1,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 16: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<ctx1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 1,
+              gcommit |-> 1,
+              active |-> TRUE,
+              acks |-> {},
+              requester |-> s1,
+              stamp |-> 1,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = {}
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> FALSE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> FALSE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 17: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Follower @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = ( s1 :>
+      << [ index |-> 1,
+           ctx |-> ctx1,
+           acks |-> {s1, s2},
+           leader |-> s1,
+           owner |-> s1,
+           justificationCtx |-> ctx1 ] >> @@
+  s2 :> <<>> @@
+  s3 :> <<>> )
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 1,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 18: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = ( s1 :>
+      << [ index |-> 1,
+           ctx |-> ctx1,
+           acks |-> {s1, s2},
+           leader |-> s1,
+           owner |-> s1,
+           justificationCtx |-> ctx1 ] >> @@
+  s2 :> <<>> @@
+  s3 :> <<>> )
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 19: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = <<>>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> FALSE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = ( s1 :>
+      << [ index |-> 1,
+           ctx |-> ctx1,
+           acks |-> {s1, s2},
+           leader |-> s1,
+           owner |-> s1,
+           justificationCtx |-> ctx1 ] >> @@
+  s2 :> <<>> @@
+  s3 :> <<>> )
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 4,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 20: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 5,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 21: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 5,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 22: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 5,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 23: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> s1)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 6,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 24: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 6,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s3,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 25: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 6,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s3,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 26: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 0)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s1)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 6,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s3,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 27: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 7,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s3,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 28: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 7,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 29: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> Nil @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Candidate @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 7,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 30: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 7,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 31: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> Nil)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 8,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s3,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 32: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> FALSE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 8,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 2,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s3,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 33: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = {[index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]]}
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 0) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 9,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 2,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s2,
+    from |-> s3,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 34: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 1
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = { [index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]],
+  [index |-> 1, commitTerm |-> 2, entry |-> [term |-> 1, value |-> Nil]],
+  [index |-> 2, commitTerm |-> 2, entry |-> [term |-> 2, value |-> Nil]] }
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> FALSE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 2) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 1,
+  ready |-> 9,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 35: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 2
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<ctx1>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 1,
+              gcommit |-> 2,
+              active |-> TRUE,
+              acks |-> {},
+              requester |-> s1,
+              stamp |-> 2,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = { [index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]],
+  [index |-> 1, commitTerm |-> 2, entry |-> [term |-> 1, value |-> Nil]],
+  [index |-> 2, commitTerm |-> 2, entry |-> [term |-> 2, value |-> Nil]] }
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> TRUE,
+  staleAck |-> FALSE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 2) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 2,
+  ready |-> 9,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeatResp,
+    ctx |-> ctx1,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 1 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+State 36: <U3Next line 181, col 5 to line 198, col 45 of module Update>
+/\ durableCommit = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ leader = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ vote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ durableVote = (s1 :> s1 @@ s2 :> s2 @@ s3 :> s2)
+/\ readStamp = 2
+/\ logs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ durableLogs = ( s1 :> <<[term |-> 1, value |-> Nil]>> @@
+  s2 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> @@
+  s3 :> <<[term |-> 1, value |-> Nil], [term |-> 2, value |-> Nil]>> )
+/\ readQueue = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ pendingReads = ( s1 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s2 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) @@
+  s3 :>
+      ( ctx1 :>
+            [ index |-> 0,
+              gcommit |-> 0,
+              active |-> FALSE,
+              acks |-> {},
+              requester |-> Nil,
+              stamp |-> 0,
+              ackLog |-> {} ] ) )
+/\ servedReads = { [ index |-> 1,
+    gcommit |-> 1,
+    ctx |-> ctx1,
+    acks |-> {s1, s2},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1, s2},
+    stamp |-> 1,
+    justificationCtx |-> ctx1 ],
+  [ index |-> 1,
+    gcommit |-> 2,
+    ctx |-> ctx1,
+    acks |-> {s1, s3},
+    leader |-> s1,
+    owner |-> s1,
+    term |-> 1,
+    freshAcks |-> {s1},
+    stamp |-> 2,
+    justificationCtx |-> ctx1 ] }
+/\ recentActive = ( s1 :> (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE) @@
+  s2 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> TRUE) @@
+  s3 :> (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE) )
+/\ role = (s1 :> Leader @@ s2 :> Leader @@ s3 :> Follower)
+/\ commitHistory = { [index |-> 1, commitTerm |-> 1, entry |-> [term |-> 1, value |-> Nil]],
+  [index |-> 1, commitTerm |-> 2, entry |-> [term |-> 1, value |-> Nil]],
+  [index |-> 2, commitTerm |-> 2, entry |-> [term |-> 2, value |-> Nil]] }
+/\ publishedReads = << [ index |-> 1,
+     ctx |-> ctx1,
+     acks |-> {s1, s2},
+     leader |-> s1,
+     owner |-> s1,
+     justificationCtx |-> ctx1 ] >>
+/\ nextIndex = ( s1 :> (s1 :> 2 @@ s2 :> 2 @@ s3 :> 2) @@
+  s2 :> (s1 :> 3 @@ s2 :> 3 @@ s3 :> 3) @@
+  s3 :> (s1 :> 1 @@ s2 :> 1 @@ s3 :> 1) )
+/\ scenarioSeen = [ leader |-> TRUE,
+  crash |-> FALSE,
+  restart |-> FALSE,
+  readFreed |-> TRUE,
+  readReuse |-> TRUE,
+  staleAck |-> TRUE,
+  readResponse |-> FALSE,
+  proposal |-> FALSE,
+  heartbeat |-> FALSE,
+  quorumCheck |-> FALSE,
+  commit |-> TRUE,
+  readyRead |-> TRUE,
+  election |-> TRUE,
+  append |-> TRUE,
+  readRequest |-> TRUE,
+  readForward |-> TRUE,
+  readQuorum |-> TRUE,
+  loss |-> FALSE ]
+/\ producedReads = ( s1 :>
+      << [ index |-> 1,
+           ctx |-> ctx1,
+           acks |-> {s1, s3},
+           leader |-> s1,
+           owner |-> s1,
+           justificationCtx |-> ctx1 ] >> @@
+  s2 :> <<>> @@
+  s3 :> <<>> )
+/\ matchIndex = ( s1 :> (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1) @@
+  s2 :> (s1 :> 0 @@ s2 :> 2 @@ s3 :> 2) @@
+  s3 :> (s1 :> 0 @@ s2 :> 0 @@ s3 :> 0) )
+/\ leaderHistory = {[term |-> 1, node |-> s1], [term |-> 2, node |-> s2]}
+/\ readyOutstanding = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ appliedIndex = (s1 :> 1 @@ s2 :> 0 @@ s3 :> 1)
+/\ commitIndex = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 1)
+/\ term = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ durableTerm = (s1 :> 1 @@ s2 :> 2 @@ s3 :> 2)
+/\ faultCounters = [ crash |-> 0,
+  campaign |-> 2,
+  proposal |-> 0,
+  heartbeat |-> 0,
+  read |-> 2,
+  ready |-> 9,
+  quorumCheck |-> 0,
+  lose |-> 0 ]
+/\ messages = { [ index |-> 0,
+    mtype |-> MsgVoteResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s3,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s2,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 0,
+    mtype |-> MsgHeartbeat,
+    ctx |-> ctx1,
+    to |-> s3,
+    from |-> s1,
+    term |-> 1,
+    commit |-> 1,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgVote,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgApp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 2,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 1,
+    entryTerm |-> 2,
+    reject |-> FALSE,
+    gstamp |-> 0 ],
+  [ index |-> 1,
+    mtype |-> MsgAppResp,
+    ctx |-> Nil,
+    to |-> s1,
+    from |-> s2,
+    term |-> 1,
+    commit |-> 0,
+    value |-> Nil,
+    logTerm |-> 0,
+    entryTerm |-> 0,
+    reject |-> FALSE,
+    gstamp |-> 0 ] }
+/\ votesGranted = (s1 :> {s1, s2} @@ s2 :> {s2, s3} @@ s3 :> {})
+/\ alive = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+
+7704226 states generated, 1581759 distinct states found, 118284 states left on queue.
+The depth of the complete state graph search is 37.
+Finished in 02min 10s at (2026-11-23 19:59:50)
+Trace exploration spec path: ./Probe006_TTrace_1795463860.tla
+exit=12 wall=131s

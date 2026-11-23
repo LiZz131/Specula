@@ -19,6 +19,24 @@ Summary of the per-case analyses of the 21 epoch-1 runs (7 cases × v0/v1/v2, on
 
 The arms: v0 is the base `incremental-modeling` skill; v1 adds divergence evidence (a changed property needs a separating state evaluated by TLC); v2 adds the requirement-evidence ledger (`REQ-EVIDENCE` annotations on the prior suite). "§3.1–§3.3" below are the technical directions of issue #188.
 
+> **2026-11-23 corrections from TLC evidence** (one directory per case under [evidence/](evidence/))
+>
+> | Miss | Model can represent it | Arm's own cfgs reach it | Verdict |
+> |---|---|---|---|
+> | 002 v1 | yes | yes (unmodified `MC.cfg`, depth 38) | missing property; action written to the contract, skipping `peekFirst().hdr` |
+> | 010 v0 | no (whole queue made durable on exit) | — | wrong abstraction |
+> | 011 B v0 | yes | no (every membership cfg has `MaxElectionCount≤2`) | structural cfg gap |
+> | 011 B v1 | yes | yes | missing property / dismissal |
+> | 011 C v1, v2 | yes | yes (11–12 states) | missing property / dismissal |
+> | 012 v2 | no (commit independent of vector order) | — | wrong abstraction; **not** masked by SYMMETRY |
+>
+> Other corrections:
+> - 004 v2 can represent leader self-transfer (10 states in its main cfg); what it lacks is a property. The masking by `MembershipLimit≤1` is confirmed.
+> - 003: the ValidateUpdate conjunct dropped from PUR holds on every reachable state of all arms; v1's `ValidParams` redefinition is an inaccurate ledger entry, not a weakening (read the 003 rows below in that light).
+> - 006: v1's and v2's standard `MC.cfg` (`MaxReadLimit=1`) cannot reach the stale read; `ReadDeliveryJustified` holds almost by construction for forwarded reads (Q4 vacuous).
+> - 002 v0's second weakening: Q7 none. 010's 144,904-state search used a scenario-view cfg.
+> - **Cfgs that structurally exclude the scenario** are more common than estimated: 011 v0, 004 v2, 006 v1/v2, plus partial shapes in 004 v1 and 003 v1. This supports canaries that check scenario preconditions on the cfgs actually run.
+
 ## 0. Findings
 
 1. **The misses come from unverified behavior claims, not simply from wrong models.** An arm accepted a claim about what the implementation does from text instead of from execution, and the claim propagated. Counted per arm, there are 7 misses:

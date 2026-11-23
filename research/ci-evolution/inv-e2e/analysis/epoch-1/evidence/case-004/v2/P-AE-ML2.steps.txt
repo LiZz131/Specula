@@ -1,0 +1,49 @@
+[1] Initial
+[2] MCElect
+      role: <<Candidate, Follower, Learner>>
+      voteTerm: <<1, 0, 0>>
+      voteNode: <<1, 0, 0>>
+      candidate: <<TRUE, FALSE, FALSE>>
+[3] MCPersistVote
+[4] MCSendVote
+[5] MCVoteRequest
+      voteTerm: <<1, 1, 0>>
+      voteNode: <<1, 1, 0>>
+[6] MCVoteResponse
+[7] MCPersistVote
+[8] MCVoteResponse
+      role: <<Leader, Follower, Learner>>
+      voteCommitted: <<TRUE, FALSE, FALSE>>
+      candidate: <<FALSE, FALSE, FALSE>>
+      leader: <<TRUE, FALSE, FALSE>>
+[9] MCPersistVote
+[10] MCCrash
+      role: <<Learner, Follower, Learner>>
+      leader: <<FALSE, FALSE, FALSE>>
+[11] MCRestart
+      role: <<Leader, Follower, Learner>>
+      leader: <<TRUE, FALSE, FALSE>>
+[12] MCJoint
+      configs: <<{{1, 2}, {2, 3}}, {{1, 2}}, {{1, 2}}>>
+      learners: <<{}, {3}, {3}>>
+[13] MCSubmit
+[14] MCFollowerAppend
+      voteCommitted: <<TRUE, TRUE, FALSE>>
+[15] MCFollowerAppend
+      voteTerm: <<1, 1, 1>>
+      voteNode: <<1, 1, 1>>
+      voteCommitted: <<TRUE, TRUE, TRUE>>
+[16] MCSubmit
+[17] MCFlush
+[18] MCFlush
+[19] MCSubmit
+[20] MCFlush
+[21] MCAck
+[22] MCAck
+[23] MCUniform
+      configs: <<{{2, 3}}, {{1, 2}}, {{1, 2}}>>
+[24] MCTransferLeader
+      role: <<Learner, Follower, Learner>>
+      voteTerm: <<2, 1, 1>>
+      voteCommitted: <<FALSE, TRUE, TRUE>>
+      leader: <<FALSE, FALSE, FALSE>>

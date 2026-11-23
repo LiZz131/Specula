@@ -1,0 +1,26 @@
+[1] Initial
+[2] MCStartElection
+      role: (n1 :> candidate @@ n2 :> follower @@ n3 :> follower)
+      currentTerm: (n1 :> 1 @@ n2 :> 0 @@ n3 :> 0)
+      leaderState: (n1 :> TRUE @@ n2 :> FALSE @@ n3 :> FALSE)
+[3] MCStartElection
+      role: (n1 :> candidate @@ n2 :> candidate @@ n3 :> follower)
+      currentTerm: (n1 :> 1 @@ n2 :> 1 @@ n3 :> 0)
+      leaderState: (n1 :> TRUE @@ n2 :> TRUE @@ n3 :> FALSE)
+[4] MCGrantVote
+      role: (n1 :> leader @@ n2 :> candidate @@ n3 :> follower)
+      currentTerm: (n1 :> 1 @@ n2 :> 1 @@ n3 :> 1)
+[5] MCProposeMembership
+      lastLog: (n1 :> 0 @@ n2 :> -1 @@ n3 :> -1)
+      effectiveConfig: (n1 :> {{n1, n2}, {n1, n2, n3}} @@ n2 :> {{n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+      matchedIndex: ( n1 :> (n1 :> 0 @@ n2 :> -1 @@ n3 :> -1) @@ n2 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@ n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
+      progressConfig: (n1 :> {{n1, n2}, {n1, n2, n3}} @@ n2 :> {{n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+[6] MCSendAppendEntries  +append n1->n2 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1
+[7] MCNext  +ack n2->n1 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1  -append n1->n2 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1
+      role: (n1 :> leader @@ n2 :> follower @@ n3 :> follower)
+      lastLog: (n1 :> 0 @@ n2 :> 0 @@ n3 :> -1)
+      effectiveConfig: ( n1 :> {{n1, n2}, {n1, n2, n3}} @@ n2 :> {{n1, n2}, {n1, n2, n3}} @@ n3 :> {{n1, n2, n3}} )
+      leaderState: (n1 :> TRUE @@ n2 :> FALSE @@ n3 :> FALSE)
+[8] MCNext  -ack n2->n1 term=1 prev=-1 last=0 ok=TRUE leaderCommit=-1
+      committed: (n1 :> 0 @@ n2 :> -1 @@ n3 :> -1)
+      matchedIndex: ( n1 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> -1) @@ n2 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@ n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
