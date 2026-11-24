@@ -1,0 +1,132 @@
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ phase = "normal"
+/\ pendingAbciPresent = FALSE
+/\ responseHeight = 0
+/\ coverage = {}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [veh |-> 0, other |-> "NoOther"]
+/\ pendingParam = [veh |-> 0, other |-> "NoOther"]
+/\ counters = [blocks |-> 0, crashes |-> 0, appRollbacks |-> 0]
+/\ persistedParam = [veh |-> 1, other |-> "o0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ responseAbciPresent = FALSE
+/\ activeParam = [veh |-> 1, other |-> "o0"]
+/\ blockStoreHeight = 0
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 2: <MCSaveBlock line 20, col 5 to line 22, col 53 of module MC>
+/\ phase = "blockStored"
+/\ pendingAbciPresent = FALSE
+/\ responseHeight = 0
+/\ coverage = {"blockStored"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [veh |-> 0, other |-> "NoOther"]
+/\ pendingParam = [veh |-> 0, other |-> "NoOther"]
+/\ counters = [blocks |-> 1, crashes |-> 0, appRollbacks |-> 0]
+/\ persistedParam = [veh |-> 1, other |-> "o0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ responseAbciPresent = FALSE
+/\ activeParam = [veh |-> 1, other |-> "o0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 3: <MCApplyBlockStart line 34, col 22 to line 34, col 58 of module MC>
+/\ phase = "applying"
+/\ pendingAbciPresent = FALSE
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "applyStarted"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [veh |-> 0, other |-> "NoOther"]
+/\ pendingParam = [veh |-> 0, other |-> "NoOther"]
+/\ counters = [blocks |-> 1, crashes |-> 0, appRollbacks |-> 0]
+/\ persistedParam = [veh |-> 1, other |-> "o0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ responseAbciPresent = FALSE
+/\ activeParam = [veh |-> 1, other |-> "o0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 4: <MCFinalizeBlock([veh |-> 1, other |-> "o0"],TRUE) line 35, col 26 to line 35, col 66 of module MC>
+/\ phase = "finalized"
+/\ pendingAbciPresent = TRUE
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "finalized", "applyStarted"}
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [veh |-> 0, other |-> "NoOther"]
+/\ pendingParam = [veh |-> 1, other |-> "o0"]
+/\ counters = [blocks |-> 1, crashes |-> 0, appRollbacks |-> 0]
+/\ persistedParam = [veh |-> 1, other |-> "o0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ responseAbciPresent = FALSE
+/\ activeParam = [veh |-> 1, other |-> "o0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 5: <MCSaveFinalizeBlockResponse line 36, col 32 to line 36, col 78 of module MC>
+/\ phase = "responseSaved"
+/\ pendingAbciPresent = TRUE
+/\ responseHeight = 1
+/\ coverage = {"blockStored", "finalized", "responseSaved", "applyStarted"}
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [veh |-> 1, other |-> "o0"]
+/\ pendingParam = [veh |-> 1, other |-> "o0"]
+/\ counters = [blocks |-> 1, crashes |-> 0, appRollbacks |-> 0]
+/\ persistedParam = [veh |-> 1, other |-> "o0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ responseAbciPresent = TRUE
+/\ activeParam = [veh |-> 1, other |-> "o0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 6: <MCUpdateStateRejectedVE line 39, col 28 to line 39, col 70 of module MC>
+/\ phase = "rejected"
+/\ pendingAbciPresent = TRUE
+/\ responseHeight = 1
+/\ coverage = {"blockStored", "finalized", "responseSaved", "applyStarted", "rejectedUpdate"}
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "rejected"
+/\ responseParam = [veh |-> 1, other |-> "o0"]
+/\ pendingParam = [veh |-> 1, other |-> "o0"]
+/\ counters = [blocks |-> 1, crashes |-> 0, appRollbacks |-> 0]
+/\ persistedParam = [veh |-> 1, other |-> "o0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ responseAbciPresent = TRUE
+/\ activeParam = [veh |-> 1, other |-> "o0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1

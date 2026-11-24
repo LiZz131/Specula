@@ -1,0 +1,202 @@
+[trimmed: action headers of all 11 blocks, full text of last 2]
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+State 2: <MCTickElect("1") line 14, col 5 to line 16, col 65 of module MC>
+State 3: <MCTickElect("2") line 14, col 5 to line 16, col 65 of module MC>
+State 4: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 5: <MCTickPreElect("1") line 35, col 5 to line 37, col 64 of module MC>
+State 6: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 7: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 8: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 9: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 10: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+
+State 9: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+/\ candidateActive = ("1" :> TRUE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ vote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 1, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 1, node |-> "1", committed |-> FALSE] )
+/\ durableVote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 1, node |-> "1", committed |-> FALSE] )
+/\ durableConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ preGrants = ("1" :> {"1"} @@ "2" :> {} @@ "3" :> {})
+/\ sendVotePending = ("1" :> TRUE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ effectiveConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ lastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ leaseValid = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ sendPreVotePending = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ preStartRole = ("1" :> "Candidate" @@ "2" :> "None" @@ "3" :> "None")
+/\ role = ("1" :> "Candidate" @@ "2" :> "Candidate" @@ "3" :> "Follower")
+/\ seenGreaterLog = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ grants = ("1" :> {"1"} @@ "2" :> {} @@ "3" :> {})
+/\ effectiveConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ replyMessage = ( "1" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] @@
+  "2" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] @@
+  "3" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] )
+/\ logFlushPending = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ crashed = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ committedConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ leaderConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ durableConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ leaderGrants = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ sentVoteReq = ("1" :> {"3"} @@ "2" :> {} @@ "3" :> {})
+/\ candidateVote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 1, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+/\ preSentReq = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ preCandidateVote = ( "1" :> [term |-> 2, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+/\ preCandidateConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ replyPending = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ durableLastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ committedConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ votePersistPending = ("1" :> FALSE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ candidateConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ preCandidateLastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ faultCounters = [membership |-> 0, election |-> 2, preVote |-> 1, crash |-> 0, drop |-> 0]
+/\ leaderActive = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ messages = { [ lastLog |-> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE],
+    vote |-> [term |-> 1, node |-> "1", committed |-> FALSE],
+    kind |-> "VoteResp",
+    dest |-> "1",
+    source |-> "3",
+    granted |-> TRUE,
+    transfer |-> FALSE ] }
+/\ leaderCertified = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ preCandidateActive = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ leaderVote = ( "1" :> [term |-> 0, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+
+State 10: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+/\ candidateActive = ("1" :> FALSE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ vote = ( "1" :> [term |-> 1, node |-> "1", committed |-> TRUE] @@
+  "2" :> [term |-> 1, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 1, node |-> "1", committed |-> FALSE] )
+/\ durableVote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 1, node |-> "1", committed |-> FALSE] )
+/\ durableConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ preGrants = ("1" :> {"1"} @@ "2" :> {} @@ "3" :> {})
+/\ sendVotePending = ("1" :> FALSE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ effectiveConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ lastLog = ( "1" :> [index |-> 1, term |-> 1, node |-> "1", present |-> TRUE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ leaseValid = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ sendPreVotePending = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ preStartRole = ("1" :> "Candidate" @@ "2" :> "None" @@ "3" :> "None")
+/\ role = ("1" :> "Leader" @@ "2" :> "Candidate" @@ "3" :> "Follower")
+/\ seenGreaterLog = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ grants = ("1" :> {"1", "3"} @@ "2" :> {} @@ "3" :> {})
+/\ effectiveConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ replyMessage = ( "1" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] @@
+  "2" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] @@
+  "3" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] )
+/\ logFlushPending = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ crashed = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ committedConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ leaderConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ durableConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ leaderGrants = ("1" :> {"1", "3"} @@ "2" :> {} @@ "3" :> {})
+/\ sentVoteReq = ("1" :> {"3"} @@ "2" :> {} @@ "3" :> {})
+/\ candidateVote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 1, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+/\ preSentReq = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ preCandidateVote = ( "1" :> [term |-> 2, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+/\ preCandidateConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ replyPending = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ durableLastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ committedConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ votePersistPending = ("1" :> TRUE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ candidateConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ preCandidateLastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ faultCounters = [membership |-> 0, election |-> 2, preVote |-> 1, crash |-> 0, drop |-> 0]
+/\ leaderActive = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ messages = {}
+/\ leaderCertified = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ preCandidateActive = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ leaderVote = ( "1" :> [term |-> 1, node |-> "1", committed |-> TRUE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )

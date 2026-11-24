@@ -1,0 +1,152 @@
+[trimmed: action headers of all 20 blocks, full text of last 2]
+Error: The behavior up to this point is:
+State 1: <MCInit line 32, col 5 to line 37, col 17 of module MC>
+State 2: <MCStartElection(n3) line 40, col 5 to line 43, col 70 of module MC>
+State 3: <MCCrash(n3) line 58, col 5 to line 61, col 78 of module MC>
+State 4: <MCStartElection(n2) line 40, col 5 to line 43, col 70 of module MC>
+State 5: <MCGrantVote(n2,n1) line 72, col 5 to line 73, col 28 of module MC>
+State 6: <MCRecover(n3) line 96, col 5 to line 97, col 28 of module MC>
+State 7: <MCProposeMembership(n2,{{n1, n2}, {n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+State 8: <MCSendAppendEntries(n2,n3) line 76, col 5 to line 77, col 28 of module MC>
+State 9: <MCNext line 109, col 8 to line 109, col 42 of module MC>
+State 10: <MCSendAppendEntries(n2,n1) line 76, col 5 to line 77, col 28 of module MC>
+State 11: <MCNext line 109, col 8 to line 109, col 42 of module MC>
+State 12: <MCSendAppendEntries(n2,n1) line 76, col 5 to line 77, col 28 of module MC>
+State 13: <MCSendAppendEntries(n2,n3) line 76, col 5 to line 77, col 28 of module MC>
+State 14: <MCNext line 105, col 8 to line 105, col 51 of module MC>
+State 15: <MCSendAppendEntries(n2,n3) line 76, col 5 to line 77, col 28 of module MC>
+State 16: <MCNext line 105, col 8 to line 105, col 51 of module MC>
+State 17: <MCNext line 105, col 8 to line 105, col 51 of module MC>
+State 18: <MCNext line 107, col 8 to line 107, col 50 of module MC>
+State 19: <MCProposeMembership(n2,{{n1, n3}, {n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+
+State 18: <MCNext line 107, col 8 to line 107, col 50 of module MC>
+/\ witnessIndex = (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+/\ messages = { [ type |-> "ack",
+    ok |-> TRUE,
+    from |-> n3,
+    to |-> n2,
+    prev |-> -1,
+    term |-> 1,
+    last |-> 0,
+    lastTerm |-> 1,
+    leaderCommit |-> -1 ] }
+/\ voteCommitted = (n1 :> TRUE @@ n2 :> TRUE @@ n3 :> TRUE)
+/\ witnessConfig = (n1 :> {{n1, n2, n3}} @@ n2 :> {{n1, n2}, {n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+/\ witnessNodes = (n1 :> {} @@ n2 :> {n1, n2} @@ n3 :> {})
+/\ witnessTerm = (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)
+/\ effectiveMembershipIndex = (n1 :> 0 @@ n2 :> 0 @@ n3 :> 0)
+/\ effectiveConfig = ( n1 :> {{n1, n2}, {n1, n2, n3}} @@
+  n2 :> {{n1, n2}, {n1, n2, n3}} @@
+  n3 :> {{n1, n2}, {n1, n2, n3}} )
+/\ effectiveMembershipTerm = (n1 :> 1 @@ n2 :> 1 @@ n3 :> 1)
+/\ membershipChanges = 1
+/\ leaderActive = (n1 :> FALSE @@ n2 :> TRUE @@ n3 :> FALSE)
+/\ electionActions = 2
+/\ matchedTerm = ( n1 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> 0) @@
+  n2 :> (n1 :> 1 @@ n2 :> 1 @@ n3 :> 0) @@
+  n3 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> 0) )
+/\ losses = 2
+/\ logConfig = ( n1 :> (0 :> {{n1, n2}, {n1, n2, n3}} @@ 1 :> {} @@ 2 :> {}) @@
+  n2 :> (0 :> {{n1, n2}, {n1, n2, n3}} @@ 1 :> {} @@ 2 :> {}) @@
+  n3 :> (0 :> {{n1, n2}, {n1, n2, n3}} @@ 1 :> {} @@ 2 :> {}) )
+/\ committedMembershipIndex = (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+/\ lastLog = (n1 :> 0 @@ n2 :> 0 @@ n3 :> 0)
+/\ logTerm = ( n1 :> (0 :> 1 @@ 1 :> 0 @@ 2 :> 0) @@
+  n2 :> (0 :> 1 @@ 1 :> 0 @@ 2 :> 0) @@
+  n3 :> (0 :> 1 @@ 1 :> 0 @@ 2 :> 0) )
+/\ progress = ( n1 :>
+      [ cfg |-> {},
+        committed |-> <<0, -1>>,
+        order |-> <<>>,
+        val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@
+  n2 :>
+      [ cfg |-> {{n1, n2}, {n1, n2, n3}},
+        order |-> <<n2, n1, n3>>,
+        val |-> (n1 :> <<1, 0>> @@ n2 :> <<1, 0>> @@ n3 :> <<0, -1>>),
+        committed |-> <<1, 0>> ] @@
+  n3 :>
+      [ cfg |-> {},
+        committed |-> <<0, -1>>,
+        order |-> <<>>,
+        val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+/\ crashed = {}
+/\ currentTerm = (n1 :> 1 @@ n2 :> 1 @@ n3 :> 1)
+/\ committed = (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+/\ crashes = 1
+/\ matchedIndex = ( n1 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@
+  n2 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> -1) @@
+  n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
+/\ clientAppends = 0
+/\ role = (n1 :> "follower" @@ n2 :> "leader" @@ n3 :> "follower")
+/\ voteFor = (n1 :> n2 @@ n2 :> n2 @@ n3 :> n2)
+/\ committedConfig = (n1 :> {{n1, n2, n3}} @@ n2 :> {{n1, n2}, {n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+/\ voteGranted = (n1 :> {} @@ n2 :> {n1, n2} @@ n3 :> {})
+/\ committedMembershipTerm = (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)
+
+State 19: <MCProposeMembership(n2,{{n1, n3}, {n1, n2, n3}}) line 52, col 5 to line 55, col 68 of module MC>
+/\ witnessIndex = (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+/\ messages = { [ type |-> "ack",
+    ok |-> TRUE,
+    from |-> n3,
+    to |-> n2,
+    prev |-> -1,
+    term |-> 1,
+    last |-> 0,
+    lastTerm |-> 1,
+    leaderCommit |-> -1 ] }
+/\ voteCommitted = (n1 :> TRUE @@ n2 :> TRUE @@ n3 :> TRUE)
+/\ witnessConfig = (n1 :> {{n1, n2, n3}} @@ n2 :> {{n1, n2}, {n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+/\ witnessNodes = (n1 :> {} @@ n2 :> {n1, n2} @@ n3 :> {})
+/\ witnessTerm = (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)
+/\ effectiveMembershipIndex = (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)
+/\ effectiveConfig = ( n1 :> {{n1, n2}, {n1, n2, n3}} @@
+  n2 :> {{n1, n3}, {n1, n2, n3}} @@
+  n3 :> {{n1, n2}, {n1, n2, n3}} )
+/\ effectiveMembershipTerm = (n1 :> 1 @@ n2 :> 1 @@ n3 :> 1)
+/\ membershipChanges = 2
+/\ leaderActive = (n1 :> FALSE @@ n2 :> TRUE @@ n3 :> FALSE)
+/\ electionActions = 2
+/\ matchedTerm = ( n1 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> 0) @@
+  n2 :> (n1 :> 1 @@ n2 :> 1 @@ n3 :> 0) @@
+  n3 :> (n1 :> 0 @@ n2 :> 0 @@ n3 :> 0) )
+/\ losses = 2
+/\ logConfig = ( n1 :> (0 :> {{n1, n2}, {n1, n2, n3}} @@ 1 :> {} @@ 2 :> {}) @@
+  n2 :>
+      ( 0 :> {{n1, n2}, {n1, n2, n3}} @@
+        1 :> {{n1, n3}, {n1, n2, n3}} @@
+        2 :> {} ) @@
+  n3 :> (0 :> {{n1, n2}, {n1, n2, n3}} @@ 1 :> {} @@ 2 :> {}) )
+/\ committedMembershipIndex = (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+/\ lastLog = (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)
+/\ logTerm = ( n1 :> (0 :> 1 @@ 1 :> 0 @@ 2 :> 0) @@
+  n2 :> (0 :> 1 @@ 1 :> 1 @@ 2 :> 0) @@
+  n3 :> (0 :> 1 @@ 1 :> 0 @@ 2 :> 0) )
+/\ progress = ( n1 :>
+      [ cfg |-> {},
+        committed |-> <<0, -1>>,
+        order |-> <<>>,
+        val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] @@
+  n2 :>
+      [ cfg |-> {{n1, n3}, {n1, n2, n3}},
+        order |-> <<n1, n2, n3>>,
+        val |-> (n1 :> <<1, 0>> @@ n2 :> <<1, 1>> @@ n3 :> <<0, -1>>),
+        committed |-> <<0, -1>> ] @@
+  n3 :>
+      [ cfg |-> {},
+        committed |-> <<0, -1>>,
+        order |-> <<>>,
+        val |-> (n1 :> <<0, -1>> @@ n2 :> <<0, -1>> @@ n3 :> <<0, -1>>) ] )
+/\ crashed = {}
+/\ currentTerm = (n1 :> 1 @@ n2 :> 1 @@ n3 :> 1)
+/\ committed = (n1 :> -1 @@ n2 :> 0 @@ n3 :> -1)
+/\ crashes = 1
+/\ matchedIndex = ( n1 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) @@
+  n2 :> (n1 :> 0 @@ n2 :> 1 @@ n3 :> -1) @@
+  n3 :> (n1 :> -1 @@ n2 :> -1 @@ n3 :> -1) )
+/\ clientAppends = 0
+/\ role = (n1 :> "follower" @@ n2 :> "leader" @@ n3 :> "follower")
+/\ voteFor = (n1 :> n2 @@ n2 :> n2 @@ n3 :> n2)
+/\ committedConfig = (n1 :> {{n1, n2, n3}} @@ n2 :> {{n1, n2}, {n1, n2, n3}} @@ n3 :> {{n1, n2, n3}})
+/\ voteGranted = (n1 :> {} @@ n2 :> {n1, n2} @@ n3 :> {})
+/\ committedMembershipTerm = (n1 :> 0 @@ n2 :> 1 @@ n3 :> 0)

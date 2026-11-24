@@ -1,0 +1,402 @@
+Error: The behavior up to this point is:
+State 1: <MCInit line 18, col 5 to line 19, col 67 of module MC>
+/\ phase = "normal"
+/\ responseHeight = 0
+/\ coverage = {}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 0, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 0
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 2: <MCSaveBlock line 22, col 5 to line 24, col 53 of module MC>
+/\ phase = "blockStored"
+/\ responseHeight = 0
+/\ coverage = {"blockStored"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 0]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 3: <MCCrash line 27, col 5 to line 29, col 54 of module MC>
+/\ phase = "down"
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "crashed"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 1]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 4: <MCBeginHandshake line 44, col 21 to line 44, col 56 of module MC>
+/\ phase = "handshake"
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "crashed", "handshakeStarted"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 1]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 5: <MCSelectRealReplay line 46, col 23 to line 46, col 60 of module MC>
+/\ phase = "blockStored"
+/\ responseHeight = 0
+/\ coverage = {"blockStored", "crashed", "handshakeStarted", "realReplaySelected"}
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 1]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 6: <MCApplyBlockStart line 36, col 22 to line 36, col 58 of module MC>
+/\ phase = "applying"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 1]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 7: <MCFinalizeBlock(NoParam) line 37, col 23 to line 37, col 60 of module MC>
+/\ phase = "finalized"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 1]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 8: <MCCrash line 27, col 5 to line 29, col 54 of module MC>
+/\ phase = "down"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 2]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 9: <MCBeginHandshake line 44, col 21 to line 44, col 56 of module MC>
+/\ phase = "handshake"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 2]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 10: <MCSelectRealReplay line 46, col 23 to line 46, col 60 of module MC>
+/\ phase = "blockStored"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 2]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 11: <MCCrash line 27, col 5 to line 29, col 54 of module MC>
+/\ phase = "down"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 12: <MCBeginHandshake line 44, col 21 to line 44, col 56 of module MC>
+/\ phase = "handshake"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = FALSE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 0
+
+State 13: <MCSelectRealReplay line 46, col 23 to line 46, col 60 of module MC>
+/\ phase = "blockStored"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 14: <MCApplyBlockStart line 36, col 22 to line 36, col 58 of module MC>
+/\ phase = "applying"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = FALSE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = NoParam
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 15: <MCFinalizeBlock([abci |-> 1, body |-> "b1"]) line 37, col 23 to line 37, col 60 of module MC>
+/\ phase = "finalized"
+/\ responseHeight = 0
+/\ coverage = { "blockStored",
+  "finalized",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = NoParam
+/\ pendingParam = [abci |-> 1, body |-> "b1"]
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 16: <MCSaveFinalizeBlockResponse line 38, col 32 to line 38, col 78 of module MC>
+/\ phase = "responseSaved"
+/\ responseHeight = 1
+/\ coverage = { "blockStored",
+  "finalized",
+  "responseSaved",
+  "applyStarted",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "none"
+/\ responseParam = [abci |-> 1, body |-> "b1"]
+/\ pendingParam = [abci |-> 1, body |-> "b1"]
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
+
+State 17: <MCUpdateStateRejected("update") line 40, col 29 to line 40, col 72 of module MC>
+/\ phase = "rejected"
+/\ responseHeight = 1
+/\ coverage = { "blockStored",
+  "finalized",
+  "responseSaved",
+  "applyStarted",
+  "rejectedUpdate",
+  "crashed",
+  "handshakeStarted",
+  "realReplaySelected" }
+/\ updatePresent = TRUE
+/\ persistedLastParamChange = 1
+/\ validationOutcome = "rejected"
+/\ responseParam = [abci |-> 1, body |-> "b1"]
+/\ pendingParam = [abci |-> 1, body |-> "b1"]
+/\ counters = [appRollbacks |-> 0, blocks |-> 1, crashes |-> 3]
+/\ persistedParam = [veh |-> 1, body |-> "b0"]
+/\ replayMutatesState = TRUE
+/\ appHeight = 0
+/\ activeParam = [veh |-> 1, body |-> "b0"]
+/\ blockStoreHeight = 1
+/\ stateHeight = 0
+/\ lastParamChange = 1
+/\ stateStoreHeight = 0
+/\ pendingBlockHeight = 1
