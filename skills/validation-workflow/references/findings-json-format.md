@@ -6,7 +6,7 @@ structured mirror of the same findings so a downstream orchestrator can enumerat
 them deterministically (one work item per finding) instead of regex-splitting
 prose.
 
-Path: `spec/findings.json` (relative to `.specula-output/`).
+Path: `spec/findings.json` (relative to `.specular-output/`).
 
 ## Scope
 
@@ -42,6 +42,10 @@ about what it knows avoids a P3 agent inventing code-review entries it never saw
 }
 ```
 
+## Consolidated candidates
+
+Phase 4 step 0 writes `spec/candidates.json` in this format with `generated_by: "consolidate"`. Each candidate may list the defect-ledger rows it confirms in `ledger_ids` (for example `["D-3"]`). A ledger row that is not confirmed by its own candidate — absorbed by a model-checking candidate, merged into another candidate, or removed — is listed in the top-level `ledger_dispositions`, each entry `{"id": "D-3", "disposition": "absorbed" | "merged" | "removed", "into": "MC-2" | null, "reason": "..."}`.
+
 ## Field rules
 
 - **id** — stable within a run. Model-checking findings use `MC-<n>`; the
@@ -50,8 +54,10 @@ about what it knows avoids a P3 agent inventing code-review entries it never saw
   filesystem-safe (`[A-Za-z0-9._-]`) and unique.
 - **source** — always `"model-checking"` for entries this skill emits.
 - **invariant / config / counterexample** — required for model-checking
-  findings; the `counterexample` path is relative to `.specula-output/` and must
-  point at a real file saved under `spec/output/`.
+  findings. For a liveness config, `invariant` is the cfg's `PROPERTY` name,
+  since TLC does not name the violated temporal property. The
+  `counterexample` path is relative to `.specular-output/` and must point at a
+  real file saved under `spec/output/`.
 - **affected_code** — list of `file:line` strings, same references cited in the
   bug-report Affected Code section. May be empty if hunting produced no code
   mapping yet, but prefer at least one anchor.

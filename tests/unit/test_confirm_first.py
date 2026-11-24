@@ -1,6 +1,6 @@
 """--confirm-first: confirm the Phase 1 Scenarios before modeling.
 
-Pins the sealed Scenario record (``specula.confirm_first``), the Scenario-only
+Pins the sealed Scenario record (``specular.confirm_first``), the Scenario-only
 and after-Scenario consolidation modes, carried verdicts and covered
 model-checking findings in the dispatcher (including repair rounds), the
 confirmation phase options, and the pipeline's phase order and resume rules.
@@ -11,6 +11,7 @@ confirmation phase options, and the pipeline's phase order and resume rules.
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -21,12 +22,12 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-from specula import confirm_first as CF
-from specula import confirmlib as C
-from specula import phaselib as PhaseLib
-from specula import pipelinelib as PL
-from specula import resumelib
-from specula.phaselib import Workspace
+from specular import confirm_first as CF
+from specular import confirmlib as C
+from specular import phaselib as PhaseLib
+from specular import pipelinelib as PL
+from specular import resumelib
+from specular.phaselib import Workspace
 
 EVIDENCE = "The investigation inspected the real call path and captured concrete observed behavior."
 TOKEN = "0123456789abcdef0123456789abcdef"
@@ -61,7 +62,7 @@ class Case(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmp, True)
-        patcher = mock.patch.dict(os.environ, {"SPECULA_RUN_DIR": self.tmp})
+        patcher = mock.patch.dict(os.environ, {"SPECULAR_RUN_DIR": self.tmp})
         patcher.start()
         self.addCleanup(patcher.stop)
         self.ws = Workspace([self.name])
@@ -136,7 +137,7 @@ class TestSeal(Case):
         self.assertEqual(CF.seal(self.work).ids, sealed.ids)
 
     def test_target_index_links_the_scenario_report(self) -> None:
-        from specula.output_index import render_target_index
+        from specular.output_index import render_target_index
 
         self.assertNotIn("Scenario confirmation report", render_target_index(self.name, self.work))
         self.scenario_pass()
@@ -195,6 +196,18 @@ class TestSeal(Case):
         CF.discard(self.work)
         self.assertFalse(CF.sealed_exists(self.work))
 
+    def test_companion_change_makes_the_seal_stale(self) -> None:
+        brief_only = CF._brief_digest(self.work)
+        self.assertEqual(brief_only, hashlib.sha256(BRIEF.encode()).hexdigest())  # unchanged without companions
+        companion = self.work / "modeling-brief-components.md"
+        companion.write_text("### Scenario 3: Cleanup after cancel\n")
+        self.assertNotEqual(CF._brief_digest(self.work), brief_only)
+        self.scenario_pass()
+        CF.seal(self.work)
+        self.assertTrue(CF.is_current(self.work))
+        companion.write_text("### Scenario 3: Cleanup after cancel\n\nrevised\n")
+        self.assertFalse(CF.is_current(self.work))
+
 
 class TestMerge(Case):
     def sealed(self) -> CF.Sealed:
@@ -252,6 +265,26 @@ class TestScenarioOnlyConsolidation(Case):
         self.assertEqual(len(prompts), 1)
         self.assertIn("none. This pass confirms the Scenarios before any model exists", prompts[0])
         self.assertNotIn("findings.json", prompts[0])
+
+    def test_companion_documents_reach_the_prompt_and_bind_the_cache(self) -> None:
+        before = C._candidate_fingerprint(self.cfg())
+        companion = self.work / "modeling-brief-components.md"
+        companion.write_text("### Scenario 3: Cleanup after cancel\n")
+        with_companion = C._candidate_fingerprint(self.cfg())
+        self.assertNotEqual(before, with_companion)
+        companion.write_text("### Scenario 3: Recovery replays a stale epoch\n")
+        self.assertNotEqual(with_companion, C._candidate_fingerprint(self.cfg()))
+        self.assertEqual(C._expected_brief_scenarios(self.work), {"Scenario 1", "Scenario 2", "Scenario 3"})
+        prompts: list[str] = []
+
+        def run(_adapter: Path, prompt: str, *_args: object, **_kwargs: object) -> tuple[int, str]:
+            prompts.append(prompt)
+            (self.work / "spec" / "candidates.json").write_text(json.dumps({"findings": [scenario("CR-1", 1)]}))
+            return (0, "")
+
+        with mock.patch.object(C, "run_agent_blocking", run):
+            C.consolidate(self.cfg(scenarios_only=True))
+        self.assertIn(f"`{self.work / 'modeling-brief.md'}`, `{companion}`", prompts[0])
 
     def test_candidate_cache_is_bound_to_the_mode(self) -> None:
         default = C._candidate_fingerprint(self.cfg())
@@ -599,7 +632,7 @@ class TestPipeline(unittest.TestCase):
         self.assertTrue(p.skip_analysis)
         self.assertFalse(p.skip_specgen or p.skip_harness or p.skip_validation)
 
-        work = run_dir / "a" / ".specula-output"
+        work = run_dir / "a" / ".specular-output"
         (work / "spec").mkdir(parents=True)
         (work / "modeling-brief.md").write_text(BRIEF)
         (work / "spec" / "candidates.json").write_text('{"findings": []}')

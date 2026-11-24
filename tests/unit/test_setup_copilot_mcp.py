@@ -126,7 +126,7 @@ class TestCopilotMcpSetup(unittest.TestCase):
         home.mkdir()
         config_dir = root / "copilot config"
         config_dir.mkdir()
-        project_root = root / "Specula checkout"
+        project_root = root / "Specular checkout"
         log_file = root / "copilot-calls.jsonl"
         list_json: str | None = None
         first_name, first_python, first_server = entries[0].split("|")
@@ -149,7 +149,7 @@ class TestCopilotMcpSetup(unittest.TestCase):
                             "type": "local",
                             "command": first_python,
                             "args": [first_server],
-                            "env": {"SPECULA_ROOT": str(project_root)},
+                            "env": {"SPECULAR_ROOT": str(project_root)},
                         },
                         "mcpServers": {},
                     }
@@ -172,13 +172,13 @@ class TestCopilotMcpSetup(unittest.TestCase):
                 "command": command,
                 "args": [server],
                 "env": {
-                    "SPECULA_ROOT": configured_project,
+                    "SPECULAR_ROOT": configured_project,
                     "USER_SETTING": "preserved",
                 },
             }
             if existing == "invalid_schema":
                 server_config["env"] = {
-                    "SPECULA_ROOT": str(project_root),
+                    "SPECULAR_ROOT": str(project_root),
                     "BAD": 123,
                 }
             if existing != "omitted_tools":
@@ -272,7 +272,7 @@ class TestCopilotMcpSetup(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             config_dir = str(root / "copilot config")
-            project_root = str(root / "Specula checkout")
+            project_root = str(root / "Specular checkout")
             add_calls = [call for call in calls if call["argv"][:2] == ["mcp", "add"]]
             self.assertEqual(len(add_calls), 3)
             for entry, call in zip(entries, add_calls, strict=True):
@@ -284,7 +284,7 @@ class TestCopilotMcpSetup(unittest.TestCase):
                         "add",
                         name,
                         "--env",
-                        f"SPECULA_ROOT={project_root}",
+                        f"SPECULAR_ROOT={project_root}",
                         "--",
                         python_path,
                         server_path,

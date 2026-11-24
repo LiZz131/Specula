@@ -10,17 +10,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from debugger import Breakpoint, DebugSession
 
 
-def get_specula_root():
-    """Auto-detect Specula root directory."""
-    specula_root = os.environ.get("SPECULA_ROOT")
-    if specula_root:
-        return specula_root
+def get_specular_root():
+    """Auto-detect Specular root directory."""
+    specular_root = os.environ.get("SPECULAR_ROOT")
+    if specular_root:
+        return specular_root
     # Calculate relative to this file: tools/trace_debugger/tests/xxx.py
     this_file = os.path.abspath(__file__)
     tests_dir = os.path.dirname(this_file)  # .../tests
     trace_debugger_dir = os.path.dirname(tests_dir)  # .../trace_debugger
     tools_dir = os.path.dirname(trace_debugger_dir)  # .../tools
-    return os.path.dirname(tools_dir)  # .../Specula
+    return os.path.dirname(tools_dir)  # .../Specular
 
 
 def test_coarse_grained_localization():
@@ -38,8 +38,8 @@ def test_coarse_grained_localization():
     print("Scenario: Debugging confchange_disable_validation.ndjson line 30 failure")
     print()
 
-    specula_root = get_specula_root()
-    work_dir = os.path.join(specula_root, "data/workloads/etcdraft/scenarios/progress_inflights/spec")
+    specular_root = get_specular_root()
+    work_dir = os.path.join(specular_root, "data/workloads/etcdraft/scenarios/progress_inflights/spec")
 
     # Create session
     print("Step 1: Creating DebugSession...")

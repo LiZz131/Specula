@@ -127,7 +127,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
       "command": "python3",
       "args": ["/path/to/tools/inv_checking_tool/mcp_server.py"],
       "env": {
-        "SPECULA_ROOT": "/path/to/Specula"
+        "SPECULAR_ROOT": "/path/to/Specular"
       }
     }
   }
@@ -157,9 +157,19 @@ Get a high-level overview of TLC model checking results.
   "actions": ["MCInit", "MCRestart(s1)", ...],
   "action_frequency": {"MCNextAsync": 49, "MCNextDynamic": 19, ...},
   "statistics": {"states_generated": 148265621, ...},
+  "lasso": null,
   "variables": ["currentTerm", "state", "log", ...]
 }
 ```
+
+`violation_type` is `invariant`, `action_property`, `temporal_property`, or `deadlock`. TLC does not name the property when a liveness check fails, so `violation_name` is `null` in that case. For a liveness counterexample, `lasso` describes how the behavior continues after the last printed state:
+
+```json
+"lasso": {"kind": "back_to_state", "loop_start": 3, "action": "<Step line 6, col 9 to line 6, col 42 of module Lasso>"}
+"lasso": {"kind": "stuttering", "loop_start": 15, "action": null}
+```
+
+`back_to_state` means states `loop_start` through the last state repeat forever. `stuttering` means the behavior stays in state `loop_start` forever; if the spec has no fairness for the action that should make progress, this counterexample is expected and says nothing about the implementation.
 
 ### 2. `get_tlc_state`
 
@@ -252,4 +262,4 @@ Nested values can be accessed using dot notation with optional array indices:
 
 ## License
 
-Part of the Specula project.
+Part of the Specular project.

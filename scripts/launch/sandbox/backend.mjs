@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Specula v0 sandbox backend — a thin Node shim over @anthropic-ai/sandbox-runtime (srt).
+// Specular v0 sandbox backend — a thin Node shim over @anthropic-ai/sandbox-runtime (srt).
 //
-// Reads a user-editable sandbox.json (Specula's own schema), translates it into an
+// Reads a user-editable sandbox.json (Specular's own schema), translates it into an
 // srt runtime config, and runs the given command inside the srt sandbox.
 //
 // Why a Node shim and not the `srt` CLI: the default posture leaves the network
@@ -22,7 +22,7 @@ import path from 'node:path';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = path.join(HERE, 'sandbox.default.json');
 const CAPABILITY = path.join(HERE, 'capability.mjs');
-const USER_CONFIG_PATH = path.join(os.homedir(), '.specula', 'sandbox.json');
+const USER_CONFIG_PATH = path.join(os.homedir(), '.specular', 'sandbox.json');
 
 // Human-facing diagnostics — printed only when stderr is a real terminal. When
 // this backend wraps an agent whose stdout+stderr the caller captures and parses
@@ -68,23 +68,23 @@ function readJson(p) {
   catch (e) { throw new Error(`invalid JSON in ${p}: ${e.message}`); }
 }
 
-// Resolve the config file: explicit --config → repo-level .specula/ → user-level;
+// Resolve the config file: explicit --config → repo-level .specular/ → user-level;
 // first run writes the tracked default to the user-level path so there is something to edit.
 export function loadConfig(explicit, cwd) {
   const candidates = explicit
     ? [explicit]
-    : [path.join(cwd, '.specula', 'sandbox.json'), USER_CONFIG_PATH];
+    : [path.join(cwd, '.specular', 'sandbox.json'), USER_CONFIG_PATH];
   for (const p of candidates) {
     if (fs.existsSync(p)) return { cfg: readJson(p), source: p };
   }
   const def = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   fs.mkdirSync(path.dirname(USER_CONFIG_PATH), { recursive: true });
   fs.writeFileSync(USER_CONFIG_PATH, def);
-  diag(`[specula-sandbox] wrote default config → ${USER_CONFIG_PATH} (edit it to tighten)\n`);
+  diag(`[specular-sandbox] wrote default config → ${USER_CONFIG_PATH} (edit it to tighten)\n`);
   return { cfg: JSON.parse(def), source: USER_CONFIG_PATH };
 }
 
-// Expand Specula placeholders (${WORKSPACE}, ${TMPDIR}) and a leading ~ in a
+// Expand Specular placeholders (${WORKSPACE}, ${TMPDIR}) and a leading ~ in a
 // config path. We expand ~ ourselves so a credential deny does not depend on
 // srt's own tilde handling for this load-bearing path.
 export function expandPlaceholders(s, workspace) {
@@ -94,13 +94,13 @@ export function expandPlaceholders(s, workspace) {
   return out;
 }
 
-// Specula sandbox.json → srt runtime config.
+// Specular sandbox.json → srt runtime config.
 export function translate(cfg, workspace) {
   const expand = s => expandPlaceholders(s, workspace);
   const arr = x => (Array.isArray(x) ? x : []);
   // Run-specific write paths the launcher can inject without editing the config
   // file (e.g. the artifact source tree + build caches a full pipeline writes to).
-  const extraWrite = (process.env.SPECULA_SANDBOX_EXTRA_WRITE || '')
+  const extraWrite = (process.env.SPECULAR_SANDBOX_EXTRA_WRITE || '')
     .split(path.delimiter).filter(Boolean).map(expand);
   const runtime = {
     filesystem: {
@@ -139,21 +139,21 @@ function runChild(command) {
 
 // Refuse to run unsandboxed unless the user explicitly asked (enabled:false).
 // Probes in a SEPARATE process so SandboxManager's global config is not pinned to
-// the probe run; the result is cached in SPECULA_SANDBOX_CAPABILITY so descendant
+// the probe run; the result is cached in SPECULAR_SANDBOX_CAPABILITY so descendant
 // runs in the same session skip the (re-)probe.
 function ensureCapable(source) {
-  const cached = process.env.SPECULA_SANDBOX_CAPABILITY;
+  const cached = process.env.SPECULAR_SANDBOX_CAPABILITY;
   if (cached === 'ok') return;
   if (cached !== 'fail') {
     const r = spawnSync('node', [CAPABILITY], { encoding: 'utf8' });
-    if (r.status === 0) { process.env.SPECULA_SANDBOX_CAPABILITY = 'ok'; return; }
+    if (r.status === 0) { process.env.SPECULAR_SANDBOX_CAPABILITY = 'ok'; return; }
     if (r.stderr) process.stderr.write(r.stderr);
   }
-  process.env.SPECULA_SANDBOX_CAPABILITY = 'fail';
+  process.env.SPECULAR_SANDBOX_CAPABILITY = 'fail';
   process.stderr.write(
-    `[specula-sandbox] refusing to run: the sandbox cannot start on this host and ` +
+    `[specular-sandbox] refusing to run: the sandbox cannot start on this host and ` +
     `"enabled" is not false in ${source}.\n` +
-    `[specula-sandbox]   → fix the cause above, or set "enabled": false to run WITHOUT the sandbox (no guardrail).\n`);
+    `[specular-sandbox]   → fix the cause above, or set "enabled": false to run WITHOUT the sandbox (no guardrail).\n`);
   process.exit(3);
 }
 
@@ -164,7 +164,7 @@ async function main() {
   const command = args.cmd.map(shq).join(' ');
 
   if (cfg.enabled === false) {
-    diag(`[specula-sandbox] enabled:false in ${source} → running WITHOUT sandbox\n`);
+    diag(`[specular-sandbox] enabled:false in ${source} → running WITHOUT sandbox\n`);
     runChild(command).on('exit', (code, signal) => process.exit(signal ? 1 : (code ?? 0)));
     return;
   }
@@ -186,7 +186,7 @@ async function main() {
 const isCLI = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCLI) {
   main().catch(e => {
-    process.stderr.write(`[specula-sandbox] error: ${e.message}\n`);
+    process.stderr.write(`[specular-sandbox] error: ${e.message}\n`);
     process.exit(2);
   });
 }

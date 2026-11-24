@@ -61,13 +61,15 @@ These parameters apply to **all** model checking runs — convergence and bug hu
 
 | Parameter | Rule | Notes |
 |-----------|------|-------|
-| **Timeout** | **30 minutes** per run (`-t 30`) | The single hard constraint. If TLC hasn't found a violation in 30 min, the run ends. |
+| **Timeout** | **30 minutes** per run (`-t 30`) | The single hard constraint. If TLC hasn't found a violation in 30 min, the run ends. A safety run that reaches the timeout without a violation is a completed, budget-limited check: record its coverage (distinct states, depth, queue) and proceed; do not describe it as exhaustive. |
 | **Workers** | Prefer `-w auto` for one TLC; use an explicit count when running several TLCs concurrently | `auto` uses every CPU visible to that JVM. It does not coordinate with other TLC processes. |
 | **Heap memory** | Choose together with off-heap (e.g., `-m 50G`) | The wrapper accounts for the declared heap and off-heap as one request. |
-| **Off-heap memory** | Give `OffHeapDiskFPSet` the larger share when useful (e.g., `-M 200G`) | The sum of `-m + -M` must fit the remaining Specula-run budget. |
-| **Simulation depth** | 50–100 (`-p 50` to `-p 100`) | Shorter (50) for simple protocols (few actions, shallow state graphs). Longer (100) for complex protocols (many interleaving actions, deep state graphs). |
+| **Off-heap memory** | Give `OffHeapDiskFPSet` the larger share when useful (e.g., `-M 200G`) | The sum of `-m + -M` must fit the remaining Specular-run budget. |
+| **Simulation depth** | Enough transitions to reach and exercise the target interactions | Values such as `-p 50` or `-p 100` suit some small protocols; longer lifecycles may require substantially greater depth. |
 | **Simulation traces** | As many as possible (`-n 999999999`) | Let the timeout be the stopping condition, not trace count. |
 | **State space size** | **Do not constrain.** | Let TLC explore as much as possible within the 30-min window. |
+
+**Liveness cfgs** (`MC_hunt_<scenario>_live.cfg`) run in BFS mode only; simulation does not report most liveness violations. Keep deadlock checking off (the `run_model_check.sh` default, so do not pass `-D`; plain TLC needs `-deadlock`), so that states where the bounded model stops are checked as stuttering instead of ending the run. If BFS does not finish within the timeout, TLC has not completed the liveness check: treat "no violation" as inconclusive for that bound, not as a pass.
 
 **Common run script options**:
 | Flag | Purpose | Example |
@@ -125,7 +127,7 @@ timeout 5m  make build                       # not just `make build`
 timeout 30m java tlc2.TLC ...                # TLC has its own -t flag too; outer timeout is belt-and-suspenders
 ```
 
-Pick `N` as ~5–10× the expected runtime, capped at 30 min for any single command. A timeout that fires is a real signal — report it as a finding (likely a deadlock), do **not** auto-retry blindly. We have lost a full overnight run to a deadlocked `cargo test` with no outer timeout; do not let it happen again.
+Pick `N` from the expected runtime and available budget, allowing enough time for large builds or long tests. Investigate an unexpected timeout before retrying: distinguish slow progress, resource exhaustion, and a possible deadlock. A timeout alone does not establish a bug.
 
 **Block on the PID, not on a log marker.** A subprocess killed by SIGTERM (e.g. TLC hitting its own `-t` budget) exits without writing any natural-termination marker, so any wait that watches for a log token can spin forever on a static file. The `wait_for_pid.sh` helper blocks via `tail --pid` and unblocks on any exit (natural, SIGTERM, SIGKILL, OOM):
 
@@ -229,6 +231,16 @@ If the counterexample's preconditions look implausible in the real system (e.g.,
 
 **Case C is the most valuable outcome** — prioritize its discovery.
 
+### Liveness Counterexamples
+
+A counterexample from a `_live` cfg is a lasso: a prefix followed by a part that repeats forever. `get_tlc_summary` reports `violation_type: temporal_property` without a name (the violated property is the cfg's single `PROPERTY`) and a `lasso`: `stuttering` means the behavior stays in state `loop_start` forever; `back_to_state` means states `loop_start` to the last state repeat forever.
+
+Inspect the repeating part: which actions are enabled there, and which of them have fairness in `LiveSpec`. Then classify:
+
+- **Case B** — the behavior stops or loops only because of the model: an action the implementation would take is disabled because its counter ran out, or the loop needs a fault to fire forever. Fix the bounds as described in `spec_generation/references/liveness-pattern.md`. If the behavior needs an action without fairness to be skipped forever, it is Case B only when you can cite code guaranteeing that the action runs; then add that fairness and log it as `[fix-fairness]` in `changelog.md`. A counterexample alone is never a reason to add fairness: if the code does not guarantee the action, consider Case C. If a fair action looks enabled throughout the repeating part yet is never taken, check that the fairness is stated on the action `MCNext` actually takes (the MC wrapper, not the base action) and that the cfg has no `SYMMETRY` or `VIEW`.
+- **Case A** — the implementation does not promise this progress under these faults (for example, it documents that recovery needs an operator). Revise or remove the property and cite the evidence.
+- **Case C** — every fairness assumption cites code, the repeating part only uses behaviors the implementation allows, and the implementation promises the progress. Describe the prefix that reaches the repeating part, what repeats, which progress never happens, and why the fair actions do not lead to it. Before reporting it, rerun with the bound closest to the stuck state raised by one (see "Check the result" in `spec_generation/references/liveness-pattern.md`).
+
 ### Advanced Analysis with Trace Replay
 
 When the standard tools don't provide enough detail, use `run_trace_replay` to re-execute the trace with custom ALIAS operators:
@@ -319,4 +331,4 @@ Returns: `violation_name`, `trace_length`, `actions`, `action_frequency`, `stati
 
 ## Additional References
 
-For additional examples beyond the built-in ones, see the [Specula case-studies repository](https://github.com/specula-org/specula-case-studies) which contains 60+ completed case studies across distributed systems, consensus protocols, and concurrent data structures.
+For additional examples beyond the built-in ones, see the [Specular case-studies repository](https://github.com/specular-org/specula-case-studies) which contains 60+ completed case studies across distributed systems, consensus protocols, and concurrent data structures.

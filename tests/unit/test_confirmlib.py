@@ -1,4 +1,4 @@
-"""Unit tests for parallel per-finding bug confirmation (src/specula/confirmlib.py).
+"""Unit tests for parallel per-finding bug confirmation (src/specular/confirmlib.py).
 
 Run in-process: agent turns are monkeypatched (no adapter spawn, no network), so
 these pin the dispatcher's control flow that the phase/pipeline tests don't reach
@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 import unittest
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -26,12 +27,12 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-from specula import confirmlib as C
-from specula import persistent_findings, resumelib
-from specula import phaselib as PhaseLib
-from specula import pipelinelib as PL
-from specula import prompts as P
-from specula.phaselib import Workspace
+from specular import confirmlib as C
+from specular import notes, persistent_findings, resumelib, rules, tlc_tasks
+from specular import phaselib as PhaseLib
+from specular import pipelinelib as PL
+from specular import prompts as P
+from specular.phaselib import Workspace
 
 EVIDENCE = "The investigation inspected the real call path and captured concrete observed behavior."
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -98,6 +99,20 @@ def _scripted_policy_adapter(root: Path, returncodes: list[int]) -> tuple[Path, 
     return adapter, count
 
 
+def _start_new_process(test: unittest.TestCase) -> None:
+    """Give later prompts another skill-reference marker, as a real attach in a new process has."""
+    from specular import skill_refs
+
+    prefix = "<!-- specular-skill:" + "f" * 32 + ":"
+    patcher = mock.patch.multiple(
+        skill_refs,
+        _SKILL_REF_PREFIX=prefix,
+        _SKILL_REF=re.compile(rf"{re.escape(prefix)}([a-z0-9]+(?:-[a-z0-9]+)*) -->"),
+    )
+    patcher.start()
+    test.addCleanup(patcher.stop)
+
+
 def _git_repo(path: Path) -> Path:
     path.mkdir()
     subprocess.run(["git", "init", "-q", str(path)], check=True)
@@ -124,15 +139,15 @@ def _git_repo(path: Path) -> Path:
 class ConfirmCase(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.mkdtemp()
-        self._old = os.environ.get("SPECULA_RUN_DIR")
-        os.environ["SPECULA_RUN_DIR"] = self.tmp
+        self._old = os.environ.get("SPECULAR_RUN_DIR")
+        os.environ["SPECULAR_RUN_DIR"] = self.tmp
         self.addCleanup(self._restore)
 
     def _restore(self) -> None:
         if self._old is None:
-            os.environ.pop("SPECULA_RUN_DIR", None)
+            os.environ.pop("SPECULAR_RUN_DIR", None)
         else:
-            os.environ["SPECULA_RUN_DIR"] = self._old
+            os.environ["SPECULAR_RUN_DIR"] = self._old
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     def seed(self, name: str, findings: list[dict[str, Any]]) -> Workspace:
@@ -167,12 +182,15 @@ from pathlib import Path
 
 args = dict(arg[2:].split("=", 1) for arg in sys.argv[1:] if arg.startswith("--") and "=" in arg)
 prompt, log, resume = Path(args["prompt-file"]), Path(args["log"]), Path(args["resume-state"])
-capture, work = Path(os.environ["CAPTURE"]), Path(os.environ["SPECULA_WORK_DIR"])
+capture, work = Path(os.environ["CAPTURE"]), Path(os.environ["SPECULAR_WORK_DIR"])
 stem, fdir = prompt.name.removesuffix(".prompt.md"), prompt.parent
 with (capture / "calls").open("a") as calls:
     calls.write(stem + "\\n")
 with (capture / (stem + ".prompts")).open("a") as prompts:
     prompts.write(prompt.read_text() + "\\n<end>\\n")
+with (capture / (stem + ".system")).open("a") as system:
+    pinned = args.get("system-prompt-file")
+    system.write((Path(pinned).read_text() if pinned else "<none>") + "\\n<end>\\n")
 repro = work / "repro" / f"test_bug{fdir.name}_case.sh"
 proposal = json.loads(os.environ["ISSUE_PROPOSAL"])
 proposal["id"] = fdir.name
@@ -312,7 +330,7 @@ class TestIssueProposal(ConfirmCase):
         self.assertIn("at most 160 characters", worker_prompt)
         self.assertIn("single exact line", worker_prompt)
         self.assertIn(
-            f"in a configured run, run `specula findings --work {self.work.absolute()} validate", worker_prompt
+            f"in a configured run, run `specular findings --work {self.work.absolute()} validate", worker_prompt
         )
         # The metadata turn cannot change the evidence the verdict was judged on.
         self.assert_judged_evidence()
@@ -437,6 +455,38 @@ class TestIssueProposal(ConfirmCase):
                 self.assertEqual({line.split()[0] for line in sessions}, {"session-MC-1-turn01_A"})
                 self.assertTrue(json.loads((self.fdir / "issue.json").read_text())["title"] == "Fixture defect")
 
+    def test_correction_turn_and_its_replays_pin_the_rules_once(self) -> None:
+        for rc, retries, setting in (
+            (74, "transient_resumes", None),
+            (76, "policy_retries", None),
+            (74, "transient_resumes", "off"),
+        ):
+            with self.subTest(rc=rc, rules=setting):
+                shutil.rmtree(self.fdir, ignore_errors=True)
+                for path in self.root.glob("turn01_A*"):
+                    path.unlink()
+                (self.root / "calls").unlink(missing_ok=True)
+                with (
+                    self.env(ISSUE_FIX="fail-once", ISSUE_FAIL_RC=str(rc)),
+                    mock.patch.dict(os.environ),
+                    mock.patch.object(PhaseLib, "_transient_resume_delay", return_value=0),
+                ):
+                    os.environ.pop(rules.RULES_ENV, None)
+                    if setting is not None:
+                        os.environ[rules.RULES_ENV] = setting
+                    block = rules.rules_block()
+                    self.assertEqual(C.run_parallel_confirmation(self.issue_cfg(**{retries: 1})), 0)
+                self.assertEqual(self.calls(), ["turn01_A", "turn01_A-issue", "turn01_A-issue"])
+                prompts = (self.root / "turn01_A-issue.prompts").read_text().split("\n<end>\n")[:2]
+                systems = (self.root / "turn01_A-issue.system").read_text().split("\n<end>\n")[:2]
+                prefix = block + rules.RULES_SEPARATOR if block else ""
+                for prompt in prompts:
+                    self.assertTrue(prompt.startswith(prefix + "# Fix the persistent issue proposal for MC-1"))
+                    self.assertEqual(prompt.count(rules.RULES_TITLE), 1 if block else 0)
+                    # A metadata-only continuation of the worker session gets no notes section.
+                    self.assertNotIn("Working Notes", prompt)
+                self.assertEqual(systems, [block or "<none>"] * 2)
+
     def test_rate_limited_correction_restores_a_deleted_repro_directory(self) -> None:
         cfg = self.issue_cfg()
         with self.env(ISSUE_FIX="fail-once", ISSUE_EVIDENCE="delete-dir"):
@@ -445,6 +495,20 @@ class TestIssueProposal(ConfirmCase):
             self.assertEqual(C.run_parallel_confirmation(cfg), 0)
         self.assertEqual(self.calls(), ["turn01_A", "turn01_A-issue", "turn01_A-issue"])
         self.assert_judged_evidence()
+
+    def test_judged_evidence_in_the_finding_directory_is_restored_in_place(self) -> None:
+        cfg = self.cfg(self.ws, "T")
+        finding = self.finding(self.ws, "T")
+        repro = finding.fdir / "repro" / "test_bugMC-1_case.sh"
+        repro.parent.mkdir(parents=True)
+        repro.write_text("judged\n")
+        digests = C._snapshot_issue_evidence(cfg, finding)
+        repro.write_text("changed by the metadata turn\n")
+        (repro.parent / "test_bugMC-1_extra.sh").write_text("new evidence\n")
+        C._restore_issue_evidence(cfg, finding, digests)
+        self.assertEqual(sorted(path.name for path in repro.parent.iterdir()), [repro.name])
+        self.assertEqual(repro.read_text(), "judged\n")
+        self.assertFalse((self.work / "repro" / repro.name).exists())
 
     def test_fresh_start_removes_stale_evidence_snapshots(self) -> None:
         self.fdir.mkdir(parents=True)
@@ -496,6 +560,7 @@ class TestIssueProposal(ConfirmCase):
             os.environ.pop(resumelib.FRESH_ENV, None)
             self.assertNotEqual(first(self.issue_cfg()), 0)
             os.environ[resumelib.INVOCATION_ENV] = "invocation-2"
+            _start_new_process(self)
             os.environ[resumelib.MANUAL_ENV] = "1"
             resumed = self.issue_cfg(resume_prompt_extra=guidance)
             self.assertEqual(C.run_parallel_confirmation(resumed), 0)
@@ -717,6 +782,16 @@ class TestConfirmConfigCompatibility(ConfirmCase):
         self.assertEqual(run.call_args.kwargs["policy_retries"], 100)
         self.assertEqual(run.call_args.kwargs["gate_work_dir"], finding.fdir)
         self.assertEqual(run.call_args.kwargs["cwd"], "/repo-worktree")
+        self.assertIsNone(run.call_args.kwargs["codex_profile"])
+
+    def test_turn_threads_codex_profile(self) -> None:
+        ws = Workspace(["T"])
+        cfg = C.ConfirmConfig("T", ws, Path("/x/codex.sh"), worktree=False, model="glm-5.3", codex_profile="glm")
+        finding = C.Finding({"id": "MC-1"}, ws.work_dir("T") / "confirmation" / "MC-1")
+        with mock.patch.object(C, "run_agent_blocking", return_value=(0, "VERDICT: FALSE POSITIVE")) as run:
+            C.run_turn(cfg, finding, "A", 1, "prompt", cwd="/repo-worktree")
+        self.assertEqual(run.call_args.kwargs["model"], "glm-5.3")
+        self.assertEqual(run.call_args.kwargs["codex_profile"], "glm")
 
     def test_repair_flags_require_parallel_mode_round_and_durable_token(self) -> None:
         phase = PhaseLib.BugConfirmationPhase()
@@ -754,7 +829,7 @@ class TestConfirmConfigCompatibility(ConfirmCase):
     def test_finding_turn_starts_in_clean_dispatcher_cwd_not_untrusted_repo(self) -> None:
         ws = Workspace(["T"])
         repo = Path(self.tmp) / "repo"
-        for relative in (".specula/sandbox.json", ".codex/hooks.json", ".claude/settings.json"):
+        for relative in (".specular/sandbox.json", ".codex/hooks.json", ".claude/settings.json"):
             path = repo / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("{}\n")
@@ -791,7 +866,7 @@ class TestConfirmConfigCompatibility(ConfirmCase):
         old_cwd = Path.cwd()
         os.chdir(base)
         self.addCleanup(os.chdir, old_cwd)
-        os.environ["SPECULA_RUN_DIR"] = "runs/demo"
+        os.environ["SPECULAR_RUN_DIR"] = "runs/demo"
         ws = Workspace(["T"])
         spec = ws.work_dir("T") / "spec"
         spec.mkdir(parents=True)
@@ -802,7 +877,7 @@ class TestConfirmConfigCompatibility(ConfirmCase):
         repo, _cleanup = C.setup_repo(cfg, finding)
         prompt = C.prompt_reproduce(cfg, finding, repo)
 
-        expected_work = (base / "runs" / "demo" / "T" / ".specula-output").absolute()
+        expected_work = (base / "runs" / "demo" / "T" / ".specular-output").absolute()
         self.assertEqual(finding.fdir, expected_work / "confirmation" / "MC-1")
         self.assertIn(f"Source repo (build/run here): {base / 'repo'}", prompt)
         self.assertIn(f"Spec dir (counterexamples, bug-report): {expected_work / 'spec'}", prompt)
@@ -881,6 +956,118 @@ class TestValidateCandidates(ConfirmCase):
         errs = C._validate_candidates(p)
         self.assertTrue(any("filesystem-safe" in e for e in errs))
         self.assertTrue(any("source not in" in e for e in errs))
+
+
+class TestDefectLedger(ConfirmCase):
+    LEDGER = {"defects": [{"id": "D-1", "location": ["a.c:1"]}, {"id": "D-2", "location": ["b.c:2"]}]}
+
+    def _setup(self) -> tuple[Workspace, Path, Path]:
+        ws = Workspace(["T"])
+        wd = ws.work_dir("T")
+        spec = wd / "spec"
+        spec.mkdir(parents=True)
+        (wd / "defect-ledger.json").write_text(json.dumps(self.LEDGER))
+        return ws, wd, spec
+
+    @staticmethod
+    def _cands(*ids: str, dispositions: list[dict[str, Any]] | None = None) -> str:
+        findings = [{"id": f"CR-{i}", "source": "code-review", "ledger_ids": [i]} for i in ids]
+        return json.dumps(
+            {"generated_by": "consolidate", "findings": findings, "ledger_dispositions": dispositions or []}
+        )
+
+    def _run(self, ws: Workspace, spec: Path, outputs: list[str]) -> list[str]:
+        prompts: list[str] = []
+
+        def run(_adapter: Path, prompt: str, *_args: object, **_kw: object) -> tuple[int, str]:
+            prompts.append(prompt)
+            target = "candidates.json" if len(prompts) == 1 else ".candidates-ledger-fix.json"
+            (spec / target).write_text(outputs[min(len(prompts), len(outputs)) - 1])
+            return (0, "")
+
+        with mock.patch.object(C, "run_agent_blocking", run):
+            C.consolidate(self.cfg(ws, "T"))
+        return prompts
+
+    def test_prompt_points_at_the_ledger_and_complete_list_needs_no_round(self) -> None:
+        ws, wd, spec = self._setup()
+        prompts = self._run(ws, spec, [self._cands("D-1", "D-2")])
+        self.assertEqual(len(prompts), 1)
+        self.assertIn(str(wd / "defect-ledger.json"), prompts[0])
+        self.assertIn("CR-<row id>", prompts[0])
+        report = json.loads((spec / "ledger-coverage.json").read_text())
+        self.assertEqual(report, {"ledger_rows": 2, "missing": [], "completion_rounds": 0})
+
+    def test_missing_row_goes_back_to_the_agent(self) -> None:
+        ws, _wd, spec = self._setup()
+        prompts = self._run(ws, spec, [self._cands("D-1"), self._cands("D-1", "D-2")])
+        self.assertEqual(len(prompts), 2)
+        self.assertIn("D-2", prompts[1])
+        self.assertNotIn("D-1,", prompts[1])
+        final = json.loads((spec / "candidates.json").read_text())
+        self.assertEqual([f["id"] for f in final["findings"]], ["CR-D-1", "CR-D-2"])
+        self.assertEqual(json.loads((spec / "ledger-coverage.json").read_text())["missing"], [])
+
+    def test_disposition_with_reason_covers_the_row(self) -> None:
+        ws, _wd, spec = self._setup()
+        dup = {"id": "D-2", "disposition": "removed", "into": None, "reason": "duplicate of D-1"}
+        self.assertEqual(len(self._run(ws, spec, [self._cands("D-1", dispositions=[dup])])), 1)
+
+    def test_disposition_without_reason_does_not_cover_the_row(self) -> None:
+        ws, _wd, spec = self._setup()
+        silent = {"id": "D-2", "disposition": "removed", "into": None, "reason": ""}
+        self.assertEqual(len(self._run(ws, spec, [self._cands("D-1", dispositions=[silent])] * 3)), 3)
+
+    def test_still_missing_after_two_rounds_warns_and_proceeds(self) -> None:
+        ws, _wd, spec = self._setup()
+        prompts = self._run(ws, spec, [self._cands("D-1")] * 3)
+        self.assertEqual(len(prompts), 3)
+        report = json.loads((spec / "ledger-coverage.json").read_text())
+        self.assertEqual(report, {"ledger_rows": 2, "missing": ["D-2"], "completion_rounds": 2})
+        self.assertTrue((spec / "candidates.json").is_file())
+        self.assertTrue((spec / C._CANDIDATE_CACHE).is_file())
+
+    def test_row_listed_only_by_a_scenario_candidate_goes_back_to_the_agent(self) -> None:
+        ws, _wd, spec = self._setup()
+        scenario = {"id": "CR-1", "source": "code-review", "ledger_ids": ["D-1", "D-2"]}
+        first = json.loads(self._cands("D-1"))
+        first["findings"].append(scenario)
+        fixed = json.loads(self._cands("D-1", "D-2"))
+        fixed["findings"].append(scenario)
+        prompts = self._run(ws, spec, [json.dumps(first), json.dumps(fixed)])
+        self.assertEqual(len(prompts), 2)
+        self.assertIn("D-2", prompts[1])
+        final = json.loads((spec / "candidates.json").read_text())
+        self.assertEqual([f["id"] for f in final["findings"]], ["CR-D-1", "CR-D-2", "CR-1"])
+
+    def test_row_absorbed_into_a_model_checking_candidate_is_covered(self) -> None:
+        ws, _wd, spec = self._setup()
+        doc = json.loads(self._cands("D-1"))
+        doc["findings"].insert(0, {"id": "MC-1", "source": "model-checking", "ledger_ids": ["D-2"]})
+        self.assertEqual(len(self._run(ws, spec, [json.dumps(doc)])), 1)
+        self.assertEqual(json.loads((spec / "ledger-coverage.json").read_text())["missing"], [])
+
+    def test_completion_round_that_drops_a_candidate_is_rejected(self) -> None:
+        ws, _wd, spec = self._setup()
+        first = json.loads(self._cands("D-1"))
+        first["findings"].insert(0, {"id": "MC-1", "source": "model-checking", "ledger_ids": []})
+        with mock.patch.object(C, "_log") as log:
+            prompts = self._run(ws, spec, [json.dumps(first), self._cands("D-1", "D-2")])
+        self.assertEqual(len(prompts), 3)
+        self.assertEqual(json.loads((spec / "candidates.json").read_text()), first)
+        self.assertFalse((spec / ".candidates-ledger-fix.json").exists())
+        self.assertIn("dropped existing candidate(s) MC-1", str(log.call_args_list))
+        report = json.loads((spec / "ledger-coverage.json").read_text())
+        self.assertEqual(report, {"ledger_rows": 2, "missing": ["D-2"], "completion_rounds": 2})
+
+    def test_no_ledger_file_skips_the_check(self) -> None:
+        ws = Workspace(["T"])
+        spec = ws.work_dir("T") / "spec"
+        spec.mkdir(parents=True)
+        prompts = self._run(ws, spec, ['{"generated_by":"consolidate","findings":[]}'])
+        self.assertEqual(len(prompts), 1)
+        self.assertIn("none written", prompts[0])
+        self.assertFalse((spec / "ledger-coverage.json").exists())
 
 
 class TestDriver(ConfirmCase):
@@ -1025,7 +1212,7 @@ class TestDriver(ConfirmCase):
 
         with (
             mock.patch.object(C, "run_finding_safe", side_effect=worker),
-            mock.patch("specula.confirmlib.wait", side_effect=observe_rate_future_first),
+            mock.patch("specular.confirmlib.wait", side_effect=observe_rate_future_first),
         ):
             rc = C.run_parallel_confirmation(self.cfg(ws, "T", max_parallel=2))
 
@@ -1037,6 +1224,50 @@ class TestDriver(ConfirmCase):
         self.assertIn("| 4 | MC-4 | INCOMPLETE |", report)
         self.assertFalse((ws.work_dir("T") / "confirmation" / "MC-3" / "verdict.json").exists())
         self.assertFalse((ws.work_dir("T") / "confirmation" / "MC-4" / "verdict.json").exists())
+
+    def test_interrupt_ends_a_workers_policy_tlc_wait_before_the_pool_joins(self) -> None:
+        ws = self.seed("T", [{"id": "MC-1", "source": "model-checking", "title": "t", "summary": "s"}])
+        work = ws.work_dir("T")
+        log = work / "turn.log"
+        job = work / ".tlc-tasks/jobs" / ("a" * 32)
+        job.mkdir(parents=True)
+        (job / "request.json").write_text(json.dumps({"owner": str(log.resolve()), "created_at": time.time()}))
+        lock = tlc_tasks._hold_lock(job / "worker.lock")
+        self.addCleanup(os.close, lock)
+        (job / "worker.json").write_text("{}")
+        # Only the cancellation can end this wait promptly.
+        for module, attr in ((PhaseLib, "POLICY_TLC_WAIT_SECONDS"), (tlc_tasks, "OWNED_WAIT_POLL_SECONDS")):
+            patcher = mock.patch.object(module, attr, 60)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.addCleanup(PhaseLib._POLICY_TLC_WAIT_CANCEL.clear)
+        entered = threading.Event()
+        cancelled: list[BaseException] = []
+
+        def worker(_cfg: C.ConfirmConfig, finding: C.Finding) -> C.Outcome:
+            entered.set()
+            try:
+                PhaseLib._wait_policy_tlc(finding.id, work, log)
+            except BaseException as exc:
+                cancelled.append(exc)
+                raise
+            return C.Outcome(finding, "NEEDS MORE INFO", True, 0, EVIDENCE)
+
+        def interrupt(*_args: Any, **_kwargs: Any) -> Any:
+            entered.wait(5)
+            time.sleep(0.2)
+            raise KeyboardInterrupt
+
+        started = time.monotonic()
+        with (
+            mock.patch.object(C, "run_finding_safe", side_effect=worker),
+            mock.patch("specular.confirmlib.wait", side_effect=interrupt),
+            self.assertRaises(KeyboardInterrupt),
+        ):
+            C.run_parallel_confirmation(self.cfg(ws, "T"))
+
+        self.assertLess(time.monotonic() - started, 10)
+        self.assertEqual([type(exc) for exc in cancelled], [PhaseLib.PolicyTlcWaitCancelled])
 
     def test_rate_limit_finding_is_incomplete_delivers(self) -> None:
         # A rate-limited finding no longer withholds the whole target: it becomes an
@@ -1189,16 +1420,16 @@ class TestDriver(ConfirmCase):
             "HOME": str(home),
             "FAKE_CLAUDE_DIR": str(root),
             "FAKE_CLAUDE_SESSION": session_id,
-            "SPECULA_PROGRESS": "off",
+            "SPECULAR_PROGRESS": "off",
         }
         cfg = self.cfg(ws, "T", adapter=CLAUDE_CODE_ADAPTER, max_parallel=1)
 
         with mock.patch.dict(os.environ, env, clear=False):
             for key in (
-                "SPECULA_SANDBOX",
-                "SPECULA_ACTIVITY_LOG",
-                "SPECULA_MODEL",
-                "SPECULA_EFFORT",
+                "SPECULAR_SANDBOX",
+                "SPECULAR_ACTIVITY_LOG",
+                "SPECULAR_MODEL",
+                "SPECULAR_EFFORT",
                 "CLAUDE_CONFIG_DIR",
                 "CLAUDE_ALIAS",
                 "CLAUDE_MODEL",
@@ -1214,6 +1445,8 @@ class TestDriver(ConfirmCase):
         self.assertNotIn("--resume", first_argv)
         self.assertEqual(resumed_argv[resumed_argv.index("--resume") + 1], session_id)
         self.assertEqual((root / "stdin-2.md").read_text().strip(), PhaseLib._POLICY_SESSION_RESUME_PROMPT)
+        for argv in (first_argv, resumed_argv):
+            self.assertEqual("--append-system-prompt-file" in argv, bool(rules.rules_block()))
         report = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
         self.assertNotIn("INCOMPLETE", report)
         self.assertIn("FALSE POSITIVE", report)
@@ -1369,6 +1602,7 @@ class TestDriver(ConfirmCase):
             self.assertEqual(cfg._finding_leases, {})
 
             os.environ[resumelib.INVOCATION_ENV] = "invocation-2"
+            _start_new_process(self)
             os.environ[resumelib.MANUAL_ENV] = "1"
             resumed_cfg = C.ConfirmConfig(
                 name="T",
@@ -1411,7 +1645,7 @@ class TestDriver(ConfirmCase):
             "esac; done\n"
             'stem=$(basename "$prompt")\n'
             'printf "%s\\n" "$stem" >> "$CAPTURE/calls"\n'
-            'fdir="$SPECULA_WORK_DIR/confirmation/MC-1"\n'
+            'fdir="$SPECULAR_WORK_DIR/confirmation/MC-1"\n'
             'case "$stem" in\n'
             '  turn01_A.prompt.md) printf \'%s\\n\' "$REPRODUCED" > "$log" ;;\n'
             '  turn02_B.prompt.md) printf \'%s\\n\' "$FALSE_POSITIVE" > "$log" ;;\n'
@@ -1499,6 +1733,7 @@ class TestDriver(ConfirmCase):
 
             self.assertEqual(cfg._finding_leases, {})
             os.environ[resumelib.INVOCATION_ENV] = "invocation-2"
+            _start_new_process(self)
             os.environ[resumelib.MANUAL_ENV] = "1"
             resumed_cfg = C.ConfirmConfig(
                 name="T",
@@ -1702,10 +1937,10 @@ class TestDriver(ConfirmCase):
 
         self.assertEqual(len(prompts), 1)
         self.assertEqual(retry_budgets, [100])
-        self.assertIn("installed Specula skill **validation-workflow**", prompts[0])
+        self.assertIn("installed Specular skill **validation-workflow**", prompts[0])
         self.assertIn("Each `Scenario N` is a mechanism hypothesis", prompts[0])
         self.assertIn("`scenario`", prompts[0])
-        self.assertIn("<!-- specula-skill:", prompts[0])
+        self.assertIn("<!-- specular-skill:", prompts[0])
         self.assertIn(":validation-workflow -->", prompts[0])
         self.assertNotIn("$validation-workflow", prompts[0])
         self.assertNotIn("/skills/", prompts[0])
@@ -1781,7 +2016,7 @@ class TestDriver(ConfirmCase):
             "CAPTURE": str(root),
             "COUNT": str(root / "consolidate-count"),
             "CANDIDATES": str(spec / "candidates.json"),
-            "SPECULA_SOURCE_SNAPSHOT": "1",
+            "SPECULAR_SOURCE_SNAPSHOT": "1",
             "GIT_DIR": str(original / ".git"),
             "GIT_WORK_TREE": str(original),
         }
@@ -1916,6 +2151,7 @@ class TestDriver(ConfirmCase):
             self.assertEqual([entry["kind"] for entry in resumelib.active_entries(root)], ["consolidate"])
 
             os.environ[resumelib.INVOCATION_ENV] = "invocation-2"
+            _start_new_process(self)
             os.environ[resumelib.MANUAL_ENV] = "1"
             resumed_cfg = self.cfg(ws, "T", adapter=adapter)
             self.assertEqual(C.run_parallel_confirmation(resumed_cfg), 0)
@@ -1950,10 +2186,336 @@ class TestDriver(ConfirmCase):
 
         with mock.patch.object(C, "run_agent_blocking", agent):
             rc = C.run_parallel_confirmation(self.cfg(ws, "T"))
-        self.assertEqual(rc, 1)  # permanent failure wins over the simultaneous rate limit
+        # No caller replay is armed, so nothing would retry the rate-limited
+        # finding: the permanent failure wins and is not reported as 75.
+        self.assertEqual(rc, 1)
         cb = ws.work_dir("T") / "confirmed-bugs.md"
         self.assertTrue(cb.is_file())
         self.assertIn("2 incomplete", cb.read_text())  # both marked in the disposition summary
+
+    def _mixed_batch(self) -> tuple[Workspace, C.ConfirmConfig, dict[str, list[int]], list[str]]:
+        """MC-1 fails permanently, MC-2 is rate-limited, MC-3 is never started, MC-4 is cached."""
+        findings = [
+            {"id": fid, "source": "model-checking", "title": fid, "summary": "s"}
+            for fid in ("MC-1", "MC-2", "MC-3", "MC-4")
+        ]
+        ws = self.seed("T", findings)
+        cfg = self.cfg(ws, "T", max_parallel=1)
+        cached = C.load_findings(cfg)[3]
+        C._save_verdict(C.Outcome(cached, "NEEDS MORE INFO", True, 0, EVIDENCE), cfg)
+        plan: dict[str, list[int]] = {"MC-1": [9], "MC-2": [75], "MC-3": []}
+        calls: list[str] = []
+        return ws, cfg, plan, calls
+
+    @staticmethod
+    def _planned_agent(plan: dict[str, list[int]], calls: list[str]) -> Callable[..., tuple[int, str]]:
+        def agent(*args: object, **_kwargs: object) -> tuple[int, str]:
+            fid = Path(str(args[2])).parent.name
+            calls.append(fid)
+            rc = plan[fid].pop(0) if plan[fid] else 0
+            return (rc, _response("FALSE POSITIVE") if rc == 0 else "")
+
+        return agent
+
+    def test_armed_replay_retries_rate_limited_findings_beside_a_permanent_failure(self) -> None:
+        ws, cfg, plan, calls = self._mixed_batch()
+        report = ws.work_dir("T") / "confirmed-bugs.md"
+        agent = self._planned_agent(plan, calls)
+
+        with mock.patch.object(C, "run_agent_blocking", agent):
+            first_rc = C.run_parallel_confirmation(cfg, retain_rate_limited_state=True)
+        # MC-1's permanent failure does not cancel the wait-and-retry of MC-2/MC-3.
+        self.assertEqual(first_rc, 75)
+        self.assertEqual(calls, ["MC-1", "MC-2"])
+        text = report.read_text()
+        self.assertIn("| 1 | MC-1 | INCOMPLETE |", text)
+        self.assertIn("| 2 | MC-2 | INCOMPLETE |", text)
+        self.assertIn("| 3 | MC-3 | INCOMPLETE |", text)
+        self.assertIn("not started because another finding was rate-limited", text)
+        self.assertIn("| 4 | MC-4 | NEEDS MORE INFO |", text)
+        # Only the rate-limited finding keeps a runtime lease for the replay.
+        self.assertEqual(set(cfg._finding_leases), {"MC-2"})
+
+        # The replay keeps the cached verdict and re-attempts every uncached
+        # finding, including the one that failed permanently.
+        plan["MC-1"].append(9)
+        calls.clear()
+        with mock.patch.object(C, "run_agent_blocking", agent):
+            second_rc = C.run_parallel_confirmation(cfg, retain_rate_limited_state=True)
+        self.assertEqual(calls, ["MC-1", "MC-2", "MC-3"])
+        # No rate-limited finding remains, so the persisting failure is reported.
+        self.assertEqual(second_rc, 1)
+        self.assertEqual(cfg._finding_leases, {})
+        text = report.read_text()
+        self.assertIn("| 1 | MC-1 | INCOMPLETE |", text)
+        self.assertIn("| 2 | MC-2 | FALSE POSITIVE |", text)
+        self.assertIn("| 3 | MC-3 | FALSE POSITIVE |", text)
+        self.assertIn("| 4 | MC-4 | NEEDS MORE INFO |", text)
+
+        # A later run re-attempts only the still-uncached finding.
+        calls.clear()
+        with mock.patch.object(C, "run_agent_blocking", agent):
+            self.assertEqual(C.run_parallel_confirmation(cfg), 0)
+        self.assertEqual(calls, ["MC-1"])
+
+    def test_permanent_failure_wins_when_no_replay_follows(self) -> None:
+        ws, cfg, plan, calls = self._mixed_batch()
+        agent = self._planned_agent(plan, calls)
+
+        with mock.patch.object(C, "run_agent_blocking", agent):
+            self.assertEqual(C.run_parallel_confirmation(cfg, retain_rate_limited_state=True), 75)
+        # The last permitted replay hits the limit again: with no further replay
+        # armed, the permanent failure is reported instead of 75.
+        plan["MC-1"].append(9)
+        plan["MC-2"].append(75)
+        calls.clear()
+        with mock.patch.object(C, "run_agent_blocking", agent):
+            self.assertEqual(C.run_parallel_confirmation(cfg), 1)
+        self.assertEqual(calls, ["MC-1", "MC-2"])
+        self.assertEqual(cfg._finding_leases, {})
+        text = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
+        for row in ("| 1 | MC-1 | INCOMPLETE |", "| 2 | MC-2 | INCOMPLETE |", "| 3 | MC-3 | INCOMPLETE |"):
+            self.assertIn(row, text)
+        self.assertIn("| 4 | MC-4 | NEEDS MORE INFO |", text)
+        for fid in ("MC-1", "MC-2", "MC-3"):
+            self.assertFalse((ws.work_dir("T") / "confirmation" / fid / "verdict.json").exists())
+
+    def test_armed_replay_with_resume_ledger_retries_the_permanent_failure_fresh(self) -> None:
+        findings = [{"id": fid, "source": "model-checking", "title": fid, "summary": "s"} for fid in ("MC-1", "MC-2")]
+        ws = self.seed("T", findings)
+        root = Path(self.tmp)
+        adapter = root / "mixed-adapter.sh"
+        adapter.write_text(
+            "#!/bin/sh\n"
+            "set -eu\n"
+            "prompt= log= resume=\n"
+            'for arg do case "$arg" in\n'
+            "  --prompt-file=*) prompt=${arg#*=} ;;\n"
+            "  --log=*) log=${arg#*=} ;;\n"
+            "  --resume-state=*) resume=${arg#*=} ;;\n"
+            "esac; done\n"
+            'fid=$(basename "$(dirname "$prompt")")\n'
+            'printf x >> "$CAPTURE/$fid.count"\n'
+            'attempt=$(wc -c < "$CAPTURE/$fid.count")\n'
+            'cp "$prompt" "$CAPTURE/$fid-prompt-$attempt"\n'
+            'if [ -f "$resume" ]; then cp "$resume" "$CAPTURE/$fid-resume-$attempt"; fi\n'
+            'if [ "$attempt" -eq 1 ]; then\n'
+            '  printf "session-%s" "$fid" > "$resume"\n'
+            '  printf "failed\\n" > "$log"\n'
+            '  if [ "$fid" = MC-1 ]; then exit 9; fi\n'
+            "  exit 75\n"
+            "fi\n"
+            'printf \'%s\\n\' "$FALSE_POSITIVE" > "$log"\n'
+        )
+        adapter.chmod(0o755)
+        resumelib.initialize_run(root)
+        resumelib.save_configuration(root, {"agent": adapter.stem})
+        cfg = self.cfg(ws, "T", adapter=adapter, max_parallel=1)
+        env = {
+            "CAPTURE": str(root),
+            "FALSE_POSITIVE": _response("FALSE POSITIVE"),
+            resumelib.INVOCATION_ENV: "invocation-1",
+        }
+        with mock.patch.dict(os.environ, env, clear=False):
+            os.environ.pop(resumelib.MANUAL_ENV, None)
+            os.environ.pop(resumelib.FRESH_ENV, None)
+            self.assertEqual(C.run_parallel_confirmation(cfg, retain_rate_limited_state=True), 75)
+            self.assertEqual(
+                sorted(entry["finding_id"] for entry in resumelib.active_entries(root)),
+                ["MC-1", "MC-2"],
+            )
+            self.assertEqual(C.run_parallel_confirmation(cfg, retain_rate_limited_state=True), 0)
+            self.assertEqual(resumelib.active_entries(root), [])
+
+        self.assertEqual((root / "MC-1.count").read_text(), "xx")
+        self.assertEqual((root / "MC-2.count").read_text(), "xx")
+        # The failed finding starts over with its original request; the
+        # rate-limited one continues its exact session.
+        self.assertEqual((root / "MC-1-prompt-2").read_text(), (root / "MC-1-prompt-1").read_text())
+        self.assertFalse((root / "MC-1-resume-2").exists())
+        self.assertEqual((root / "MC-2-prompt-2").read_text(), PhaseLib._SESSION_RESUME_PROMPT)
+        self.assertEqual((root / "MC-2-resume-2").read_text(), "session-MC-2")
+        text = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
+        self.assertIn("| 1 | MC-1 | FALSE POSITIVE |", text)
+        self.assertIn("| 2 | MC-2 | FALSE POSITIVE |", text)
+
+    def _run_confirmation_phase(
+        self, retries: int, plan: dict[str, list[int]]
+    ) -> tuple[Workspace, int, int, list[str]]:
+        """Drive the real phase retry loop over the real driver.
+
+        Returns the workspace, the phase code, the number of quota waits, and
+        the finding turns started, in order (max_parallel=1).
+        """
+        findings = [{"id": fid, "source": "model-checking", "title": fid, "summary": "s"} for fid in plan]
+        ws = self.seed("T", findings)
+        work = ws.work_dir("T")
+        candidates = (work / "spec" / "candidates.json").read_text()
+        (work / "spec" / "bug-report.md").write_text("# Bug report\n")
+        (work / "modeling-brief.md").write_text("# Brief\n")
+        repo = _git_repo(Path(self.tmp) / "artifact")
+        calls: list[str] = []
+
+        def agent(*args: object, **_kwargs: object) -> tuple[int, str]:
+            fid = Path(str(args[2])).parent.name
+            if fid == "spec":  # step 0 rewrites the same candidates
+                (work / "spec" / "candidates.json").write_text(candidates)
+                return (0, "")
+            calls.append(fid)
+            rc = plan[fid].pop(0) if plan[fid] else 0
+            return (rc, _response("FALSE POSITIVE") if rc == 0 else "")
+
+        waits: list[int] = []
+        env = {"SPECULAR_RATE_LIMIT_REACTIVE": "1", "SPECULAR_RATE_LIMIT_RETRIES": str(retries)}
+        with (
+            mock.patch.dict(os.environ, env, clear=False),
+            mock.patch.object(C, "run_agent_blocking", agent),
+            mock.patch.object(PhaseLib.Phase, "_wait_for_rate_limit", lambda _self: waits.append(1)),
+            mock.patch.object(PhaseLib.Phase, "_acceptance", lambda _self, _ws, _names: None),
+        ):
+            code = PhaseLib.BugConfirmationPhase().run([f"--artifact={repo}", "--max-parallel=1", "T"])
+        return ws, code, len(waits), calls
+
+    def test_phase_replays_rate_limited_findings_beside_a_permanent_failure(self) -> None:
+        # MC-1 fails permanently, MC-2 completes, MC-3 hits the limit, and
+        # MC-4 is never started.
+        plan = {"MC-1": [9, 9], "MC-2": [0], "MC-3": [75], "MC-4": []}
+
+        ws, code, waits, calls = self._run_confirmation_phase(2, plan)
+
+        self.assertEqual(waits, 1)
+        # The replay re-attempts MC-1 and keeps MC-2's verdict from the first pass.
+        self.assertEqual(calls, ["MC-1", "MC-2", "MC-3", "MC-1", "MC-3", "MC-4"])
+        self.assertEqual(code, 1)
+        text = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
+        self.assertIn("| 1 | MC-1 | INCOMPLETE |", text)
+        for row in ("| 2 | MC-2 | FALSE POSITIVE |", "| 3 | MC-3 | FALSE POSITIVE |", "| 4 | MC-4 | FALSE POSITIVE |"):
+            self.assertIn(row, text)
+
+    def test_phase_reports_permanent_failure_once_rate_limit_retries_are_exhausted(self) -> None:
+        plan = {"MC-1": [9, 9], "MC-2": [75, 75], "MC-3": []}
+
+        ws, code, waits, calls = self._run_confirmation_phase(1, plan)
+
+        self.assertEqual(waits, 1)
+        self.assertEqual(calls, ["MC-1", "MC-2", "MC-1", "MC-2"])
+        self.assertEqual(code, 1)
+        text = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
+        for row in ("| 1 | MC-1 | INCOMPLETE |", "| 2 | MC-2 | INCOMPLETE |", "| 3 | MC-3 | INCOMPLETE |"):
+            self.assertIn(row, text)
+
+    def test_armed_replay_still_reports_an_exclusively_permanent_failure(self) -> None:
+        findings = [{"id": fid, "source": "model-checking", "title": fid, "summary": "s"} for fid in ("MC-1", "MC-2")]
+        ws = self.seed("T", findings)
+        plan: dict[str, list[int]] = {"MC-1": [9], "MC-2": []}
+        calls: list[str] = []
+        with mock.patch.object(C, "run_agent_blocking", self._planned_agent(plan, calls)):
+            rc = C.run_parallel_confirmation(self.cfg(ws, "T"), retain_rate_limited_state=True)
+        self.assertEqual(rc, 1)
+        self.assertEqual(sorted(calls), ["MC-1", "MC-2"])
+
+    def _interrupted_batch(self) -> tuple[Workspace, Path, Callable[[str], int]]:
+        """Leave MC-1..MC-3 with interrupted conversations and MC-4 unstarted.
+
+        The returned callable runs the next invocation of the same run; each
+        finding's adapter exit codes come from ``plan-<id>``, one per attempt.
+        """
+        fids = ("MC-1", "MC-2", "MC-3", "MC-4")
+        ws = self.seed("T", [{"id": fid, "source": "model-checking", "title": fid, "summary": "s"} for fid in fids])
+        root = Path(self.tmp)
+        adapter = root / "planned-adapter.sh"
+        adapter.write_text(
+            "#!/bin/sh\n"
+            "set -eu\n"
+            "prompt= log= resume=\n"
+            'for arg do case "$arg" in\n'
+            "  --prompt-file=*) prompt=${arg#*=} ;;\n"
+            "  --log=*) log=${arg#*=} ;;\n"
+            "  --resume-state=*) resume=${arg#*=} ;;\n"
+            "esac; done\n"
+            'fid=$(basename "$(dirname "$prompt")")\n'
+            'printf \'%s\\n\' "$fid" >> "$CAPTURE/calls"\n'
+            'printf x >> "$CAPTURE/$fid.count"\n'
+            'attempt=$(wc -c < "$CAPTURE/$fid.count")\n'
+            'code=$(sed -n "${attempt}p" "$CAPTURE/plan-$fid")\n'
+            'if [ "${code:-0}" -ne 0 ]; then\n'
+            '  if [ -n "$resume" ]; then printf "session-%s" "$fid" > "$resume"; fi\n'
+            '  printf "failed\\n" > "$log"\n'
+            '  exit "$code"\n'
+            "fi\n"
+            'printf \'%s\\n\' "$FALSE_POSITIVE" > "$log"\n'
+        )
+        adapter.chmod(0o755)
+        resumelib.initialize_run(root)
+        resumelib.save_configuration(root, {"agent": adapter.stem})
+        # First invocation: MC-1 and MC-2 fail permanently, MC-3 hits the rate
+        # limit, and MC-4 is never started. All three conversations stay open.
+        for fid, plan in (("MC-1", "9"), ("MC-2", "9"), ("MC-3", "75"), ("MC-4", "")):
+            (root / f"plan-{fid}").write_text(plan + "\n")
+
+        def invoke(invocation: str, *, attach: bool = True) -> int:
+            env = {
+                "CAPTURE": str(root),
+                "FALSE_POSITIVE": _response("FALSE POSITIVE"),
+                resumelib.INVOCATION_ENV: invocation,
+            }
+            with mock.patch.dict(os.environ, env, clear=False):
+                os.environ.pop(resumelib.MANUAL_ENV, None)
+                os.environ.pop(resumelib.FRESH_ENV, None)
+                if attach:  # `specular run --run-id` on the same run
+                    os.environ[resumelib.MANUAL_ENV] = "1"
+                return C.run_parallel_confirmation(self.cfg(ws, "T", adapter=adapter, max_parallel=1))
+
+        self.assertEqual(invoke("invocation-1", attach=False), 1)
+        self.assertEqual(
+            [entry["finding_id"] for entry in resumelib.active_entries(root)],
+            ["MC-1", "MC-2", "MC-3"],
+        )
+        (root / "calls").unlink()
+        return ws, root, invoke
+
+    def test_permanent_restore_failure_does_not_block_other_findings(self) -> None:
+        ws, root, invoke = self._interrupted_batch()
+        # MC-1 fails again when restored; everything else would now succeed.
+        (root / "plan-MC-1").write_text("9\n9\n")
+
+        self.assertEqual(invoke("invocation-2"), 1)
+
+        # MC-1 is restored first, but its failure no longer keeps the other
+        # restorations and the unstarted MC-4 from running.
+        self.assertEqual((root / "calls").read_text().split(), ["MC-1", "MC-2", "MC-3", "MC-4"])
+        text = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
+        self.assertIn("| 1 | MC-1 | INCOMPLETE |", text)
+        for row in ("| 2 | MC-2 | FALSE POSITIVE |", "| 3 | MC-3 | FALSE POSITIVE |", "| 4 | MC-4 | FALSE POSITIVE |"):
+            self.assertIn(row, text)
+        self.assertEqual([entry["finding_id"] for entry in resumelib.active_entries(root)], ["MC-1"])
+
+    def test_rate_limited_restore_still_stops_the_batch(self) -> None:
+        ws, root, invoke = self._interrupted_batch()
+        # MC-1 fails again and MC-2 hits the limit while being restored.
+        (root / "plan-MC-1").write_text("9\n9\n")
+        (root / "plan-MC-2").write_text("9\n75\n")
+        reported: list[C.Outcome] = []
+
+        def capture(cfg: C.ConfirmConfig, outcomes: list[C.Outcome]) -> None:
+            reported.extend(outcomes)
+            real_aggregate(cfg, outcomes)
+
+        real_aggregate = C.aggregate
+        with mock.patch.object(C, "aggregate", capture):
+            self.assertEqual(invoke("invocation-2"), 1)
+
+        # The permanent failure does not stop restoration; the rate limit does.
+        self.assertEqual((root / "calls").read_text().split(), ["MC-1", "MC-2"])
+        # Only MC-1 failed; the findings stopped by the rate limit stay retryable.
+        self.assertEqual(
+            {outcome.finding.id: outcome.failure_code for outcome in reported},
+            {"MC-1": 1, "MC-2": 75, "MC-3": 75, "MC-4": 75},
+        )
+        text = (ws.work_dir("T") / "confirmed-bugs.md").read_text()
+        for fid in ("MC-1", "MC-2", "MC-3", "MC-4"):
+            self.assertIn(f"| {fid[-1]} | {fid} | INCOMPLETE |", text)
+        self.assertIn("not started while an interrupted conversation was being restored", text)
 
     def test_cache_write_failure_is_incomplete_delivers(self) -> None:
         # A _save_verdict failure (disk full) makes the finding INCOMPLETE and still
@@ -2443,6 +3005,63 @@ class TestRepairScopedConfirmation(ConfirmCase):
         mc2_body = json.loads((ws.work_dir(name) / "confirmation" / "MC-2" / "verdict.json").read_text())["body"]
         self.assertEqual(mc2_body.count("## Repair round 1 evidence"), 1)
 
+    def test_exit_code_ignores_carried_incomplete_rows_and_judges_current_violations(self) -> None:
+        name = "T"
+        ws = Workspace([name])
+        old_mc = self.mc(ws, name, "MC-1", "old artifact")
+        code_review = {
+            "id": "CR-1",
+            "source": "code-review",
+            "title": "review finding",
+            "summary": "review analysis",
+        }
+        spec = ws.work_dir(name) / "spec"
+        spec.mkdir(parents=True, exist_ok=True)
+        (spec / "candidates.json").write_text(json.dumps({"findings": [old_mc, code_review]}))
+        initial_cfg = self.cfg(ws, name)
+        mc_finding = C.Finding(old_mc, ws.work_dir(name) / "confirmation" / "MC-1")
+        mc_finding.fdir.mkdir(parents=True, exist_ok=True)
+        (mc_finding.fdir / "repair-request.body.md").write_text(TestMergeRR.AGENT_BODY)
+        pending = C.Outcome(mc_finding, "PENDING REPAIR", True, 0, "ORIGINAL PENDING EVIDENCE", bug_no=1)
+        pending.rr = C.allocate_rr(initial_cfg, pending)
+        C._save_verdict(pending, initial_cfg)
+        # The ordinary pass left CR-1 INCOMPLETE (uncached) after a rate limit.
+        review_finding = C.Finding(code_review, ws.work_dir(name) / "confirmation" / "CR-1")
+        unfinished = C.Outcome(review_finding, C.INCOMPLETE, False, 0, "RATE-LIMITED BEFORE A VERDICT", bug_no=2)
+        C.aggregate(initial_cfg, [pending, unfinished])
+        request = spec / "repair-requests" / f"{pending.rr}.md"
+        request.write_text(
+            request.read_text().replace("status: OPEN", "status: CONSUMED", 1)
+            + "- r1 (phase3-repair): fixed the model; MC-2 remains\n"
+        )
+        cfg = self.commit(ws, name, [self.mc(ws, name, "MC-2")], [str(pending.rr)])
+        calls: list[str] = []
+
+        def agent(rc: int, text: str = "") -> Callable[..., tuple[int, str]]:
+            def run(*args: object, **_kwargs: object) -> tuple[int, str]:
+                calls.append(Path(str(args[2])).parent.name)
+                return (rc, text)
+
+            return run
+
+        # An unfinished current violation still decides the code.
+        with mock.patch.object(C, "run_agent_blocking", agent(75)):
+            self.assertEqual(C.run_parallel_confirmation(cfg), 75)
+        with mock.patch.object(C, "run_agent_blocking", agent(2)):
+            self.assertEqual(C.run_parallel_confirmation(cfg), 1)
+        # Once it has a verdict, the carried INCOMPLETE row does not fail the pass,
+        # neither now nor on a resume that finds the verdict cached.
+        with mock.patch.object(C, "run_agent_blocking", agent(0, _response("FALSE POSITIVE"))):
+            self.assertEqual(C.run_parallel_confirmation(cfg), 0)
+        with mock.patch.object(C, "run_agent_blocking", _boom):
+            self.assertEqual(C.run_parallel_confirmation(cfg), 0)
+
+        self.assertEqual(calls, ["MC-2", "MC-2", "MC-2"])
+        report = (ws.work_dir(name) / "confirmed-bugs.md").read_text()
+        self.assertIn("| 2 | CR-1 | INCOMPLETE |", report)
+        self.assertIn("RATE-LIMITED BEFORE A VERDICT", report)
+        self.assertIn("| 3 | MC-2 | FALSE POSITIVE |", report)
+
     def test_reused_id_still_runs_and_continues_evidence_without_global_generation(self) -> None:
         name = "T"
         ws = Workspace([name])
@@ -2574,13 +3193,13 @@ class TestRepairScopedConfirmation(ConfirmCase):
         prior = C.Outcome(finding, "PENDING REPAIR", True, 0, "BASE EVIDENCE")
         first = (
             "## Repair round 1 evidence\n"
-            "<!-- specula-repair-token: 11111111111111111111111111111111 -->\n"
+            "<!-- specular-repair-token: 11111111111111111111111111111111 -->\n"
             "- **Phase 3 result**: first process result"
         )
         prior.body = C._merge_repair_evidence(prior, first, None, 1)
         second = (
             "## Repair round 1 evidence\n"
-            "<!-- specula-repair-token: 22222222222222222222222222222222 -->\n"
+            "<!-- specular-repair-token: 22222222222222222222222222222222 -->\n"
             "- **Phase 3 result**: restarted process result"
         )
 
@@ -2916,6 +3535,101 @@ class TestPromptExtraAndLog(ConfirmCase):
         f = C.Finding({"id": "MC-1", "title": "t", "summary": "s"}, ws.work_dir("T") / "confirmation" / "MC-1")
         self.assertIn("CHECK THE FOO RACE", C.prompt_reproduce(cfg, f, "/repo"))
 
+    def _isolate_notes_env(self) -> None:
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        os.environ[notes.NOTES_ENV] = "on"
+
+    def test_finding_turns_read_shared_notes_but_write_only_their_finding_dir(self) -> None:
+        self._isolate_notes_env()
+        ws = self.seed("T", [])
+        extra = "\n## Target-Specific Instructions\n\nCHECK THE FOO RACE"
+        cfg = self.cfg(ws, "T", prompt_extra=extra)
+        f = self.finding(ws, "T")
+        section = notes.worker_notes_section(ws.work_dir("T").absolute(), f.fdir.absolute())
+        self.assertIn(str(f.fdir.absolute()), section)
+        self.assertIn("Do not edit the shared notes", section)
+        for prompt in (
+            C.prompt_reproduce(cfg, f, "/repo"),
+            C.prompt_challenge(cfg, f, "/repo", "/debate.md"),
+            C.prompt_defend(cfg, f, "/repo", "/debate.md"),
+        ):
+            self.assertEqual(prompt.count("## Working Notes"), 1)
+            self.assertTrue(prompt.endswith(section + extra))
+        # A focused draft correction redoes no investigation and gets no notes.
+        retry = C.prompt_repair_draft_retry(cfg, f, "/repo", "warn", Path("/prev.log"))
+        self.assertNotIn("Working Notes", retry)
+        self.assertNotIn("Working Notes", C.prompt_issue_fix(cfg, f, "REPRODUCED", "title too long"))
+
+    def test_notes_off_restores_worker_prompts_and_verdict_fingerprint(self) -> None:
+        self._isolate_notes_env()
+        ws = self.seed("T", [])
+        cfg = self.cfg(ws, "T")
+        f = self.finding(ws, "T")
+        identities: list[dict[str, Any]] = []
+        real_digest = C._digest
+
+        def capture(value: Any) -> str:
+            if isinstance(value, dict) and "prompts" in value:
+                identities.append(value)
+            return real_digest(value)
+
+        def worker_prompts() -> list[str]:
+            return [
+                C.prompt_reproduce(cfg, f, "/repo"),
+                C.prompt_challenge(cfg, f, "/repo", "/debate.md"),
+                C.prompt_defend(cfg, f, "/repo", "/debate.md"),
+            ]
+
+        on_prompts = worker_prompts()
+        section = notes.worker_notes_section(ws.work_dir("T").absolute(), f.fdir.absolute())
+        with mock.patch.object(C, "_digest", side_effect=capture):
+            on_fingerprint = C._verdict_fingerprint(cfg, f)
+        os.environ[notes.NOTES_ENV] = "off"
+        off_prompts = worker_prompts()
+        with mock.patch.object(C, "_digest", side_effect=capture):
+            off_fingerprint = C._verdict_fingerprint(cfg, f)
+
+        for on, off in zip(on_prompts, off_prompts, strict=True):
+            self.assertNotIn("Working Notes", off)
+            self.assertEqual(on.replace(section, "", 1), off)
+        self.assertNotEqual(on_fingerprint, off_fingerprint)
+        self.assertEqual(identities[0]["notes"], (P.PROMPTS_DIR / "optional/notes-worker.md").read_text())
+        # Off omits the key entirely, so fingerprints saved before notes existed stay valid.
+        self.assertNotIn("notes", identities[1])
+        self.assertEqual({key: value for key, value in identities[0].items() if key != "notes"}, identities[1])
+
+    def test_rules_off_restores_verdict_fingerprint(self) -> None:
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        os.environ[rules.RULES_ENV] = "on"
+        ws = self.seed("T", [])
+        cfg = self.cfg(ws, "T")
+        f = self.finding(ws, "T")
+        identities: list[dict[str, Any]] = []
+        real_digest = C._digest
+
+        def capture(value: Any) -> str:
+            if isinstance(value, dict) and "prompts" in value:
+                identities.append(value)
+            return real_digest(value)
+
+        with mock.patch.object(C, "_digest", side_effect=capture):
+            on_fingerprint = C._verdict_fingerprint(cfg, f)
+        os.environ[rules.RULES_ENV] = "off"
+        with mock.patch.object(C, "_digest", side_effect=capture):
+            off_fingerprint = C._verdict_fingerprint(cfg, f)
+
+        self.assertNotEqual(on_fingerprint, off_fingerprint)
+        # The template text, never a rendered path-bearing prompt.
+        self.assertEqual(identities[0]["rules"], (P.PROMPTS_DIR / "optional/rules.md").read_text())
+        # Off omits the key entirely, so fingerprints saved before rule pinning stay valid.
+        self.assertNotIn("rules", identities[1])
+        self.assertEqual({key: value for key, value in identities[0].items() if key != "rules"}, identities[1])
+        self.assertTrue(all("issue-fix.md" in identity["prompts"] for identity in identities))
+
     def test_parallel_prompts_assign_rr_queue_only_to_dispatcher(self) -> None:
         ws = self.seed("T", [])
         cfg = self.cfg(ws, "T")
@@ -2936,8 +3650,8 @@ class TestPromptExtraAndLog(ConfirmCase):
 
         prompt = C.prompt_reproduce(cfg, f, "/repo")
 
-        self.assertIn("installed Specula skill **bug-confirmation**", prompt)
-        self.assertIn("<!-- specula-skill:", prompt)
+        self.assertIn("installed Specular skill **bug-confirmation**", prompt)
+        self.assertIn("<!-- specular-skill:", prompt)
         self.assertIn(":bug-confirmation -->", prompt)
         self.assertNotIn("$bug-confirmation", prompt)
         self.assertNotIn("/skills/", prompt)
@@ -3137,7 +3851,13 @@ class TestCacheContracts(ConfirmCase):
         with mock.patch.object(C, "_skill_identity", return_value={"guide": "v1"}):
             C._write_candidate_cache(cfg, candidates)
             C._save_verdict(C.Outcome(finding, "FALSE POSITIVE", True, 0, EVIDENCE), cfg)
-            for field, value in (("model", "gpt-5.5"), ("model", ""), ("effort", "high"), ("effort", "")):
+            for field, value in (
+                ("model", "gpt-5.5"),
+                ("model", ""),
+                ("effort", "high"),
+                ("effort", ""),
+                ("codex_profile", "glm"),
+            ):
                 with self.subTest(field=field, value=value):
                     setattr(cfg, field, value)
                     self.assertFalse(C._candidate_cache_valid(cfg, candidates, None))
@@ -3145,6 +3865,12 @@ class TestCacheContracts(ConfirmCase):
                     setattr(cfg, field, None)
                     self.assertTrue(C._candidate_cache_valid(cfg, candidates, None))
                     self.assertIsNotNone(C._load_verdict(finding, cfg))
+
+    def test_tuning_identity_records_codex_profile_only_when_selected(self) -> None:
+        cfg = C.ConfirmConfig(name="T", ws=Workspace(["T"]), adapter=Path("/x/codex.sh"), worktree=False)
+        self.assertNotIn("codex_profile", C._tuning_identity(cfg))
+        cfg.codex_profile = "glm"
+        self.assertEqual(C._tuning_identity(cfg)["codex_profile"], {"source": "specular", "value": "glm"})
 
     def test_tuning_identity_records_opencode_and_pi_environment_sources(self) -> None:
         cases = (
@@ -3482,7 +4208,7 @@ class TestValidationContracts(ConfirmCase):
     def test_expected_brief_scenarios_reads_scenario_headings(self) -> None:
         brief = Path(self.tmp) / "modeling-brief.md"
         brief.write_text("## Scenario 1: Current\n### Scenario 3: Current\n")
-        self.assertEqual(C._expected_brief_scenarios(brief), {"Scenario 1", "Scenario 3"})
+        self.assertEqual(C._expected_brief_scenarios(brief.parent), {"Scenario 1", "Scenario 3"})
 
     def test_mc_immutability_no_longer_enforced(self) -> None:
         # Relaxed: a changed source field / a missing counterexample no longer fails.
@@ -3513,6 +4239,29 @@ class TestValidationContracts(ConfirmCase):
                 self.assertEqual(C.run_parallel_confirmation(self.cfg(ws, f"T{rc}")), 1)
             verdict = ws.work_dir(f"T{rc}") / "confirmation" / "MC-1" / "verdict.json"
             self.assertFalse(verdict.exists())  # not cached
+
+    def test_reproduced_accepts_a_repro_written_under_the_finding_directory(self) -> None:
+        ws = self.seed("T", [{"id": "MC-1", "source": "model-checking", "title": "t", "summary": "s"}])
+        finding = self.finding(ws, "T")
+        repro = finding.fdir / "repro" / "test_bugMC-1_case.py"
+
+        def turn(*_args: object, **_kwargs: object) -> tuple[int, str]:
+            # `repro/...` resolved relative to the worker's finding directory.
+            repro.parent.mkdir(parents=True, exist_ok=True)
+            repro.write_text("assert True\n")
+            return (0, _response("REPRODUCED"))
+
+        with mock.patch.object(C, "run_agent_blocking", turn):
+            self.assertEqual(C.run_parallel_confirmation(self.cfg(ws, "T")), 0)
+        verdict = json.loads((finding.fdir / "verdict.json").read_text())
+        self.assertEqual(verdict["status"], "REPRODUCED")
+        self.assertEqual(list(verdict["artifacts"]["repro"]), [repro.name])
+        repro.write_text("")
+        with self.assertRaisesRegex(C.InvalidAgentOutput, "requires a non-empty"):
+            C._validate_final_artifacts(self.cfg(ws, "T"), finding, "REPRODUCED")
+        repro.unlink()
+        with self.assertRaisesRegex(C.InvalidAgentOutput, "requires a non-empty"):
+            C._validate_final_artifacts(self.cfg(ws, "T"), finding, "REPRODUCED")
 
     def test_rr_id_scans_deferred_and_never_overwrites(self) -> None:
         ws = self.seed("T", [])
@@ -3932,7 +4681,7 @@ class TestValidationContracts(ConfirmCase):
         rr_dir = ws.work_dir("T") / "spec" / "repair-requests"
 
         with (
-            mock.patch("specula.confirmlib.os.fsync", side_effect=OSError("disk full")),
+            mock.patch("specular.confirmlib.os.fsync", side_effect=OSError("disk full")),
             self.assertRaisesRegex(OSError, "disk full"),
         ):
             C.allocate_rr(cfg, outcome)
@@ -4142,7 +4891,7 @@ class TestValidationContracts(ConfirmCase):
 
         outcome.bug_no = 1
         with (
-            mock.patch("specula.confirmlib.os.replace", side_effect=OSError("interrupted")),
+            mock.patch("specular.confirmlib.os.replace", side_effect=OSError("interrupted")),
             self.assertRaisesRegex(OSError, "interrupted"),
         ):
             C.allocate_rr(cfg, outcome)
@@ -4262,7 +5011,7 @@ class TestRepoIsolation(ConfirmCase):
 
     def _repo_cfg(self, repo: Path, *, worktree: bool) -> tuple[C.ConfirmConfig, mock.Mock]:
         ws = mock.Mock()
-        ws.work_dir.return_value = repo / ".specula-output"
+        ws.work_dir.return_value = repo / ".specular-output"
         cfg = C.ConfirmConfig(name="T", ws=ws, adapter=Path("/x"), repo_dir=str(repo), worktree=worktree)
         return cfg, ws
 
@@ -4308,7 +5057,7 @@ class TestRepoIsolation(ConfirmCase):
             ws.work_dir("T") / "confirmation" / "MC-1",
         )
         ambient = {
-            "SPECULA_SOURCE_SNAPSHOT": "1",
+            "SPECULAR_SOURCE_SNAPSHOT": "1",
             "GIT_DIR": str(external / ".git"),
             "GIT_WORK_TREE": str(external),
         }
@@ -4559,6 +5308,57 @@ class TestRepoIsolation(ConfirmCase):
             with self.assertRaisesRegex(C.ConfirmationFailed, "inputs changed"):
                 C._load_lease(cfg, f)
 
+    def _abbreviated_index_fingerprint(self, cfg: C.ConfirmConfig, f: C.Finding) -> str:
+        """The fingerprint as computed before diff index names were hashed in full."""
+        run = subprocess.run
+
+        def abbreviated(args: list[str], *rest: Any, **kwargs: Any) -> Any:
+            return run([arg for arg in args if arg != "--full-index"], *rest, **kwargs)
+
+        with mock.patch("specular.confirmlib.subprocess.run", side_effect=abbreviated):
+            return C._verdict_fingerprint(cfg, f)
+
+    def test_cache_survives_longer_default_abbreviation(self) -> None:
+        repo = self._repo()
+        (repo / "tracked.txt").write_text("instrumented\n")
+        cfg, ws = self._repo_cfg(repo, worktree=True)
+        f = C.Finding({"id": "MC-1", "source": "model-checking"}, ws.work_dir("T") / "confirmation" / "MC-1")
+        C._save_verdict(C.Outcome(f, "FALSE POSITIVE", True, 0, EVIDENCE), cfg)
+        legacy = self._abbreviated_index_fingerprint(cfg, f)
+
+        # A fetch into the shared object store lengthens git's default abbreviation.
+        subprocess.run(["git", "-C", str(repo), "config", "core.abbrev", "12"], check=True)
+        self.assertNotEqual(self._abbreviated_index_fingerprint(cfg, f), legacy)
+        self.assertIsNotNone(C._load_verdict(f, cfg))
+
+    def test_fingerprint_with_abbreviated_index_names_stays_valid(self) -> None:
+        repo = self._repo()
+        (repo / "tracked.txt").write_text("instrumented\n")
+        cfg, ws = self._repo_cfg(repo, worktree=True)
+        f = C.Finding({"id": "MC-1", "source": "model-checking"}, ws.work_dir("T") / "confirmation" / "MC-1")
+        legacy = self._abbreviated_index_fingerprint(cfg, f)
+        self.assertNotEqual(legacy, C._verdict_fingerprint(cfg, f))
+        C._save_verdict(C.Outcome(f, "FALSE POSITIVE", True, 0, EVIDENCE, fingerprint=legacy), cfg)
+        root = Path(self.tmp)
+        resumelib.initialize_run(root)
+        resumelib.save_configuration(root, {"agent": "x"})
+        with mock.patch.dict(os.environ, {resumelib.INVOCATION_ENV: "first"}):
+            lease = cfg.acquire_finding_lease(f)
+            self.addCleanup(lease.cleanup)
+            lease.fingerprint = legacy
+            C._persist_lease(cfg, f, lease)
+
+            subprocess.run(["git", "-C", str(repo), "config", "core.abbrev", "9"], check=True)
+            cached = C._load_verdict(f, cfg)
+            assert cached is not None
+            self.assertEqual(cached.fingerprint, legacy)
+            self.assertEqual(C._load_lease(cfg, f).fingerprint, legacy)
+
+            (repo / "tracked.txt").write_text("changed\n")
+            self.assertIsNone(C._load_verdict(f, cfg))
+            with self.assertRaisesRegex(C.ConfirmationFailed, "inputs changed"):
+                C._load_lease(cfg, f)
+
     def test_repo_change_reuses_open_repair_then_allocates_after_consumed(self) -> None:
         repo = self._repo()
         cfg, ws = self._repo_cfg(repo, worktree=False)
@@ -4613,7 +5413,7 @@ class TestRepoIsolation(ConfirmCase):
                     raise C.RateLimited("quota")
                 finally:
                     failed_remove = mock.Mock(returncode=1, stderr="remove failed")
-                    with mock.patch("specula.confirmlib.subprocess.run", return_value=failed_remove):
+                    with mock.patch("specular.confirmlib.subprocess.run", return_value=failed_remove):
                         cleanup()
         finally:
             subprocess.run(["git", "-C", str(repo), "worktree", "remove", "--force", str(f.fdir / "worktree")])
@@ -4632,7 +5432,7 @@ class TestRepoIsolation(ConfirmCase):
                 raise PermissionError("denied")
             real_rmtree(path, *args, **kwargs)
 
-        with mock.patch("specula.confirmlib.shutil.rmtree", side_effect=fail_stale):
+        with mock.patch("specular.confirmlib.shutil.rmtree", side_effect=fail_stale):
             path, cleanup = C.setup_repo(cfg, f)
         try:
             wt = Path(path)

@@ -21,7 +21,7 @@ from types import ModuleType
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILL = ROOT / "skills/specula-lite"
+SKILL = ROOT / "skills/specular-lite"
 
 
 def load_module(path: Path) -> ModuleType:
@@ -40,8 +40,15 @@ class LiteSkillTests(unittest.TestCase):
         self.installed = self.root / "installed skill"
         shutil.copytree(SKILL, self.installed, ignore=shutil.ignore_patterns("__pycache__"))
         self.cache = self.root / "cache"
-        self.environment = {**os.environ, "SPECULA_LITE_CACHE": str(self.cache)}
+        self.environment = {**os.environ, "SPECULAR_LITE_CACHE": str(self.cache)}
         self.prepare = load_module(self.installed / "scripts/prepare.py")
+
+    @staticmethod
+    def jar_bytes(member: str = "tlc2/TLC.class") -> bytes:
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as jar:
+            jar.writestr(member, "fixture")
+        return buffer.getvalue()
 
     def test_bundle_matches_shared_sources(self) -> None:
         bundler = load_module(ROOT / "scripts/infra/bundle_lite.py")
@@ -76,6 +83,8 @@ class LiteSkillTests(unittest.TestCase):
 
     def test_preparation_reuses_valid_runtime_offline(self) -> None:
         self.cache.mkdir()
+        tla2tools = self.cache / "tla2tools-1.8.0.jar"
+        tla2tools.write_bytes(self.jar_bytes())
         jar = self.cache / "test.jar"
         jar.write_bytes(b"pinned jar")
         checksum = hashlib.sha256(jar.read_bytes()).hexdigest()
@@ -88,7 +97,7 @@ class LiteSkillTests(unittest.TestCase):
             first = self.prepare.prepare()
             second = self.prepare.prepare()
         self.assertEqual(first, second)
-        self.assertEqual(first["jars"], [str(jar)])
+        self.assertEqual(first["jars"], [str(tla2tools), str(jar)])
         self.assertTrue((Path(first["guides"]) / "code_analysis/guide.md").is_file())
 
     def test_download_rejects_checksum_mismatch_without_overwriting(self) -> None:
@@ -102,6 +111,45 @@ class LiteSkillTests(unittest.TestCase):
         self.assertEqual(destination.read_bytes(), b"previous")
         self.assertEqual(sorted(path.name for path in self.root.iterdir()), ["installed skill", "tool.jar"])
 
+    def test_tla2tools_is_downloaded_once_then_reused_offline(self) -> None:
+        cached = self.cache / "tla2tools-1.8.0.jar"
+        with (
+            mock.patch.dict(os.environ, self.environment),
+            mock.patch.object(
+                self.prepare.urllib.request, "urlopen", return_value=io.BytesIO(self.jar_bytes())
+            ) as network,
+        ):
+            self.assertEqual(self.prepare.ensure_tla2tools(), cached)
+        network.assert_called_once()
+        with (
+            mock.patch.dict(os.environ, self.environment),
+            mock.patch.object(self.prepare.urllib.request, "urlopen", side_effect=AssertionError("network used")),
+        ):
+            self.assertEqual(self.prepare.ensure_tla2tools(), cached)
+        self.assertEqual(cached.read_bytes(), self.jar_bytes())
+
+    def test_broken_cached_tla2tools_is_downloaded_again(self) -> None:
+        self.cache.mkdir()
+        cached = self.cache / "tla2tools-1.8.0.jar"
+        cached.write_bytes(b"truncated")
+        with (
+            mock.patch.dict(os.environ, self.environment),
+            mock.patch.object(self.prepare.urllib.request, "urlopen", return_value=io.BytesIO(self.jar_bytes())),
+        ):
+            self.assertEqual(self.prepare.ensure_tla2tools(), cached)
+        self.assertEqual(cached.read_bytes(), self.jar_bytes())
+
+    def test_tla2tools_download_without_tlc_is_not_installed(self) -> None:
+        with (
+            mock.patch.dict(os.environ, self.environment),
+            mock.patch.object(
+                self.prepare.urllib.request, "urlopen", return_value=io.BytesIO(self.jar_bytes("README"))
+            ),
+            self.assertRaisesRegex(RuntimeError, "not a TLA\\+ tools jar"),
+        ):
+            self.prepare.ensure_tla2tools()
+        self.assertEqual(list(self.cache.iterdir()), [])
+
     @unittest.skipUnless(os.name == "posix", "fixture uses a POSIX executable")
     def test_java_override_resolves_and_validates_the_executable_used_later(self) -> None:
         bin_dir = self.root / "java bin"
@@ -114,7 +162,7 @@ class LiteSkillTests(unittest.TestCase):
         for override in ("java", str(java), os.path.relpath(java)):
             with (
                 self.subTest(override=override),
-                mock.patch.dict(os.environ, {"PATH": str(bin_dir), "SPECULA_LITE_JAVA": override}),
+                mock.patch.dict(os.environ, {"PATH": str(bin_dir), "SPECULAR_LITE_JAVA": override}),
                 mock.patch.object(self.prepare, "java_works", wraps=self.prepare.java_works) as probe,
             ):
                 resolved = self.prepare.ensure_java()
@@ -132,9 +180,9 @@ class LiteSkillTests(unittest.TestCase):
         for override in ("missing-java", str(java)):
             with (
                 self.subTest(override=override),
-                mock.patch.dict(os.environ, {"PATH": str(self.root), "SPECULA_LITE_JAVA": override}),
+                mock.patch.dict(os.environ, {"PATH": str(self.root), "SPECULAR_LITE_JAVA": override}),
                 mock.patch.object(self.prepare, "download", side_effect=AssertionError("unexpected fallback")),
-                self.assertRaisesRegex(RuntimeError, "SPECULA_LITE_JAVA is not a working Java 21"),
+                self.assertRaisesRegex(RuntimeError, "SPECULAR_LITE_JAVA is not a working Java 21"),
             ):
                 self.prepare.ensure_java()
 
@@ -149,7 +197,7 @@ class LiteSkillTests(unittest.TestCase):
             bundle.addfile(entry, io.BytesIO(executable))
         checksum = hashlib.sha256(archive.read_bytes()).hexdigest()
         with (
-            mock.patch.dict(os.environ, {"SPECULA_LITE_CACHE": str(self.cache), "PATH": ""}, clear=True),
+            mock.patch.dict(os.environ, {"SPECULAR_LITE_CACHE": str(self.cache), "PATH": ""}, clear=True),
             mock.patch.object(self.prepare.platform, "system", return_value="Linux"),
             mock.patch.object(self.prepare.platform, "machine", return_value="x86_64"),
             mock.patch.object(self.prepare, "JAVA_HASHES", {("linux", "x64"): checksum}),

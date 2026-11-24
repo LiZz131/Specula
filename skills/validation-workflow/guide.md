@@ -27,7 +27,7 @@ These pull in opposite directions. Fixing trace failures may loosen the spec (in
 
 ### Required Artifacts
 
-All artifacts are relative to `.specula-output/`:
+All artifacts are relative to `.specular-output/`:
 
 | Artifact | Path | Description |
 |----------|------|-------------|
@@ -112,23 +112,28 @@ All artifacts are relative to `.specula-output/`:
 
 For each hunting config, alternate between BFS and simulation to maximize coverage:
 
-1. **BFS first** (30 min) — exhaustive within reachable diameter. Check the diameter achieved in TLC output.
-2. **If diameter ≤ 25** — the BFS run is too shallow to expose many bugs. Follow up with a **simulation run** (30 min) on the same config to reach deeper states.
-3. **If diameter > 25** — BFS coverage is likely sufficient. Simulation follow-up is optional.
+1. **BFS first** (30 min) — check in TLC output whether it exhausted the state space, and the depth reached.
+2. **If BFS did not exhaust the state space** — follow up with a **simulation run** (30 min) on the same config, with enough depth to reach the target interactions. Only an exhaustive BFS makes the simulation follow-up unnecessary.
 
 **Do NOT shrink config bounds to make BFS go deeper.** Counter bounds (timeout limits, crash limits, etc.) directly control which bug-triggering executions are reachable. Reducing them to fit BFS eliminates the very interleavings where bugs hide. When BFS is too shallow, use simulation for depth — not tighter bounds.
+
+### Liveness Configs
+
+Safety hunting comes first. Run the `MC_hunt_<scenario>_live.cfg` configs after the safety configs, and keep all liveness runs together to no more than about 30% of the bug-hunting time and compute. This is a guideline, not a gate: a liveness run cut off by its budget is recorded as inconclusive, not as a blocker.
+
+Liveness configs run BFS only, without the simulation follow-up, because simulation does not report most liveness violations. BFS has to finish before a liveness run can show that the property holds, so shrink constants unrelated to the property rather than the faults the property is about. A run without violation also needs a reachable premise (see "Check the result" in `spec_generation/references/liveness-pattern.md`). Read violations with the "Liveness Counterexamples" section of `tla-checking-workflow`.
 
 ### Steps
 
 1. Collect any `[bug]` entries already recorded in `changelog.md` during Phase 2 (Case C found during convergence) — these will be included in the final report
 2. For each `MC_hunt_*.cfg`:
-   - **Run 1 (BFS)**: Launch TLC model checking (30 min). Record diameter and state count from output.
-   - If violation found → **Case C** (real bug). Analyze counterexample: describe execution path, cross-reference with implementation code, identify root cause and affected code locations.
-   - If no violation and diameter ≤ 25 → **Run 2 (Simulation)**: Launch TLC simulation (30 min, `-S -n 999999999`) on the same config for deeper exploration.
+   - **Run 1 (BFS)**: Launch TLC model checking (30 min). Record whether it exhausted the state space, the depth, and the state count from output.
+   - If violation found → **Case C** (real bug). Analyze counterexample: describe execution path, cross-reference with implementation code, identify root cause and affected code locations. Then keep exploring the same config: rerun with `-C` (TLC `-continue`), or disable that property or filter the known counterexample, keeping the other properties enabled.
+   - If BFS did not exhaust the state space → **Run 2 (Simulation)**: Launch TLC simulation (30 min, `-S -n 999999999`) on the same config with enough depth to reach the target interactions. Skip this for liveness configs.
    - Save all TLC output to `spec/output/`
 3. Produce `spec/bug-report.md` with all findings — **read `references/bug-report-format.md`** for the template
 4. Produce `spec/findings.json` — a structured mirror of the same findings — **read `references/findings-json-format.md`** for the schema. Every `## Bug N` in the report gets exactly one entry; emit `"findings": []` (present, not missing) when no bugs are found.
-5. If no bugs found across all configs: still write the report (state space coverage, diameter achieved per config, + "no violations found")
+5. If no bugs found across all configs: still write the report (state space coverage, diameter achieved per config, whether each liveness config's BFS finished, + "no violations found")
 
 ---
 
@@ -144,6 +149,7 @@ Maintain a single `spec/changelog.md`. One line per fix, grouped by round.
 ## Round N - Model Checking
 - [fix-inv] InvariantName: brief description of invariant change (Case A)
 - [fix-spec] ActionName: brief description of spec change (Case B)
+- [fix-fairness] LiveSpec: fairness added or strengthened, with the `file:line` guaranteeing the action runs (Case B)
 - [bug] ActionName: brief description of real bug found (Case C)
 
 ## Result
@@ -180,4 +186,4 @@ Converged in N rounds. Bug hunting: M bugs found / no bugs found.
 
 ## Additional References
 
-For additional examples beyond the built-in ones, see the [Specula case-studies repository](https://github.com/specula-org/specula-case-studies) which contains 60+ completed case studies across distributed systems, consensus protocols, and concurrent data structures.
+For additional examples beyond the built-in ones, see the [Specular case-studies repository](https://github.com/specular-org/specula-case-studies) which contains 60+ completed case studies across distributed systems, consensus protocols, and concurrent data structures.

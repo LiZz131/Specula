@@ -9,12 +9,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from specula.agent_config import PHASES
-from specula.ci_phase import IncrementalPhase
-from specula.ci_workflow import CIPipeline
-from specula.phaselib import Workspace
-from specula.pipelinelib import Pipeline
-from specula.resumelib import ResumeError
+from specular.agent_config import PHASES
+from specular.ci_phase import IncrementalPhase
+from specular.ci_workflow import CIPipeline, failure_result
+from specular.phaselib import Workspace
+from specular.pipelinelib import Pipeline
+from specular.resumelib import ResumeError
 
 PHASE_FLAGS = (
     "--legacy-confirm",
@@ -59,7 +59,7 @@ class CIOptions(unittest.TestCase):
         ws = Workspace(["project"], run_dir=self.root)
         work = ws.work_dir("project")
         (work / "spec").mkdir(parents=True)
-        (work / "incremental.log").write_text(f"SPECULA_INCREMENTAL_COMPLETE {self.root.name}\n")
+        (work / "incremental.log").write_text(f"SPECULAR_INCREMENTAL_COMPLETE {self.root.name}\n")
         (work / "spec/.repair-phase3-snapshot.json").write_text("{}")
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
@@ -208,3 +208,34 @@ class CIOptions(unittest.TestCase):
                 self.assertIn("--policy-retries", text)
                 for flag in (*PHASE_FLAGS, "--skip-analysis", "--enable-reviews", "--fresh-context", "--byom"):
                     self.assertNotIn(flag.split("=", 1)[0], text)
+
+
+class FailureResult(unittest.TestCase):
+    def test_failure_categories_follow_the_exit_status_and_resume_state(self) -> None:
+        resume = "specular run --ci-dir=/ci --run-id=r1"
+        for code, saved, expected in (
+            (75, resume, ("provider", "rate_limit")),
+            (74, resume, ("provider", "temporary")),
+            (72, None, ("provider", "credentials")),
+            (76, resume, ("provider", "policy")),
+            (129, resume, ("interrupted", None)),
+            (130, resume, ("interrupted", None)),
+            (143, None, ("interrupted", None)),
+            (9, resume, ("incomplete", None)),
+            (1, resume, ("incomplete", None)),
+            (1, None, ("error", None)),
+            (137, None, ("error", None)),
+        ):
+            with self.subTest(code=code, resumable=saved is not None):
+                record = failure_result("r1", code, candidate=True, resume=saved)
+                self.assertEqual((record["failure"], record.get("reason")), expected)
+                self.assertEqual(
+                    {key: record[key] for key in ("run_id", "complete", "candidate", "exit_code", "resume")},
+                    {"run_id": "r1", "complete": False, "candidate": True, "exit_code": code, "resume": saved},
+                )
+                self.assertIsNone(record["usage"])
+
+    def test_failure_records_the_usage_spent_before_stopping(self) -> None:
+        usage = {"complete": True, "runtime_seconds": 3.0, "cost_usd": 0.02}
+        record = failure_result("r1", 75, candidate=False, resume=None, usage=usage)
+        self.assertEqual(record["usage"], usage)

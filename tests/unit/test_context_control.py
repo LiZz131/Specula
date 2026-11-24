@@ -16,17 +16,17 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from specula import context_control as control
-from specula import context_runner as runner
-from specula import native_compaction as native
-from specula.adapters.utils import event_stream
+from specular import context_control as control
+from specular import context_runner as runner
+from specular import native_compaction as native
+from specular.adapters.utils import event_stream
 
 
 def configure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
     work = tmp_path / "work"
     work.mkdir()
-    monkeypatch.setenv("SPECULA_PHASE", "incremental")
-    monkeypatch.setenv("SPECULA_WORK_DIR", str(work))
+    monkeypatch.setenv("SPECULAR_PHASE", "incremental")
+    monkeypatch.setenv("SPECULAR_WORK_DIR", str(work))
     monkeypatch.setenv(control.REQUEST_ENV, str(tmp_path / "request.json"))
     monkeypatch.setenv(control.TOKEN_ENV, "this-invocation")
     return work
@@ -48,7 +48,7 @@ def test_request_requires_saved_handoff_but_not_a_semantic_schema(
     outside.write_text("unrelated")
     with pytest.raises(ValueError):
         control.request_compaction(str(outside))
-    monkeypatch.setenv("SPECULA_PHASE", "code_analysis")
+    monkeypatch.setenv("SPECULAR_PHASE", "code_analysis")
     with pytest.raises(ValueError, match="incremental"):
         control.request_compaction("handoff.md")
 
@@ -81,7 +81,7 @@ def test_confirmation_request_uses_existing_inputs_and_requires_incremental_scop
     assert "confirmation" in result["instruction"]
     assert control.YIELD_PREFIX in result["instruction"]
     assert json.loads((tmp_path / "request.json").read_text()) == {"token": "this-invocation", "action": "confirm"}
-    monkeypatch.setenv("SPECULA_PHASE", "bug_confirmation_turn")
+    monkeypatch.setenv("SPECULAR_PHASE", "bug_confirmation_turn")
     with pytest.raises(ValueError, match="incremental"):
         control.request_confirmation()
 
@@ -104,6 +104,30 @@ async def test_mcp_discovery_and_real_tool_call(monkeypatch: pytest.MonkeyPatch,
     assert json.loads((tmp_path / "request.json").read_text())["handoff_path"] == str(work / "handoff.md")
 
 
+@pytest.mark.asyncio
+async def test_mcp_confirmation_returns_output_problems_as_the_tool_result(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from mcp import ClientSession, StdioServerParameters
+    from mcp.client.stdio import stdio_client
+
+    work = configure(monkeypatch, tmp_path)
+    monkeypatch.setenv("SPECULAR_PHASE", "main")
+    (work / "modeling-brief.md").write_text("## Scenario 1: CR candidate")
+    (work / "spec").mkdir()
+    (work / "spec/bug-report.md").write_text("No MC violation.")
+    server = Path(control.__file__).resolve().parents[2] / "tools/context_control/mcp_server.py"
+    params = StdioServerParameters(command=sys.executable, args=[str(server)], env=dict(os.environ))
+    async with stdio_client(params) as (reader, writer), ClientSession(reader, writer) as session:
+        await session.initialize()
+        result = await session.call_tool(control.CONFIRMATION_TOOL, {})
+    assert result.isError
+    text = "".join(getattr(item, "text", "") for item in result.content)
+    assert "Confirmation was not requested. Required outputs are missing or invalid" in text
+    assert "`spec/MC.tla` is missing" in text and "`spec/findings.json` is missing" in text
+    assert not (tmp_path / "request.json").exists()
+
+
 @pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli"])
 @pytest.mark.parametrize("outcome", ["completed", "failed"])
 @pytest.mark.parametrize("native_failure", [False, True])
@@ -116,7 +140,7 @@ def test_internal_yield_compacts_and_continues_original_session(
 ) -> None:
     work = configure(monkeypatch, tmp_path)
     monkeypatch.setattr(runner, "ROOT", tmp_path)
-    monkeypatch.delenv("SPECULA_RUN_DIR", raising=False)
+    monkeypatch.delenv("SPECULAR_RUN_DIR", raising=False)
     tool = tmp_path / "tools/context_control"
     (tool / ".venv/bin").mkdir(parents=True)
     (tool / ".venv/bin/python").symlink_to(sys.executable)
@@ -132,20 +156,20 @@ def test_internal_yield_compacts_and_continues_original_session(
         f"#!{sys.executable}\n"
         "import json,os,sys\nfrom pathlib import Path\n"
         f"sys.path.insert(0,{str(real_src)!r})\n"
-        "from specula.context_control import request_compaction\n"
+        "from specular.context_control import request_compaction\n"
         "opts=dict(x[2:].split('=',1) for x in sys.argv[1:] if x.startswith('--') and '=' in x)\n"
-        "work=Path(os.environ['SPECULA_WORK_DIR']); log=Path(opts['log']); resume=Path(opts['resume-state'])\n"
+        "work=Path(os.environ['SPECULAR_WORK_DIR']); log=Path(opts['log']); resume=Path(opts['resume-state'])\n"
         "second=resume.exists()\n"
         "if second:\n"
         " assert json.loads(resume.read_text())['session_id']=='original-session'\n"
         " assert 'First read the saved handoff' in Path(opts['prompt-file']).read_text()\n"
         " assert (work/'ci-context.md').read_text()=='Unresolved cex: do not mark passed.'\n"
-        " response='SPECULA_INCREMENTAL_COMPLETE test-run'\n"
+        " response='SPECULAR_INCREMENTAL_COMPLETE test-run'\n"
         "else:\n"
         f" resume.write_text(json.dumps({{'adapter':{agent!r},'session_id':'original-session','cwd':{str(tmp_path)!r}}}))\n"
         " (work/'ci-context.md').write_text('Unresolved cex: do not mark passed.')\n"
         " request_compaction('ci-context.md')\n"
-        " response='SPECULA_CONTEXT_YIELD '+os.environ['SPECULA_CONTEXT_TOKEN']\n"
+        " response='SPECULAR_CONTEXT_YIELD '+os.environ['SPECULAR_CONTEXT_TOKEN']\n"
         "log.write_text(response+'\\n'); log.with_suffix('.last-message.txt').write_text(response+'\\n')\n"
         f"log.with_suffix('.usage.json').write_text(json.dumps({{'agent':{agent!r},'session_id':'original-session','total_cost_usd':2.0 if second else 1.0,'usage':{{'total_tokens':200 if second else 100,'cached_input_tokens':20 if second else 10}}}}))\n"
         f"raise SystemExit(9 if second and {native_failure!r} else 0)\n"
@@ -157,7 +181,7 @@ def test_internal_yield_compacts_and_continues_original_session(
     args = [f"--log={log}", f"--resume-state={work / 'incremental.resume.json'}", f"--prompt-file={prompt}"]
     # A real execution failure still wins over a final-looking model response.
     assert runner.run(adapter, args) == (9 if native_failure else 0)
-    assert log.read_text().strip() == "SPECULA_INCREMENTAL_COMPLETE test-run"
+    assert log.read_text().strip() == "SPECULAR_INCREMENTAL_COMPLETE test-run"
     receipts = list(work.glob(".context-control/invocation-*/1/compaction.json"))
     assert len(receipts) == 1
     assert json.loads(receipts[0].read_text())["status"] == outcome
@@ -190,17 +214,17 @@ def test_copilot_autopilot_yield_uses_successful_native_completion(
     tmp_path: Path,
 ) -> None:
     work = configure(monkeypatch, tmp_path)
-    monkeypatch.setenv("SPECULA_CONTEXT_AGENT", "copilot-cli")
+    monkeypatch.setenv("SPECULAR_CONTEXT_AGENT", "copilot-cli")
     (work / "handoff.md").write_text("Pending")
     result = control.request_compaction("handoff.md")
     assert "task_complete" in result["instruction"]
-    record = {"type": "session.task_complete", "data": {"success": True, "summary": "SPECULA_CONTEXT_YIELD token"}}
-    assert event_stream._copilot_events(record, False)[0].text == "SPECULA_CONTEXT_YIELD token"
-    record["data"] = {"success": False, "summary": "SPECULA_CONTEXT_YIELD token"}
+    record = {"type": "session.task_complete", "data": {"success": True, "summary": "SPECULAR_CONTEXT_YIELD token"}}
+    assert event_stream._copilot_events(record, False)[0].text == "SPECULAR_CONTEXT_YIELD token"
+    record["data"] = {"success": False, "summary": "SPECULAR_CONTEXT_YIELD token"}
     assert not event_stream._copilot_events(record, False)
-    monkeypatch.setenv("SPECULA_PHASE", "code_analysis")
-    record["data"] = {"success": True, "summary": "SPECULA_CONTEXT_YIELD token"}
-    assert event_stream._copilot_events(record, False)[0].text == "SPECULA_CONTEXT_YIELD token"
+    monkeypatch.setenv("SPECULAR_PHASE", "code_analysis")
+    record["data"] = {"success": True, "summary": "SPECULAR_CONTEXT_YIELD token"}
+    assert event_stream._copilot_events(record, False)[0].text == "SPECULAR_CONTEXT_YIELD token"
 
 
 class Input:
@@ -236,6 +260,18 @@ def mock_process(monkeypatch: pytest.MonkeyPatch, handler: Any) -> tuple[list[li
 
     monkeypatch.setattr(native, "process", fake)
     return commands, inputs
+
+
+@pytest.mark.asyncio
+async def test_codex_profile_session_is_not_compacted_under_the_base_config(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    commands, _ = mock_process(monkeypatch, lambda m: [])
+    state = {"session_id": "original", "cwd": str(tmp_path), "model": "glm-5.3", "codex_profile": "glm"}
+    with pytest.raises(RuntimeError, match="does not support Codex profiles"):
+        await native.codex(state, tmp_path / "log")
+    assert commands == []
 
 
 @pytest.mark.asyncio

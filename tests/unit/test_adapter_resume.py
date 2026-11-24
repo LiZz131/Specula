@@ -14,11 +14,13 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
-from specula.adapters.utils.event_stream import stream_events
-from specula.adapters.utils.resume import ResumeStateError, capture_session_id, read_session_id
-from specula.adapters.utils.transient import (
+from specular.adapters.utils.event_stream import stream_events
+from specular.adapters.utils.resume import ResumeStateError, capture_session_id, read_session_id
+from specular.adapters.utils.transient import (
     failed_log_has_transient_failure,
+    final_diagnostic_has_auth_refresh_failure,
     final_diagnostic_has_transient_failure,
+    looks_auth_refresh_failure,
     looks_transient,
 )
 
@@ -59,7 +61,7 @@ class TestResumeState(unittest.TestCase):
             state = root / "turn.resume.json"
 
             with (
-                patch("specula.adapters.utils.resume.os.link", side_effect=OSError("disk full")),
+                patch("specular.adapters.utils.resume.os.link", side_effect=OSError("disk full")),
                 self.assertRaisesRegex(ResumeStateError, "cannot write"),
             ):
                 capture_session_id(
@@ -147,6 +149,22 @@ class TestResumeState(unittest.TestCase):
                 with self.subTest(binding=binding), self.assertRaises(ResumeStateError):
                     read_session_id(state, **binding)
 
+    def test_codex_profile_is_bound_only_when_selected(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            plain = root / "plain.resume.json"
+            profiled = root / "profiled.resume.json"
+            common = {"adapter": "codex", "cwd": str(root), "model": "glm-5.3", "effort": ""}
+            capture_session_id(plain, session_id="thread-1", **common)
+            capture_session_id(profiled, session_id="thread-2", codex_profile="glm", **common)
+
+            self.assertNotIn("codex_profile", json.loads(plain.read_text()))
+            self.assertEqual(json.loads(profiled.read_text())["codex_profile"], "glm")
+            self.assertEqual(read_session_id(profiled, codex_profile="glm", **common), "thread-2")
+            for state, profile in ((plain, "glm"), (profiled, ""), (profiled, "other")):
+                with self.subTest(state=state.name, profile=profile), self.assertRaises(ResumeStateError):
+                    read_session_id(state, codex_profile=profile, **common)
+
     def test_different_session_id_fails_without_replacing_original(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
@@ -185,7 +203,7 @@ class TestResumeState(unittest.TestCase):
                 return None
 
             with (
-                patch("specula.adapters.utils.resume.os.link", side_effect=racing_link),
+                patch("specular.adapters.utils.resume.os.link", side_effect=racing_link),
                 ThreadPoolExecutor(max_workers=2) as executor,
             ):
                 outcomes = list(executor.map(capture, ("thread-one", "thread-two")))
@@ -276,9 +294,9 @@ class TestEventStreamSessionCapture(unittest.TestCase):
             with patch.dict(
                 os.environ,
                 {
-                    "SPECULA_RESUME_STATE": str(state),
-                    "SPECULA_RESUME_MODEL": "ambient-model",
-                    "SPECULA_RESUME_EFFORT": "ambient-effort",
+                    "SPECULAR_RESUME_STATE": str(state),
+                    "SPECULAR_RESUME_MODEL": "ambient-model",
+                    "SPECULAR_RESUME_EFFORT": "ambient-effort",
                 },
                 clear=False,
             ):
@@ -508,6 +526,58 @@ class TestTransientFailureClassification(unittest.TestCase):
         for text in prose:
             with self.subTest(text=text):
                 self.assertFalse(final_diagnostic_has_transient_failure(text))
+
+
+class TestAuthRefreshFailureClassification(unittest.TestCase):
+    REFRESH_FAILURES = (
+        "Failed to authenticate: OAuth session expired and could not be refreshed",
+        "OAuth refresh token is no longer valid; run /login to re-authenticate",
+        "Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh. "
+        "This is usually transient; retry in a minute",
+        "OAuth access token could not be refreshed: another Claude Code process is holding the refresh lock",
+    )
+
+    def test_recognizes_refresh_failure_messages(self) -> None:
+        for message in self.REFRESH_FAILURES:
+            with self.subTest(message=message):
+                self.assertTrue(looks_auth_refresh_failure(message))
+                self.assertTrue(final_diagnostic_has_auth_refresh_failure(f"Error: {message}\n"))
+        self.assertTrue(
+            looks_auth_refresh_failure("  failed to authenticate: oauth session expired and could not be refreshed")
+        )
+
+    def test_dead_logins_and_other_auth_errors_are_not_refresh_races(self) -> None:
+        messages = (
+            "Failed to authenticate: OAuth token revoked. Please log in again or contact your administrator.",
+            "Invalid API key \u00b7 Please run /login",
+            "Login expired \u00b7 Please run /login",
+            "Failed to refresh OAuth token: the disk that holds the config directory is full",
+            "API Error: 401 authentication_error",
+        )
+        for message in messages:
+            with self.subTest(message=message):
+                self.assertFalse(looks_auth_refresh_failure(message))
+                self.assertFalse(final_diagnostic_has_auth_refresh_failure(message))
+
+    def test_text_that_only_mentions_a_refresh_failure_is_not_classified(self) -> None:
+        prose = (
+            "The earlier run ended with: Failed to authenticate: OAuth session expired and could not be refreshed",
+            "Fixed the OAuth handling. OAuth session expired and could not be refreshed is no longer reported.",
+            "I checked the OAuth refresh flow; the token is valid.",
+        )
+        for text in prose:
+            with self.subTest(text=text):
+                self.assertFalse(looks_auth_refresh_failure(text))
+                self.assertFalse(final_diagnostic_has_auth_refresh_failure(text))
+        self.assertFalse(looks_auth_refresh_failure({"result": self.REFRESH_FAILURES[0]}))
+        self.assertFalse(looks_transient(self.REFRESH_FAILURES[0]))
+
+    def test_plain_fallback_uses_only_final_non_json_line(self) -> None:
+        message = self.REFRESH_FAILURES[0]
+        self.assertTrue(final_diagnostic_has_auth_refresh_failure(f"starting\n{message}\n\n"))
+        self.assertFalse(final_diagnostic_has_auth_refresh_failure(f"{message}\nfatal: invalid request\n"))
+        self.assertFalse(final_diagnostic_has_auth_refresh_failure(json.dumps({"result": message}) + "\n"))
+        self.assertFalse(final_diagnostic_has_auth_refresh_failure(""))
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
-# Specula Workflow: Finding Bugs in System Implementations
+# Specular Workflow: Finding Bugs in System Implementations
 
 ## What This Is
 
-Specula is a workflow for finding bugs in distributed system and concurrent data structure implementations using TLA+ formal verification. It combines code analysis, TLA+ modeling, trace validation, and bug reproduction into a systematic pipeline.
+Specular is a workflow for finding bugs in distributed system and concurrent data structure implementations using TLA+ formal verification. It combines code analysis, TLA+ modeling, trace validation, and bug reproduction into a systematic pipeline.
 
 The core idea: the most critical bugs — protocol safety violations, data loss, deadlocks — have extremely tricky trigger paths. Manual code review can suspect they exist, but cannot prove it. TLA+ model checking can explore the full state space and either confirm the bug with a concrete counterexample or provide confidence that it doesn't exist.
 
@@ -20,7 +20,7 @@ Each phase has a dedicated skill. The pipeline can be run automatically via `scr
 
 ## System Categories
 
-Specula handles two categories of systems with different trace strategies:
+Specular handles two categories of systems with different trace strategies:
 
 | | Category A: Distributed Systems | Category B: Concurrent/Lock-Free |
 |---|---|---|
@@ -47,11 +47,11 @@ See `harness-generation` skill's `guide.md` Step 0 for classification details.
    Also classify the target as Category A or B and identify the semantic boundaries that matter (crash windows vs linearization / reclamation windows).
 2. **Bug Archaeology** — Mine git history and issue tracker for historical bugs. Group into **Scenarios** by shared mechanism.
 3. **Deep Analysis** — Systematic code reading guided by Scenarios. Look for: code path inconsistencies, non-atomic persistence with crash windows, missing guards, deviations from the reference algorithm.
-4. **Modeling Brief** — Synthesize findings into a concise handoff document. For each Scenario: mechanism, evidence, modeling approach, invariants.
+4. **Modeling Brief** — Describe the requested baseline behavior, contracts, interfaces, abstractions, and findings in enough detail for spec generation. For large scopes, add linked companion documents named `modeling-brief-<topic>.md` beside the brief. For each Scenario: mechanism, evidence, modeling approach, invariants.
 
 ### Key Principle
 
-Scenarios are the organizing concept. Group by mechanism ("non-atomic persistence with crash window", "missing migrationId filter"), not by file or component. Each Scenario directly maps to a spec extension.
+Group findings into Scenarios by mechanism ("non-atomic persistence with crash window", "missing migrationId filter"). Model the requested behavior and component interactions even where no bug hypothesis exists. Document length and Scenario count follow the scope.
 
 ### Output
 
@@ -68,14 +68,14 @@ Scenarios are the organizing concept. Group by mechanism ("non-atomic persistenc
 
 ### What Happens
 
-1. **Base Spec** (`base.tla`) — Core TLA+ specification. Scope driven by Scenarios, logic faithful to implementation code. Every logic block annotated with `file:line`.
+1. **Base Spec** (`base.tla` and supporting modules as needed) — Core TLA+ specification. Scope follows the requested behavior, contracts, and Scenarios; logic is faithful to implementation code. Every logic block is annotated with `file:line`.
 2. **MC Spec** (`MC.tla` + `MC.cfg` + `MC_hunt_*.cfg`) — Counter-bounded fault injection for model checking. Hunting configs target specific scenarios.
 3. **Trace Spec** (`Trace.tla` + `Trace.cfg`) — Drives TLC through recorded traces to verify spec-implementation consistency.
 4. **Instrumentation Spec** (`instrumentation-spec.md`) — Maps spec actions to code locations for harness generation.
 
 ### Key Principles
 
-- **Scenario-driven scope**: Every extension traces to a Scenario
+- **Scope-driven modeling**: Every extension traces to requested behavior, a system contract, or a Scenario
 - **Code-faithful logic**: Model the implementation, not the paper
 - **Source line annotations**: Every condition cites `file:line`
 - **Split actions where code paths diverge**
@@ -97,7 +97,7 @@ Scenarios are the organizing concept. Group by mechanism ("non-atomic persistenc
 | `traces/*.ndjson` | Recorded execution traces |
 | `harness/INSTRUMENTATION.md` | Guide for adjusting instrumentation |
 
-For MongoDB targets: log parsing approach (no C++ recompilation needed). See the [Specula case-studies repository](https://github.com/specula-org/specula-case-studies) for a MongoDB shared harness example.
+For MongoDB targets: log parsing approach (no C++ recompilation needed). See the [Specular case-studies repository](https://github.com/specular-org/specula-case-studies) for a MongoDB shared harness example.
 
 ---
 
@@ -116,8 +116,8 @@ Run `MC.cfg` (0 faults) to verify structural invariants hold. Fix fidelity issue
 ### 3C: Bug Hunting
 
 Run `MC_hunt_*.cfg` with fault injection. BFS + Simulation strategy:
-1. BFS first (30 min) — exhaustive within reachable diameter
-2. If diameter ≤ 25 → follow up with simulation (30 min) for deeper states
+1. BFS first (30 min)
+2. If BFS did not exhaust the state space, follow up with simulation (30 min) at a depth that reaches the target interactions
 3. Violation = **Case C** (real bug) — analyze counterexample, cross-reference with code
 
 ### Output
@@ -182,7 +182,7 @@ Pauses when API usage exceeds threshold, waits for reset, resumes automatically.
 ## Directory Structure (per case study)
 
 ```
-.specula-output/
+.specular-output/
 ├── analysis-report.md           # Phase 1
 ├── modeling-brief.md            # Phase 1 → Phase 2 handoff
 ├── confirmed-bugs.md            # Phase 4 final confirmation report

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import cast
 from unittest import mock
 
-from specula.resource_summary import (
+from specular.resource_summary import (
     FINDINGS_SUMMARY_FILENAME,
     INVOCATION_DIRNAME,
     PHASES,
@@ -80,7 +80,7 @@ class ResourceSummaryCase(unittest.TestCase):
         self.work_dir = self.target_dir("demo")
 
     def target_dir(self, name: str) -> Path:
-        return self.root / name / ".specula-output"
+        return self.root / name / ".specular-output"
 
     def tracker(
         self,
@@ -144,7 +144,7 @@ class TestTargetLocalAccounting(ResourceSummaryCase):
         recorder = self.recorder("phase1", invocation_id)
 
         with mock.patch(
-            "specula.resource_summary.time.monotonic",
+            "specular.resource_summary.time.monotonic",
             side_effect=[0.0, 10.0, 10.0, 30.0],
         ):
             recorder.start_target("first", first_dir)
@@ -170,7 +170,7 @@ class TestTargetLocalAccounting(ResourceSummaryCase):
         recorder = self.recorder("phase2_5", invocation_id)
 
         with mock.patch(
-            "specula.resource_summary.time.monotonic",
+            "specular.resource_summary.time.monotonic",
             side_effect=[0.0, 0.0, 5.0],
         ):
             recorder.start_target("first", first_dir)
@@ -196,7 +196,7 @@ class TestTargetLocalAccounting(ResourceSummaryCase):
         invocation_id = "3" * 32
         recorder = self.recorder("phase3", invocation_id)
         with mock.patch(
-            "specula.resource_summary.time.monotonic",
+            "specular.resource_summary.time.monotonic",
             side_effect=[0.0, 3.0, 100.0, 104.0],
         ):
             recorder.start_target("demo", self.work_dir)
@@ -215,7 +215,7 @@ class TestTargetLocalAccounting(ResourceSummaryCase):
         tracker.initialize(resume=False)
         invocation_id = "5" * 32
         recorder = self.recorder("phase4a", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.finish_target("demo")
 
@@ -241,7 +241,7 @@ class TestTargetLocalAccounting(ResourceSummaryCase):
         recorder = self.recorder("phase1", invocation_id)
         self.assertFalse((active_dir / INVOCATION_DIRNAME).exists())
         self.assertFalse((reused_dir / INVOCATION_DIRNAME).exists())
-        with mock.patch("specula.resource_summary.time.monotonic", return_value=0.0):
+        with mock.patch("specular.resource_summary.time.monotonic", return_value=0.0):
             recorder.start_target("active", active_dir)
 
         resumed = self.tracker(targets)
@@ -268,7 +268,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         tracker.initialize(resume=False)
         invocation_id = "8" * 32
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 9.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 9.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.finish_target("demo")
 
@@ -292,7 +292,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         stable_before = self.state(stable_dir)
         invocation_id = "9" * 32
         recorder = self.recorder("phase4b", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", return_value=0.0):
+        with mock.patch("specular.resource_summary.time.monotonic", return_value=0.0):
             recorder.start_target("active", active_dir)
 
         resumed = self.tracker(targets)
@@ -332,7 +332,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         sidecar = self.work_dir / "agent.usage.json"
         invocation_id = "b" * 32
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 2.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 2.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -358,7 +358,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         invocation_id = "c" * 32
         recorder = self.recorder("phase1", invocation_id)
         missing = self.work_dir / "agent.usage.json"
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 2.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 2.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, missing)
             recorder.finish_target("demo")
@@ -379,7 +379,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
 
         first_id = "bc" * 16
         first = self.recorder("phase1", first_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             first.start_target("demo", self.work_dir)
             first.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -392,7 +392,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
 
         second_id = "bd" * 16
         second = self.recorder("phase1", second_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
             second.start_target("demo", self.work_dir)
             second.note_agent(self.work_dir, sidecar)
             self.assertFalse(sidecar.exists())
@@ -414,7 +414,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         )
         invocation_id = "be" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             with (
                 mock.patch.object(Path, "unlink", autospec=True, side_effect=PermissionError("denied")),
@@ -434,7 +434,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         tracker.initialize(resume=False)
         invocation_id = "cd" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 2.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 2.0]):
             recorder.start_target("demo", self.work_dir)
             with self.assertRaises(ValueError):
                 recorder.note_agent(self.work_dir, self.work_dir / "unexpected.usage.json")
@@ -453,7 +453,7 @@ class TestRecoveryAndSnapshots(ResourceSummaryCase):
         sidecar = self.work_dir / "agent.usage.json"
         invocation_id = "d" * 32
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -508,7 +508,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         )
         invocation_id = "e" * 32
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 12_480.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 12_480.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(self.work_dir, "agent.usage.json", payload)
@@ -551,7 +551,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         }
         invocation_id = "f" * 32
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(self.work_dir, "agent.usage.json", payload)
@@ -581,7 +581,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         }
         invocation_id = "0" * 32
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(self.work_dir, "agent.usage.json", payload)
@@ -600,7 +600,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         sidecar = self.work_dir / "agent.usage.json"
         first_id = "1a" * 16
         first = self.recorder("phase1", first_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             first.start_target("demo", self.work_dir)
             first.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -613,7 +613,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
 
         second_id = "2b" * 16
         second = self.recorder("phase1", second_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
             second.start_target("demo", self.work_dir)
             second.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -636,7 +636,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         archived = self.work_dir / "agent.usage.attempt-1.json"
         invocation_id = "2c" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar, attempt=1)
             self.write_json(
@@ -677,7 +677,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         archived = self.work_dir / "agent.usage.attempt-1.json"
         invocation_id = "2d" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar, attempt=1)
             self.write_json(
@@ -713,7 +713,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         archived = self.work_dir / "agent.usage.attempt-1.json"
         invocation_id = "3d" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar, attempt=1)
             self.write_json(
@@ -761,7 +761,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         archived = self.work_dir / "agent.usage.attempt-1.json"
         invocation_id = "31" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar, attempt=1)
             self.write_json(
@@ -818,7 +818,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
 
         first_id = "2e" * 16
         first = self.recorder("phase1", first_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             first.start_target("demo", self.work_dir)
             first.note_agent(self.work_dir, sidecar, attempt=1)
             self.write_json(
@@ -832,7 +832,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
 
         second_id = "2f" * 16
         second = self.recorder("phase1", second_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
             second.start_target("demo", self.work_dir)
             second.note_agent(
                 self.work_dir,
@@ -862,7 +862,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
 
         first_id = "32" * 16
         first = self.recorder("phase1", first_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             first.start_target("demo", self.work_dir)
             first.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -882,7 +882,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
 
         second_id = "33" * 16
         second = self.recorder("phase1", second_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[2.0, 3.0]):
             second.start_target("demo", self.work_dir)
             second.note_agent(
                 self.work_dir,
@@ -919,7 +919,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         sidecar = self.work_dir / "agent.usage.json"
         invocation_id = "30" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar, attempt=1)
             recorder.note_agent(self.work_dir, sidecar, attempt=2)
@@ -945,7 +945,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         sidecar = self.work_dir / "agent.usage.json"
         invocation_id = "3c" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -967,7 +967,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         sidecar = self.work_dir / "agent.usage.json"
         invocation_id = "4c" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             self.write_json(
@@ -996,7 +996,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         for index, definition in enumerate(PHASES, 1):
             invocation_id = f"{index:x}" * 32
             recorder = self.recorder(definition.key, invocation_id)
-            with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 10.0]):
+            with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 10.0]):
                 recorder.start_target("demo", self.work_dir)
                 recorder.finish_target("demo")
             tracker.capture_invocation(definition.key, ["demo"], invocation_id)
@@ -1011,7 +1011,7 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         tracker.initialize(resume=False)
 
         text = self.summary(self.work_dir)
-        self.assertIn("# Specula Summary", text)
+        self.assertIn("# Specular Summary", text)
         self.assertIn("## Result\n\n- Run status: **Incomplete**", text)
         self.assertIn("## Findings\n\nThe findings summary is unavailable", text)
         self.assertIn("## Validation limits", text)
@@ -1028,6 +1028,22 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         self.assertIn("| **Total (incomplete)** | - | - | - |", text)
         self.assertIn("- Configured maximum parallelism: 1", text)
         self.assertIn("- Configured TLC limits: 8G memory; 4 workers", text)
+
+    def test_target_limits_found_during_the_run_join_the_run_coverage(self) -> None:
+        other = self.target_dir("other")
+        tracker = self.tracker({"demo": self.work_dir, "other": other}, validation_limits=("Run-wide limit.",))
+        tracker.initialize(resume=False)
+        tracker.add_validation_limits("demo", ["No traces were collected.", "No traces were collected.", " "])
+        tracker.add_validation_limits("demo", ["Run-wide limit."])
+        tracker.add_validation_limits("missing", ["ignored"])
+        tracker.complete_run()
+        self.assertIn(
+            "## Run coverage\n\n- Run-wide limit.\n- No traces were collected.\n", self.summary(self.work_dir)
+        )
+        self.assertNotIn("No traces were collected.", self.summary(other))
+        self.assertEqual(
+            self.state(self.work_dir)["validation_limits"], ["Run-wide limit.", "No traces were collected."]
+        )
 
     def test_complete_summary_preserves_final_findings_and_orders_sections(self) -> None:
         fragment = (
@@ -1435,6 +1451,136 @@ class TestUsageParsingAndRendering(ResourceSummaryCase):
         self.assertIn("| Current attempt source commit | beta-head |", beta)
 
 
+class TestIncrementalUsage(ResourceSummaryCase):
+    def record(
+        self, phase: str, invocation_id: str, relative: str, *, seconds: float, tokens: int, cost: float
+    ) -> None:
+        recorder = self.recorder(phase, invocation_id)
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, seconds]):
+            recorder.start_target("demo", self.work_dir)
+            recorder.note_agent(self.work_dir, self.work_dir / relative)
+            self.write_json(
+                self.work_dir, relative, _normalized(session=None, tokens=tokens, cached=tokens // 2, cost=cost)
+            )
+            recorder.finish_target("demo")
+
+    def incremental_run(self) -> ResourceSummaryTracker:
+        tracker = self.tracker()
+        tracker.initialize(resume=False)
+        self.record("incremental", "1" * 32, "incremental.usage.json", seconds=3.0, tokens=200, cost=0.02)
+        tracker.capture_invocation("incremental", ["demo"], "1" * 32)
+        return tracker
+
+    def test_incremental_summary_counts_ci_confirmation(self) -> None:
+        tracker = self.incremental_run()
+        self.record("phase4a", "2" * 32, "bug-confirmation.usage.json", seconds=2.0, tokens=400, cost=0.04)
+        tracker.capture_invocation("phase4a", ["demo"], "2" * 32)
+        tracker.complete_run()
+
+        text = self.summary(self.work_dir)
+        self.assertIn("| Incremental workflow | 3s | 200 total (100 cached) | $0.02 |", text)
+        self.assertIn("| Phase 4a | 2s | 400 total (200 cached) | $0.04 |", text)
+        self.assertIn("| **Total** | 5s | 600 total (300 cached) | $0.06 |", text)
+
+    def test_incremental_summary_without_confirmation_has_no_confirmation_row(self) -> None:
+        tracker = self.incremental_run()
+        tracker.complete_run()
+
+        text = self.summary(self.work_dir)
+        self.assertNotIn("Phase 4a", text)
+        self.assertIn("| **Total** | 3s | 200 total (100 cached) | $0.02 |", text)
+
+    def test_interrupted_ci_confirmation_is_listed_as_unmeasured(self) -> None:
+        tracker = self.incremental_run()
+        with mock.patch("specular.resource_summary.time.monotonic", return_value=0.0):
+            self.recorder("phase4a", "2" * 32).start_target("demo", self.work_dir)
+        tracker.capture_invocation("phase4a", ["demo"], "2" * 32)
+        tracker.complete_run()
+
+        text = self.summary(self.work_dir)
+        self.assertIn("| Phase 4a | - | - | - |", text)
+        self.assertIn("| **Total (incomplete)** | 3s | 200 total (100 cached) | $0.02 |", text)
+
+    def test_usage_reports_unobserved_values_as_null(self) -> None:
+        tracker = self.incremental_run()
+        with mock.patch("specular.resource_summary.time.monotonic", return_value=0.0):
+            self.recorder("phase4a", "2" * 32).start_target("demo", self.work_dir)
+        tracker.capture_invocation("phase4a", ["demo"], "2" * 32)
+
+        usage = tracker.usage("demo")
+        assert usage is not None
+        self.assertEqual(
+            usage.to_object(),
+            {
+                "complete": False,
+                "runtime_seconds": 3.0,
+                "total_tokens": 200,
+                "cached_input_tokens": 100,
+                "cost_usd": 0.02,
+                "phases": {
+                    "incremental": {
+                        "complete": True,
+                        "runtime_seconds": 3.0,
+                        "total_tokens": 200,
+                        "cached_input_tokens": 100,
+                        "cost_usd": 0.02,
+                    },
+                    "phase4a": {
+                        "complete": False,
+                        "runtime_seconds": None,
+                        "total_tokens": None,
+                        "cached_input_tokens": None,
+                        "cost_usd": None,
+                    },
+                },
+            },
+        )
+
+    def test_usage_is_none_until_a_phase_records_usage(self) -> None:
+        tracker = self.tracker()
+        tracker.initialize(resume=False)
+        self.assertTrue((self.work_dir / STATE_FILENAME).is_file())
+        self.assertIsNone(tracker.usage("demo"))
+        self.assertIsNone(tracker.usage("other"))
+
+    def test_interrupted_first_conversation_keeps_its_phase_layout(self) -> None:
+        # A killed Agent leaves an active record: recorded, but nothing measured.
+        for phase, label, rows in (
+            ("incremental", "Incremental workflow", ["incremental"]),
+            ("main", "Main session (Phases 1-3)", ["main", "phase4a", "phase4b"]),
+        ):
+            with self.subTest(phase=phase):
+                self.work_dir = self.target_dir(phase)
+                tracker = self.tracker()
+                tracker.initialize(resume=False)
+                with mock.patch("specular.resource_summary.time.monotonic", return_value=0.0):
+                    self.recorder(phase, "1" * 32).start_target("demo", self.work_dir)
+                tracker.capture_invocation(phase, ["demo"], "1" * 32)
+
+                usage = tracker.usage("demo")
+                assert usage is not None
+                recorded = usage.to_object()
+                self.assertEqual(list(cast(dict[str, object], recorded["phases"])), rows)
+                self.assertEqual(
+                    (recorded["complete"], recorded["runtime_seconds"], recorded["cost_usd"]), (False, None, None)
+                )
+                text = self.summary(self.work_dir)
+                self.assertIn(f"| {label} | - | - | - |", text)
+                self.assertNotIn("| Phase 1 |", text)
+
+    def test_usage_keeps_invocations_whose_state_write_failed(self) -> None:
+        tracker = self.incremental_run()
+        self.record("phase4a", "2" * 32, "bug-confirmation.usage.json", seconds=2.0, tokens=400, cost=0.04)
+        with mock.patch("specular.resource_summary._atomic_write", side_effect=OSError("disk full")):
+            tracker.capture_invocation("phase4a", ["demo"], "2" * 32)
+
+        self.assertFalse(self.phase_state(self.state(self.work_dir), "phase4a")["cost_observed"])
+        usage = tracker.usage("demo")
+        assert usage is not None
+        self.assertEqual((usage.total_tokens, usage.complete), (600, True))
+        self.assertAlmostEqual(cast(float, usage.cost_usd), 0.06)
+
+
 class TestSafety(ResourceSummaryCase):
     def test_summary_invalidation_removes_only_the_entry(self) -> None:
         outside = self.root / "outside.md"
@@ -1530,7 +1676,7 @@ class TestSafety(ResourceSummaryCase):
         tracker.initialize(resume=False)
         invocation_id = "5e" * 16
         recorder = self.recorder("phase1", invocation_id)
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             recorder.note_agent(self.work_dir, sidecar)
             recorder.finish_target("demo")
@@ -1556,7 +1702,7 @@ class TestSafety(ResourceSummaryCase):
         invocation_id = "5f" * 16
         recorder = self.recorder("phase4a", invocation_id)
 
-        with mock.patch("specula.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
+        with mock.patch("specular.resource_summary.time.monotonic", side_effect=[0.0, 1.0]):
             recorder.start_target("demo", self.work_dir)
             with self.assertRaisesRegex(OSError, "unsafe resource usage directory"):
                 recorder.note_agent(self.work_dir, confirmation / "MC-1" / "turn01_A.usage.json")

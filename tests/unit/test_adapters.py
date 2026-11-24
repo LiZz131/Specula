@@ -34,10 +34,10 @@ from fnmatch import fnmatchcase
 from pathlib import Path
 from typing import Any, TypedDict
 
-from specula.adapters.utils.run_lock import RUN_LOCK_FD_ENV, RunLockError, inherited_run_lock_fds
+from specular.adapters.utils.run_lock import RUN_LOCK_FD_ENV, RunLockError, inherited_run_lock_fds
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CLAUDE_PY = REPO_ROOT / "src" / "specula" / "adapters" / "claude_code.py"
+CLAUDE_PY = REPO_ROOT / "src" / "specular" / "adapters" / "claude_code.py"
 OPENCODE_SH = REPO_ROOT / "scripts" / "launch" / "adapters" / "opencode.sh"
 PI_SH = REPO_ROOT / "scripts" / "launch" / "adapters" / "pi.sh"
 CODEX_SH = REPO_ROOT / "scripts" / "launch" / "adapters" / "codex.sh"
@@ -48,7 +48,7 @@ EVENT_STREAM_COMMAND = [
     "-c",
     (
         "import sys; sys.path.insert(0, sys.argv.pop(1)); "
-        "from specula.adapters.utils.event_stream import main; "
+        "from specular.adapters.utils.event_stream import main; "
         "raise SystemExit(main(sys.argv[1:]))"
     ),
     str(REPO_ROOT / "src"),
@@ -121,27 +121,29 @@ _VOLATILE = (
     "CLAUDECODE",
     "CLAUDE_CODE_SSE_PORT",
     "CLAUDE_CODE_ENTRYPOINT",
-    "SPECULA_PHASE",
-    "SPECULA_WORK_DIR",
-    "SPECULA_STOP_GATE",
-    "SPECULA_STOP_GATE_WORK_DIR",
-    "SPECULA_SANDBOX",
-    "SPECULA_SANDBOX_BACKEND",
-    "SPECULA_SANDBOX_CONFIG",
-    "SPECULA_ACTIVITY_LOG",
-    "SPECULA_RESUME_STATE",
-    "SPECULA_RESUME_MODEL",
-    "SPECULA_RESUME_EFFORT",
+    "SPECULAR_PHASE",
+    "SPECULAR_WORK_DIR",
+    "SPECULAR_STOP_GATE",
+    "SPECULAR_STOP_GATE_WORK_DIR",
+    "SPECULAR_SANDBOX",
+    "SPECULAR_SANDBOX_BACKEND",
+    "SPECULAR_SANDBOX_CONFIG",
+    "SPECULAR_ACTIVITY_LOG",
+    "SPECULAR_RESUME_STATE",
+    "SPECULAR_RESUME_MODEL",
+    "SPECULAR_RESUME_EFFORT",
     "CODEX_HOME",
     "CODEX_FEATURES_TEXT",
     "CODEX_FEATURES_EXIT",
     "ADAPTER_EXIT_CODE",
     "COPILOT_HELP_TEXT",
+    "COPILOT_CUSTOM_INSTRUCTIONS_DIRS",
+    "ADAPTER_INSTRUCTIONS_FILE",
     "ADAPTER_PI_SESSION_FIXTURE",
     "ADAPTER_PROVIDER_PID_FILE",
     "ADAPTER_READY_FILE",
     "ADAPTER_WAIT_SECONDS",
-    "SPECULA_RUN_LOCK_FD",
+    "SPECULAR_RUN_LOCK_FD",
 )
 
 
@@ -193,6 +195,24 @@ class AdapterCase(unittest.TestCase):
                 '  printf "%s\\n" "${COPILOT_HELP_TEXT:-}"',
                 "  exit 0",
                 "fi",
+                # System-prompt staging: the instruction dirs Copilot sees, plus
+                # a copy of the last dir's AGENTS.md (it is removed on exit).
+                'if [[ -n "${ADAPTER_INSTRUCTIONS_FILE:-}" ]]; then',
+                '  printf "%s\\n" "${COPILOT_CUSTOM_INSTRUCTIONS_DIRS-<unset>}" > "$ADAPTER_INSTRUCTIONS_FILE"',
+                '  last="${COPILOT_CUSTOM_INSTRUCTIONS_DIRS##*,}"',
+                '  if [[ -f "$last/AGENTS.md" ]]; then cp "$last/AGENTS.md" "$ADAPTER_INSTRUCTIONS_FILE.copy"; fi',
+                "fi",
+            ]
+        if name == "opencode":
+            lines += [
+                # System-prompt staging: copy the last config `instructions` file
+                # while it exists (the adapter removes it after the CLI exits).
+                'if [[ -n "${ADAPTER_INSTRUCTIONS_FILE:-}" ]]; then',
+                '  python3 -I -c "import json, os, shutil, sys; '
+                "c = json.loads(os.environ.get('OPENCODE_CONFIG_CONTENT') or '{}'); "
+                "p = (c.get('instructions') or [None])[-1]; "
+                'p and shutil.copyfile(p, sys.argv[1])" "$ADAPTER_INSTRUCTIONS_FILE.copy"',
+                "fi",
             ]
         if name == "codex":
             lines += [
@@ -220,8 +240,8 @@ class AdapterCase(unittest.TestCase):
         if effort_var:
             lines.append(f'printf "%s\\n" "${{{effort_var}-<unset>}}" > "${{ADAPTER_EFFORT_ENV_FILE:-/dev/null}}"')
         lines.append(
-            'printf "%s|%s|%s\\n" "${SPECULA_RESUME_STATE-<unset>}" '
-            '"${SPECULA_RESUME_MODEL-<unset>}" "${SPECULA_RESUME_EFFORT-<unset>}" '
+            'printf "%s|%s|%s\\n" "${SPECULAR_RESUME_STATE-<unset>}" '
+            '"${SPECULAR_RESUME_MODEL-<unset>}" "${SPECULAR_RESUME_EFFORT-<unset>}" '
             '> "${ADAPTER_RESUME_ENV_FILE:-/dev/null}"'
         )
         if name == "claude":
@@ -370,7 +390,7 @@ class AdapterCase(unittest.TestCase):
                 {
                     "HOME": str(base),
                     "PATH": f"{bindir}:/usr/bin:/bin",
-                    "SPECULA_RUN_LOCK_FD": str(owner_fd),
+                    "SPECULAR_RUN_LOCK_FD": str(owner_fd),
                     "ADAPTER_PROVIDER_PID_FILE": str(provider_pid_file),
                     "ADAPTER_READY_FILE": str(ready),
                     "ADAPTER_WAIT_SECONDS": "30",
@@ -566,7 +586,7 @@ class ClaudeCodeAdapter(AdapterCase):
         self.assertEqual(result["argv"][result["argv"].index("--output-format") + 1], "stream-json")
         self.assertIn("--verbose", result["argv"])
         self.assertEqual(json.loads(state.read_text())["session_id"], session_id)
-        self.assertEqual(list(base.glob("specula-claude-activity-*.jsonl")), [])
+        self.assertEqual(list(base.glob("specular-claude-activity-*.jsonl")), [])
 
     def test_resume_state_binding_mismatch_fails_before_claude_launch(self) -> None:
         base = self.sandbox()
@@ -619,9 +639,9 @@ class ClaudeCodeAdapter(AdapterCase):
         r = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_PHASE": "bug_confirmation_turn",
-                "SPECULA_WORK_DIR": str(target),
-                "SPECULA_STOP_GATE_WORK_DIR": str(gate_scope),
+                "SPECULAR_PHASE": "bug_confirmation_turn",
+                "SPECULAR_WORK_DIR": str(target),
+                "SPECULAR_STOP_GATE_WORK_DIR": str(gate_scope),
             },
         )
 
@@ -709,9 +729,9 @@ class ClaudeCodeAdapter(AdapterCase):
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_RESUME_STATE": "/ambient/state",
-                "SPECULA_RESUME_MODEL": "ambient-model",
-                "SPECULA_RESUME_EFFORT": "ambient-effort",
+                "SPECULAR_RESUME_STATE": "/ambient/state",
+                "SPECULAR_RESUME_MODEL": "ambient-model",
+                "SPECULAR_RESUME_EFFORT": "ambient-effort",
             },
         )
         self.assertEqual(result["resumeenv"], "<unset>|<unset>|<unset>")
@@ -830,7 +850,7 @@ class ClaudeCodeAdapter(AdapterCase):
                 base, state = self._claude_session_case(session_id, 0.5)
                 env = {"TMPDIR": str(base)}
                 if activity is not None:
-                    env["SPECULA_ACTIVITY_LOG"] = activity if activity.startswith("/") else str(base / activity)
+                    env["SPECULAR_ACTIVITY_LOG"] = activity if activity.startswith("/") else str(base / activity)
                 run = self.run_adapter(
                     self.CMD,
                     [*self.base_flags(base), f"--resume-state={state}"],
@@ -898,7 +918,7 @@ class ClaudeCodeAdapter(AdapterCase):
         self.assertFalse(usage["usage_complete"])
         self.assertEqual(usage["session_total_cost_usd"], 0.5)
 
-    def test_specula_activity_uses_stream_json(self) -> None:
+    def test_specular_activity_uses_stream_json(self) -> None:
         base = self.sandbox()
         activity = base / "out.activity.jsonl"
         fixture = "\n".join(
@@ -920,7 +940,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=fixture,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         argv = r["argv"]
@@ -944,7 +964,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text="\n".join([assistant, echo, result]),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertEqual(activity.read_text(), f"{assistant}\n{result}")
@@ -962,7 +982,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=json.dumps({"type": "result", **CLAUDE_JSON, "result": report}),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertEqual((base / "out.log").read_text(), "# Findings\n\n1. Bug A\n2. Bug B\n")
@@ -1014,7 +1034,7 @@ class ClaudeCodeAdapter(AdapterCase):
                 env_extra = {"ADAPTER_EXIT_CODE": "1", "TMPDIR": str(base)}
                 fixture = json.dumps(CLAUDE_CYBER_REFUSAL)
                 if mode == "activity":
-                    env_extra["SPECULA_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                    env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
                     fixture = streamed
                 elif mode == "resume-state":
                     flags.append(f"--resume-state={base}/resume.json")
@@ -1065,7 +1085,7 @@ class ClaudeCodeAdapter(AdapterCase):
                     base = self.sandbox()
                     env_extra = {"ADAPTER_EXIT_CODE": "1"}
                     if streaming:
-                        env_extra["SPECULA_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                        env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
                     r = self.run_adapter(
                         self.CMD,
                         self.base_flags(base),
@@ -1116,7 +1136,7 @@ class ClaudeCodeAdapter(AdapterCase):
                 base = self.sandbox()
                 env_extra = {"ADAPTER_EXIT_CODE": native_rc}
                 if not json_mode:
-                    env_extra["SPECULA_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                    env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
                 r = self.run_adapter(
                     self.CMD,
                     self.base_flags(base),
@@ -1139,7 +1159,7 @@ class ClaudeCodeAdapter(AdapterCase):
                 base = self.sandbox()
                 env_extra = {"ADAPTER_EXIT_CODE": native_rc}
                 if streaming:
-                    env_extra["SPECULA_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                    env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
                 r = self.run_adapter(
                     self.CMD,
                     self.base_flags(base),
@@ -1228,7 +1248,7 @@ class ClaudeCodeAdapter(AdapterCase):
                     fake_name="claude",
                     fixture_text=fixture,
                     record_extra=True,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
 
@@ -1247,7 +1267,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=fixture,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
         )
         self.assertEqual(r["returncode"], 9, r["stderr"])
 
@@ -1268,7 +1288,7 @@ class ClaudeCodeAdapter(AdapterCase):
                     fake_name="claude",
                     fixture_text=fixture,
                     record_extra=True,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
 
@@ -1319,7 +1339,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=fixture,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
         )
         self.assertEqual(r["returncode"], 9, r["stderr"])
 
@@ -1341,7 +1361,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=fixture,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
 
@@ -1377,6 +1397,145 @@ class ClaudeCodeAdapter(AdapterCase):
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
 
+    AUTH_REFRESH_RESULT = {
+        "type": "result",
+        **CLAUDE_JSON,
+        "subtype": "success",
+        "is_error": True,
+        "terminal_reason": "api_error",
+        "result": "Failed to authenticate: OAuth session expired and could not be refreshed",
+    }
+
+    def test_failed_credential_refresh_result_exits_auth_refresh_status(self) -> None:
+        for streaming in (False, True):
+            for native_rc in ("1", "0"):
+                with self.subTest(streaming=streaming, native_rc=native_rc):
+                    base = self.sandbox()
+                    env_extra = {"ADAPTER_EXIT_CODE": native_rc}
+                    if streaming:
+                        env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                    r = self.run_adapter(
+                        self.CMD,
+                        self.base_flags(base),
+                        fake_name="claude",
+                        fixture_text=json.dumps(self.AUTH_REFRESH_RESULT),
+                        record_extra=True,
+                        env_extra=env_extra,
+                    )
+                    self.assertEqual(r["returncode"], 72, r["stderr"])
+                    self.assertIn("credential refresh failure", r["stderr"])
+
+    def test_refresh_lock_race_result_exits_auth_refresh_status(self) -> None:
+        base = self.sandbox()
+        record = {
+            **self.AUTH_REFRESH_RESULT,
+            "result": "Failed to refresh OAuth token: another Claude Code process is refreshing it or exited "
+            "mid-refresh. This is usually transient; retry in a minute",
+        }
+        r = self.run_adapter(
+            self.CMD,
+            self.base_flags(base),
+            fake_name="claude",
+            fixture_text=json.dumps(record),
+            record_extra=True,
+            env_extra={"ADAPTER_EXIT_CODE": "1"},
+        )
+        self.assertEqual(r["returncode"], 72, r["stderr"])
+
+    def test_credential_refresh_text_outside_a_failed_diagnostic_is_not_retryable(self) -> None:
+        message = self.AUTH_REFRESH_RESULT["result"]
+        cases = (
+            ("successful-report", {"type": "result", **CLAUDE_JSON, "result": message}, "0", 0),
+            (
+                "failed-report-quoting",
+                {**self.AUTH_REFRESH_RESULT, "result": f"The previous session said: {message}. Fixed now."},
+                "1",
+                1,
+            ),
+            (
+                "revoked-login",
+                {
+                    **self.AUTH_REFRESH_RESULT,
+                    "result": "Failed to authenticate: OAuth token revoked. Please log in again.",
+                },
+                "1",
+                1,
+            ),
+        )
+        for name, record, native_rc, expected in cases:
+            with self.subTest(name=name):
+                base = self.sandbox()
+                r = self.run_adapter(
+                    self.CMD,
+                    self.base_flags(base),
+                    fake_name="claude",
+                    fixture_text=json.dumps(record),
+                    record_extra=True,
+                    env_extra={"ADAPTER_EXIT_CODE": native_rc},
+                )
+                self.assertEqual(r["returncode"], expected, r["stderr"])
+
+    def test_streamed_agent_text_mentioning_refresh_failure_is_not_retryable(self) -> None:
+        base = self.sandbox()
+        message = self.AUTH_REFRESH_RESULT["result"]
+        fixture = "\n".join(
+            [
+                json.dumps({"type": "assistant", "message": {"content": [{"type": "text", "text": message}]}}),
+                json.dumps({"type": "result", **CLAUDE_JSON, "is_error": True, "result": "Execution error"}),
+            ]
+        )
+        r = self.run_adapter(
+            self.CMD,
+            self.base_flags(base),
+            fake_name="claude",
+            fixture_text=fixture,
+            record_extra=True,
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(base / "out.activity.jsonl"), "ADAPTER_EXIT_CODE": "1"},
+        )
+        self.assertEqual(r["returncode"], 1, r["stderr"])
+
+    def test_plain_credential_refresh_diagnostic_requires_failed_cli(self) -> None:
+        message = self.AUTH_REFRESH_RESULT["result"]
+        for streaming in (False, True):
+            for native_rc, expected in (("1", 72), ("75", 75), ("0", 0)):
+                with self.subTest(streaming=streaming, native_rc=native_rc):
+                    base = self.sandbox()
+                    env_extra = {"ADAPTER_EXIT_CODE": native_rc}
+                    fixture = f"{message}\n"
+                    if streaming:
+                        env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                        assistant = {"type": "assistant", "message": {"content": [{"type": "text", "text": "x"}]}}
+                        fixture = json.dumps(assistant) + "\n" + fixture
+                    r = self.run_adapter(
+                        self.CMD,
+                        self.base_flags(base),
+                        fake_name="claude",
+                        fixture_text=fixture,
+                        record_extra=True,
+                        env_extra=env_extra,
+                    )
+                    self.assertEqual(r["returncode"], expected, r["stderr"])
+
+    def test_transient_classification_wins_over_credential_refresh(self) -> None:
+        base = self.sandbox()
+        record = {**self.AUTH_REFRESH_RESULT, "api_error_status": 503}
+        r = self.run_adapter(
+            self.CMD,
+            self.base_flags(base),
+            fake_name="claude",
+            fixture_text=json.dumps(record),
+            record_extra=True,
+            env_extra={"ADAPTER_EXIT_CODE": "1"},
+        )
+        self.assertEqual(r["returncode"], 74, r["stderr"])
+
+    def test_native_retry_statuses_are_not_passed_through(self) -> None:
+        for native_rc in ("72", "74"):
+            with self.subTest(native_rc=native_rc):
+                base = self.sandbox()
+                r = self.invoke(self.base_flags(base), env_extra={"ADAPTER_EXIT_CODE": native_rc})
+                self.assertEqual(r["returncode"], 1, r["stderr"])
+
     def test_rate_limit_in_stream_result_exits_75(self) -> None:
         base = self.sandbox()
         activity = base / "out.activity.jsonl"
@@ -1388,7 +1547,7 @@ class ClaudeCodeAdapter(AdapterCase):
                 {"type": "result", **CLAUDE_JSON, "is_error": True, "result": "you hit your limit for today"}
             ),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 75)
 
@@ -1462,7 +1621,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text="Claude usage limit reached — you hit your limit for today\n",
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 75)
 
@@ -1484,7 +1643,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text="\n".join([chatter, json.dumps({"type": "result", **CLAUDE_JSON})]),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
 
@@ -1506,7 +1665,7 @@ class ClaudeCodeAdapter(AdapterCase):
                 }
             ),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
 
@@ -1546,7 +1705,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=fixture,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 1, r["stderr"])
         self.assertIn("readable log", r["stderr"])
@@ -1565,7 +1724,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=result,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertIn("activity log", r["stderr"])
@@ -1583,7 +1742,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=json.dumps({"type": "result", **CLAUDE_JSON}),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
         )
         self.assertEqual(r["returncode"], 9, r["stderr"])
         self.assertEqual(log.read_text(), "done\n")
@@ -1605,7 +1764,7 @@ class ClaudeCodeAdapter(AdapterCase):
                     fake_name="claude",
                     fixture_text=fixture,
                     record_extra=True,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
                 )
                 self.assertEqual(r["returncode"], 75, r["stderr"])
 
@@ -1619,7 +1778,7 @@ class ClaudeCodeAdapter(AdapterCase):
             fake_name="claude",
             fixture_text=json.dumps({"type": "result", **CLAUDE_JSON}),
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": "/dev/full"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": "/dev/full"},
             timeout=3,
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
@@ -1634,11 +1793,11 @@ class ClaudeCodeAdapter(AdapterCase):
                 fixture = json.dumps({"type": "result", **CLAUDE_JSON})
                 r = self.run_adapter(
                     self.CMD,
-                    [self.with_prompt_file(base), "--log=/proc/specula-adapter.log"],
+                    [self.with_prompt_file(base), "--log=/proc/specular-adapter.log"],
                     fake_name="claude",
                     fixture_text=fixture,
                     record_extra=True,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": cli_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": cli_rc},
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
                 self.assertEqual(activity.read_text(), fixture)
@@ -1940,9 +2099,9 @@ class OpenCodeAdapter(AdapterCase):
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_RESUME_STATE": "/ambient/state",
-                "SPECULA_RESUME_MODEL": "ambient-model",
-                "SPECULA_RESUME_EFFORT": "ambient-effort",
+                "SPECULAR_RESUME_STATE": "/ambient/state",
+                "SPECULAR_RESUME_MODEL": "ambient-model",
+                "SPECULAR_RESUME_EFFORT": "ambient-effort",
             },
         )
         self.assertEqual(result["resumeenv"], "<unset>|<unset>|<unset>")
@@ -1975,25 +2134,25 @@ class OpenCodeAdapter(AdapterCase):
         self.assertEqual(result["effortenv"], "<unset>")
         self.assertEqual(result["vcsenv"], "git")
 
-    def test_external_specula_and_artifact_paths_are_allowed(self) -> None:
+    def test_external_specular_and_artifact_paths_are_allowed(self) -> None:
         base = self.sandbox()
-        specula_root = base / "Specula"
+        specular_root = base / "Specular"
         target_repo = base / "target"
-        work_dir = base / "run" / "kilo" / ".specula-output"
+        work_dir = base / "run" / "kilo" / ".specular-output"
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_ROOT": str(specula_root),
-                "SPECULA_TARGET_REPO_DIR": str(target_repo),
-                "SPECULA_WORK_DIR": str(work_dir),
+                "SPECULAR_ROOT": str(specular_root),
+                "SPECULAR_TARGET_REPO_DIR": str(target_repo),
+                "SPECULAR_WORK_DIR": str(work_dir),
             },
         )
 
         self.assertEqual(result["returncode"], 0, result["stderr"])
         self.assertEqual(result["configdir"], "<unset>")
         external = json.loads(result["opencode_permission"])["external_directory"]
-        self.assertEqual(external[str(specula_root)], "allow")
-        self.assertEqual(external[f"{specula_root}/**"], "allow")
+        self.assertEqual(external[str(specular_root)], "allow")
+        self.assertEqual(external[f"{specular_root}/**"], "allow")
         self.assertEqual(external[str(target_repo)], "allow")
         self.assertEqual(external[f"{target_repo}/**"], "allow")
         self.assertEqual(external[str(work_dir)], "allow")
@@ -2026,7 +2185,7 @@ class OpenCodeAdapter(AdapterCase):
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_ROOT": str(base / "Specula"),
+                "SPECULAR_ROOT": str(base / "Specular"),
                 "OPENCODE_PERMISSION": json.dumps(
                     {
                         "bash": "deny",
@@ -2041,17 +2200,17 @@ class OpenCodeAdapter(AdapterCase):
         self.assertEqual(permission["bash"], "deny")
         self.assertEqual(permission["external_directory"]["*"], "deny")
         self.assertEqual(permission["external_directory"]["/keep-denied"], "deny")
-        self.assertEqual(permission["external_directory"][str(base / "Specula")], "allow")
+        self.assertEqual(permission["external_directory"][str(base / "Specular")], "allow")
 
     def test_native_specific_rules_win_by_opencode_last_match_order(self) -> None:
         base = self.sandbox()
-        specula_root = base / "Specula"
-        private = specula_root / "private"
+        specular_root = base / "Specular"
+        private = specular_root / "private"
         exception = private / "allowed"
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_ROOT": str(specula_root),
+                "SPECULAR_ROOT": str(specular_root),
                 "OPENCODE_PERMISSION": json.dumps(
                     {
                         "external_directory": {
@@ -2071,15 +2230,15 @@ class OpenCodeAdapter(AdapterCase):
             actions = [action for pattern, action in rules.items() if fnmatchcase(str(path), pattern)]
             return actions[-1] if actions else None
 
-        self.assertEqual(last_match(specula_root / "public" / "file.txt"), "allow")
+        self.assertEqual(last_match(specular_root / "public" / "file.txt"), "allow")
         self.assertEqual(last_match(private / "secret.txt"), "deny")
         self.assertEqual(last_match(exception / "kept.txt"), "allow")
 
     def test_native_rule_order_and_same_pattern_are_preserved(self) -> None:
         base = self.sandbox()
-        specula_root = base / "Specula"
+        specular_root = base / "Specular"
         unrelated = base / "unrelated"
-        target_pattern = f"{specula_root}/**"
+        target_pattern = f"{specular_root}/**"
         native_rules = {
             f"{unrelated}/**": "allow",
             "*": "deny",
@@ -2088,7 +2247,7 @@ class OpenCodeAdapter(AdapterCase):
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_ROOT": str(specula_root),
+                "SPECULAR_ROOT": str(specular_root),
                 "OPENCODE_PERMISSION": json.dumps({"external_directory": native_rules}),
             },
         )
@@ -2105,14 +2264,14 @@ class OpenCodeAdapter(AdapterCase):
         # The catch-all originally followed this allow, so it must still win.
         self.assertEqual(last_match(unrelated / "file.txt"), "deny")
         # A native rule identical to a generated pattern keeps its deny value.
-        self.assertEqual(last_match(specula_root / "private.txt"), "deny")
+        self.assertEqual(last_match(specular_root / "private.txt"), "deny")
 
     def test_scalar_native_permission_becomes_catch_all(self) -> None:
         base = self.sandbox()
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_ROOT": str(base / "Specula"),
+                "SPECULAR_ROOT": str(base / "Specular"),
                 "OPENCODE_PERMISSION": json.dumps("deny"),
             },
         )
@@ -2120,7 +2279,7 @@ class OpenCodeAdapter(AdapterCase):
         self.assertEqual(result["returncode"], 0, result["stderr"])
         permission = json.loads(result["opencode_permission"])
         self.assertEqual(permission["*"], "deny")
-        self.assertEqual(permission["external_directory"][str(base / "Specula")], "allow")
+        self.assertEqual(permission["external_directory"][str(base / "Specular")], "allow")
 
     def test_prompt_file_and_large_prompt_use_stdin(self) -> None:
         for prompt in ("prompt from file\n", "x" * 200_000):
@@ -2194,7 +2353,7 @@ class OpenCodeAdapter(AdapterCase):
         activity = base / "out.activity.jsonl"
         result = self.invoke(
             self.base_flags(base),
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(result["returncode"], 0, result["stderr"])
         self.assertEqual(activity.read_text(), self.FIXTURE)
@@ -2629,6 +2788,16 @@ class OpenCodeAdapter(AdapterCase):
                 )
                 self.assertEqual(result["returncode"], native_status, result["stderr"])
 
+    def test_native_retry_statuses_are_not_passed_through(self) -> None:
+        for native_status in (72, 74):
+            with self.subTest(native_status=native_status):
+                base = self.sandbox()
+                result = self.invoke(
+                    self.base_flags(base),
+                    env_extra={"ADAPTER_EXIT_CODE": str(native_status)},
+                )
+                self.assertEqual(result["returncode"], 1, result["stderr"])
+
     def test_incomplete_terminal_event_overrides_zero_native_exit(self) -> None:
         for name, fixture, diagnostic in (
             (
@@ -2697,7 +2866,7 @@ class OpenCodeAdapter(AdapterCase):
         activity.mkdir()
         result = self.invoke(
             self.base_flags(base),
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(result["returncode"], 0, result["stderr"])
         self.assertIn("activity log", result["stderr"])
@@ -2888,9 +3057,9 @@ class PiAdapter(AdapterCase):
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_RESUME_STATE": "/ambient/state",
-                "SPECULA_RESUME_MODEL": "ambient-model",
-                "SPECULA_RESUME_EFFORT": "ambient-effort",
+                "SPECULAR_RESUME_STATE": "/ambient/state",
+                "SPECULAR_RESUME_MODEL": "ambient-model",
+                "SPECULAR_RESUME_EFFORT": "ambient-effort",
             },
         )
         self.assertEqual(result["resumeenv"], "<unset>|<unset>|<unset>")
@@ -3034,7 +3203,7 @@ class PiAdapter(AdapterCase):
             fake_name="pi",
             fixture_text=fixture,
             record_extra=True,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(result["returncode"], 0, result["stderr"])
         self.assertEqual(activity.read_text(), self.expected_activity(records))
@@ -3254,6 +3423,16 @@ class PiAdapter(AdapterCase):
                 self.assertEqual(result["returncode"], 75, result["stderr"])
                 self.assertIn("rate limit hit", result["stderr"])
 
+    def test_native_retry_statuses_are_not_passed_through(self) -> None:
+        for native_status in (72, 74):
+            with self.subTest(native_status=native_status):
+                base = self.sandbox()
+                result = self.invoke(
+                    self.base_flags(base),
+                    env_extra={"ADAPTER_EXIT_CODE": str(native_status)},
+                )
+                self.assertEqual(result["returncode"], 1, result["stderr"])
+
     def test_top_level_rate_limit_maps_to_retry_status(self) -> None:
         fixture = json.dumps(
             {
@@ -3453,16 +3632,16 @@ class PiAdapter(AdapterCase):
                 while not ready.is_file() and time.monotonic() < deadline:
                     time.sleep(0.01)
                 self.assertTrue(ready.is_file(), "fake Pi did not become ready")
-                self.assertTrue(list(tmpdir.glob("specula-pi-sessions-*")))
-                self.assertTrue(list(tmpdir.glob("specula-pi-activity-*.jsonl")))
-                self.assertTrue(list(tmpdir.glob("specula-pi-prompt-*.txt")))
+                self.assertTrue(list(tmpdir.glob("specular-pi-sessions-*")))
+                self.assertTrue(list(tmpdir.glob("specular-pi-activity-*.jsonl")))
+                self.assertTrue(list(tmpdir.glob("specular-pi-prompt-*.txt")))
 
                 os.killpg(proc.pid, signum)
                 _stdout, stderr = proc.communicate(timeout=5)
                 self.assertEqual(proc.returncode, 128 + signum, stderr)
-                self.assertFalse(list(tmpdir.glob("specula-pi-sessions-*")))
-                self.assertFalse(list(tmpdir.glob("specula-pi-activity-*.jsonl")))
-                self.assertFalse(list(tmpdir.glob("specula-pi-prompt-*.txt")))
+                self.assertFalse(list(tmpdir.glob("specular-pi-sessions-*")))
+                self.assertFalse(list(tmpdir.glob("specular-pi-activity-*.jsonl")))
+                self.assertFalse(list(tmpdir.glob("specular-pi-prompt-*.txt")))
 
     def test_subagent_sessions_are_included_in_combined_usage(self) -> None:
         base = self.sandbox()
@@ -3512,9 +3691,9 @@ class PiAdapter(AdapterCase):
                 base = self.sandbox()
                 activity = base / "out.activity.jsonl"
                 result = self.invoke(
-                    [self.with_prompt_file(base), "--log=/proc/specula-pi-adapter.log"],
+                    [self.with_prompt_file(base), "--log=/proc/specular-pi-adapter.log"],
                     env_extra={
-                        "SPECULA_ACTIVITY_LOG": str(activity),
+                        "SPECULAR_ACTIVITY_LOG": str(activity),
                         "ADAPTER_EXIT_CODE": str(native_status),
                     },
                 )
@@ -3614,13 +3793,13 @@ class CodexAdapter(AdapterCase):
                 result = self.invoke(
                     self.base_flags(base),
                     env_extra={
-                        "SPECULA_TLC_TOOL_CODEX": '{command="python3"}',
+                        "SPECULAR_TLC_TOOL_CODEX": '{command="python3"}',
                         "CODEX_FEATURES_TEXT": f"code_mode_host stable true\ncode_mode under development {enabled}\n",
                     },
                 )
                 self.assertEqual(result["returncode"], 0, result["stderr"])
                 self.assertIn(f"features.code_mode.enabled={enabled}", result["argv"])
-                self.assertIn('features.code_mode.direct_only_tool_namespaces=["mcp__specula_tlc"]', result["argv"])
+                self.assertIn('features.code_mode.direct_only_tool_namespaces=["mcp__specular_tlc"]', result["argv"])
                 self.assertEqual(result["stdin"], "the prompt")
 
     def test_tlc_does_not_guess_an_unreadable_code_mode_state(self) -> None:
@@ -3630,7 +3809,7 @@ class CodexAdapter(AdapterCase):
                 result = self.invoke(
                     self.base_flags(base),
                     env_extra={
-                        "SPECULA_TLC_TOOL_CODEX": '{command="python3"}',
+                        "SPECULAR_TLC_TOOL_CODEX": '{command="python3"}',
                         "CODEX_FEATURES_TEXT": features,
                         "CODEX_FEATURES_EXIT": code,
                     },
@@ -3659,9 +3838,9 @@ class CodexAdapter(AdapterCase):
             fake_name="codex",
             fixture_text='{"type":"turn.completed","usage":{}}',
             env_extra={
-                "SPECULA_TLC_TOOL_CODEX": '{command="python3"}',
-                "SPECULA_SANDBOX": "on",
-                "SPECULA_SANDBOX_BACKEND": str(base / "backend.mjs"),
+                "SPECULAR_TLC_TOOL_CODEX": '{command="python3"}',
+                "SPECULAR_SANDBOX": "on",
+                "SPECULAR_SANDBOX_BACKEND": str(base / "backend.mjs"),
                 "SANDBOX_CALLS": str(base / "sandbox-calls.txt"),
                 "CODEX_FEATURES_TEXT": "code_mode under development false",
             },
@@ -3685,9 +3864,9 @@ class CodexAdapter(AdapterCase):
         r = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_PHASE": "bug_confirmation_turn",
-                "SPECULA_WORK_DIR": str(target),
-                "SPECULA_STOP_GATE_WORK_DIR": str(gate_scope),
+                "SPECULAR_PHASE": "bug_confirmation_turn",
+                "SPECULAR_WORK_DIR": str(target),
+                "SPECULAR_STOP_GATE_WORK_DIR": str(gate_scope),
             },
         )
 
@@ -3714,7 +3893,7 @@ class CodexAdapter(AdapterCase):
         output_flag = r["argv"].index("--output-last-message")
         self.assertEqual(r["argv"][output_flag + 1], str(log) + ".last-message.txt")
 
-    def test_specula_activity_uses_json_stream(self) -> None:
+    def test_specular_activity_uses_json_stream(self) -> None:
         base = self.sandbox()
         activity = base / "out.activity.jsonl"
         fixture = "\n".join(
@@ -3738,7 +3917,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
@@ -3794,16 +3973,16 @@ class CodexAdapter(AdapterCase):
         )
         usage = json.loads((base / "out.usage.json").read_text())
         self.assertEqual(usage["session_id"], session_id)
-        self.assertEqual(list(base.glob("specula-codex-activity-*.jsonl")), [])
+        self.assertEqual(list(base.glob("specular-codex-activity-*.jsonl")), [])
 
     def test_resume_plumbing_environment_is_stripped_before_spawn(self) -> None:
         base = self.sandbox()
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_RESUME_STATE": "/ambient/state",
-                "SPECULA_RESUME_MODEL": "ambient-model",
-                "SPECULA_RESUME_EFFORT": "ambient-effort",
+                "SPECULAR_RESUME_STATE": "/ambient/state",
+                "SPECULAR_RESUME_MODEL": "ambient-model",
+                "SPECULAR_RESUME_EFFORT": "ambient-effort",
             },
         )
         self.assertEqual(result["resumeenv"], "<unset>|<unset>|<unset>")
@@ -3870,7 +4049,7 @@ class CodexAdapter(AdapterCase):
         self.assertNotIn("--last", r["argv"])
         self.assertEqual(r["stdin"], "continue only")
         self.assertEqual(json.loads((base / "out.usage.json").read_text())["session_id"], session_id)
-        self.assertEqual(list(base.glob("specula-codex-activity-*.jsonl")), [])
+        self.assertEqual(list(base.glob("specular-codex-activity-*.jsonl")), [])
 
     def test_resume_state_mismatch_fails_before_launch(self) -> None:
         base = self.sandbox()
@@ -3898,6 +4077,92 @@ class CodexAdapter(AdapterCase):
         self.assertEqual(r["returncode"], 1)
         self.assertIn("invalid or incompatible resume state", r["stderr"])
         self.assertEqual(r["argv"], [])
+
+    def codex_home_with_profile(self, base: Path, name: str = "glm") -> Path:
+        codex_home = base / "codex-home"
+        codex_home.mkdir()
+        (codex_home / f"{name}.config.toml").write_text('model = "glm-5.3"\n')
+        return codex_home
+
+    def test_codex_profile_forwarded_as_profile_flag(self) -> None:
+        base = self.sandbox()
+        codex_home = self.codex_home_with_profile(base)
+        r = self.invoke(
+            self.base_flags(base) + ["--model=glm-5.3", "--codex-profile=glm"],
+            env_extra={"CODEX_HOME": str(codex_home)},
+        )
+        self.assertEqual(r["returncode"], 0, r["stderr"])
+        self.assertEqual(
+            r["argv"],
+            [
+                "exec",
+                "--dangerously-bypass-approvals-and-sandbox",
+                "--output-last-message",
+                str(base / "out.last-message.txt"),
+                "-c",
+                "tool_output_token_limit=10000",
+                "-m",
+                "glm-5.3",
+                "-p",
+                "glm",
+                "--json",
+                "-",
+            ],
+        )
+
+    def test_codex_profile_requires_existing_profile_file(self) -> None:
+        base = self.sandbox()
+        codex_home = self.codex_home_with_profile(base, "other")
+        for value, message in (
+            ("glm", "Codex profile file not found"),
+            ("", "--codex-profile requires a profile name"),
+            ("../glm", "--codex-profile requires a profile name"),
+        ):
+            with self.subTest(value=value):
+                r = self.invoke(
+                    self.base_flags(base) + [f"--codex-profile={value}"],
+                    env_extra={"CODEX_HOME": str(codex_home)},
+                )
+                self.assertEqual(r["returncode"], 1)
+                self.assertIn(message, r["stderr"])
+                self.assertEqual(r["argv"], [])
+
+    def test_codex_profile_binds_resume_state(self) -> None:
+        base = self.sandbox()
+        codex_home = self.codex_home_with_profile(base)
+        state = base / "resume.json"
+        session_id = "019f0000-0000-7000-8000-000000000020"
+        fixture = "\n".join(
+            [
+                json.dumps({"type": "thread.started", "thread_id": session_id}),
+                json.dumps({"type": "turn.completed", "usage": {}}),
+            ]
+        )
+        flags = [*self.base_flags(base), "--codex-profile=glm", f"--resume-state={state}"]
+        env = {"TMPDIR": str(base), "CODEX_HOME": str(codex_home)}
+        r = self.run_adapter(
+            self.CMD, flags, fake_name="codex", fixture_text=fixture, env_extra=env, record_extra=True, run_dir=base
+        )
+        self.assertEqual(r["returncode"], 0, r["stderr"])
+        self.assertEqual(json.loads(state.read_text())["codex_profile"], "glm")
+
+        # The same profile resumes the exact session; dropping it is incompatible.
+        r = self.run_adapter(
+            self.CMD, flags, fake_name="codex", fixture_text=fixture, env_extra=env, record_extra=True, run_dir=base
+        )
+        self.assertEqual(r["returncode"], 0, r["stderr"])
+        self.assertEqual(r["argv"][-6:], ["-p", "glm", "resume", session_id, "--json", "-"])
+        r = self.run_adapter(
+            self.CMD,
+            [*self.base_flags(base), f"--resume-state={state}"],
+            fake_name="codex",
+            fixture_text="unused",
+            env_extra=env,
+            record_extra=True,
+            run_dir=base,
+        )
+        self.assertEqual(r["returncode"], 1)
+        self.assertIn("invalid or incompatible resume state", r["stderr"])
 
     def test_stream_session_change_is_fail_closed_before_native_rate_limit(self) -> None:
         base = self.sandbox()
@@ -4136,7 +4401,7 @@ class CodexAdapter(AdapterCase):
                 self.assertEqual(usage["session_file"], session_file.stem)
                 self.assertIsNone(usage["total_cost_usd"])
                 self.assertEqual(usage["usage"], {})
-                self.assertEqual(list(base.glob("specula-codex-session-*.id")), [])
+                self.assertEqual(list(base.glob("specular-codex-session-*.id")), [])
 
     def test_usage_uses_exact_thread_and_aggregates_descendants(self) -> None:
         base = self.sandbox()
@@ -4308,7 +4573,7 @@ class CodexAdapter(AdapterCase):
             (base / "npx-argv.txt").read_text().splitlines(),
             ["--yes", "ccusage@20.0.19", "codex", "session", "--json"],
         )
-        self.assertEqual(list(base.glob("specula-codex-session-*.id")), [])
+        self.assertEqual(list(base.glob("specular-codex-session-*.id")), [])
 
     def test_usage_treats_ccusage_omitted_descendant_as_zero(self) -> None:
         base = self.sandbox()
@@ -4437,7 +4702,7 @@ class CodexAdapter(AdapterCase):
                 self.assertIsNone(usage["total_cost_usd"])
                 self.assertEqual(usage["usage"], {})
                 self.assertFalse(sentinel.exists())
-                self.assertEqual(list(base.glob("specula-codex-session-*.id")), [])
+                self.assertEqual(list(base.glob("specular-codex-session-*.id")), [])
 
     def test_large_prompt_uses_stdin_with_activity_stream(self) -> None:
         base = self.sandbox()
@@ -4449,7 +4714,7 @@ class CodexAdapter(AdapterCase):
             [self.with_prompt_file(base, prompt), f"--log={base}/out.log", "--max-turns=0"],
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
@@ -4462,6 +4727,13 @@ class CodexAdapter(AdapterCase):
                 base = self.sandbox()
                 r = self.invoke(self.base_flags(base), env_extra={"ADAPTER_EXIT_CODE": cli_rc})
                 self.assertEqual(r["returncode"], int(cli_rc), r["stderr"])
+
+    def test_native_retry_statuses_are_not_passed_through(self) -> None:
+        for cli_rc in ("72", "74"):
+            with self.subTest(cli_rc=cli_rc):
+                base = self.sandbox()
+                r = self.invoke(self.base_flags(base), env_extra={"ADAPTER_EXIT_CODE": cli_rc})
+                self.assertEqual(r["returncode"], 1, r["stderr"])
 
     def test_policy_block_overrides_native_failure_with_activity_stream(self) -> None:
         base = self.sandbox()
@@ -4480,7 +4752,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 76, r["stderr"])
@@ -4504,7 +4776,7 @@ class CodexAdapter(AdapterCase):
                     self.base_flags(base),
                     fake_name="codex",
                     fixture_text=fixture,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
                     record_extra=True,
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
@@ -4523,7 +4795,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 75, r["stderr"])
@@ -4544,7 +4816,7 @@ class CodexAdapter(AdapterCase):
                     self.base_flags(base),
                     fake_name="codex",
                     fixture_text=fixture,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
                     record_extra=True,
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
@@ -4565,7 +4837,7 @@ class CodexAdapter(AdapterCase):
                     self.base_flags(base),
                     fake_name="codex",
                     fixture_text=fixture,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": native_rc},
                     record_extra=True,
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
@@ -4584,7 +4856,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 9, r["stderr"])
@@ -4603,7 +4875,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 9, r["stderr"])
@@ -4628,7 +4900,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
             record_extra=True,
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
@@ -4698,7 +4970,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertEqual((base / "out.log").read_text(), "adapter error: quota exhausted\nrecovered\n")
@@ -4730,7 +5002,7 @@ class CodexAdapter(AdapterCase):
                     self.base_flags(base),
                     fake_name="codex",
                     fixture_text=json.dumps(record),
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
                 )
                 self.assertEqual(r["returncode"], 0, r["stderr"])
                 self.assertEqual((base / "out.log").read_text(), expected_log)
@@ -4743,7 +5015,7 @@ class CodexAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="codex",
             fixture_text=json.dumps({"type": "turn.failed", "error": {"message": "fatal"}}),
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": "9"},
         )
         self.assertEqual(r["returncode"], 9, r["stderr"])
 
@@ -4756,10 +5028,10 @@ class CodexAdapter(AdapterCase):
                 fixture = json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": "done"}})
                 r = self.run_adapter(
                     self.CMD,
-                    [self.with_prompt_file(base), "--log=/proc/specula-adapter.log", "--max-turns=0"],
+                    [self.with_prompt_file(base), "--log=/proc/specular-adapter.log", "--max-turns=0"],
                     fake_name="codex",
                     fixture_text=fixture,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": cli_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": cli_rc},
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
                 self.assertEqual(activity.read_text(), fixture)
@@ -4780,7 +5052,7 @@ class CodexAdapter(AdapterCase):
                     [self.with_prompt_file(base), f"--log={log}", "--max-turns=0"],
                     fake_name="codex",
                     fixture_text=fixture,
-                    env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": cli_rc},
+                    env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "ADAPTER_EXIT_CODE": cli_rc},
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
                 self.assertIn("readable log", r["stderr"])
@@ -4797,7 +5069,7 @@ class CodexAdapter(AdapterCase):
             [self.with_prompt_file(base), f"--log={log}", "--max-turns=0"],
             fake_name="codex",
             fixture_text=final,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity)},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity)},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertIn("activity log", r["stderr"])
@@ -4959,7 +5231,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(base / "out.activity.jsonl"),
+                "SPECULAR_ACTIVITY_LOG": str(base / "out.activity.jsonl"),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                 "TMPDIR": str(base),
             },
@@ -4989,7 +5261,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(base / "out.activity.jsonl"),
+                "SPECULAR_ACTIVITY_LOG": str(base / "out.activity.jsonl"),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                 "TMPDIR": str(base),
             },
@@ -5034,7 +5306,7 @@ class CopilotAdapter(AdapterCase):
                     fixture_text="\n".join(events),
                     env_extra={
                         "ADAPTER_EXIT_CODE": str(native_rc),
-                        "SPECULA_ACTIVITY_LOG": str(base / "out.activity.jsonl"),
+                        "SPECULAR_ACTIVITY_LOG": str(base / "out.activity.jsonl"),
                         "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                         "TMPDIR": str(base),
                     },
@@ -5121,9 +5393,9 @@ class CopilotAdapter(AdapterCase):
         result = self.invoke(
             self.base_flags(base),
             env_extra={
-                "SPECULA_RESUME_STATE": "/ambient/state",
-                "SPECULA_RESUME_MODEL": "ambient-model",
-                "SPECULA_RESUME_EFFORT": "ambient-effort",
+                "SPECULAR_RESUME_STATE": "/ambient/state",
+                "SPECULAR_RESUME_MODEL": "ambient-model",
+                "SPECULAR_RESUME_EFFORT": "ambient-effort",
             },
         )
         self.assertEqual(result["resumeenv"], "<unset>|<unset>|<unset>")
@@ -5364,7 +5636,7 @@ class CopilotAdapter(AdapterCase):
         self.invoke(self.base_flags(base))
         self.assertEqual((base / "out.log").read_text(), "copilot ran\n")
 
-    def test_specula_activity_uses_json_stream(self) -> None:
+    def test_specular_activity_uses_json_stream(self) -> None:
         base = self.sandbox()
         activity = base / "out.activity.jsonl"
         fixture = "\n".join(
@@ -5391,7 +5663,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--reasoning-effort\n--output-format\n--stream",
             },
         )
@@ -5413,7 +5685,7 @@ class CopilotAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="copilot",
             fixture_text="old copilot completed\n",
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "COPILOT_HELP_TEXT": "--autopilot\n--stream"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "COPILOT_HELP_TEXT": "--autopilot\n--stream"},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertNotIn("--output-format", r["argv"])
@@ -5430,7 +5702,7 @@ class CopilotAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="copilot",
             fixture_text=fixture,
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "COPILOT_HELP_TEXT": "--autopilot\n--stream"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "COPILOT_HELP_TEXT": "--autopilot\n--stream"},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertEqual((base / "out.log").read_text(), fixture)
@@ -5456,7 +5728,7 @@ class CopilotAdapter(AdapterCase):
                     fake_name="copilot",
                     fixture_text=fixture,
                     env_extra={
-                        "SPECULA_ACTIVITY_LOG": str(activity),
+                        "SPECULAR_ACTIVITY_LOG": str(activity),
                         "COPILOT_HELP_TEXT": "--autopilot\n--stream",
                         "ADAPTER_EXIT_CODE": native_rc,
                     },
@@ -5475,7 +5747,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--stream",
                 "ADAPTER_EXIT_CODE": "9",
             },
@@ -5490,7 +5762,7 @@ class CopilotAdapter(AdapterCase):
             self.base_flags(base),
             fake_name="copilot",
             fixture_text="legacy copilot completed\n",
-            env_extra={"SPECULA_ACTIVITY_LOG": str(activity), "COPILOT_HELP_TEXT": "--autopilot"},
+            env_extra={"SPECULAR_ACTIVITY_LOG": str(activity), "COPILOT_HELP_TEXT": "--autopilot"},
         )
         self.assertEqual(r["returncode"], 0, r["stderr"])
         self.assertNotIn("--output-format", r["argv"])
@@ -5555,7 +5827,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
             },
         )
@@ -5575,7 +5847,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                 "ADAPTER_EXIT_CODE": "9",
             },
@@ -5601,7 +5873,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                 "ADAPTER_EXIT_CODE": "9",
             },
@@ -5629,12 +5901,33 @@ class CopilotAdapter(AdapterCase):
                     fake_name="copilot",
                     fixture_text=fixture,
                     env_extra={
-                        "SPECULA_ACTIVITY_LOG": str(activity),
+                        "SPECULAR_ACTIVITY_LOG": str(activity),
                         "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                         "ADAPTER_EXIT_CODE": native_rc,
                     },
                 )
                 self.assertEqual(r["returncode"], expected, r["stderr"])
+
+    def test_native_retry_statuses_are_not_passed_through(self) -> None:
+        stream = json.dumps({"type": "session.start", "data": {"sessionId": "session-1"}})
+        for native_rc in ("72", "74"):
+            for streaming in (False, True):
+                with self.subTest(native_rc=native_rc, streaming=streaming):
+                    base = self.sandbox()
+                    env_extra = {"ADAPTER_EXIT_CODE": native_rc}
+                    if streaming:
+                        env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                        env_extra["COPILOT_HELP_TEXT"] = "--autopilot\n--output-format\n--stream"
+                        r = self.run_adapter(
+                            self.CMD,
+                            self.base_flags(base),
+                            fake_name="copilot",
+                            fixture_text=stream,
+                            env_extra=env_extra,
+                        )
+                    else:
+                        r = self.invoke(self.base_flags(base), env_extra=env_extra)
+                    self.assertEqual(r["returncode"], 1, r["stderr"])
 
     def test_json_stream_plain_policy_diagnostic_uses_failed_cli_status(self) -> None:
         fixture = "\n".join(
@@ -5653,7 +5946,7 @@ class CopilotAdapter(AdapterCase):
                     fake_name="copilot",
                     fixture_text=fixture,
                     env_extra={
-                        "SPECULA_ACTIVITY_LOG": str(activity),
+                        "SPECULAR_ACTIVITY_LOG": str(activity),
                         "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                         "ADAPTER_EXIT_CODE": native_rc,
                     },
@@ -5677,7 +5970,7 @@ class CopilotAdapter(AdapterCase):
                     fake_name="copilot",
                     fixture_text=fixture,
                     env_extra={
-                        "SPECULA_ACTIVITY_LOG": str(activity),
+                        "SPECULAR_ACTIVITY_LOG": str(activity),
                         "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                         "ADAPTER_EXIT_CODE": native_rc,
                     },
@@ -5721,7 +6014,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text="Selected model is at capacity. Please try again.\n",
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--stream",
                 "ADAPTER_EXIT_CODE": "9",
             },
@@ -5743,7 +6036,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                 "ADAPTER_EXIT_CODE": "9",
             },
@@ -5771,7 +6064,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=fixture,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
             },
         )
@@ -5813,7 +6106,7 @@ class CopilotAdapter(AdapterCase):
                     base = self.sandbox()
                     env_extra = {"COPILOT_HELP_TEXT": "--autopilot", "ADAPTER_EXIT_CODE": "9"}
                     if streaming:
-                        env_extra["SPECULA_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
+                        env_extra["SPECULAR_ACTIVITY_LOG"] = str(base / "out.activity.jsonl")
                         env_extra["COPILOT_HELP_TEXT"] = "--autopilot\n--stream"
                     r = self.run_adapter(
                         self.CMD,
@@ -5842,7 +6135,7 @@ class CopilotAdapter(AdapterCase):
                     fake_name="copilot",
                     fixture_text=fixture,
                     env_extra={
-                        "SPECULA_ACTIVITY_LOG": str(activity),
+                        "SPECULAR_ACTIVITY_LOG": str(activity),
                         "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
                         "ADAPTER_EXIT_CODE": cli_rc,
                     },
@@ -5863,7 +6156,7 @@ class CopilotAdapter(AdapterCase):
             fake_name="copilot",
             fixture_text=final,
             env_extra={
-                "SPECULA_ACTIVITY_LOG": str(activity),
+                "SPECULAR_ACTIVITY_LOG": str(activity),
                 "COPILOT_HELP_TEXT": "--autopilot\n--output-format\n--stream",
             },
         )
@@ -5907,6 +6200,242 @@ class CopilotAdapter(AdapterCase):
         r = self.invoke(["--help"])
         self.assertEqual(r["returncode"], 0)
         self.assertIn("Adapter: copilot-cli", r["stdout"])
+
+
+class SystemPromptFileAdapters(AdapterCase):
+    """``--system-prompt-file=FILE``: each adapter puts FILE into its CLI's real
+    system/developer prompt mechanism on fresh and native-resume invocations,
+    and rejects a missing file before launching the CLI."""
+
+    TEXT = 'Rules: keep "evidence" separate.\n\\ backslash, tab\tand ünïcode — ok\n'
+
+    def system_file(self, base: Path) -> Path:
+        path = base / "rules.system.md"
+        path.write_text(self.TEXT, encoding="utf-8")
+        return path
+
+    def run_in(self, base: Path, cmd: list[str], flags: list[str], **kwargs: Any) -> AdapterRun:
+        """run_adapter in a reused sandbox, never reporting a previous run's argv."""
+        (base / "argv.txt").unlink(missing_ok=True)
+        return self.run_adapter(
+            cmd, [self.with_prompt_file(base), f"--log={base}/out.log", *flags], run_dir=base, **kwargs
+        )
+
+    def assert_rejected(self, run: AdapterRun, adapter: str, message: str) -> None:
+        self.assertEqual(run["returncode"], 1, run["stderr"])
+        self.assertIn(f"{adapter} adapter: {message}", run["stderr"])
+        self.assertEqual(run["argv"], [])  # the CLI was never launched
+
+    # ── claude-code: --append-system-prompt-file ──
+    def run_claude(self, base: Path, flags: list[str]) -> AdapterRun:
+        fixture = json.dumps({"type": "result", **CLAUDE_JSON, "session_id": "claude-session"})
+        return self.run_in(
+            base, [sys.executable, str(CLAUDE_PY)], flags, fake_name="claude", fixture_text=fixture, record_extra=True
+        )
+
+    def test_claude_appends_file_to_system_prompt_on_fresh_and_resumed_sessions(self) -> None:
+        base = self.sandbox()
+        system = self.system_file(base)
+        flags = [f"--resume-state={base / 'resume.json'}", "--system-prompt-file=rules.system.md"]
+        for phase in ("fresh", "resumed"):
+            with self.subTest(phase=phase):
+                run = self.run_claude(base, flags)
+                self.assertEqual(run["returncode"], 0, run["stderr"])
+                self.assertEqual(run["argv"].count("--append-system-prompt-file"), 1)
+                self.assertEqual(run["argv"][run["argv"].index("--append-system-prompt-file") + 1], str(system))
+                self.assertEqual("--resume" in run["argv"], phase == "resumed")
+                self.assertNotIn(self.TEXT.splitlines()[0], run["argv"])  # a path, never the text
+
+    def test_claude_without_flag_keeps_legacy_argv(self) -> None:
+        base = self.sandbox()
+        run = self.run_claude(base, [])
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertNotIn("--append-system-prompt-file", run["argv"])
+
+    def test_claude_rejects_missing_or_empty_file(self) -> None:
+        base = self.sandbox()
+        missing = self.run_claude(base, [f"--system-prompt-file={base / 'absent.md'}"])
+        self.assert_rejected(missing, "claude-code", "system prompt file not found")
+        empty = self.run_claude(base, ["--system-prompt-file="])
+        self.assert_rejected(empty, "claude-code", "--system-prompt-file requires a path")
+
+    # ── codex: -c developer_instructions=<TOML string> ──
+    def run_codex(self, base: Path, flags: list[str], env_extra: dict[str, str] | None = None) -> AdapterRun:
+        fixture = "\n".join(
+            [
+                json.dumps({"type": "thread.started", "thread_id": "019f0000-0000-7000-8000-000000000009"}),
+                json.dumps({"type": "turn.completed", "usage": {}}),
+            ]
+        )
+        return self.run_in(
+            base,
+            ["bash", str(CODEX_SH)],
+            ["--max-turns=0", *flags],
+            fake_name="codex",
+            fixture_text=fixture,
+            record_extra=True,
+            env_extra={"TMPDIR": str(base), **(env_extra or {})},
+        )
+
+    def developer_instructions(self, argv: list[str]) -> list[str]:
+        prefix = "developer_instructions="
+        return [arg.removeprefix(prefix) for arg in argv if arg.startswith(prefix)]
+
+    def test_codex_passes_file_text_as_developer_instructions_on_fresh_and_resumed_sessions(self) -> None:
+        base = self.sandbox()
+        system = self.system_file(base)
+        flags = [f"--resume-state={base / 'resume.json'}", f"--system-prompt-file={system}"]
+        for phase in ("fresh", "resumed"):
+            with self.subTest(phase=phase):
+                run = self.run_codex(base, flags)
+                self.assertEqual(run["returncode"], 0, run["stderr"])
+                values = self.developer_instructions(run["argv"])
+                self.assertEqual(len(values), 1)
+                # A JSON string literal is a valid TOML basic string with the same value.
+                self.assertTrue(values[0].startswith('"') and values[0].endswith('"'))
+                self.assertEqual(json.loads(values[0]), self.TEXT)
+                override = run["argv"].index(f"developer_instructions={values[0]}")
+                self.assertEqual(run["argv"][override - 1], "-c")
+                if phase == "resumed":
+                    self.assertLess(override, run["argv"].index("resume"))
+                else:
+                    self.assertNotIn("resume", run["argv"])
+                self.assertEqual(run["stdin"], "the prompt")
+
+    def test_codex_keeps_user_developer_instructions(self) -> None:
+        base = self.sandbox()
+        codex_home = base / "codex-home"
+        codex_home.mkdir()
+        (codex_home / "config.toml").write_text('model = "x"\n  developer_instructions = "mine"\n')
+        run = self.run_codex(
+            base, [f"--system-prompt-file={self.system_file(base)}"], env_extra={"CODEX_HOME": str(codex_home)}
+        )
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertEqual(self.developer_instructions(run["argv"]), [])
+        self.assertIn("sets developer_instructions; leaving it in place", run["stderr"])
+
+    def test_codex_without_flag_keeps_legacy_argv_and_rejects_missing_file(self) -> None:
+        base = self.sandbox()
+        run = self.run_codex(base, [])
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertEqual(self.developer_instructions(run["argv"]), [])
+        missing = self.run_codex(base, [f"--system-prompt-file={base / 'absent.md'}"])
+        self.assert_rejected(missing, "codex", "system prompt file not found")
+        empty = self.run_codex(base, ["--system-prompt-file="])
+        self.assert_rejected(empty, "codex", "--system-prompt-file requires a path")
+
+    # ── copilot-cli: AGENTS.md in a private COPILOT_CUSTOM_INSTRUCTIONS_DIRS entry ──
+    def run_copilot(self, base: Path, flags: list[str], env_extra: dict[str, str] | None = None) -> AdapterRun:
+        env = {
+            "COPILOT_HELP_TEXT": "--autopilot",
+            "TMPDIR": str(base),
+            "ADAPTER_INSTRUCTIONS_FILE": str(base / "instructions"),
+            **(env_extra or {}),
+        }
+        return self.run_in(
+            base, ["bash", str(COPILOT_SH)], flags, fake_name="copilot", fixture_text="copilot ran\n", env_extra=env
+        )
+
+    def test_copilot_loads_file_as_custom_instructions_and_keeps_inherited_dirs(self) -> None:
+        base = self.sandbox()
+        run = self.run_copilot(
+            base,
+            [f"--system-prompt-file={self.system_file(base)}"],
+            env_extra={"COPILOT_CUSTOM_INSTRUCTIONS_DIRS": "/x"},
+        )
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertEqual(run["argv"], ["-p", "the prompt", "--allow-all", "--autopilot", "--silent"])
+        dirs = (base / "instructions").read_text().strip().split(",")
+        self.assertEqual(dirs[0], "/x")
+        self.assertEqual(len(dirs), 2)
+        self.assertTrue(Path(dirs[1]).name.startswith("specular-copilot-rules-"))
+        self.assertEqual((base / "instructions.copy").read_text(encoding="utf-8"), self.TEXT)
+        self.assertFalse(Path(dirs[1]).exists())  # private staging removed on exit
+
+    def test_copilot_without_flag_leaves_instruction_dirs_alone_and_rejects_missing_file(self) -> None:
+        base = self.sandbox()
+        run = self.run_copilot(base, [])
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertEqual((base / "instructions").read_text().strip(), "<unset>")
+        missing = self.run_copilot(base, [f"--system-prompt-file={base / 'absent.md'}"])
+        self.assert_rejected(missing, "copilot-cli", "system prompt file not found")
+
+    # ── opencode: config `instructions` via OPENCODE_CONFIG_CONTENT ──
+    def run_opencode(self, base: Path, flags: list[str], env_extra: dict[str, str] | None = None) -> AdapterRun:
+        return self.run_in(
+            base,
+            [str(OPENCODE_SH)],
+            flags,
+            fake_name="opencode",
+            fixture_text=OpenCodeAdapter.FIXTURE,
+            record_extra=True,
+            env_extra={
+                "TMPDIR": str(base),
+                "ADAPTER_INSTRUCTIONS_FILE": str(base / "instructions"),
+                **(env_extra or {}),
+            },
+        )
+
+    def test_opencode_adds_file_to_instructions_and_keeps_native_config(self) -> None:
+        base = self.sandbox()
+        native = {"instructions": ["NOTES.md"], "theme": "dark"}
+        run = self.run_opencode(
+            base,
+            [f"--system-prompt-file={self.system_file(base)}"],
+            env_extra={"OPENCODE_CONFIG_CONTENT": json.dumps(native)},
+        )
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        config = json.loads(run["opencode_config"])
+        self.assertEqual(config["theme"], "dark")
+        self.assertEqual(config["instructions"][0], "NOTES.md")
+        self.assertEqual(len(config["instructions"]), 2)
+        staged = Path(config["instructions"][1])
+        self.assertEqual(staged.name, "specular-rules.md")
+        self.assertEqual((base / "instructions.copy").read_text(encoding="utf-8"), self.TEXT)
+        self.assertFalse(staged.parent.exists())  # private staging removed on exit
+
+    def test_opencode_leaves_invalid_native_config_for_opencode_to_report(self) -> None:
+        base = self.sandbox()
+        run = self.run_opencode(
+            base,
+            [f"--system-prompt-file={self.system_file(base)}"],
+            env_extra={"OPENCODE_CONFIG_CONTENT": "{not json"},
+        )
+        self.assertEqual(run["opencode_config"], "{not json")
+
+    def test_opencode_without_flag_keeps_config_and_rejects_missing_file(self) -> None:
+        base = self.sandbox()
+        run = self.run_opencode(base, [])
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertEqual(run["opencode_config"], "")
+        missing = self.run_opencode(base, [f"--system-prompt-file={base / 'absent.md'}"])
+        self.assert_rejected(missing, "opencode", "system prompt file not found")
+
+    # ── pi: --append-system-prompt <path> ──
+    def run_pi(self, base: Path, flags: list[str]) -> AdapterRun:
+        return self.run_in(base, [str(PI_SH)], flags, fake_name="pi", fixture_text=PiAdapter.FIXTURE, record_extra=True)
+
+    def test_pi_appends_file_to_system_prompt_on_fresh_and_resumed_sessions(self) -> None:
+        base = self.sandbox()
+        system = self.system_file(base)
+        flags = [f"--resume-state={base / 'resume.json'}", "--system-prompt-file=rules.system.md"]
+        for phase in ("fresh", "resumed"):
+            with self.subTest(phase=phase):
+                run = self.run_pi(base, flags)
+                self.assertEqual(run["returncode"], 0, run["stderr"])
+                self.assertEqual(run["argv"].count("--append-system-prompt"), 1)
+                self.assertEqual(run["argv"][run["argv"].index("--append-system-prompt") + 1], str(system))
+                self.assertEqual("--session" in run["argv"], phase == "resumed")
+
+    def test_pi_without_flag_keeps_legacy_argv_and_rejects_missing_file(self) -> None:
+        base = self.sandbox()
+        run = self.run_pi(base, [])
+        self.assertEqual(run["returncode"], 0, run["stderr"])
+        self.assertNotIn("--append-system-prompt", run["argv"])
+        missing = self.run_pi(base, [f"--system-prompt-file={base / 'absent.md'}"])
+        self.assert_rejected(missing, "pi", "system prompt file not found")
+        empty = self.run_pi(base, ["--system-prompt-file="])
+        self.assert_rejected(empty, "pi", "--system-prompt-file requires a path")
 
 
 if __name__ == "__main__":

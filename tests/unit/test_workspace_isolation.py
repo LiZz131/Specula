@@ -3,10 +3,10 @@
 There is no bash to diff against — these tests ARE the definition of the
 isolation semantics:
 
-  - `SPECULA_RUN_DIR` set  -> every output lands under <run>/<name>/.specula-output
+  - `SPECULAR_RUN_DIR` set  -> every output lands under <run>/<name>/.specular-output
     (uniform batch-style layout; the single-target cd disappears), canonical
     inputs (artifact checkout, .prompt-extra.md) fall back to case-studies/<name>.
-  - `SPECULA_RUN_DIR` unset -> byte-identical legacy behavior ($PWD-derived
+  - `SPECULAR_RUN_DIR` unset -> byte-identical legacy behavior ($PWD-derived
     layout, single/batch fork) — pinned here at function level, with the
     end-to-end chain in tests/e2e.
 
@@ -31,10 +31,10 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-PKG = Path(__file__).resolve().parents[2] / "src" / "specula"
+PKG = Path(__file__).resolve().parents[2] / "src" / "specular"
 
-from specula import phaselib, resumelib
-from specula import pipelinelib as pl
+from specular import phaselib, resumelib
+from specular import pipelinelib as pl
 
 RUN_ID_RE = re.compile(r"^\d{8}-\d{6}-[0-9a-f]{4}$")
 
@@ -44,16 +44,16 @@ class EnvIsolatedCase(unittest.TestCase):
 
     def setUp(self) -> None:
         names = (
-            "SPECULA_RUN_DIR",
+            "SPECULAR_RUN_DIR",
             resumelib.INVOCATION_ENV,
             resumelib.MANUAL_ENV,
             resumelib.FRESH_ENV,
             resumelib.RUN_LOCK_FD_ENV,
-            "SPECULA_TLC_SCOPE",
-            "SPECULA_TLC_MEMORY_LIMIT",
-            "SPECULA_TLC_WORKER_LIMIT",
-            "SPECULA_SOURCE_SNAPSHOT",
-            "SPECULA_SANDBOX_EXTRA_WRITE",
+            "SPECULAR_TLC_SCOPE",
+            "SPECULAR_TLC_MEMORY_LIMIT",
+            "SPECULAR_TLC_WORKER_LIMIT",
+            "SPECULAR_SOURCE_SNAPSHOT",
+            "SPECULAR_SANDBOX_EXTRA_WRITE",
         )
         original = {name: os.environ.get(name) for name in names}
 
@@ -69,7 +69,7 @@ class EnvIsolatedCase(unittest.TestCase):
             os.environ.pop(name, None)
 
     def set_run_dir(self, path: Path) -> None:
-        os.environ["SPECULA_RUN_DIR"] = str(path)
+        os.environ["SPECULAR_RUN_DIR"] = str(path)
 
     def tmp(self) -> Path:
         d = tempfile.TemporaryDirectory()
@@ -77,13 +77,13 @@ class EnvIsolatedCase(unittest.TestCase):
         return Path(d.name)
 
     def patch_root(self, module: Any, root: Path) -> None:
-        old = module.SPECULA_ROOT
+        old = module.SPECULAR_ROOT
 
         def restore() -> None:
-            module.SPECULA_ROOT = old
+            module.SPECULAR_ROOT = old
 
         self.addCleanup(restore)
-        module.SPECULA_ROOT = root
+        module.SPECULAR_ROOT = root
 
 
 class TestRunId(EnvIsolatedCase):
@@ -151,20 +151,20 @@ class TestRunId(EnvIsolatedCase):
 class TestWorkspacePaths(EnvIsolatedCase):
     def test_legacy_single_target(self) -> None:
         ws = phaselib.Workspace(["foo"], cwd=Path("/launch/dir"))
-        self.assertEqual(ws.work_dir("foo"), Path("/launch/dir/.specula-output"))
+        self.assertEqual(ws.work_dir("foo"), Path("/launch/dir/.specular-output"))
 
     def test_legacy_batch(self) -> None:
         ws = phaselib.Workspace(["foo", "bar"], cwd=Path("/launch/dir"))
-        self.assertEqual(ws.work_dir("bar"), Path("/launch/dir/bar/.specula-output"))
+        self.assertEqual(ws.work_dir("bar"), Path("/launch/dir/bar/.specular-output"))
 
     def test_isolated_uniform_layout(self) -> None:
-        """Single and batch no longer fork: always <run>/<name>/.specula-output."""
+        """Single and batch no longer fork: always <run>/<name>/.specular-output."""
         run = self.tmp()
         self.set_run_dir(run)
         for targets in (["foo"], ["foo", "bar"]):
             with self.subTest(targets=targets):
                 ws = phaselib.Workspace(targets, cwd=Path("/launch/dir"))
-                self.assertEqual(ws.work_dir("foo"), run / "foo" / ".specula-output")
+                self.assertEqual(ws.work_dir("foo"), run / "foo" / ".specular-output")
 
     def test_case_dir_is_canonical(self) -> None:
         root = self.tmp()
@@ -181,20 +181,20 @@ class TestPipelineWorkDirMirror(EnvIsolatedCase):
         cwd = str(phaselib._logical_cwd())
         p = pl.Pipeline()
         p.parse_args(["foo|o/r|Go|ref"])
-        self.assertEqual(p.get_work_dir("foo"), f"{cwd}/.specula-output")
+        self.assertEqual(p.get_work_dir("foo"), f"{cwd}/.specular-output")
         p2 = pl.Pipeline()
         p2.parse_args(["foo|o/r|Go|ref", "bar|o/r|Go|ref"])
-        self.assertEqual(p2.get_work_dir("bar"), f"{cwd}/bar/.specula-output")
+        self.assertEqual(p2.get_work_dir("bar"), f"{cwd}/bar/.specular-output")
 
     def test_isolated_uniform_layout(self) -> None:
-        run = self.tmp()
-        self.set_run_dir(run)
         for targets in (["foo|o/r|Go|ref"], ["foo|o/r|Go|ref", "bar|o/r|Go|ref"]):
             with self.subTest(targets=targets):
+                run = self.tmp()
+                self.set_run_dir(run)
                 p = pl.Pipeline()
                 p.parse_args(list(targets))
                 self.assertIsNone(p.resolve_run_dir())
-                self.assertEqual(p.get_work_dir("foo"), f"{run}/foo/.specula-output")
+                self.assertEqual(p.get_work_dir("foo"), f"{run}/foo/.specular-output")
 
 
 class TestFindRepoDir(EnvIsolatedCase):
@@ -222,7 +222,7 @@ class TestFindRepoDir(EnvIsolatedCase):
     def test_snapshot_mode_never_falls_back_to_original(self) -> None:
         run = self.tmp()
         self.set_run_dir(run)
-        os.environ["SPECULA_SOURCE_SNAPSHOT"] = "1"
+        os.environ["SPECULAR_SOURCE_SNAPSHOT"] = "1"
 
         ws = phaselib.Workspace(["foo"], artifact="/original/repo")
 
@@ -267,7 +267,7 @@ class TestPromptExtra(EnvIsolatedCase):
         self.patch_root(phaselib, root)
         (root / "case-studies" / "foo").mkdir(parents=True)
         (root / "case-studies" / "foo" / ".prompt-extra.md").write_text("canonical\n")
-        wd = run / "foo" / ".specula-output"
+        wd = run / "foo" / ".specular-output"
         wd.mkdir(parents=True)
         (wd / ".prompt-extra.md").write_text("run-local\n")
         self.set_run_dir(run)
@@ -302,8 +302,8 @@ class TestPromptExtra(EnvIsolatedCase):
 
 class TestRunMetaAndAttach(EnvIsolatedCase):
     _TUNING_ENV = (
-        "SPECULA_MODEL",
-        "SPECULA_EFFORT",
+        "SPECULAR_MODEL",
+        "SPECULAR_EFFORT",
         "CLAUDE_MODEL",
         "CLAUDE_EFFORT",
         "CODEX_MODEL",
@@ -345,7 +345,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         target: str = "foo",
     ) -> None:
         assert pipeline.run_dir is not None
-        work = pipeline.run_dir / target / ".specula-output"
+        work = pipeline.run_dir / target / ".specular-output"
         resumelib.prepare_turn(
             ("phase", phase, target),
             phase=phase,
@@ -380,8 +380,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.assertIsNone(meta["artifact_git_sha"])  # no artifact given
         self.assertIn("created", meta)
         # env exported for the phase subprocesses
-        self.assertEqual(os.environ["SPECULA_RUN_DIR"], str(p.run_dir))
-        self.assertEqual(os.environ["SPECULA_TLC_SCOPE"], str(p.run_dir.resolve()))
+        self.assertEqual(os.environ["SPECULAR_RUN_DIR"], str(p.run_dir))
+        self.assertEqual(os.environ["SPECULAR_TLC_SCOPE"], str(p.run_dir.resolve()))
 
     def test_new_run_writes_resume_configuration(self) -> None:
         root = self.tmp()
@@ -433,7 +433,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.assertEqual(resumed.guidance_text, "second\n")
         resumed.stage_guidance(["foo"])
 
-        work = first.run_dir / "foo" / ".specula-output"
+        work = first.run_dir / "foo" / ".specular-output"
         self.assertEqual((work / ".prompt-extra.md").read_text(), "second\n")
         self.assertEqual((work / ".prompt-extra.initial.md").read_text(), "second\n")
 
@@ -530,6 +530,10 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
             root,
         )
         self._seed_active_turn(first)
+        assert first.run_dir is not None
+        retained = first.run_dir / "foo/.specular-output/modeling-brief.md"
+        retained.parent.mkdir(parents=True, exist_ok=True)
+        retained.write_text("retained analysis\n")
 
         resumed = pl.Pipeline()
         self.assertIsNone(resumed.parse_args(["--run-id=fresh-config", "--fresh-context", "--model=gpt-new"]))
@@ -541,6 +545,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.assertEqual(resumed.effort, "high")
         self.assertEqual(resumed.claude_alias, "work")
         self.assertEqual(resumed.targets, ["foo|o/r|Go|ref"])
+        self.assertEqual(resumelib.load_configuration(resumed.run_dir)["default"]["model"], "gpt-new")
+        self.assertEqual(retained.read_text(), "retained analysis\n")
         self.assertEqual(resumelib.active_entries(resumed.run_dir), [])
         self.assertEqual(os.environ[resumelib.FRESH_ENV], "1")
         self.assertNotIn(resumelib.MANUAL_ENV, os.environ)
@@ -550,7 +556,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         first = self._pipeline(["--run-id=fresh-summary", "foo|o/r|Go|ref"], root)
         self._seed_active_turn(first)
         assert first.run_dir is not None
-        summary = first.run_dir / "foo" / ".specula-output" / "summary.md"
+        summary = first.run_dir / "foo" / ".specular-output" / "summary.md"
         summary.parent.mkdir(parents=True, exist_ok=True)
         summary.write_text("OLD COMPLETE FINDINGS\n")
         real_initialize = resumelib.initialize_run
@@ -705,7 +711,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         root = self.tmp()
         first = self._pipeline(["--ci-init", "--run-id=post-confirm", "foo|o/r|Go|ref"], root)
         assert first.run_dir is not None
-        work = first.run_dir / "foo/.specula-output"
+        work = first.run_dir / "foo/.specular-output"
         work.mkdir(parents=True)
         (work / "confirmed-bugs.md").write_text("# Complete confirmation\n")
 
@@ -902,9 +908,9 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         assert first.run_dir is not None
         private = first.run_dir / "foo" / "source"
         (private / "agent.txt").write_text("keep\n")
-        os.environ.pop("SPECULA_RUN_DIR", None)
-        os.environ.pop("SPECULA_TLC_SCOPE", None)
-        os.environ.pop("SPECULA_SOURCE_SNAPSHOT", None)
+        os.environ.pop("SPECULAR_RUN_DIR", None)
+        os.environ.pop("SPECULAR_TLC_SCOPE", None)
+        os.environ.pop("SPECULAR_SOURCE_SNAPSHOT", None)
 
         resumed = self._pipeline(["--run-id=private", "--fresh-context", "foo|o/r|Go|ref"], root)
         resumed.prepare_source_snapshots(["foo"])
@@ -925,9 +931,9 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self._seed_active_turn(first)
         (original / "source.txt").unlink()
         original.rmdir()
-        os.environ.pop("SPECULA_RUN_DIR", None)
-        os.environ.pop("SPECULA_TLC_SCOPE", None)
-        os.environ.pop("SPECULA_SOURCE_SNAPSHOT", None)
+        os.environ.pop("SPECULAR_RUN_DIR", None)
+        os.environ.pop("SPECULAR_TLC_SCOPE", None)
+        os.environ.pop("SPECULAR_SOURCE_SNAPSHOT", None)
 
         self.patch_root(pl, root)
         resumed = pl.Pipeline()
@@ -941,8 +947,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
 
     def test_meta_records_cli_tuning_over_environment(self) -> None:
         root = self.tmp()
-        os.environ["SPECULA_MODEL"] = "env-model"
-        os.environ["SPECULA_EFFORT"] = "low"
+        os.environ["SPECULAR_MODEL"] = "env-model"
+        os.environ["SPECULAR_EFFORT"] = "low"
         os.environ["CODEX_MODEL"] = "adapter-model"
         os.environ["CODEX_EFFORT"] = "medium"
         p = self._pipeline(
@@ -954,10 +960,10 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.assertEqual(meta["model"], "gpt-5.5")
         self.assertEqual(meta["effort"], "high")
 
-    def test_meta_records_specula_environment_tuning(self) -> None:
+    def test_meta_records_specular_environment_tuning(self) -> None:
         root = self.tmp()
-        os.environ["SPECULA_MODEL"] = "env-model"
-        os.environ["SPECULA_EFFORT"] = "low"
+        os.environ["SPECULAR_MODEL"] = "env-model"
+        os.environ["SPECULAR_EFFORT"] = "low"
         os.environ["CODEX_MODEL"] = "adapter-model"
         os.environ["CODEX_EFFORT"] = "medium"
         p = self._pipeline(["--agent=codex", "foo|o/r|Go|ref"], root)
@@ -972,8 +978,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
             (
                 "codex",
                 {
-                    "SPECULA_MODEL": "",
-                    "SPECULA_EFFORT": "",
+                    "SPECULAR_MODEL": "",
+                    "SPECULAR_EFFORT": "",
                     "CODEX_MODEL": "gpt-env",
                     "CODEX_EFFORT": "high",
                 },
@@ -989,7 +995,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
                 for name in self._TUNING_ENV:
                     os.environ.pop(name, None)
                 os.environ.update(environment)
-                os.environ.pop("SPECULA_RUN_DIR", None)
+                os.environ.pop("SPECULAR_RUN_DIR", None)
                 p = self._pipeline([f"--agent={agent}", "foo|o/r|Go|ref"], self.tmp())
                 assert p.run_dir is not None
                 meta = json.loads((p.run_dir / "run.json").read_text())
@@ -999,7 +1005,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
     def test_meta_records_unknown_defaults_as_null(self) -> None:
         for agent in ("codex", "copilot-cli"):
             with self.subTest(agent=agent):
-                os.environ.pop("SPECULA_RUN_DIR", None)
+                os.environ.pop("SPECULAR_RUN_DIR", None)
                 p = self._pipeline([f"--agent={agent}", "foo|o/r|Go|ref"], self.tmp())
                 assert p.run_dir is not None
                 meta = json.loads((p.run_dir / "run.json").read_text())
@@ -1008,8 +1014,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
 
     def test_meta_records_explicit_resets_as_null(self) -> None:
         root = self.tmp()
-        os.environ["SPECULA_MODEL"] = "env-model"
-        os.environ["SPECULA_EFFORT"] = "low"
+        os.environ["SPECULAR_MODEL"] = "env-model"
+        os.environ["SPECULAR_EFFORT"] = "low"
         os.environ["CLAUDE_MODEL"] = "opus"
         os.environ["CLAUDE_EFFORT"] = "high"
         argv = ["--agent=claude-code", "--model=", "--effort=", "foo|o/r|Go|ref"]
@@ -1050,12 +1056,12 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
     def test_attach_reuses_without_clobbering(self) -> None:
         root = self.tmp()
         run = root / "runs" / "myrun"
-        (run / "foo" / ".specula-output").mkdir(parents=True)
-        (run / "foo" / ".specula-output" / "keep.txt").write_text("keep")
+        (run / "foo" / ".specular-output").mkdir(parents=True)
+        (run / "foo" / ".specular-output" / "keep.txt").write_text("keep")
         (run / "run.json").write_text('{"run_id": "myrun", "original": true}\n')
         p = self._pipeline(["--run-id=myrun", "--fresh-context", "foo|o/r|Go|ref"], root)
         self.assertEqual(p.run_dir, run)
-        self.assertEqual((run / "foo" / ".specula-output" / "keep.txt").read_text(), "keep")
+        self.assertEqual((run / "foo" / ".specular-output" / "keep.txt").read_text(), "keep")
         # attach never rewrites the original record
         self.assertTrue(json.loads((run / "run.json").read_text())["original"])
 
@@ -1066,8 +1072,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
             root,
         )
         self.assertEqual(first.tlc_memory_limit, "64G")
-        os.environ.pop("SPECULA_RUN_DIR", None)
-        os.environ.pop("SPECULA_TLC_SCOPE", None)
+        os.environ.pop("SPECULAR_RUN_DIR", None)
+        os.environ.pop("SPECULAR_TLC_SCOPE", None)
 
         resumed = self._pipeline(["--run-id=myrun", "--fresh-context", "foo|o/r|Go|ref"], root)
         self.assertEqual(resumed.tlc_memory_limit, "64G")
@@ -1093,8 +1099,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         policy = json.loads((run / "tlc-resources.json").read_text())
         self.assertEqual(policy["memory_limit"], "48G")
         self.assertEqual(policy["worker_limit"], "10")
-        os.environ.pop("SPECULA_RUN_DIR", None)
-        os.environ.pop("SPECULA_TLC_SCOPE", None)
+        os.environ.pop("SPECULAR_RUN_DIR", None)
+        os.environ.pop("SPECULAR_TLC_SCOPE", None)
 
         resumed = self._pipeline(["--run-id=legacy", "--fresh-context", "foo|o/r|Go|ref"], root)
         self.assertEqual(resumed.tlc_memory_limit, "48G")
@@ -1125,8 +1131,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
             ["--run-id=myrun", "--tlc-memory-limit=64G", "--tlc-worker-limit=12", "foo|o/r|Go|ref"],
             root,
         )
-        os.environ.pop("SPECULA_RUN_DIR", None)
-        os.environ.pop("SPECULA_TLC_SCOPE", None)
+        os.environ.pop("SPECULAR_RUN_DIR", None)
+        os.environ.pop("SPECULAR_TLC_SCOPE", None)
         resumed = pl.Pipeline()
         self.assertIsNone(
             resumed.parse_args(
@@ -1145,8 +1151,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.assertIn("limit cannot change when resuming", err.getvalue())
 
     def test_ambient_env_attach(self) -> None:
-        """SPECULA_RUN_DIR already set (scheduler / outer script): honored
-        as-is, nothing created under SPECULA_ROOT/runs."""
+        """SPECULAR_RUN_DIR already set (scheduler / outer script): honored
+        as-is, nothing created under SPECULAR_ROOT/runs."""
         root = self.tmp()
         ext = self.tmp() / "external-run"
         self.set_run_dir(ext)
@@ -1156,6 +1162,264 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.assertTrue(ext.is_dir())
         self.assertFalse((root / "runs").exists())
 
+    def test_ambient_rejects_changed_settings_and_preserves_original_resume(self) -> None:
+        root = self.tmp()
+        first = self._pipeline(
+            [
+                "--run-id=ambient-protected",
+                "--agent=codex",
+                "--model=gpt-5.5",
+                "--effort=high",
+                "--claude-alias=work",
+                "foo|o/r|Go|ref",
+            ],
+            root,
+        )
+        self._seed_active_turn(first)
+        assert first.run_dir is not None
+        native_state = first.run_dir / "foo/.specular-output/agent.resume.json"
+        native_state.parent.mkdir(parents=True, exist_ok=True)
+        native_state.write_text("original-provider-session\n")
+        protected = {path: path.read_bytes() for path in first.run_dir.rglob("*") if path.is_file()}
+
+        for override in (
+            "--model=gpt-other",
+            "--agent=claude-code",
+            "--model=",
+            "--effort=medium",
+            "--claude-alias=other",
+            "--policy-retries=3",
+            "--legacy-confirm",
+            "other|o/r|Go|ref",
+        ):
+            with self.subTest(override=override):
+                self.set_run_dir(first.run_dir)
+                contender = pl.Pipeline()
+                self.assertIsNone(contender.parse_args([override]))
+                err = io.StringIO()
+                try:
+                    with contextlib.redirect_stderr(err):
+                        self.assertEqual(contender.resolve_run_dir(acquire_lock=True), 1)
+                    self.assertIn("--fresh-context", err.getvalue())
+                    self.assertIsNone(contender._run_lock_fd)
+                    for path, contents in protected.items():
+                        self.assertEqual(path.read_bytes(), contents, str(path))
+                finally:
+                    contender._release_run_lock()
+
+        resumed = pl.Pipeline()
+        self.assertIsNone(resumed.parse_args(["--run-id=ambient-protected", "--model=gpt-5.5"]))
+        self.assertIsNone(resumed.resolve_run_dir(acquire_lock=True))
+        self.addCleanup(resumed._release_run_lock)
+        self._seed_active_turn(resumed)
+        self.assertEqual(resumelib.active_entries(first.run_dir)[0]["attempt"], 2)
+        self.assertEqual(native_state.read_text(), "original-provider-session\n")
+
+    def test_ambient_restores_omitted_settings_without_manual_resume(self) -> None:
+        root = self.tmp()
+        first = self._pipeline(
+            [
+                "--run-id=ambient-restore",
+                "--agent=codex",
+                "--model=gpt-5.5",
+                "--effort=high",
+                "--claude-alias=work",
+                "foo|o/r|Go|ref",
+            ],
+            root,
+        )
+        self._seed_active_turn(first)
+        assert first.run_dir is not None
+        config = resumelib.config_path(first.run_dir)
+        before = config.read_bytes()
+        active = resumelib.active_entries(first.run_dir)
+        os.environ["SPECULAR_MODEL"] = "different-environment-model"
+        os.environ["SPECULAR_EFFORT"] = "low"
+
+        attached = self._pipeline([], root)
+
+        self.assertEqual(attached.agent, "codex")
+        self.assertEqual(attached.model, "gpt-5.5")
+        self.assertEqual(attached.effort, "high")
+        self.assertEqual(attached.claude_alias, "work")
+        self.assertEqual(attached.targets, ["foo|o/r|Go|ref"])
+        self.assertEqual(config.read_bytes(), before)
+        self.assertEqual(resumelib.active_entries(first.run_dir), active)
+        self.assertFalse(attached._attached_existing_run)
+        self.assertIsNone(attached._manual_resume_phase)
+        self.assertNotIn(resumelib.MANUAL_ENV, os.environ)
+
+    def test_ambient_same_settings_preserve_configuration_without_active_turn(self) -> None:
+        root = self.tmp()
+        args = ["--agent=codex", "--model=gpt-5.5", "foo|o/r|Go|ref"]
+        first = self._pipeline(["--run-id=ambient-same", *args], root)
+        assert first.run_dir is not None
+        config = resumelib.config_path(first.run_dir)
+        before = config.read_bytes()
+
+        with mock.patch.object(resumelib, "save_configuration") as save:
+            attached = self._pipeline(args, root)
+
+        self.assertEqual(attached.run_dir, first.run_dir)
+        self.assertEqual(config.read_bytes(), before)
+        save.assert_not_called()
+        self.assertNotIn(resumelib.MANUAL_ENV, os.environ)
+
+    def test_ambient_restores_saved_routes_without_original_agent_config(self) -> None:
+        root = self.tmp()
+        agents = self.tmp() / "agents.json"
+        agents.write_text(
+            json.dumps(
+                {
+                    "version": 1,
+                    "default_profile": "worker",
+                    "profiles": {
+                        "worker": {"agent": "codex", "model": "worker-model"},
+                        "reviewer": {"agent": "claude-code", "model": "review-model"},
+                    },
+                    "phases": {"review": "reviewer"},
+                }
+            )
+        )
+        first = self._pipeline([f"--agent-config={agents}", "foo|o/r|Go|ref"], root)
+        assert first.run_dir is not None
+        expected = first._resumable_routes()
+        agents.unlink()
+
+        attached = self._pipeline([], root)
+
+        self.assertEqual(attached._resumable_routes(), expected)
+        self.assertEqual(attached._agent_selection("review", fallback="validate").model, "review-model")
+
+    def test_ambient_restores_single_session_settings(self) -> None:
+        with mock.patch.dict(os.environ):
+            root = self.tmp()
+            first = self._pipeline(
+                ["--orchestration=single-session", "--agent=codex", "--model=main-model", "foo|o/r|Go|ref"],
+                root,
+            )
+            assert first.run_dir is not None
+            config = resumelib.config_path(first.run_dir)
+            before = config.read_bytes()
+
+            attached = self._pipeline([], root)
+
+            self.assertEqual(attached.orchestration, "single-session")
+            self.assertEqual(attached.model, "main-model")
+            self.assertEqual(config.read_bytes(), before)
+            self.assertNotIn(resumelib.MANUAL_ENV, os.environ)
+
+    def test_ambient_live_run_rejects_attachment_without_changing_settings(self) -> None:
+        root = self.tmp()
+        first = self._pipeline(["--agent=codex", "--model=running-model", "foo|o/r|Go|ref"], root)
+        first._acquire_run_lock()
+        self.addCleanup(first._release_run_lock)
+        assert first.run_dir is not None
+        config = resumelib.config_path(first.run_dir)
+        before = config.read_bytes()
+        contender = pl.Pipeline()
+        self.assertIsNone(contender.parse_args(["--model=other-model", "foo|o/r|Go|ref"]))
+        err = io.StringIO()
+
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(contender.resolve_run_dir(acquire_lock=True), 1)
+
+        self.assertIn("live phase or agent", err.getvalue())
+        self.assertIsNone(contender._run_lock_fd)
+        self.assertEqual(config.read_bytes(), before)
+
+    def test_ambient_rejects_incomplete_saved_configuration_without_replacing_it(self) -> None:
+        for mode in ("missing-config", "marker-only", "invalid-json", "broken-symlink"):
+            with self.subTest(mode=mode):
+                root = self.tmp()
+                first = self._pipeline(["--run-id=incomplete", "foo|o/r|Go|ref"], root)
+                assert first.run_dir is not None
+                config = resumelib.config_path(first.run_dir)
+                metadata = first.run_dir / "run.json"
+                before_meta = metadata.read_bytes()
+                if mode == "missing-config":
+                    config.unlink()
+                elif mode == "marker-only":
+                    config.write_text('{"version": 1}\n')
+                elif mode == "invalid-json":
+                    config.write_text("{incomplete\n")
+                else:
+                    config.unlink()
+                    config.symlink_to(root / "missing-config.json")
+                before = config.read_bytes() if config.is_file() else None
+                self.set_run_dir(first.run_dir)
+                attached = pl.Pipeline()
+                self.addCleanup(attached._release_run_lock)
+                self.assertIsNone(attached.parse_args(["foo|o/r|Go|ref"]))
+
+                with contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(attached.resolve_run_dir(acquire_lock=True), 1)
+
+                self.assertIsNone(attached._run_lock_fd)
+                self.assertEqual(metadata.read_bytes(), before_meta)
+                if before is not None:
+                    self.assertEqual(config.read_bytes(), before)
+                else:
+                    self.assertFalse(config.exists())
+                    self.assertEqual(config.is_symlink(), mode == "broken-symlink")
+
+    def test_ambient_precreated_empty_directory_can_start_a_new_run(self) -> None:
+        root = self.tmp()
+        run = self.tmp() / "precreated"
+        run.mkdir()
+        self.set_run_dir(run)
+        pipeline = self._pipeline(["--agent=codex", "--model=new-model", "foo|o/r|Go|ref"], root)
+
+        self.assertEqual(pipeline.run_dir, run)
+        self.assertEqual(resumelib.load_configuration(run)["default"]["model"], "new-model")
+
+    def test_ambient_validation_never_spawns_processes_or_rewrites_state(self) -> None:
+        root = self.tmp()
+        first = self._pipeline(["--agent=codex", "--model=original-model", "foo|o/r|Go|ref"], root)
+        assert first.run_dir is not None
+        before = {path: path.read_bytes() for path in first.run_dir.rglob("*") if path.is_file()}
+
+        with (
+            mock.patch.object(subprocess, "Popen", side_effect=AssertionError("unexpected subprocess")),
+            mock.patch.object(resumelib, "_atomic_write", side_effect=AssertionError("unexpected state write")),
+        ):
+            for model, expected in (("original-model", None), ("changed-model", 1)):
+                with self.subTest(model=model):
+                    attached = pl.Pipeline()
+                    self.assertIsNone(attached.parse_args([f"--model={model}"]))
+                    try:
+                        with contextlib.redirect_stderr(io.StringIO()):
+                            self.assertEqual(attached.resolve_run_dir(acquire_lock=True), expected)
+                    finally:
+                        attached._release_run_lock()
+
+        for path, contents in before.items():
+            self.assertEqual(path.read_bytes(), contents, str(path))
+
+    def test_ambient_model_protection_and_fresh_context_for_each_adapter(self) -> None:
+        for agent in ("codex", "claude-code", "copilot-cli", "opencode", "pi"):
+            with self.subTest(agent=agent):
+                root = self.tmp()
+                first = self._pipeline(
+                    ["--run-id=adapter", f"--agent={agent}", "--model=original-model", "foo|o/r|Go|ref"], root
+                )
+                assert first.run_dir is not None
+                config = resumelib.config_path(first.run_dir)
+                before = config.read_bytes()
+                changed = pl.Pipeline()
+                self.assertIsNone(changed.parse_args(["--model=changed-model"]))
+                with contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(changed.resolve_run_dir(), 1)
+                self.assertEqual(config.read_bytes(), before)
+
+                attached = self._pipeline([], root)
+                self.assertEqual(attached.agent, agent)
+                self.assertEqual(attached.model, "original-model")
+
+                fresh = self._pipeline(["--run-id=adapter", "--fresh-context", "--model=changed-model"], root)
+                self.assertEqual(fresh.agent, agent)
+                self.assertEqual(resumelib.load_configuration(first.run_dir)["default"]["model"], "changed-model")
+
     def test_default_mints_isolated_run(self) -> None:
         # the flip (step 7d): no flags, no ambient env -> a fresh isolated run
         root = self.tmp()
@@ -1163,22 +1427,22 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         assert p.run_dir is not None
         self.assertEqual(p.run_dir.parent, root / "runs")
         self.assertRegex(p.run_id, RUN_ID_RE)
-        self.assertEqual(os.environ["SPECULA_RUN_DIR"], str(p.run_dir))
+        self.assertEqual(os.environ["SPECULAR_RUN_DIR"], str(p.run_dir))
 
     def test_no_isolate_gives_legacy_mode(self) -> None:
         root = self.tmp()
         p = self._pipeline(["--no-isolate", "foo|o/r|Go|ref"], root)
         self.assertIsNone(p.run_dir)
         self.assertFalse((root / "runs").exists())
-        self.assertNotIn("SPECULA_RUN_DIR", os.environ)
-        self.assertTrue(Path(os.environ["SPECULA_TLC_SCOPE"]).is_absolute())
+        self.assertNotIn("SPECULAR_RUN_DIR", os.environ)
+        self.assertTrue(Path(os.environ["SPECULAR_TLC_SCOPE"]).is_absolute())
 
     def test_no_isolate_uses_one_unique_tlc_scope_per_invocation(self) -> None:
         root = self.tmp()
         self._pipeline(["--no-isolate", "foo|o/r|Go|ref", "bar|o/r|Go|ref"], root)
-        first_scope = os.environ["SPECULA_TLC_SCOPE"]
+        first_scope = os.environ["SPECULAR_TLC_SCOPE"]
         self._pipeline(["--no-isolate", "foo|o/r|Go|ref", "bar|o/r|Go|ref"], root)
-        second_scope = os.environ["SPECULA_TLC_SCOPE"]
+        second_scope = os.environ["SPECULAR_TLC_SCOPE"]
         self.assertNotEqual(first_scope, second_scope)
 
     def test_no_isolate_overrides_ambient_env(self) -> None:
@@ -1187,7 +1451,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         self.set_run_dir(self.tmp() / "external-run")
         p = self._pipeline(["--no-isolate", "foo|o/r|Go|ref"], root)
         self.assertIsNone(p.run_dir)
-        self.assertNotIn("SPECULA_RUN_DIR", os.environ)
+        self.assertNotIn("SPECULAR_RUN_DIR", os.environ)
 
     def test_explicit_isolate_mints_despite_ambient_env(self) -> None:
         # pre-flip behavior preserved: --isolate always minted a fresh run
@@ -1217,20 +1481,20 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         latest = root / "runs" / "latest"
         self.assertTrue(latest.is_symlink())
         self.assertEqual(os.readlink(latest), "run-a")
-        os.environ.pop("SPECULA_RUN_DIR", None)  # fresh resolve for the second run
+        os.environ.pop("SPECULAR_RUN_DIR", None)  # fresh resolve for the second run
         self._pipeline(["--run-id=run-b", "foo|o/r|Go|ref"], root)
         self.assertEqual(os.readlink(latest), "run-b")
 
 
 class TestEnvThreading(EnvIsolatedCase):
     def test_phase_subprocess_sees_run_dir(self) -> None:
-        """resolve_run_dir exports SPECULA_RUN_DIR; _run_launcher's bash child
+        """resolve_run_dir exports SPECULAR_RUN_DIR; _run_launcher's bash child
         must inherit it — that inheritance is the whole transport mechanism."""
         root = self.tmp()
         fake_scripts = self.tmp()
         marker = fake_scripts / "marker.txt"
         (fake_scripts / "launch_code_analysis.sh").write_text(
-            f'#!/usr/bin/env bash\nprintf \'%s\' "${{SPECULA_RUN_DIR:-UNSET}}" > "{marker}"\n'
+            f'#!/usr/bin/env bash\nprintf \'%s\' "${{SPECULAR_RUN_DIR:-UNSET}}" > "{marker}"\n'
         )
         self.patch_root(pl, root)
         self.addCleanup(setattr, pl, "LAUNCH_DIR", pl.LAUNCH_DIR)
@@ -1246,11 +1510,11 @@ class TestEnvThreading(EnvIsolatedCase):
 class TestParallelIsolation(EnvIsolatedCase):
     """The step's acceptance property: two pipelines, same target, running
     concurrently — zero file overlap, each summary reflects only its own data,
-    and the shared launch cwd stays clean (no .specula-output pollution).
+    and the shared launch cwd stays clean (no .specular-output pollution).
 
     Runs the real pipelinelib entry (tee plumbing included) as subprocesses in
     env-attach mode so the run roots live in tmp; --isolate's dir creation
-    under SPECULA_ROOT/runs is covered in-process by TestRunMetaAndAttach."""
+    under SPECULAR_ROOT/runs is covered in-process by TestRunMetaAndAttach."""
 
     SKIPS = [
         "--skip-analysis",
@@ -1264,7 +1528,7 @@ class TestParallelIsolation(EnvIsolatedCase):
     RR = "---\nid: {rid}\nbug_id: B-1\ntarget: base.tla\nstatus: {status}\nround: 1\n---\n\n## History\n- created\n"
 
     def _seed_rr(self, run: Path, name: str, statuses: list[str], subdir: str | None = None) -> None:
-        d = run / name / ".specula-output" / "spec" / "repair-requests"
+        d = run / name / ".specular-output" / "spec" / "repair-requests"
         if subdir:
             d = d / subdir
         d.mkdir(parents=True)
@@ -1289,7 +1553,7 @@ class TestParallelIsolation(EnvIsolatedCase):
                 subprocess.Popen(
                     [sys.executable, str(PKG / "pipelinelib.py"), *self.SKIPS, target],
                     cwd=launch_cwd,
-                    env={**env, "SPECULA_RUN_DIR": str(run)},
+                    env={**env, "SPECULAR_RUN_DIR": str(run)},
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
@@ -1308,7 +1572,7 @@ class TestParallelIsolation(EnvIsolatedCase):
             self.assertIn(f"Run:          {run.name}", out)
         # zero overlap: all files live under their own run root by construction;
         # the shared launch cwd gained nothing (legacy would have written
-        # .specula-output/pipeline.log there)
+        # .specular-output/pipeline.log there)
         self.assertEqual(list(launch_cwd.iterdir()), [])
 
 
@@ -1333,7 +1597,7 @@ class TestMonitorLine(EnvIsolatedCase):
         for cls, logname in self.PHASES:
             with self.subTest(phase=cls.__name__):
                 line = cls().monitor_line(ws)
-                self.assertEqual(line, f"  Monitor: tail -f {run}/*/.specula-output/{logname}")
+                self.assertEqual(line, f"  Monitor: tail -f {run}/*/.specular-output/{logname}")
                 assert line is not None  # for mypy: proven by the assertEqual
                 # the launch cwd the isolated run does not write to never leaks in
                 self.assertNotIn("/launch/dir", line)
@@ -1343,10 +1607,10 @@ class TestMonitorLine(EnvIsolatedCase):
         all)."""
         ws = phaselib.Workspace(["foo"], cwd=Path("/launch/dir"))
         expected = {
-            phaselib.SpecGenerationPhase: "  Monitor: tail -f */.specula-output/spec-gen.log",
-            phaselib.HarnessGenerationPhase: "  Monitor: tail -f */.specula-output/harness-gen.log",
+            phaselib.SpecGenerationPhase: "  Monitor: tail -f */.specular-output/spec-gen.log",
+            phaselib.HarnessGenerationPhase: "  Monitor: tail -f */.specular-output/harness-gen.log",
             phaselib.BugClassificationPhase: "  Monitor: tail -f */bug-classification.log",
-            phaselib.SpecValidationPhase: "  Monitor: tail -f /launch/dir/*/.specula-output/spec-validation.log",
+            phaselib.SpecValidationPhase: "  Monitor: tail -f /launch/dir/*/.specular-output/spec-validation.log",
             phaselib.BugConfirmationPhase: "  Monitor: tail -f */bug-confirmation.log",
         }
         for cls, line in expected.items():
@@ -1359,7 +1623,7 @@ class TestMonitorLine(EnvIsolatedCase):
                 if isolated:
                     self.set_run_dir(self.tmp())
                 else:
-                    os.environ.pop("SPECULA_RUN_DIR", None)
+                    os.environ.pop("SPECULAR_RUN_DIR", None)
                 ws = phaselib.Workspace(["foo"])
                 self.assertIsNone(phaselib.CodeAnalysisPhase().monitor_line(ws))
 

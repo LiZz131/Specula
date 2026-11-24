@@ -4,7 +4,7 @@
 
 **For findings entering reproduction**, work through the escalation ladder; either you trigger the live harm (→ `REPRODUCED`) or you do not.
 
-**Reuse before declaring the environment unavailable.** A binary missing from `PATH`, or one failed build/bootstrap command, is not enough for `ENV_LIMITED`. First inspect the target checkout and current `.specula-output/` for compatible existing build artifacts (including symlinks), and inspect prior harness/build logs for a known-successful command and environment. Check each artifact's source SHA, build configuration, and provenance before reuse. Treat an instrumented or uncertain artifact as a smoke check and recipe source unless its modifications are explicitly compatible with the reached escalation level and documented. Before giving up on a build/runtime problem, make one bounded attempt within the caller's time and resource budget to replay or rebuild from an applicable known-good recipe, and record what you searched, reused, attempted, or rejected.
+**Reuse before declaring the environment unavailable.** A binary missing from `PATH`, or one failed build/bootstrap command, is not enough for `ENV_LIMITED`. First inspect the target checkout and current `.specular-output/` for compatible existing build artifacts (including symlinks), and inspect prior harness/build logs for a known-successful command and environment. Check each artifact's source SHA, build configuration, and provenance before reuse. Treat an instrumented or uncertain artifact as a smoke check and recipe source unless its modifications are explicitly compatible with the reached escalation level and documented. Before giving up on a build/runtime problem, make one bounded attempt within the caller's time and resource budget to replay or rebuild from an applicable known-good recipe, and record what you searched, reused, attempted, or rejected.
 
 **When you cannot reproduce the live harm of a REAL defect, it is exactly one of three — pick by WHY it did not manifest, never a vague "reproduction failed":**
 - **`ENV_LIMITED`** — the defect is real and *would* harm in production, but THIS environment cannot trigger it (needs a real cluster / hardware / timing). Requires a SOUND argument that production exhibits it, naming the exact env limitation. It is not a blanket "stands on code audit".
@@ -43,6 +43,7 @@ For every bug, you MUST:
 - The reproduction program should compile and run independently, without requiring special environments beyond the test framework
 - The reproduction is deterministic, or triggers with significant probability across multiple runs
 - The success criterion must be observable anomalous behavior (crash, deadlock, data inconsistency, safety property violation), not "some intermediate variable has an unexpected value"
+- For a **liveness** finding (a counterexample from a `_live` cfg), the anomaly is progress that never happens. Show three things in the run: the condition that should lead to progress becomes true and stays true; the threads, timers, or handlers that the spec's fairness assumes keep running (log or instrument them); and the progress still has not happened after waiting several times longer than every relevant timeout or retry interval. A test that merely times out is not enough
 
 ## Escalation ladder — strict, in order
 
@@ -90,7 +91,7 @@ Reproduction failing is not always a statement about the bug — sometimes it is
 
 Emit a semantic repair-request draft at the caller-supplied finding-local path (per `references/repair-request-format.md`) **only when you can cite** which of these holds. Never allocate `RR-NNN`, set lifecycle fields, edit `confirmed-bugs.md`, or write the shared `repair-requests/` queue while acting as a per-finding worker; the dispatcher validates and publishes the final request serially:
 
-- **SPEC_REPAIR** — a step the counterexample requires is impossible at the code level: the model under-models a guard or branch the implementation has. Cite the missing guard (`file:line`). This is the common case — an over-permissive action, or an overfit repair that survived convergence.
+- **SPEC_REPAIR** — a step the counterexample requires is impossible at the code level: the model under-models a guard or branch the implementation has. Cite the missing guard (`file:line`). This is the common case — an over-permissive action, or an overfit repair that survived convergence. For a liveness counterexample this also covers a repeating part that needs an action the implementation guarantees to run to be skipped forever (missing fairness), or a model bound that disables such an action: cite the code that guarantees the action runs.
 - **FAULT_MODEL** — the counterexample depends on an injected fault that is not in the system's failure model, or a fault modeled with the wrong semantics. Cite the failure-model evidence.
 - **INVARIANT** — the path reproduces but has no observable consequence, AND developer-intent evidence (Phase 1, Step 2) shows the implementation does not promise the violated property. Cite the evidence.
 
