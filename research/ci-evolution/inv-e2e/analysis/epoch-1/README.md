@@ -19,6 +19,8 @@ Summary of the per-case analyses of the 21 epoch-1 runs (7 cases × v0/v1/v2, on
 
 The arms: v0 is the base `incremental-modeling` skill; v1 adds divergence evidence (a changed property needs a separating state evaluated by TLC); v2 adds the requirement-evidence ledger (`REQ-EVIDENCE` annotations on the prior suite). "§3.1–§3.3" below are the technical directions of issue #188.
 
+> **2026-11-24:** the root cause of each miss, and why risks get dismissed by argument, are in [root-causes.md](root-causes.md); the update-coverage run is in [coverage/](coverage/README.md) and the census of declared scenarios in [scenario-census/](scenario-census/README.md).
+>
 > **2026-11-23 corrections from TLC evidence** (one directory per case under [evidence/](evidence/))
 >
 > | Miss | Model can represent it | Arm's own cfgs reach it | Verdict |
