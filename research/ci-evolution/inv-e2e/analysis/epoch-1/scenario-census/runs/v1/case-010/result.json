@@ -1,0 +1,617 @@
+{
+  "arm": "v1",
+  "case": "case-010",
+  "depth": 100,
+  "configs": {
+    "Update-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 13819
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 29907
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U3a",
+        "SC_U3b"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3c"
+      ]
+    },
+    "Update-focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 31160
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": []
+    },
+    "Update-open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 14535
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 31927
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": []
+    },
+    "Update-hunt-snap.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistoriesV1": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValidV1": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant",
+        "ClearedOnlyAfterSnapExit": "invariant",
+        "MonotoneUnlessRecoveryUpd": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 20500
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 45248
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_PU4dup",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-hunt-trunc.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 21394
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 46567
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_PU4dup",
+        "SC_U2b"
+      ]
+    },
+    "Update-hunt-trunc-gap.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 20688
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 46787
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_PU4dup",
+        "SC_U2b"
+      ]
+    },
+    "Update-hunt-trunc-noleak.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ExitedLearnerMemoryBackedByLog": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 20364
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 43381
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_PU4dup",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-hunt-trunc-noleak-gap.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 20701
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 42318
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_PU4dup",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-hunt-leak.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant",
+        "RecoverableCommittedPrefix": "invariant",
+        "DurableReplayOrdered": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 26092
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 52367
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b"
+      ]
+    },
+    "Update-hunt-leak-gap.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableHistoryComplete": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 25692
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 53456
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b"
+      ]
+    },
+    "Update-hunt-leak-order.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableReplayOrdered": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 26435
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 53167
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b"
+      ]
+    },
+    "Update-hunt-leak-prefix.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RecoverableCommittedPrefix": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 25601
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 54763
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_PMON",
+        "SC_PU4dup",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2a",
+        "SC_U2b"
+      ]
+    }
+  }
+}

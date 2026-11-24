@@ -1,0 +1,7 @@
+arm,case,quote,source,topic
+v1,case-010,"Exclusions kept: observers (the same dispatch bypass applies to `ObserverZooKeeperServer.shutdown()`, recorded as code review only), reconfiguration, sessions, standalone `ZooKeeperServerMain`",output/modeling-brief.md:226,observers / reconfig / sessions / standalone
+v1,case-010,"B. `syncMode` DIFF/TRUNC/NONE, server not running (before UPTODATE) | early return, memory retained ... | Unchanged",output/analysis-report.md:150,non-SNAP pre-UPTODATE exit unchanged
+v1,case-010,"D. `QuorumPeer.shutdown()` of a follower ... Prior model already admits loss of queued, un-ACKed writes at process shutdown ...; no new modeled state",output/analysis-report.md:152,full peer shutdown
+v1,case-010,`forceSnapSync` with a peer ahead of the leader's committed log is excluded (test-only knob).,output/spec/output/verification-summary-update.md:49,forceSnapSync
+v1,case-010,Scope: non-leaders only. A leader's history transiently holds a proposal between Leader.propose and SyncRequestProcessor.processRequest,output/spec/UpdateProps.tla:19-21,leader excluded from ExitedLearnerMemoryBackedByLog
+v1,case-010,Periodic snapshots do not change the modeled recoverable history (prior abstraction kept),output/spec/output/verification-summary-update.md:48,periodic snapshots

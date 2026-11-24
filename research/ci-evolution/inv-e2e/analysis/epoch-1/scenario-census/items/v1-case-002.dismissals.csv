@@ -1,0 +1,9 @@
+arm,case,quote,source,topic
+v1,case-002,isPreZAB1_0 UPTODATE-without-NEWLEADER path now calls startServing without any startup*; ZooKeeper 3.4+ leaders always send NEWLEADER ... Excluded,output/modeling-brief.md:282-284,pre-Zab1.0 path
+v1,case-002,"Observers (ObserverZooKeeperServer branch, unchanged) and reconfiguration packets (COMMITANDACTIVATE/INFORMANDACTIVATE) remain out of scope as in V0.",output/modeling-brief.md:285-286,observers/reconfiguration
+v1,case-002,sock.setSoTimeout moved earlier: timing only; its effect (an earlier socket timeout -> learner failure) is covered by nondeterministic BeginElection.,output/modeling-brief.md:287-288,socket timeout timing
+v1,case-002,CR-A ... a learner may not count toward the NEWLEADER quorum (liveness / delayed activation only ...) Not modeled (liveness-only); recorded for review.,output/modeling-brief.md:215,proposal ACK before NEWLEADER ACK (liveness)
+v1,case-002,CR-B Learner shutdown order: ZKS.shutdown fast-forwards the data tree before LZK shuts the SyncRequestProcessor down ... Abstracted (model flushes before fast-forward),output/modeling-brief.md:216,learner shutdown order
+v1,case-002,startServing after UPTODATE: client service still starts after UPTODATE (unchanged externally visible point); not a safety change.,output/analysis-report.md:132-133,startServing timing
+v1,case-002,"Snapshot persistence at NEWLEADER is treated as durable for TRUNC (takeSnapshot(false)), i.e., process-crash fault model, as in V0.",output/analysis-report.md:101-102,snapshot durability abstraction
+v1,case-002,Duplicate appends of the same record by a leaked processor are collapsed,output/analysis-report.md:107-108,duplicate appends

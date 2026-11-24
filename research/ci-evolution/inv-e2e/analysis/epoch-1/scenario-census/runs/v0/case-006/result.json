@@ -1,0 +1,375 @@
+{
+  "arm": "v0",
+  "case": "case-006",
+  "depth": 100,
+  "configs": {
+    "Update_focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingQueueAgreement": "invariant",
+        "UpdQueueNoDuplicates": "invariant",
+        "UpdReadAckAfterEnqueue": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdPublishedFromRelease": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 4040
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 8254
+        }
+      ],
+      "reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term"
+      ],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released"
+      ]
+    },
+    "Update_full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingQueueAgreement": "invariant",
+        "UpdQueueNoDuplicates": "invariant",
+        "UpdReadAckAfterEnqueue": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdPublishedFromRelease": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 5790
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 11647
+        }
+      ],
+      "reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term"
+      ],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released"
+      ]
+    },
+    "MC_hunt_s6_linearizable_guided_noview.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdPublishedFromRelease": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 5016
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 10007
+        }
+      ],
+      "reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6d_leader_pending_higher_term"
+      ],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released"
+      ]
+    },
+    "MC_hunt_s6_linearizable_guided_v2.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdPublishedFromRelease": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 4276
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 8554
+        }
+      ],
+      "reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6d_leader_pending_higher_term"
+      ],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released"
+      ]
+    },
+    "MC_hunt_s6_linearizable.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdPublishedFromRelease": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 4180
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 8660
+        }
+      ],
+      "reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term"
+      ],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released"
+      ]
+    },
+    "MC_hunt_s6_stale_ack.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdPendingQueueAgreement": "invariant",
+        "UpdReadAckAfterEnqueue": "invariant",
+        "UpdReadIndexLinearizable": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 7087
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 14664
+        }
+      ],
+      "reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6c_forwarded_reuse_released"
+      ],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6d_leader_pending_higher_term"
+      ]
+    },
+    "Update_open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingQueueAgreement": "invariant",
+        "UpdQueueNoDuplicates": "invariant",
+        "UpdReadAckAfterEnqueue": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdPublishedFromRelease": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 1134
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 2266
+        }
+      ],
+      "reached": [],
+      "probes": [
+        "SC_CTRL_release",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term",
+        "SC_P_published"
+      ],
+      "not_reached": [
+        "SC_CTRL_release",
+        "SC_P_published",
+        "SC_S6a_reenqueue",
+        "SC_S6a_reuse_released",
+        "SC_S6b_pending_below_bound",
+        "SC_S6b_stale_ack_counted",
+        "SC_S6b_stale_read_released",
+        "SC_S6c_forwarded_reuse_released",
+        "SC_S6d_leader_pending_higher_term"
+      ]
+    }
+  }
+}

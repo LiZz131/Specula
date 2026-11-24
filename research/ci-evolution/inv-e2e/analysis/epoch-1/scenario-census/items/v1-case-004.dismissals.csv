@@ -1,0 +1,7 @@
+arm,case,quote,source,topic
+v1,case-004,Wall-clock lease semantics of disable_lease/touch and the transfer API's metrics wait/timeout are excluded (time abstracted),output/modeling-brief.md:250-251,lease / time
+v1,case-004,"Follower conflict truncation/membership rollback, follower commit propagation and HigherVote notifications remain unmodeled (pre-existing V0 limits)",output/modeling-brief.md:252-253,follower truncation / commit propagation
+v1,case-004,"Lease stays abstract: disable_lease only enlarges when a grant may happen, which the model already allows at any time.",output/modeling-brief.md:239-240,lease abstraction
+v1,case-004,The lease-only and ignored branches of HandleTransferLeader are no-ops on modeled state except for the per-step commands observer; they are validated by real traces ... and omitted here.,output/spec/Update.tla:19-21,TransferLeader lease-only/ignored branches in MC
+v1,case-004,"the Core branch has no log check. Voters still reject a stale candidate by LogId, so safety is unaffected; effect is a possible extra election (liveness).",output/analysis-report.md:193-196,transfer without log flush check
+v1,case-004,A disabled follower lease is not re-enabled by heartbeats of the same leader ... Both are wall-clock properties outside the modeled scope.,output/analysis-report.md:197-200,lease re-enable

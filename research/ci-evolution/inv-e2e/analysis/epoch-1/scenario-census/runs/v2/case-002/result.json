@@ -1,0 +1,952 @@
+{
+  "arm": "v2",
+  "case": "case-002",
+  "depth": 100,
+  "configs": {
+    "Update-focused-ackdurable.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "NewLeaderAckDurable": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 16003
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 35263
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "PendingOnlyDuringSync": "invariant",
+        "CommittedDurableOnQuorum": "invariant",
+        "LeaderCompleteness": "invariant",
+        "NewLeaderAckDurable": "property",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 11208
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 24587
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_SCJ",
+        "SC_P_SLMLa"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    },
+    "Update-focused-quorumdurable.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedDurableOnQuorum": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15982
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 35747
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-full-sim-quorum.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedDurableOnQuorum": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 11248
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 24921
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_SCJ",
+        "SC_P_SLMLa"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    },
+    "Update-full-sim-completeness.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "LeaderCompleteness": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 12514
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 25506
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a"
+      ]
+    },
+    "Update-focused-completeness.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "LeaderCompleteness": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15727
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 36958
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-hunt-postact-crash.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "LeaderCompleteness": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 20305
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": []
+    },
+    "Update-hunt-postact-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "LeaderCompleteness": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 19838
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": []
+    },
+    "Update-hunt-postact-leak.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "LeaderCompleteness": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 18753
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 41651
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "PendingOnlyDuringSync": "invariant",
+        "LeaderCompleteness": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 16130
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 34872
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-recovery-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "PendingOnlyDuringSync": "invariant",
+        "LeaderCompleteness": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15611
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 33595
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-focused-syncedlog.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "SyncedLogMatchesLeader": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15412
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 35024
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-hunt-postact-syncedlog.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "SyncedLogMatchesLeader": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 19383
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 41606
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-hunt-ghost.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "SyncedLogMatchesLeader": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15485
+        },
+        {
+          "seed": 2,
+          "seconds": 240.2,
+          "status": "budget used",
+          "traces": 31318
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "Update-hunt-ghost-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "SyncedLogMatchesLeader": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15775
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 31740
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "MC.cfg": {
+      "extends": "MC",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 45844
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 99649
+        }
+      ],
+      "reached": [],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    },
+    "Update-focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "PendingOnlyDuringSync": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15870
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 36427
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SCJ",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_U2"
+      ]
+    },
+    "MC-sim.cfg": {
+      "extends": "MC",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 11463
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 24903
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_SCJ",
+        "SC_P_SLMLa"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    },
+    "MC-small.cfg": {
+      "extends": "MC",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 26554
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 54510
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_P_SCJ",
+        "SC_P_SLMLa"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_P_LC",
+        "SC_P_SLMLa",
+        "SC_P_SLMLb",
+        "SC_P_SCJ",
+        "SC_P_POD"
+      ],
+      "not_reached": [
+        "SC_P_LC",
+        "SC_P_POD",
+        "SC_P_SLMLb",
+        "SC_U1",
+        "SC_U2",
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    }
+  }
+}

@@ -1,0 +1,487 @@
+{
+  "arm": "v1",
+  "case": "case-012",
+  "depth": 100,
+  "configs": {
+    "Update_focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.0,
+          "status": "budget used",
+          "traces": 7287
+        },
+        {
+          "seed": 2,
+          "seconds": 250.0,
+          "status": "budget used",
+          "traces": 14065
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U3b"
+      ]
+    },
+    "Update_full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120,
+          "status": "budget used"
+        },
+        {
+          "seed": 2,
+          "seconds": 240,
+          "status": "budget used"
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3c",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U3b"
+      ],
+      "note": "rerun with SC_U3c via --only; run_census.py crashed while merging (--only loads the whole result.json as the per-cfg state, run_census.py:134,152-153); entry merged by hand from the runner stdout"
+    },
+    "Update_open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "EnvRelyHolds": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 9889
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 20369
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1d",
+        "SC_U3b"
+      ]
+    },
+    "Update_full_faults.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.0,
+          "status": "budget used",
+          "traces": 9145
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 16505
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U3b"
+      ]
+    },
+    "Update_hunt_u2_uniform.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "UpdCommitWitnessSound": "invariant",
+        "ProgressCommittedSupported": "invariant",
+        "ProgressSortedAboveCommitted": "invariant",
+        "ProgressCommittedGreatest": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.0,
+          "status": "budget used",
+          "traces": 6372
+        },
+        {
+          "seed": 2,
+          "seconds": 250.0,
+          "status": "budget used",
+          "traces": 12891
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U2",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U3a",
+        "SC_U3b"
+      ]
+    },
+    "Update_hunt_u1_deep.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.0,
+          "status": "budget used",
+          "traces": 6799
+        },
+        {
+          "seed": 2,
+          "seconds": 250.0,
+          "status": "budget used",
+          "traces": 14120
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U3b"
+      ]
+    },
+    "Update_hunt_u3_follower.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "CommitWithinLocalLog": "invariant",
+        "CommittedLogAgreement": "invariant",
+        "MembershipOrder": "invariant",
+        "OneOutstandingMembership": "invariant",
+        "ProgressWithinAcks": "invariant",
+        "ProgressCommittedGreatest": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120,
+          "status": "budget used"
+        },
+        {
+          "seed": 2,
+          "seconds": 240,
+          "status": "budget used"
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3c",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U3b"
+      ],
+      "note": "rerun with SC_U3c via --only; run_census.py crashed while merging (--only loads the whole result.json as the per-cfg state, run_census.py:134,152-153); entry merged by hand from the runner stdout"
+    },
+    "Update_hunt_u4_election.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "ActiveLeaderHasCommittedVote": "invariant",
+        "ProgressWithinAcks": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.1,
+          "status": "budget used",
+          "traces": 14900
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 29375
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b"
+      ]
+    },
+    "MC5_u1_divergence.cfg": {
+      "extends": "MC5",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "CommittedLogAgreement": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 130.0,
+          "status": "budget used",
+          "traces": 8893
+        },
+        {
+          "seed": 2,
+          "seconds": 250.1,
+          "status": "budget used",
+          "traces": 21143
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U4"
+      ],
+      "probes": [
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U1c",
+        "SC_U1d",
+        "SC_U1e",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U4",
+        "SC_CTRL"
+      ],
+      "not_reached": [
+        "SC_U3b"
+      ]
+    }
+  }
+}

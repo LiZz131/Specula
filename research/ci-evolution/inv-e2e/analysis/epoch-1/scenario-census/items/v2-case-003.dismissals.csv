@@ -1,0 +1,9 @@
+arm,case,quote,source,topic
+v2,case-003,`updated == nil` guard in row 1 is unreachable from `updateState` (caller checks non-nil) | no action; recorded,output/modeling-brief.md:199,row 1 nil guard
+v2,case-003,Row 2 (`must be positive`) is unreachable from `updateState` because `ValidateBasic` rejects a negative candidate first,output/modeling-brief.md:200,row 2 negative enable height
+v2,case-003,"app-only catch-up | `ExecCommitBlock` never validates params (replay.go:441-489) | ReplayAppBlock (omitted from focus, EnvUpdate + discharge)",output/analysis-report.md:153,app-only replay omitted from focus
+v2,case-003,Transactions and transaction results | excluded by scope,output/modeling-brief.md:123,transactions (inherited V0)
+v2,case-003,Validator-set transitions | separate two-height mechanism and excluded from the parameter-focused V0,output/modeling-brief.md:124,validator sets (inherited V0)
+v2,case-003,Byzantine votes/rounds/evidence/crypto | expressly outside the neutral boundary,output/modeling-brief.md:125,byzantine (inherited V0)
+v2,case-003,State sync | startup state sync bypasses this handshake and is excluded by the binding recovery objective,output/modeling-brief.md:128,state sync (inherited V0)
+v2,case-003,"`ExecCommitBlock` intentionally bypasses historical CometBFT state mutation ... preserve as an explicit abstraction boundary, not a defect claim",output/modeling-brief.md:197,V0-CR-1 ExecCommitBlock

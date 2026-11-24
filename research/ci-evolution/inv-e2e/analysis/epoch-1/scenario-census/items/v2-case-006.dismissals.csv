@@ -1,0 +1,5 @@
+arm,case,quote,source,topic
+v2,case-006,Byte aliasing is an implementation-container detail excluded by the scope; no model or finding is derived from it.,output/modeling-brief.md:302-304,rctx buffer mutation after ReadIndex
+v2,case-006,"Protobuf encoding, snapshots, membership change, leader transfer, PreVote, lease-based reads (the update touches only the safe-read cleanup path), allocation, and goroutine scheduling remain excluded as in V0.",output/modeling-brief.md:308-310,update-scope exclusions
+v2,case-006,ClientProposal changes only the leader's log/progress and adds MsgApp; no update-visible variable. Its only indirect update-relevant effect ... is already produced concretely by leader no-op entries,output/spec/Update.tla:77-80,omitted ClientProposal in focused spec
+v2,case-006,Crash flips liveness only.  Restart reloads durable state and recreates all volatile read state,output/spec/Update.tla:81-82,omitted Crash/Restart in focused spec

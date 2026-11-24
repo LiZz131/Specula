@@ -1,0 +1,459 @@
+{
+  "arm": "v2",
+  "case": "case-010",
+  "depth": 100,
+  "configs": {
+    "Update-focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdIdleDbBackedByDisk": "invariant",
+        "UpdDurableCoversCommitted": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 12868
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 27441
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P2",
+        "SC_P3",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-focused-txn1.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdIdleDbBackedByDisk": "invariant",
+        "UpdDurableCoversCommitted": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 15692
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 32626
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P3",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_P2",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdIdleDbBackedByDisk": "invariant",
+        "UpdDurableCoversCommitted": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 14263
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 31270
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P3",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_P2",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-snapfix-new.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdIdleDbBackedByDisk": "invariant",
+        "UpdDurableCoversCommitted": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 2157
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 4756
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P2",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_P3",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-leak-new.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdIdleDbBackedByDisk": "invariant",
+        "UpdDurableCoversCommitted": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 328
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 722
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P2",
+        "SC_P3",
+        "SC_PC",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_U1a",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-e2e-trunc-new.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdDurableCoversCommitted": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 2240
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 4805
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P2",
+        "SC_P3",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-e2e-snap-new.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdDurableCoversCommitted": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 2217
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 4872
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P2",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_P3",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    },
+    "Update-open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ActiveLeaderUniqueness": "invariant",
+        "AcceptedEpochGECurrentEpoch": "invariant",
+        "OrderedHistories": "invariant",
+        "CommittedPrefixAgreement": "invariant",
+        "NormalAckHasDurabilityEvidence": "invariant",
+        "ApplyHasCommitCertificate": "invariant",
+        "SyncEntryJustified": "invariant",
+        "SnapshotPublishedValid": "invariant",
+        "UpdIdleDbBackedByDisk": "invariant",
+        "UpdDurableCoversCommitted": "invariant",
+        "MonotoneUnlessRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5977
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 13451
+        }
+      ],
+      "reached": [
+        "SC_P1",
+        "SC_P3",
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1a",
+        "SC_U1b",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c",
+        "SC_P1",
+        "SC_P2",
+        "SC_P3"
+      ],
+      "not_reached": [
+        "SC_P2",
+        "SC_U2",
+        "SC_U3a",
+        "SC_U3b",
+        "SC_U3c"
+      ]
+    }
+  }
+}

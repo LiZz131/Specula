@@ -1,0 +1,7 @@
+arm,case,quote,source,topic
+v1,case-011,"CR-review-1 (dismissed): same-term pre-vote rounds share a leader id, so a delayed earlier-round grant is counted; judged equivalent to a delayed in-round grant",output/modeling-brief.md:300-302,stale same-term pre-vote grants
+v1,case-011,CR-review-2 (documentation only): `pre_vote.md` backward-compatibility text contradicts the implemented `Unreachable`-is-not-a-grant rule. No behavioural finding.,output/modeling-brief.md:303-305,Unreachable-as-grant doc
+v1,case-011,"Tick rate limiting and RPC timeouts (timing), metrics/name tables, config parsing, the default network `pre_vote` synthesized grant (transport), serialization.",output/modeling-brief.md:309-311,update exclusions
+v1,case-011,The synthesized-grant fallback (network without `pre_vote`) is excluded from the transport model: it is equivalent to pre-vote disabled for that sender.,output/analysis-report.md:304-306,network default pre_vote fallback
+v1,case-011,Rounds started by an administrator on a node that was already Leader are excluded (pre-existing TODO at raft_core.rs:1685).,output/spec/Update.tla:210-211,manual pre-vote on a Leader
+v1,case-011,"Pre-vote grant accumulation without quorum is not reachable from the 3-voter uniform seed within budget (`CanaryNoPreGrantCounted`, structural ...); it is covered by the joint-configuration trace",output/spec/bug-report.md:160-164,grant accumulation left to trace

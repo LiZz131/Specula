@@ -1,0 +1,626 @@
+{
+  "arm": "v2",
+  "case": "case-006",
+  "depth": 100,
+  "configs": {
+    "Update_focused_rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdControlElectionSafety": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5017
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 11220
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "Update_hunt_forwarded_rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 6899
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 15360
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "Update_hunt_linearizable_directed.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdReadIndexLinearizable": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5829
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 12520
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "not_reached": [
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    },
+    "Update_hunt_linearizable.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdReadIndexLinearizable": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 4032
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 8669
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "Update_open_rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdControlElectionSafety": "invariant",
+        "EnvWithinRely": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5358
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 12215
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "MC.cfg": {
+      "extends": "MC",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 10795
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 24343
+        }
+      ],
+      "reached": [],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ],
+      "not_reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b"
+      ]
+    },
+    "Update_focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdReadAckFresh": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdControlElectionSafety": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5355
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 11779
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a",
+        "SC_U4b2"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_U4b2"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "Update_full_rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdControlElectionSafety": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 4143
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 9103
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a",
+        "SC_U4b2"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_U4b2"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "Update_full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdReadAckFresh": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdControlElectionSafety": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 4254
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 8939
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a",
+        "SC_U4b2"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_U4b2"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    },
+    "Update_hunt_forwarded.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdReadAckFresh": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 7243
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 15190
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_U4b2"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b",
+        "SC_U4b2"
+      ]
+    },
+    "Update_hunt_stale_ack.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadAckFresh": "invariant",
+        "UpdReadIndexLinearizable": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 7081
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 14974
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_U4b2"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b",
+        "SC_U4b2"
+      ]
+    },
+    "Update_open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "MCElectionSafety": "invariant",
+        "MCCommitWithinLog": "invariant",
+        "MCLogMatching": "invariant",
+        "MCCommittedPrefixAgreement": "invariant",
+        "MCLeaderCompleteness": "invariant",
+        "MCMessagesWellFormed": "invariant",
+        "MCReadDeliveryJustified": "invariant",
+        "MCReadyNoInvention": "invariant",
+        "UpdPendingMatchesQueue": "invariant",
+        "UpdReadStateOnlyAtLeader": "invariant",
+        "UpdReadAckFresh": "invariant",
+        "UpdReadIndexLinearizable": "invariant",
+        "UpdControlElectionSafety": "invariant",
+        "EnvWithinRely": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5664
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 11683
+        }
+      ],
+      "reached": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U4a",
+        "SC_U4b2"
+      ],
+      "probes": [
+        "SC_CTRL",
+        "SC_U1",
+        "SC_U2a",
+        "SC_U2b",
+        "SC_U2c",
+        "SC_U3",
+        "SC_U4a",
+        "SC_U4b",
+        "SC_U4b2"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U4b"
+      ]
+    }
+  }
+}

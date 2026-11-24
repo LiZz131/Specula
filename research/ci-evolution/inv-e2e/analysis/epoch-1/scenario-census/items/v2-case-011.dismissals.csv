@@ -1,0 +1,11 @@
+arm,case,quote,source,topic
+v2,case-011,"Election-timeout arithmetic and the ""round in flight"" rate limit (`raft_core.rs:2014-2023`): timing abstraction, any tick may fire or restart a round.",output/modeling-brief.md:342-343,timer arithmetic excluded
+v2,case-011,"`enable_elect` runtime switch: not modeled before; a Pre-Vote quorum also ignores it (`engine_impl.rs:534-539`), recorded as code-review note, not modeled.",output/modeling-brief.md:344-345,enable_elect switch excluded
+v2,case-011,"RPC transport errors (`Unreachable`, timeouts): equivalent to message loss (`DropMessage`).",output/modeling-brief.md:346,transport errors folded into message loss
+v2,case-011,Follower-side membership change via replication is not modeled ... The U4 panic variant through a follower is therefore code-review/test evidence,output/modeling-brief.md:347-349,follower-side membership change excluded
+v2,case-011,"Liveness / ""no term inflation while a leader holds leases"" is not claimed: no fairness.",output/modeling-brief.md:350,liveness excluded
+v2,case-011,admin rounds (ExternalCommand::Elect { pre_vote: true }) are excluded: they check only is_voter and carry a TODO about leaders,output/spec/UpdateProps.tla:69,operator rounds excluded from TimerPreVoteElectsOnlyNonLeader
+v2,case-011,"Pre-Vote persists nothing, so no new durability window.",output/analysis-report.md:219,durability window dismissed
+v2,case-011,*old invariants*: durability and vote-request ordering are unaffected because Pre-Vote messages are neither votes nor vote requests,output/analysis-report.md:220-221,old durability/ordering invariants unaffected
+v2,case-011,Timer-only rounds are protected by the RPC timeout (modeled after the Case B repair).,output/modeling-brief.md:368-369,timer-only stale rounds dismissed
+v2,case-011,"Code-review note (no separate finding): a Pre-Vote quorum also bypasses `enable_elect` and the voter check ... reachable only on own-vote (candidate/leader) nodes, i.e. through MC-1/MC-2.",output/modeling-brief.md:370-372,voter-check bypass folded into MC-1/MC-2

@@ -1,0 +1,6 @@
+arm,case,quote,source,topic
+v0,case-010,"Observers, ObserverMaster, reconfiguration (COMMITANDACTIVATE, INFORMANDACTIVATE), pre-Zab-1.0 UPTODATE snapshot path, ... isMoreRecentThan ACKEPOCH rejection, session transactions, digest checks.",output/modeling-brief.md:227,exclusions retained/added
+v0,case-010,same-epoch TRUNC inside queueCommittedProposals (needs equal-epoch divergence that one-leader-per-epoch excludes),output/modeling-brief.md:227,same-epoch TRUNC
+v0,case-010,A deposed leader is not modeled proposing during its quorum-check window (keeps id order = zxid order); its proposals could never commit.,output/modeling-brief.md:227,deposed leader proposals
+v0,case-010,CR-U1 syncMode is never reset by Learner.shutdown; a stale SNAP makes a later exit ... fully clear (and reload) a database that is already disk-consistent. | Performance only; no safety consequence found.,output/modeling-brief.md:233,stale SNAP exit before first packet
+v0,case-010,"Omitted reference actions: periodic fuzzy snapshots (MCSnapshotNext). They write only snapshotBusy/snapshotImage/snapshotPublished, which no update-visible variable, guard, or property reads",output/spec/Update.tla:86-89,periodic snapshots omitted from focus

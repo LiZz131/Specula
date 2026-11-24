@@ -1,0 +1,6 @@
+arm,case,quote,source,topic
+v0,case-012,"Still excluded: apply/state-machine and client response (LeaderCommit command execution), metrics, snapshot, network framing, payload meaning.",output/modeling-brief.md:192-193,update exclusions
+v0,case-012,Code-review-only candidates: none beyond the model-checked scenarios above.,output/modeling-brief.md:194,code review
+v0,case-012,"Command::LeaderCommit{since,upto}, ReplicateCommitted ... runtime/apply framing; applied range unchanged (last_applied+1..=upto) - excluded (apply/payload)",output/analysis-report.md:88,C8 apply framing
+v0,case-012,follower follower_update_membership keeps the 'last two memberships' ... while the model only copies the effective membership; it does not affect leader commit through progress.,output/analysis-report.md:116-119,follower membership history
+v0,case-012,C7 RaftState::update_committed ... changed guard (equal outcomes in reachable MC states ...),output/analysis-report.md:87,follower commit guard

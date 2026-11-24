@@ -1,0 +1,397 @@
+{
+  "arm": "v0",
+  "case": "case-002",
+  "depth": 100,
+  "configs": {
+    "Update-open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "NoSyncException": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "CommittedNeverLost": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property",
+        "NewLeaderAckDurable": "property",
+        "LeaderCompleteness": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1424
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 2772
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe",
+        "SC_UDUR",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_initial",
+        "SC_ULOSS_crash"
+      ],
+      "not_reached": [
+        "SC_UDUR",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_crash",
+        "SC_ULOSS_initial",
+        "SC_UNPE",
+        "SC_UNPE_npe"
+      ]
+    },
+    "Update-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "NoSyncException": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "CommittedNeverLost": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property",
+        "NewLeaderAckDurable": "property",
+        "LeaderCompleteness": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1398
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 2784
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe",
+        "SC_UDUR",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_initial",
+        "SC_ULOSS_crash"
+      ],
+      "not_reached": [
+        "SC_UDUR",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_crash",
+        "SC_ULOSS_initial"
+      ]
+    },
+    "Update-focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "MCTypeOK": "invariant",
+        "ElectionSafety": "invariant",
+        "OneActiveLeaderPerEpoch": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "ApplyRequiresCommitCertificate": "invariant",
+        "PipelinePrefix": "invariant",
+        "EpochHistoryConsistency": "invariant",
+        "SyncCompletionJustified": "invariant",
+        "NoSyncException": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "CommittedNeverLost": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property",
+        "NewLeaderAckDurable": "property",
+        "LeaderCompleteness": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1383
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 2705
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe",
+        "SC_UDUR",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_initial",
+        "SC_ULOSS_crash"
+      ],
+      "not_reached": [
+        "SC_UDUR",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_crash",
+        "SC_ULOSS_initial"
+      ]
+    },
+    "Update-hunt-loss-crash.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1297
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 2754
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UEPOCH_crash",
+        "SC_ULOSS_crash"
+      ],
+      "not_reached": [
+        "SC_UEPOCH_crash",
+        "SC_ULOSS_crash"
+      ]
+    },
+    "Update-hunt-loss-crash-tight.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1357
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 2892
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UEPOCH_crash",
+        "SC_ULOSS_crash"
+      ],
+      "not_reached": [
+        "SC_UEPOCH_crash",
+        "SC_ULOSS_crash"
+      ]
+    },
+    "Update-hunt-npe.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "NoSyncException": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1832
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UNPE",
+        "SC_UNPE_npe"
+      ],
+      "not_reached": []
+    },
+    "Update-hunt-epoch-nocrash.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1317
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 2878
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UEPOCH_nocrash"
+      ],
+      "not_reached": [
+        "SC_UEPOCH_nocrash"
+      ]
+    },
+    "Update-hunt-epoch.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "EpochHistoryRecoverable": "invariant",
+        "HistoryPositionsMonotonicExceptRecovery": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1395
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 3011
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash"
+      ],
+      "not_reached": [
+        "SC_UEPOCH_crash",
+        "SC_UEPOCH_nocrash"
+      ]
+    },
+    "Update-hunt-loss-tight.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "CommittedHistoriesPrefix": "invariant",
+        "CommittedNeverLost": "invariant",
+        "LeaderCompleteness": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1389
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 3018
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_ULOSS_initial",
+        "SC_UEPOCH_nocrash"
+      ],
+      "not_reached": [
+        "SC_UEPOCH_nocrash",
+        "SC_ULOSS_initial"
+      ]
+    },
+    "Update-hunt-dur.cfg": {
+      "extends": "Update",
+      "checks": {
+        "TypeOK": "invariant",
+        "NewLeaderAckDurable": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1841
+        }
+      ],
+      "reached": [
+        "SC_CTRL_leader",
+        "SC_UDUR"
+      ],
+      "probes": [
+        "SC_CTRL_leader",
+        "SC_UDUR"
+      ],
+      "not_reached": []
+    }
+  }
+}

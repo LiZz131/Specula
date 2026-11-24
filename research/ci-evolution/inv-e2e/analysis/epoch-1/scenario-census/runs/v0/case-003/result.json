@@ -1,0 +1,756 @@
+{
+  "arm": "v0",
+  "case": "case-003",
+  "depth": 100,
+  "configs": {
+    "Update_open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "ContractLegalUpdateAccepted": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 72218
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 159212
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "ContractLegalUpdateAccepted": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 67249
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 141819
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "ContractLegalUpdateAccepted": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 76928
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 168642
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_focused_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 75226
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 158561
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_full_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 65733
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 130603
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_open_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 70562
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 159959
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_hunt_U1_enable_from_zero.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "ContractLegalUpdateAccepted": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 86783
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": []
+    },
+    "Update_hunt_U1_enable_from_zero_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 86589
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": []
+    },
+    "Update_hunt_U2_unchanged_after_enable.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "ContractLegalUpdateAccepted": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 60920
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 131293
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U4b_mock_replay_revalidated"
+      ]
+    },
+    "Update_hunt_U2_unchanged_after_enable_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 62682
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 131584
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U4b_mock_replay_revalidated"
+      ]
+    },
+    "Update_hunt_U3_ve_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 87544
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": []
+    },
+    "Update_hunt_U4_recovery.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ContractLegalUpdateAccepted": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 78433
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 160586
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_hunt_U4_recovery_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 80547
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 164690
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": [
+        "SC_U3b_move_future_accepted"
+      ]
+    },
+    "Update_sim_deep_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 65383
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": []
+    },
+    "Update_hunt_U5_deep_safety.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "PersistedHeightRelationships": "invariant",
+        "SuccessfulApplyAdvancesExactlyOne": "invariant",
+        "RejectedUpdateDoesNotInstall": "invariant",
+        "ParameterUpdateReflected": "invariant",
+        "NormalPhaseIsSynchronized": "invariant",
+        "RecoveryNormalOnlySupported": "invariant",
+        "InstalledParamsBasicValid": "invariant",
+        "VEEnableHeightImmutableOnceEnabled": "invariant",
+        "VEStatusOfDecidedHeightsPreserved": "invariant",
+        "MockReplayRevalidationAccepts": "invariant"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 70864
+        }
+      ],
+      "reached": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "probes": [
+        "SC_CTRL_accepted",
+        "SC_U1a_enable_from_zero_accepted",
+        "SC_U1b_resend_after_enable_validated",
+        "SC_U2_unchanged_after_enable_rejected",
+        "SC_U3a_cancel_future_accepted",
+        "SC_U3b_move_future_accepted",
+        "SC_U3c_disable_after_enable_attempted",
+        "SC_U4a_real_replay_rejected",
+        "SC_U4b_mock_replay_revalidated"
+      ],
+      "not_reached": []
+    }
+  }
+}

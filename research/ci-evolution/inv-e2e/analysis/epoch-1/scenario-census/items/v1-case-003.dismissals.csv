@@ -1,0 +1,7 @@
+arm,case,quote,source,topic
+v1,case-003,"Additional exclusion: rolling binary upgrades across a restart (old validation before the crash, new validation at replay) are not modeled; the model has a single code version.",output/modeling-brief.md:100-102,rolling upgrade across restart
+v1,case-003,The updates == nil guard added to row 1 is unreachable from updateState (execution.go:615) and is not modeled separately.,output/modeling-brief.md:103-104,updates == nil guard
+v1,case-003,Row 2 (U < 0) is unreachable from updateState because nextParams.ValidateBasic() runs first (execution.go:617-620). No consequence.,output/modeling-brief.md:136,row 2 masked by ValidateBasic
+v1,case-003,Exclusions unchanged from V0 3.2.,output/modeling-brief.md:100,V0 exclusions carried over
+v1,case-003,"Error message text changed in rows 4, 6 and 8; messages are not modeled.",output/analysis-report.md:63,error messages
+v1,case-003,Category A ... No concurrency or persistence-order change.,output/modeling-brief.md:11-12,concurrency/persistence order

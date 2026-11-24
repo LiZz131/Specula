@@ -1,0 +1,870 @@
+{
+  "arm": "v0",
+  "case": "case-011",
+  "depth": 100,
+  "configs": {
+    "Update-full-rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3081
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "Update-full.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteNeverDemotesEstablishedLeader": "property",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3125
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "Update-full-prevote.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 2762
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 6707
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "Update-full-U2U4.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3136
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "Update-focused.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteNeverDemotesEstablishedLeader": "property",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3811
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 7923
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U3"
+      ]
+    },
+    "Update-focused-rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3764
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 7908
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U3"
+      ]
+    },
+    "Update-focused-U2U4.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3660
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 7820
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U3"
+      ]
+    },
+    "Update-open.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteNeverDemotesEstablishedLeader": "property",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5060
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "Update-open-rest.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 4918
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "Update-open-U2U4.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 5046
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": []
+    },
+    "MC_hunt_prevote_leader_tickonly.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreVoteNeverDemotesEstablishedLeader": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1744
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 3651
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U2",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U1",
+        "SC_U1w",
+        "SC_U3",
+        "SC_U5c",
+        "SC_U5d"
+      ]
+    },
+    "MC_hunt_prevote_leader.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreVoteNeverDemotesEstablishedLeader": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 1797
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 3674
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U3",
+        "SC_U5c",
+        "SC_U5d"
+      ]
+    },
+    "MC_hunt_prevote_membership.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectOnlyByVoter": "property",
+        "PreVoteElectsAtProbedTerm": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 2839
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 6755
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U1",
+        "SC_U1w",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c"
+      ]
+    },
+    "MC_hunt_prevote_membership_U2.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 2855
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 6768
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U1",
+        "SC_U1w",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c"
+      ]
+    },
+    "MC_hunt_prevote_crash.cfg": {
+      "extends": "Update",
+      "checks": {
+        "MCTypeOK": "invariant",
+        "DurableVoteNotAhead": "invariant",
+        "DurableLogNotAhead": "invariant",
+        "VoteRequestAfterDurable": "invariant",
+        "GrantedResponseAfterDurable": "invariant",
+        "LeaderRoleHasCommittedSelfVote": "invariant",
+        "CandidateRoleHasPendingSelfVote": "invariant",
+        "MembershipAtMostOneOutstanding": "invariant",
+        "NoForgedMessageEndpoints": "invariant",
+        "CertifiedLeaderHasFrozenQuorum": "invariant",
+        "PreCandidateProbesNextSelfTerm": "invariant",
+        "PreVoteElectsAtProbedTerm": "property",
+        "PreVoteHandlingIsSideEffectFree": "property"
+      },
+      "passes": [
+        {
+          "seed": 1,
+          "seconds": 120.1,
+          "status": "budget used",
+          "traces": 3446
+        },
+        {
+          "seed": 2,
+          "seconds": 240.1,
+          "status": "budget used",
+          "traces": 7555
+        }
+      ],
+      "reached": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "probes": [
+        "SC_PC",
+        "SC_U1",
+        "SC_U1w",
+        "SC_U2",
+        "SC_U3",
+        "SC_U4",
+        "SC_U4L",
+        "SC_U5a",
+        "SC_U5b",
+        "SC_U5c",
+        "SC_U5d"
+      ],
+      "not_reached": [
+        "SC_U3"
+      ]
+    }
+  }
+}

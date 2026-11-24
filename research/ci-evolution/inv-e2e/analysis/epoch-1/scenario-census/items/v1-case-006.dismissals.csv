@@ -1,0 +1,5 @@
+arm,case,quote,source,topic
+v1,case-006,"ReadOnlyLeaseBased, PreVote, snapshots, membership change, leader transfer, and the empty-context key """" (outside ReadContexts) remain excluded as in V0.",output/modeling-brief.md:227-228,V0 exclusions retained
+v1,case-006,reset sites: step-down/candidacy/re-election discard pending reads (raft.go:510); acknowledgements from a previous term never match (term check raft.go:713-734 / model m.term = term[i]).,output/analysis-report.md:88-90,cross-term stale acks
+v1,case-006,"crash/restart: Restart rebuilds readOnly (newRaft, raft.go:297); covered by EnvUpdate/discharge.",output/analysis-report.md:91-92,crash/restart omitted from focused spec
+v1,case-006,"Old-revision contrast: with stale entries, a same-term re-request of a released context is silently dropped (liveness defect ...), but no stale acknowledgement can be attributed to a new instance.",output/analysis-report.md:94-96,old revision

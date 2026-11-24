@@ -1,0 +1,6 @@
+arm,case,quote,source,topic
+v2,case-010,Observers are not modeled; the same `Learner.shutdown` change applies to them (ObserverZooKeeperServer has the same no-arg-only override).,output/modeling-brief.md:237,observers excluded
+v2,case-010,The microsecond window in which a live COMMIT is enqueued between `startForwarding` and a TRUNC/DIFF NEWLEADER is not modeled (`syncCommitCut`); the SNAP serialization window is.,output/modeling-brief.md:237,live COMMIT window before TRUNC/DIFF NEWLEADER excluded
+v2,case-010,"Leader crash, global election rounds and leader restart are outside the focused view (stable-leader scope); they remain covered only by the full-MCNext campaigns.",output/spec/Update.tla:105-107,focused view excludes leader crash/election rounds
+v2,case-010,Racy part (model only): `Learner.shutdown` closes the leader socket first ... a leaked processor that tries to ACK after the close throws a `NullPointerException` ... A queued proposal is therefore written after a TRUNC only if ... a narrow window,output/spec/bug-report.md:78,U3 consequence argued narrow/racy in real code
+v2,case-010,Dynamic membership/reconfiguration | The fresh baseline harness uses one immutable three-participant view.,output/modeling-brief.md:121,reconfiguration excluded (inherited V0 scope)
