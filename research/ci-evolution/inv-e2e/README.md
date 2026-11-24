@@ -121,9 +121,12 @@ Every omission is listed in the run's `export.json` and its file is in the archi
 one set of limits. Epoch 1 is the 21 runs below (base `5880061f`, model `claude-opus-5-5`, effort `xhigh`,
 4 h, $100). A new base commit or overlay change starts a new epoch with its own v0 runs.
 
+Epoch 2 changes only the base commit. It runs case-002 and case-011, three arms, two reps (round 1 for all six cells, then round 2), with the same task text, overlays, priors (v2 reuses the epoch-1 frozen annotations), model and limits. Its work directory is `/mydata/bingzhuo/inv-e2e-epoch2` and its results go to `results-epoch2/` (`INV_E2E_WORK`, `INV_E2E_RESULTS`); `epoch2-round.sh` is the driver.
+
 | Epoch | Base skill commit | v0 tree | v1 tree | v2 tree | Model, effort |
 |---|---|---|---|---|---|
 | 1 | `5880061f19a6` (2026-11-16, "Add prefix branching for update-focused checking") | `285a0893559beac4` | `a227a3af28461121` | `8c85fc177d13e9cc` | `claude-opus-5-5`, `xhigh` |
+| 2 | `7590b155d7b5` (upstream main, includes "Support liveness checking (#201)") | `73ac3ceb24291b6c` | `01093fb904256b51` | `f7dddcfa1608dc14` | `claude-opus-5-5`, `xhigh` |
 
 Tree hashes are `tree_sha256` in `inputs/skills/<arm>-manifest.json` (written by `build_skills.py`). Each run
 records the tree it used as `skills_tree_sha256` in `run.json`; `collect.py` checks every run against its arm's
