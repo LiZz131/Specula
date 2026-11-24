@@ -9,6 +9,12 @@ Sandbox (same shape as the blind study's run_incremental.py):
   - PATH starts with /work/tools/network-guard, which blocks curl/wget/gh/lynx and
     git fetch/clone/pull; the network itself stays up for the model API and builds.
   - Afterwards every shell command is scanned for research/history commands.
+  - Optional (main_tools=<dir>, claude only): the Specula-main MCP runtime frozen by
+    build_main_tools.py is mounted read-only at /opt/specular and the agent gets the four MCP
+    servers of a main install (tracedebugger, spec_analyzer, inv_checking_tool, specular_tlc)
+    via --mcp-config /opt/mcp/config.json --strict-mcp-config. TLC tasks live in
+    /work/.tlc-tasks (writable bind); the launcher holds the specular_tlc parent lock with flock
+    for the whole session, as src/specular/tlc_tasks.py does on main.
 
 Backends:
   claude  `claude -p --output-format stream-json`; cost from the final result event.
@@ -26,6 +32,7 @@ import subprocess
 import tempfile
 import threading
 import time
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -147,7 +154,7 @@ def bwrap_command(workspace: Path, ro: list[str], rw: list[str], extra_binds: li
         cmd += ["--ro-bind", str(RUSTUP), "/opt/rustup", "--ro-bind", str(CARGO_BIN), "/opt/cargo-bin"]
     env = {
         "HOME": "/home/agent",
-        "PATH": "/work/tools/network-guard:/opt/agent:/opt/cargo-bin:/usr/local/go/bin:/usr/bin:/bin",
+        "PATH": SANDBOX_PATH,
         "RUSTUP_HOME": "/opt/rustup",
         "CARGO_HOME": "/work/.cache/cargo",
         "CARGO_TARGET_DIR": "/work/.cache/cargo-target",
@@ -170,7 +177,8 @@ def bwrap_command(workspace: Path, ro: list[str], rw: list[str], extra_binds: li
 
 
 def agent_argv(backend: str, model: str, effort: str, budget_usd: float | None,
-               schema: str | None, final_path: str) -> tuple[list[str], list[tuple[str, str]]]:
+               schema: str | None, final_path: str,
+               mcp_config: str | None = None) -> tuple[list[str], list[tuple[str, str]]]:
     if backend == "claude":
         argv = ["/opt/agent/claude", "-p", "--output-format", "stream-json", "--verbose",
                 "--model", model, "--effort", effort,
@@ -178,7 +186,11 @@ def agent_argv(backend: str, model: str, effort: str, budget_usd: float | None,
                 "--no-session-persistence", "--disallowedTools", "WebFetch", "WebSearch"]
         if budget_usd:
             argv += ["--max-budget-usd", str(budget_usd)]
+        if mcp_config:
+            argv += ["--mcp-config", mcp_config, "--strict-mcp-config"]
         return argv, [(str(CLAUDE_BIN), "/opt/agent/claude")]
+    if mcp_config:
+        raise ValueError("main tools (MCP) are wired for the claude backend only")
     argv = ["/opt/agent/codex", "exec", "--ignore-user-config", "--strict-config", "--ephemeral",
             "--skip-git-repo-check", "--dangerously-bypass-approvals-and-sandbox",
             "--model", model, "--config", 'model_provider="openai"',
@@ -187,6 +199,86 @@ def agent_argv(backend: str, model: str, effort: str, budget_usd: float | None,
         argv += ["--output-schema", schema, "--output-last-message", final_path]
     argv.append("-")
     return argv, [(str(CODEX_BIN), "/opt/agent/codex")]
+
+
+# --- Specula-main MCP tools (opt-in) ---------------------------------------------------
+MAIN_TOOLS_MOUNT = "/opt/specular"
+MCP_CONFIG_MOUNT = "/opt/mcp/config.json"
+MAIN_TOOLS_RW = [".tlc-tasks", ".stop-gate"]  # start_tlc job dirs; run_model_check.sh's stop-gate registry
+SANDBOX_PATH = "/work/tools/network-guard:/opt/agent:/opt/cargo-bin:/usr/local/go/bin:/usr/bin:/bin"
+
+
+def _hold_lock(path: Path) -> int:
+    """Same as src/specular/tlc_tasks.py:_hold_lock: create and flock a fresh lock file."""
+    import fcntl
+    fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        os.set_inheritable(fd, False)
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def main_tools_mcp_config(owner: str, parent_lock: str) -> dict[str, Any]:
+    """MCP config with in-sandbox paths, mirroring a main install.
+
+    tracedebugger/spec_analyzer/inv_checking_tool: as scripts/infra/setup.sh registers them
+    (env SPECULAR_ROOT only). specular_tlc: as tlc_tasks.prepare_environment builds it (the
+    passthrough vars that the sandbox defines, plus root, owner and the launcher's parent lock)."""
+    root = MAIN_TOOLS_MOUNT
+
+    def server(tool: str, env: dict[str, str]) -> dict[str, Any]:
+        return {"command": f"{root}/tools/{tool}/.venv/bin/python", "args": [f"{root}/tools/{tool}/mcp_server.py"],
+                "env": env}
+
+    return {"mcpServers": {
+        "tracedebugger": server("trace_debugger", {"SPECULAR_ROOT": root}),
+        "spec_analyzer": server("spec_analyzer", {"SPECULAR_ROOT": root}),
+        "inv_checking_tool": server("inv_checking_tool", {"SPECULAR_ROOT": root}),
+        "specular_tlc": server("tlc_tools", {
+            "PATH": SANDBOX_PATH,
+            "TMPDIR": "/work/.cache/tmp",
+            "SPECULAR_WORK_DIR": "/work",
+            "SPECULAR_ROOT": root,
+            "SPECULAR_TLC_TOOL_OWNER": owner,
+            "SPECULAR_TLC_TOOL_PARENT_LOCK": parent_lock,
+        }),
+    }}
+
+
+def setup_main_tools(main_tools: Path, workspace: Path, log_dir: Path) -> tuple[dict[str, Any], int]:
+    """Create the writable TLC-task dirs, take the parent lock, write the MCP config.
+
+    Returns (record for the run manifest, lock fd to hold until the session ends)."""
+    manifest_file = main_tools / "manifest.json"
+    if not manifest_file.is_file():
+        raise RuntimeError(f"no main-tools build at {main_tools}; run build_main_tools.py first")
+    for rel in MAIN_TOOLS_RW:
+        (workspace / rel).mkdir(exist_ok=True)
+    (workspace / ".tlc-tasks/owners").mkdir(exist_ok=True)
+    token = uuid.uuid4().hex
+    lock = workspace / ".tlc-tasks/owners" / f"{token}.lock"
+    fd = _hold_lock(lock)
+    owner = f"/work/.tlc-tasks/owners/{token}.session"
+    config = main_tools_mcp_config(owner, f"/work/.tlc-tasks/owners/{token}.lock")
+    config_path = log_dir / "mcp-config.json"
+    config_path.write_text(json.dumps(config, indent=1))
+    built = json.loads(manifest_file.read_text())
+    record = {
+        "root": str(main_tools),
+        "mount": MAIN_TOOLS_MOUNT,
+        "manifest_sha256": sha256(manifest_file),
+        "tree_sha256": built.get("tree_sha256"),
+        "source_commit": built.get("source_commit"),
+        "servers": sorted(config["mcpServers"]),
+        "mcp_config": str(config_path),
+        "mcp_config_sha256": sha256(config_path),
+        "parent_lock": str(lock),
+        "writable_binds": [f"/work/{rel}" for rel in MAIN_TOOLS_RW],
+    }
+    return record, fd
 
 
 def summarize_activity(backend: str, activity: Path) -> dict[str, Any]:
@@ -330,7 +422,8 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
               log_dir: Path, timeout_s: int, model: str | None = None, effort: str | None = None,
               budget_usd: float | None = None, schema: str | None = None,
               final_path: str = "/work/current/final-response.json",
-              extra_binds: list[tuple[str, str]] | None = None, meta: dict[str, Any] | None = None) -> dict[str, Any]:
+              extra_binds: list[tuple[str, str]] | None = None, meta: dict[str, Any] | None = None,
+              main_tools: Path | None = None) -> dict[str, Any]:
     """Run one session; write log_dir/{activity.jsonl, stderr.log, run-manifest.json}; return the manifest."""
     model = model or DEFAULTS[backend]["model"]
     effort = effort or DEFAULTS[backend]["effort"]
@@ -338,7 +431,14 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
     manifest_path = log_dir / "run-manifest.json"
     if manifest_path.exists():
         raise RuntimeError(f"refusing to overwrite {manifest_path}")
-    argv, binds = agent_argv(backend, model, effort, budget_usd, schema, final_path)
+    argv, binds = agent_argv(backend, model, effort, budget_usd, schema, final_path,
+                             mcp_config=MCP_CONFIG_MOUNT if main_tools else None)
+    lock_fd = None
+    tools_record = None
+    if main_tools:
+        tools_record, lock_fd = setup_main_tools(main_tools, workspace, log_dir)
+        rw = rw + MAIN_TOOLS_RW
+        binds = binds + [(str(main_tools), MAIN_TOOLS_MOUNT), (tools_record["mcp_config"], MCP_CONFIG_MOUNT)]
     started = datetime.now(timezone.utc)
     manifest: dict[str, Any] = {
         "schema_version": 1,
@@ -354,6 +454,8 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
         "started_at_utc": started.isoformat(),
         "isolation": "bwrap unshare-all + share-net; workspace at /work; throwaway HOME; network-guard on PATH",
     }
+    if tools_record:
+        manifest["main_tools"] = tools_record
     write_json(manifest_path, manifest)
     activity = log_dir / "activity.jsonl"
     stderr = log_dir / "stderr.log"
@@ -394,6 +496,8 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
             except Exception:
                 pass
         shutil.rmtree(home, ignore_errors=True)
+        if lock_fd is not None:  # sandbox is gone (PID namespace), so are its TLC tasks; release the lease
+            os.close(lock_fd)
     finished = datetime.now(timezone.utc)
     behavior = summarize_activity(backend, activity)
     status = "TIMEOUT" if timed_out else ("EXITED_0" if proc.returncode == 0 else "FAILED")

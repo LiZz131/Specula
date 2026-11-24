@@ -32,7 +32,7 @@ The etcd V0–V3 experiments served as the dev set: the skill overlays were writ
 | 2. Skill trees | `build_skills.py [--base-ref REF] --show-diff` | `WORK/skills/<arm>/` + `manifest.json` |
 | 3. v2 annotation | `annotate.py --case ...` | `WORK/annotated/<case>/spec/` (frozen) + manifest |
 | 4. Workspaces | `prepare.py --arm ... --case ... --rep N` | `WORK/neutral/<hex>/` (the sandbox's `/work`); `WORK/attempts/<arm>/<case>/r<N>/{ws,attempt.json}` |
-| 5. Runs | `run.py --arm ... --case ... --rep N [--plan]` | `WORK/attempts/.../log/`; `results/<arm>/<case>/r<N>/` |
+| 5. Runs | `run.py --arm ... --case ... --rep N [--plan] [--main-tools]` | `WORK/attempts/.../log/`; `results/<arm>/<case>/r<N>/` |
 | 6. Summary | `collect.py` | `results/summary.{md,json}`, including the skill version of every run |
 | 7. Export | `export.py all` | `results/<arm>/<case>/r<N>/{output,instrumentation,timeline.md,export.json}`; `inputs/` |
 | 8. Archive | `archive.py --epoch E` | `/proj/aiopslab-PG0/specula-ci/inv-e2e/E/` (logs and workspaces, outside git) |
@@ -44,6 +44,7 @@ The etcd V0–V3 experiments served as the dev set: the skill overlays were writ
 Other files:
 - `common.py`: paths, the case list, and helpers. It reuses the blind study's `prepare_incremental.py`, which builds the neutral two-commit artifact.
 - `agent.py`: the sandbox, plus behavior and cost extraction.
+- `build_main_tools.py`: freezes Specula main's MCP tool runtime into `WORK/main-tools/` (with `manifest.json`: source commit, tree hash, size) for `run.py --main-tools`.
 - `check_annotation.py`: checks that a v2 input changes comments only.
 - `tools/hist.sh`: git history up to the base commit.
 - `prompts/`: the task text, the final-response schema, and the annotation and review prompts.
@@ -67,6 +68,7 @@ Other files:
   - the workspace is at `/work`;
   - HOME is a throwaway directory holding only the agent's credentials;
   - `network-guard` is first on PATH and blocks curl, wget, gh, text browsers and git fetch/clone/pull.
+  - MCP tools: none by default (epoch 1). With `run.py --main-tools` (epoch 2) the agent gets the four MCP servers of a Specula main install, as `--mcp-config /opt/mcp/config.json --strict-mcp-config`: `tracedebugger`, `spec_analyzer`, `inv_checking_tool` (as `scripts/infra/setup.sh` registers them) and `specular_tlc` (`start_tlc`/`wait_tlc`, as `src/specular/tlc_tasks.py` builds it per run). They run from `WORK/main-tools`, mounted read-only at `/opt/specular` (`SPECULAR_ROOT`). For `specular_tlc`, `SPECULAR_WORK_DIR=/work`; its task directory `/work/.tlc-tasks` and the TLC wrapper's `/work/.stop-gate` are extra writable binds, and the runner holds the tool's parent lock (`/work/.tlc-tasks/owners/<id>.lock`) with flock for the whole session. `tools/context_control` (main's runner-internal compaction/confirmation tools) is not included. `attempt.json`, `run-manifest.json` and `run.json` record the main-tools manifest hash, tree hash, source commit and server list.
 
   The network stays up for the model API and for dependency downloads. Every shell command is audited afterwards, and a hit marks the run `contaminated`. Each flagged run is reviewed by hand and recorded in `results/audit-review.json`. Every flag so far was a false alarm: a local `git clone` of the workspace's own artifact repository, or a `cat` of the guard scripts.
 - **Freeze.** Skill trees and annotations are built once. Their hashes go into `manifest.json` and `attempt.json`, and the overlays were not changed after the first real run. Each run is used once.
@@ -121,7 +123,7 @@ Every omission is listed in the run's `export.json` and its file is in the archi
 one set of limits. Epoch 1 is the 21 runs below (base `5880061f`, model `claude-opus-5-5`, effort `xhigh`,
 4 h, $100). A new base commit or overlay change starts a new epoch with its own v0 runs.
 
-Epoch 2 changes only the base commit. It runs case-002 and case-011, three arms, two reps (round 1 for all six cells, then round 2), with the same task text, overlays, priors (v2 reuses the epoch-1 frozen annotations), model and limits. Its work directory is `/mydata/bingzhuo/inv-e2e-epoch2` and its results go to `results-epoch2/` (`INV_E2E_WORK`, `INV_E2E_RESULTS`); `epoch2-round.sh` is the driver.
+Epoch 2 changes the base commit and gives the agent main's MCP tools (`--main-tools`, see Controls), since the main skills tell the agent to use them. It runs case-002 and case-011, three arms, two reps (round 1 for all six cells, then round 2), with the same task text, overlays, priors (v2 reuses the epoch-1 frozen annotations), model and limits. Its work directory is `/mydata/bingzhuo/inv-e2e-epoch2` and its results go to `results-epoch2/` (`INV_E2E_WORK`, `INV_E2E_RESULTS`); `epoch2-round.sh` is the driver; it passes `--main-tools` and needs `build_main_tools.py` to have been run once.
 
 | Epoch | Base skill commit | v0 tree | v1 tree | v2 tree | Model, effort |
 |---|---|---|---|---|---|

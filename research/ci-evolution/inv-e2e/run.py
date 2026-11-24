@@ -15,6 +15,10 @@ and copies small outputs into the repository:
 run.json holds status, wall time, cost/usage, tool counts, TLC/build command counts, skill
 files read, the network audit, and invariant-evidence statistics. Grading against Gold is
 a separate, later step (grading is not done here).
+
+--main-tools (claude backend) also gives the agent the four MCP servers of a Specula main
+install, from the frozen runtime WORK/main-tools (build_main_tools.py) mounted read-only at
+/opt/specular; attempt.json, run-manifest.json and run.json record its manifest hash and servers.
 """
 
 from __future__ import annotations
@@ -31,7 +35,8 @@ import time
 from datetime import datetime
 
 from agent import limit_wait_seconds, run_agent
-from common import ARMS, CASE_IDS, RESULTS, WORK, blind_helpers, check_arm, check_case, read_json, write_json
+from common import (ARMS, CASE_IDS, RESULTS, WORK, blind_helpers, check_arm, check_case, read_json, sha256,
+                    write_json)
 from prepare import prepare
 
 H = blind_helpers()
@@ -135,6 +140,13 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
     if attempt.get("agent_started"):
         raise RuntimeError(f"already started: {logical} (prepare a new rep instead of rerunning)")
     ws = Path(attempt["physical"])
+    main_tools = None
+    if args.main_tools:
+        main_tools = WORK / "main-tools"
+        mt = read_json(main_tools / "manifest.json")
+        attempt["main_tools"] = {"root": str(main_tools), "manifest_sha256": sha256(main_tools / "manifest.json"),
+                                 "tree_sha256": mt["tree_sha256"], "source_commit": mt["source_commit"],
+                                 "servers": sorted(mt["servers"])}
     attempt["agent_started"] = True
     write_json(attempt_path, attempt)
     manifest = run_agent(
@@ -145,6 +157,7 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
         extra_binds=[(str(ws / ".agents/skills"), "/work/.claude/skills")],
         meta={"arm": arm, "case_id": case_id, "rep": rep, "attempt_no": attempt.get("attempt_no", 1),
               "skills_tree_sha256": attempt["skills_tree_sha256"], "prior_tree_sha256": attempt["prior_tree_sha256"]},
+        main_tools=main_tools,
     )
     if manifest["status"] in ("USAGE_LIMIT", "AUTH_ERROR"):
         return None, manifest
@@ -188,6 +201,9 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
         "session_log": str(logical / "log" / "activity.jsonl"),
         "graded": None,
     }
+    if "main_tools" in manifest:
+        summary["main_tools"] = {k: manifest["main_tools"][k]
+                                 for k in ("manifest_sha256", "tree_sha256", "source_commit", "servers")}
     write_json(out / "run.json", summary)
     b = manifest["behavior"]
     print(f"{arm} {case_id} r{rep}: {manifest['status']} decision={summary['decision']} "
@@ -223,12 +239,19 @@ def main() -> int:
     parser.add_argument("--budget", type=float, default=100.0, help="USD cap per run (claude backend)")
     parser.add_argument("--seed", default="1")
     parser.add_argument("--plan", action="store_true")
+    parser.add_argument("--main-tools", action="store_true",
+                        help="mount WORK/main-tools at /opt/specular and give the agent main's MCP servers")
     args = parser.parse_args()
     args.reps = args.reps or [1]
     for arm in args.arms:
         check_arm(arm)
     for case_id in (CASE_IDS if args.all_cases else args.cases or []):
         check_case(case_id)
+    if args.main_tools:
+        if args.backend != "claude":
+            raise SystemExit("--main-tools is wired for the claude backend only")
+        if not (WORK / "main-tools/manifest.json").is_file():
+            raise SystemExit(f"no {WORK / 'main-tools'}: run build_main_tools.py first")
     jobs = plan(args)
     if not jobs:
         raise SystemExit("nothing to run: give --case or --all-cases")
