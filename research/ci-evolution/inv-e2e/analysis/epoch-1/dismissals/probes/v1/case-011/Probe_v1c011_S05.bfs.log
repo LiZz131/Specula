@@ -1,0 +1,136 @@
+COMMAND: (cd /mydata/bingzhuo/evidence-work/i4/v1/case-011/spec && timeout 1800 java -Xmx16g -XX:+UseParallelGC -cp /mydata/bingzhuo/src/Specula/lib/tla2tools.jar:/mydata/bingzhuo/inv-e2e/attempts/v1/case-011/r1/ws/lib/CommunityModules-deps.jar tlc2.TLC -deadlock -cleanup -metadir /mydata/bingzhuo/evidence-work/i4/meta/i4-v1-case-011-v1c011_S05-mv2jubv7 -workers 8 -config Probe_v1c011_S05.cfg Probe_v1c011_S05.tla)
+rc=13 wall=419.1s result=reachable depth=15
+Running breadth-first search Model-Checking with fp 31 and seed -1538016828971060169 with 8 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 2685162] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module Update
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Probe_v1c011_S05
+Starting... (2026-11-24 10:50:55)
+Progress(10) at 2026-11-24 10:50:58: 144,964 states generated (144,964 s/min), 34,494 distinct states found (34,494 ds/min), 24,568 states left on queue.
+Progress(13) at 2026-11-24 10:51:58: 6,131,059 states generated (5,986,095 s/min), 1,135,574 distinct states found (1,101,080 ds/min), 711,620 states left on queue.
+Progress(14) at 2026-11-24 10:52:58: 12,096,771 states generated (5,965,712 s/min), 2,167,723 distinct states found (1,032,149 ds/min), 1,318,776 states left on queue.
+Progress(14) at 2026-11-24 10:53:58: 18,051,998 states generated (5,955,227 s/min), 3,173,649 distinct states found (1,005,926 ds/min), 1,903,650 states left on queue.
+Progress(15) at 2026-11-24 10:54:58: 24,051,059 states generated (5,999,061 s/min), 4,139,694 distinct states found (966,045 ds/min), 2,453,456 states left on queue.
+Progress(15) at 2026-11-24 10:55:58: 29,662,199 states generated (5,611,140 s/min), 5,122,116 distinct states found (982,422 ds/min), 3,005,158 states left on queue.
+Progress(15) at 2026-11-24 10:56:58: 35,525,279 states generated (5,863,080 s/min), 6,082,278 distinct states found (960,162 ds/min), 3,543,417 states left on queue.
+Error: Action property NotCanaryAct is violated.
+Error: The behavior up to this point is:
+40683840 states generated, 6944703 distinct states found, 4021349 states left on queue.
+The depth of the complete state graph search is 15.
+Finished in 06min 58s at (2026-11-24 10:57:52)
+--- counterexample action sequence ---
+State 1: <Initial predicate>
+State 2: <MCTickElect("1") line 14, col 5 to line 16, col 65 of module MC>
+State 3: <MCCrash("1") line 55, col 5 to line 57, col 62 of module MC>
+State 4: <MCTickElect("2") line 14, col 5 to line 16, col 65 of module MC>
+State 5: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 6: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 7: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 8: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 9: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 10: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 11: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 12: <MCExternalPreElect("2") line 40, col 5 to line 42, col 64 of module MC>
+State 13: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 14: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+State 15: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+--- final state ---
+State 15: <MCNext line 88, col 8 to line 89, col 33 of module MC>
+/\ candidateActive = ("1" :> TRUE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ vote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 2, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 1, node |-> "2", committed |-> FALSE] )
+/\ durableVote = ( "1" :> [term |-> 0, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 1, node |-> "2", committed |-> TRUE] @@
+  "3" :> [term |-> 1, node |-> "2", committed |-> FALSE] )
+/\ durableConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ preGrants = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ sendVotePending = ("1" :> TRUE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ effectiveConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ lastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 1, term |-> 1, node |-> "2", present |-> TRUE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ leaseValid = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ sendPreVotePending = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ preStartRole = ("1" :> "None" @@ "2" :> "None" @@ "3" :> "None")
+/\ role = ("1" :> "Candidate" @@ "2" :> "Candidate" @@ "3" :> "Follower")
+/\ seenGreaterLog = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ grants = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ effectiveConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ replyMessage = ( "1" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] @@
+  "2" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] @@
+  "3" :>
+      [ lastLog |-> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE],
+        vote |-> [term |-> 0, node |-> "1", committed |-> FALSE],
+        kind |-> "None",
+        dest |-> "1",
+        source |-> "1",
+        granted |-> FALSE,
+        transfer |-> FALSE ] )
+/\ logFlushPending = ("1" :> FALSE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ crashed = ("1" :> TRUE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ committedConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ leaderConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ durableConfigIndex = ("1" :> 0 @@ "2" :> 0 @@ "3" :> 0)
+/\ leaderGrants = ("1" :> {} @@ "2" :> {"2", "3"} @@ "3" :> {})
+/\ sentVoteReq = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ candidateVote = ( "1" :> [term |-> 1, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 2, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+/\ preSentReq = ("1" :> {} @@ "2" :> {} @@ "3" :> {})
+/\ preCandidateVote = ( "1" :> [term |-> 0, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 0, node |-> "2", committed |-> FALSE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+/\ preCandidateConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ replyPending = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ durableLastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ committedConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ votePersistPending = ("1" :> TRUE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ candidateConfig = ( "1" :> <<{"1", "2", "3"}>> @@
+  "2" :> <<{"1", "2", "3"}>> @@
+  "3" :> <<{"1", "2", "3"}>> )
+/\ preCandidateLastLog = ( "1" :> [index |-> 0, term |-> 0, node |-> "1", present |-> FALSE] @@
+  "2" :> [index |-> 0, term |-> 0, node |-> "2", present |-> FALSE] @@
+  "3" :> [index |-> 0, term |-> 0, node |-> "3", present |-> FALSE] )
+/\ faultCounters = [membership |-> 0, election |-> 2, preVote |-> 1, crash |-> 1, drop |-> 0]
+/\ leaderActive = ("1" :> FALSE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ messages = {}
+/\ leaderCertified = ("1" :> FALSE @@ "2" :> TRUE @@ "3" :> FALSE)
+/\ preCandidateActive = ("1" :> FALSE @@ "2" :> FALSE @@ "3" :> FALSE)
+/\ leaderVote = ( "1" :> [term |-> 0, node |-> "1", committed |-> FALSE] @@
+  "2" :> [term |-> 1, node |-> "2", committed |-> TRUE] @@
+  "3" :> [term |-> 0, node |-> "3", committed |-> FALSE] )
+

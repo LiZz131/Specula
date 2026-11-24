@@ -1,0 +1,162 @@
+COMMAND: (cd /mydata/bingzhuo/evidence-work/i4/v0/case-004/spec && timeout 300 java -Xmx4g -cp /mydata/bingzhuo/src/Specula/lib/tla2tools.jar:/mydata/bingzhuo/inv-e2e/attempts/v0/case-004/r1/ws/lib/CommunityModules-deps.jar tlc2.TLC -deadlock -cleanup -metadir /mydata/bingzhuo/evidence-work/i4/meta/i4-v0-case-004-v0c004_S02-zmkdvvre -simulate -depth 100 -workers 1 -config Probe_v0c004_S02.cfg Probe_v0c004_S02.tla)
+rc=12 wall=1.1s result=reachable depth=25
+Running Random Simulation with seed 1162703609430524667 with 1 worker on 40 cores with 4096MB heap and 64MB offheap memory [pid: 2671053] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module Update
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Probe_v0c004_S02
+Starting... (2026-11-24 08:08:44)
+Error: Invariant NotCanary is violated.
+Error: The behavior up to this point is:
+The number of states generated: 270
+Progress: 271 states checked, 4 traces generated (trace length: mean=66, var(x)=1340, sd=37)
+Finished in 00s at (2026-11-24 08:08:44)
+--- counterexample action sequence ---
+State 1: <MCInit line 26, col 5 to line 34, col 21 of module MC>
+State 2: <MCElect(1) line 38, col 5 to line 42, col 53 of module MC>
+State 3: <MCRespond(1) line 143, col 17 to line 143, col 56 of module MC>
+State 4: <MCPersistVote(1) line 60, col 21 to line 60, col 54 of module MC>
+State 5: <MCCrash(3) line 166, col 5 to line 170, col 58 of module MC>
+State 6: <MCRestart(3) line 172, col 17 to line 172, col 46 of module MC>
+State 7: <MCRespond(3) line 143, col 17 to line 143, col 56 of module MC>
+State 8: <MCRespond(1) line 143, col 17 to line 143, col 56 of module MC>
+State 9: <MCVoteResponse(1,1) line 75, col 5 to line 93, col 23 of module MC>
+State 10: <MCRespond(1) line 143, col 17 to line 143, col 56 of module MC>
+State 11: <MCRespond(2) line 143, col 17 to line 143, col 56 of module MC>
+State 12: <MCSendVote(1) line 61, col 18 to line 61, col 56 of module MC>
+State 13: <MCRespond(1) line 143, col 17 to line 143, col 56 of module MC>
+State 14: <MCVoteRequest(2) line 65, col 5 to line 69, col 23 of module MC>
+State 15: <MCPersistVote(2) line 60, col 21 to line 60, col 54 of module MC>
+State 16: <MCVoteResponse(1,2) line 75, col 5 to line 93, col 23 of module MC>
+State 17: <MCTransfer(1,2) line 53, col 5 to line 58, col 53 of module MC>
+State 18: <MCRespond(2) line 143, col 17 to line 143, col 56 of module MC>
+State 19: <MCPersistVote(1) line 60, col 21 to line 60, col 54 of module MC>
+State 20: <MCStale(1,2) line 159, col 5 to line 163, col 58 of module MC>
+State 21: <MCAck(1,3) line 149, col 5 to line 156, col 60 of module MC>
+State 22: <MCSubmit(1) line 141, col 16 to line 141, col 47 of module MC>
+State 23: <MCFollowerAppend(2,1) line 130, col 5 to line 138, col 53 of module MC>
+State 24: <MCAck(1,2) line 149, col 5 to line 156, col 60 of module MC>
+State 25: <MCTransfer(2,1) line 53, col 5 to line 58, col 53 of module MC>
+--- final state ---
+State 25: <MCTransfer(2,1) line 53, col 5 to line 58, col 53 of module MC>
+/\ selfRespPending = <<FALSE, FALSE, FALSE>>
+/\ flushedIndex = <<0, 0, 0>>
+/\ leaseEnabled = <<FALSE, FALSE, TRUE>>
+/\ pendingVoteSend = <<FALSE, FALSE, FALSE>>
+/\ leaderConfigs = <<{{1, 2}}, {{1, 2}}, {{1, 2}}>>
+/\ voteTerm = <<1, 1, 0>>
+/\ candidateConfigs = <<{{1, 2}}, {{1, 2}}, {{1, 2}}>>
+/\ ackCount = 2
+/\ durableCommit = <<0, 0, 0>>
+/\ panicked = <<FALSE, FALSE, FALSE>>
+/\ leader = <<TRUE, FALSE, FALSE>>
+/\ transferCount = 2
+/\ logs = << << [ node |-> 0,
+        term |-> 0,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "uniform" ],
+      [ node |-> 1,
+        term |-> 1,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "blank" ] >>,
+   << [ node |-> 0,
+        term |-> 0,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "uniform" ],
+      [ node |-> 1,
+        term |-> 1,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "blank" ] >>,
+   << [ node |-> 0,
+        term |-> 0,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "uniform" ] >> >>
+/\ durableLogs = << << [ node |-> 0,
+        term |-> 0,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "uniform" ] >>,
+   << [ node |-> 0,
+        term |-> 0,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "uniform" ] >>,
+   << [ node |-> 0,
+        term |-> 0,
+        learners |-> {3},
+        cfg |-> {{1, 2}},
+        kind |-> "uniform" ] >> >>
+/\ commands = <<{}, {}, {"Respond"}>>
+/\ voteGrants = {[node |-> 1, term |-> 1, voter |-> 2, committed |-> FALSE]}
+/\ membershipCount = 0
+/\ effectiveIndex = <<0, 0, 0>>
+/\ candidateNode = <<1, 0, 0>>
+/\ acceptedIndex = <<1, 1, 0>>
+/\ granters = <<{}, {}, {}>>
+/\ pendingVoteSave = <<FALSE, TRUE, FALSE>>
+/\ candidate = <<FALSE, FALSE, FALSE>>
+/\ voteReqs = { [ node |-> 1,
+    dst |-> 2,
+    src |-> 1,
+    term |-> 1,
+    lastTerm |-> 0,
+    lastNode |-> 0,
+    lastIndex |-> 0 ] }
+/\ candidateTerm = <<1, 0, 0>>
+/\ committedConfigs = <<{{1, 2}}, {{1, 2}}, {{1, 2}}>>
+/\ role = <<"Leader", "Follower", "Learner">>
+/\ lastSeenCommitted = <<TRUE, TRUE, FALSE>>
+/\ configs = <<{{1, 2}}, {{1, 2}}, {{1, 2}}>>
+/\ crashCount = 1
+/\ durableVoteNode = <<1, 1, 0>>
+/\ committedMembershipIndex = <<0, 0, 0>>
+/\ staleCount = 1
+/\ durableVoteCommitted = <<TRUE, FALSE, FALSE>>
+/\ submittedIndex = <<1, 0, 0>>
+/\ durableVoteTerm = <<1, 1, 0>>
+/\ match = <<<<0, 0, 0>>, <<-1, 0, -1>>, <<-1, -1, 0>>>>
+/\ sendVoteReq = << [ node |-> 0,
+     term |-> 0,
+     lastTerm |-> 0,
+     lastNode |-> 0,
+     lastIndex |-> 0,
+     dsts |-> {} ],
+   [ node |-> 0,
+     term |-> 0,
+     lastTerm |-> 0,
+     lastNode |-> 0,
+     lastIndex |-> 0,
+     dsts |-> {} ],
+   [ node |-> 0,
+     term |-> 0,
+     lastTerm |-> 0,
+     lastNode |-> 0,
+     lastIndex |-> 0,
+     dsts |-> {} ] >>
+/\ staleResponseSeen = TRUE
+/\ learners = <<{3}, {3}, {3}>>
+/\ replicateCount = 1
+/\ acceptedVoteIO = <<FALSE, FALSE, FALSE>>
+/\ leaderGrants = <<{1, 2}, {}, {}>>
+/\ appliedIndex = <<0, 0, 0>>
+/\ voteCommitted = <<TRUE, TRUE, FALSE>>
+/\ commitIndex = <<0, 0, 0>>
+/\ electionCount = 1
+/\ appendCount = 0
+/\ up = <<TRUE, TRUE, TRUE>>
+/\ lastSeenNode = <<1, 1, 0>>
+/\ voteNode = <<1, 1, 0>>
+/\ lastSeenTerm = <<1, 1, 0>>
+
