@@ -50,9 +50,23 @@ DEFAULTS = {
     "codex": {"model": "gpt-5.6-sol", "effort": "xhigh"},
 }
 
+GIT_NETWORK = re.compile(r"\bgit\s+(?:fetch|pull|clone|ls-remote|submodule)\b")
+_URL = r"[a-z][a-z0-9+.-]*://|\b\w[\w.-]*@[\w.-]+:|(?<![\w/.~-])[a-z0-9][\w.-]*\.[a-z]{2,}:"
+# Counts as network unless it is a clone without any URL, or a fetch/pull from an explicit path:
+# `git fetch origin` names a remote, which may be a network one, so it stays flagged.
+GIT_LOCAL = re.compile(r"\bgit\s+(?:clone\b(?![^;&|]*(?:" + _URL + r"))|(?:fetch|pull)\s+(?:-\S+\s+)*[./~])", re.I)
+
+
+class _GitRemote:
+    """GIT_REMOTE.search(c): a git network command in c that is not a local clone/fetch."""
+    @staticmethod
+    def search(c: str) -> bool:
+        return any(not GIT_LOCAL.match(c, m.start()) for m in GIT_NETWORK.finditer(c))
+
+
+GIT_REMOTE = _GitRemote()
 RESEARCH_PATTERNS = [
     re.compile(r"(?<![\w-])(?:curl|wget|gh)(?![\w-])"),
-    re.compile(r"\bgit\s+(?:fetch|pull|clone|ls-remote|submodule)\b"),
     re.compile(r"\b(?:lynx|links|w3m)\b"),
     re.compile(r"\bpython(?:3)?\b.*\b(?:requests|urllib|httpx|aiohttp)\b.*https?://"),
 ]
@@ -350,7 +364,12 @@ def summarize_activity(backend: str, activity: Path) -> dict[str, Any]:
                 for key, value in ev["usage"].items():
                     if isinstance(value, int):
                         usage[key] = usage.get(key, 0) + value
-    research = [{"command": c[:2000]} for c in commands if any(p.search(c) for p in RESEARCH_PATTERNS)]
+    research = [{"command": c[:2000]} for c in commands
+                if any(p.search(c) for p in RESEARCH_PATTERNS) or (GIT_NETWORK.search(c) and GIT_REMOTE.search(c))]
+    # git clone/fetch/pull between local repositories (e.g. cloning /work's own artifact repo) is not
+    # network access; recorded for review, not counted as contamination (epoch-2 round 1 false positives).
+    local_git = [{"command": c[:2000]} for c in commands if GIT_NETWORK.search(c) and not GIT_REMOTE.search(c)
+                 and not any(p.search(c) for p in RESEARCH_PATTERNS)]
     tlc_runs = sum(1 for c in commands if "tlc2.TLC" in c or re.search(r"\btlc\b", c))
     sany_runs = sum(1 for c in commands if "tla2sany" in c)
     build_test = sum(1 for c in commands if re.search(r"\b(go test|cargo (test|build)|mvn|gradle)\b", c))
@@ -378,6 +397,7 @@ def summarize_activity(backend: str, activity: Path) -> dict[str, Any]:
         "skill_files_read": skill_reads,
         "network_audit": {
             "prohibited_command_matches": research,
+            "local_git_commands": local_git,
             "web_tool_events": web,
             "contaminated": bool(research or web),
         },
