@@ -16,6 +16,7 @@ those servers need, keeping the checkout's layout so their SPECULAR_ROOT lookups
   src/specular/                      the whole package: start_tlc/wait_tlc + TLC guard, and the
                                      `specular` CLI (ci-result, findings, ...) that the skills call
   scripts/tlc/                       run_model_check.sh (the TLC wrapper start_tlc runs)
+  scripts/infra/                     start_background.sh, run_model_check.sh, wait_for_pid.sh (skills)
   scripts/launch/, specular          the CLI's launch scripts and its repo-root shim; agent.py puts
                                      /opt/specular on PATH, as `uv tool install` does on main
   lib/{tla2tools,CommunityModules-deps}.jar
@@ -76,11 +77,12 @@ def build(dest: Path) -> dict:
         shutil.copytree(SPECULA / "src/specular", stage / "src/specular", ignore=_ignore_source)
         shutil.copytree(SPECULA / "scripts/tlc", stage / "scripts/tlc", ignore=_ignore_source)
         shutil.copytree(SPECULA / "scripts/launch", stage / "scripts/launch", ignore=_ignore_source)
+        shutil.copytree(SPECULA / "scripts/infra", stage / "scripts/infra", ignore=_ignore_source)
         shutil.copy2(SPECULA / "specular", stage / "specular")
         for rel in JARS:
             (stage / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(SPECULA / rel, stage / rel)
-        paths = [f"tools/{t}" for t in TOOLS] + ["src/specular", "scripts/tlc", "scripts/launch", "specular"]
+        paths = [f"tools/{t}" for t in TOOLS] + ["src/specular", "scripts/tlc", "scripts/launch", "scripts/infra", "specular"]
         files = [p for p in stage.rglob("*") if p.is_file() and not p.is_symlink()]
         manifest = {
             "schema_version": 1,

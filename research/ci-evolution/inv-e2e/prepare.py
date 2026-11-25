@@ -50,9 +50,14 @@ CACHE_DIRS = ("cargo", "cargo-target", "go-build", "go-mod", "gopath", "m2", "re
 H = blind_helpers()
 
 
-def tools_dir(dest: Path) -> None:
+def tools_dir(dest: Path, layout: str = "specula") -> None:
     dest.mkdir()
-    for name in ("start_background.sh", "wait_for_pid.sh", "clean_states.sh"):
+    names = ["start_background.sh", "wait_for_pid.sh", "clean_states.sh"]
+    if layout == "specular":
+        # start_background.sh runs $SCRIPT_DIR/run_model_check.sh, which the epoch-1 tool set lacked;
+        # with SPECULAR_ROOT=/opt/specular it finds the jars and the TLC resource guard there.
+        names += ["run_model_check.sh", "wait_for_tlc.sh"]
+    for name in names:
         shutil.copy2(SPECULA / "scripts/infra" / name, dest / name)
     td = SPECULA / "tools/trace_debugger"
     shutil.copytree(td / "src", dest / "trace_debugger/src")
@@ -200,7 +205,7 @@ def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tool
         (stage / "lib").mkdir()
         for jar in ("tla2tools.jar", "CommunityModules-deps.jar"):
             shutil.copy2(SPECULA / "lib" / jar, stage / "lib" / jar)
-        tools_dir(stage / "tools")
+        tools_dir(stage / "tools", layout)
         run_id = f"incr-{physical.name[:12]}" if layout == "specular" else None
         (stage / "task.md").write_text(task_text(case_id, layout, run_id))
         shutil.copy2(HERE / "prompts/final-schema.json", stage / "final-schema.json")
