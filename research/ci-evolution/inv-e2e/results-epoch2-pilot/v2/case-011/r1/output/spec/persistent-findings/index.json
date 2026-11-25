@@ -1,0 +1,46 @@
+{
+  "MC-1": {
+    "id": "MC-1",
+    "title": "Pre-Vote responses of an earlier round are accepted by a later round of the same term",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/core/raft_core.rs:RaftCore::does_pre_candidate_vote_match",
+      "openraft/src/engine/engine_impl.rs:Engine::pre_elect",
+      "openraft/src/engine/engine_impl.rs:Engine::handle_pre_vote_resp",
+      "openraft/src/proposer/candidate.rs:Candidate::grant_by"
+    ],
+    "actions": [
+      "PreElect",
+      "HandlePreVoteResponse",
+      "SendPreVoteRequests"
+    ],
+    "invariants": [
+      "PreVoteStaleResponseIgnored",
+      "PreVoteResponseNeverPanics"
+    ],
+    "reusable": true,
+    "cause": "Engine::pre_elect builds every round from the unchanged local vote, so all rounds at one local term share the leader id (term+1, self); RaftCore::does_pre_candidate_vote_match compares only leader ids, and Candidate::grant_by expects the re"
+  },
+  "MC-2": {
+    "id": "MC-2",
+    "title": "A Pre-Vote round started while Candidate survives leader establishment; the new Leader starts another election",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/core/raft_core.rs:RaftCore::handle_tick_election",
+      "openraft/src/engine/engine_impl.rs:Engine::establish_leader",
+      "openraft/src/engine/engine_impl.rs:Engine::handle_pre_vote_resp",
+      "openraft/src/engine/engine_impl.rs:Engine::try_leader_handler"
+    ],
+    "actions": [
+      "TickElect",
+      "ExternalPreElect",
+      "HandleVoteResponse",
+      "HandlePreVoteResponse"
+    ],
+    "invariants": [
+      "TimerPreVoteElectionFromFollowerState"
+    ],
+    "reusable": true,
+    "cause": "The election timer (and trigger().elect(true)) runs pre_elect for a Candidate without cancelling its election; establish_leader does not drop Engine.pre_candidate, and handle_pre_vote_resp calls elect() on quorum without checking the node's"
+  }
+}

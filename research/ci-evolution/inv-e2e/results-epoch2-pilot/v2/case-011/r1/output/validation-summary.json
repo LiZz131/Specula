@@ -1,0 +1,54 @@
+{
+ "status": "LIMITED_COVERAGE",
+ "run_id": "incr-705b7bab5f0d",
+ "disposition": "MODEL_CHANGE_REQUIRED",
+ "source_commit": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+ "baseline_commit": "1adc857 (synthetic 'baseline')",
+ "source_tree_modified": false,
+ "instrumented_tree": "work-source/ (artifact copy + harness/instrumentation.patch, test-only)",
+ "toolchain_used": "nightly-2026-03-01 (rust-toolchain of the source)",
+ "prior_suite": "/work/previous/.specular-output (V0)",
+ "trace_validation": {
+  "status": "PASS (all retained fresh traces)",
+  "fresh_files": 21,
+  "v0_scenarios_rerun": 7,
+  "update_scenarios": 14,
+  "all_traces_consumed": true,
+  "temporal_property": "TraceConsumed",
+  "field_mutants_rejected": "20/20",
+  "inventory": "spec/output/trace-inventory.json",
+  "summary": "spec/output/trace-validation-summary.txt",
+  "archived_v0_traces": "superseded by fresh reruns (lack mandatory pre_candidate_* fields)"
+ },
+ "model_repairs": [
+  "R1 absent last-log ids compare equal (LogEq)",
+  "R2 leader lease valid after establish_leader",
+  "R3 tick guards (expired lease, single-voter skip, greater-log reset only on timer)"
+ ],
+ "model_checking": {
+  "status": "LIMITED_COVERAGE",
+  "campaigns": "spec/output/campaigns.md",
+  "findings": [
+   "MC-1 (PreVoteStaleResponseIgnored; PreVoteResponseNeverPanics)",
+   "MC-2 (TimerPreVoteElectionFromFollowerState)"
+  ],
+  "canaries": "8/8 reachable",
+  "regression_mutants_detected": "4/4 (U1,U2,U3,U7)"
+ },
+ "reproduction": {
+  "MC-1": "REPRODUCED (harness/repro, debug+release)",
+  "MC-2": "REPRODUCED (harness/repro, debug+release)",
+  "CR-1": "FALSE POSITIVE (documentation only)"
+ },
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specular-e2e-case-011 (per-run dirs removed)",
+  "background_processes_remaining": false
+ },
+ "limitations": [
+  "Finite three-node universe; MaxTerm 2 (3 in traces), MaxLogIndex 4; bounded election/membership/crash/drop counters and message bag",
+  "BFS runs stopped at 30-minute budgets without exhausting the queue are budget-limited; simulations are sampled",
+  "Abstract time: tick restarts and response delays are unconstrained in the model; finding reachability was confirmed in code",
+  "Follower-side membership replication and transfer lease bypass not modeled (V0 abstractions kept)",
+  "No fairness or liveness claim"
+ ]
+}

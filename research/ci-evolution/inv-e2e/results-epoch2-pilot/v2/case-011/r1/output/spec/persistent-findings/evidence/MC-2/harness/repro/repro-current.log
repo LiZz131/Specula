@@ -1,0 +1,37 @@
+# source: /work/current/.specular-output/work-source HEAD 3ab6cddc34a5bf127747434bb41e20a1b9ef7769
+# started 2026-11-25T19:04:24Z
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/work-source/tests)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.76s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 2 tests
+test t13_specular_pre_vote_repro::repro_mc1_stale_pre_vote_grant_panics_core ... 
+thread 'tokio-rt-worker' (14947) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULAR-REPRO MC-1: n0.with_raft_state() after stale grant => Err(Panicked)
+
+thread 't13_specular_pre_vote_repro::repro_mc1_stale_pre_vote_grant_panics_core' (14941) panicked at tests/tests/elect/t13_specular_pre_vote_repro.rs:164:5:
+n0 RaftCore must still be running; got Err(Panicked)
+FAILED
+test t13_specular_pre_vote_repro::repro_mc2_pre_vote_round_survives_leader_establishment ... SPECULAR-REPRO MC-2: n1 established: state=Leader term=2 vote=<T2-N1:Q>
+
+thread 'tokio-rt-worker' (14957) panicked at openraft/src/engine/engine_impl.rs:977:9:
+leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+SPECULAR-REPRO MC-2: n1.with_raft_state() after pre-vote grant => Err(Panicked)
+SPECULAR-REPRO MC-2: after pre-vote grant: state=Leader term=2 vote=<T2-N1:Q> seen=["<T2-N1:-> granted=true", "<T3-N1:-> granted=true"]
+
+thread 't13_specular_pre_vote_repro::repro_mc2_pre_vote_round_survives_leader_establishment' (14951) panicked at tests/tests/elect/t13_specular_pre_vote_repro.rs:256:5:
+n1 RaftCore must keep running; got Err(Panicked)
+FAILED
+
+failures:
+
+failures:
+    t13_specular_pre_vote_repro::repro_mc1_stale_pre_vote_grant_panics_core
+    t13_specular_pre_vote_repro::repro_mc2_pre_vote_round_survives_leader_establishment
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 8 filtered out; finished in 9.15s
+
+error: test failed, to rerun pass `-p tests --test elect`
+# exit: 101 finished 2026-11-25T19:04:39Z

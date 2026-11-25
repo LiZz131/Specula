@@ -1,0 +1,31 @@
+{
+  "schema_version": "2",
+  "system": "openraft (Pre-Vote update, case-011)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote responses of an earlier round are accepted by a later round of the same term",
+      "source": "model-checking",
+      "scenario": "U-B (round correlation); consequence U-C (grant_by panic)",
+      "severity": "High",
+      "invariant": "PreVoteStaleResponseIgnored",
+      "config": "Update_full.cfg",
+      "counterexample": "spec/output/cex-update-full-PreVoteStaleResponseIgnored.log",
+      "affected_code": ["openraft/src/core/raft_core.rs:2067", "openraft/src/engine/engine_impl.rs:298", "openraft/src/engine/engine_impl.rs:535", "openraft/src/proposer/candidate.rs:107"],
+      "summary": "Engine::pre_elect builds every Pre-Vote round from the unchanged local vote, so all rounds at one local term share the leader id (term+1, self). RaftCore::does_pre_candidate_vote_match only compares leader ids, so a response to an earlier round (timer restart, operator trigger, or a round dropped by leader contact) is counted by the current round. The counterexample starts two timer rounds and completes the second with a grant issued for the first. If the membership changed between the rounds so that the responder is no longer a voter, Candidate::grant_by panics (expect \"target not in quorum set\") and RaftCore stops; otherwise a real election can start on grants the current round never obtained."
+    },
+    {
+      "id": "MC-2",
+      "title": "A Pre-Vote round started while Candidate survives leader establishment; the new Leader starts another election",
+      "source": "model-checking",
+      "scenario": "U-A",
+      "severity": "High",
+      "invariant": "TimerPreVoteElectionFromFollowerState",
+      "config": "Update_full_cont1.cfg",
+      "counterexample": "spec/output/cex-update-full-TimerPreVoteElectionFromFollowerState.log",
+      "affected_code": ["openraft/src/core/raft_core.rs:2010", "openraft/src/engine/engine_impl.rs:855", "openraft/src/engine/engine_impl.rs:538", "openraft/src/engine/engine_impl.rs:976"],
+      "summary": "The election timer keeps firing for a Candidate and, with Pre-Vote enabled, starts a Pre-Vote round while the real election is still running. establish_leader does not drop Engine.pre_candidate, and handle_pre_vote_resp calls elect() on quorum without checking the node's role, so when the round's grants arrive the freshly established Leader starts an election at term+1 and steps down. do_elect keeps the stale leader object, tripping try_leader_handler's debug_assert (leader.vote >= state.vote) in debug builds. The same happens after trigger().elect(true) on a Candidate."
+    }
+  ]
+}

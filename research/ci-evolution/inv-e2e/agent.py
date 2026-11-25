@@ -490,7 +490,7 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
     if main_tools:
         tools_record, lock_fd = setup_main_tools(main_tools, workspace, log_dir)
         rw = rw + MAIN_TOOLS_RW
-        binds = binds + [(str(main_tools), MAIN_TOOLS_MOUNT), (tools_record["mcp_config"], MCP_CONFIG_MOUNT)]
+        binds = binds + [(str(main_tools), MAIN_TOOLS_MOUNT)]
     started = datetime.now(timezone.utc)
     manifest: dict[str, Any] = {
         "schema_version": 1,
@@ -513,6 +513,11 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
     activity = log_dir / "activity.jsonl"
     stderr = log_dir / "stderr.log"
     home = _home(backend)
+    if tools_record:
+        # Bind the MCP config from the throwaway home, not from log_dir: the bwrap command line
+        # (visible to the agent as PID 1) must not contain attempts/<arm>/<case> paths.
+        shutil.copy2(tools_record["mcp_config"], home / ".mcp-config.json")
+        binds = binds + [(str(home / ".mcp-config.json"), MCP_CONFIG_MOUNT)]
     try:
         if specular_env and not main_tools:
             raise ValueError("the Specular environment needs main tools (the CLI lives there)")

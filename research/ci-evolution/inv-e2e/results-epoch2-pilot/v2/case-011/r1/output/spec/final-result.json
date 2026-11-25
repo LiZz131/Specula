@@ -1,0 +1,196 @@
+{
+ "version": 1,
+ "run_id": "incr-705b7bab5f0d",
+ "summary": "MODEL_CHANGE_REQUIRED: the update adds an optional Pre-Vote round. The reference, MC, Trace, and harness were updated (plus repairs of pre-existing model defects), 21 fresh traces validate, and model checking found two update-introduced defects, both reproduced through the public Raft API: stale Pre-Vote responses from an earlier round are counted (RaftCore panics when the responder was removed), and a Pre-Vote round started while Candidate survives leader establishment so the new Leader re-elects.",
+ "validation_limits": [
+  "Bounded three-node model (MaxTerm 2, MaxLogIndex 4, bounded election/membership/crash/drop counters and message bag); 30-minute BFS runs did not exhaust their queues and simulations are sampled (spec/output/campaigns.md).",
+  "Model time is abstract: tick restarts and response delays are unconstrained; reachability of each finding was confirmed in code (spec/confirmation-MC-1.md, spec/confirmation-MC-2.md).",
+  "Follower-side membership replication and the leadership-transfer lease bypass are not modeled (V0 abstractions kept); the MC-1 panic is reached through leader-side membership change.",
+  "Engine-level traces cannot observe the RaftCore Pre-Vote response filter; it is exercised by the integration reproduction.",
+  "Old-revision controls are not applicable: the old revision has no Pre-Vote round or Trigger::elect(bool).",
+  "No fairness or liveness claim."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Pre-Vote responses of an earlier round are accepted by a later round of the same term",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "Engine::pre_elect builds every round from the unchanged local vote, so all rounds at one local term share the leader id (term+1, self); RaftCore::does_pre_candidate_vote_match compares only leader ids, and Candidate::grant_by expects the responder to be a voter of the current round.",
+   "trigger": "A node starts a Pre-Vote round, starts another round at the same term (timer restart, trigger().elect(true), or after leader contact dropped the first), and a granted response to the first round arrives; for the panic, the responder was removed from the voter set between the rounds.",
+   "consequence": "The grant is tallied by the wrong round: RaftCore panics (Fatal::Panicked) when the responder is no longer a voter, and otherwise a real election can start on grants the current round never received, inflating the term.",
+   "severity": "High",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/cex-update-full-PreVoteStaleResponseIgnored.log",
+    "spec/output/cex-hunt-PreVoteResponseNeverPanics.log",
+    "harness/repro/t13_specular_pre_vote_repro.rs",
+    "harness/repro/repro-current.log",
+    "harness/repro/repro-current-release.log",
+    "traces/prevote_stale_member_panic.ndjson",
+    "spec/evidence/trace-lens/prevote_stale_member_panic.log"
+   ],
+   "persistence": {
+    "sites": [
+     "openraft/src/core/raft_core.rs:RaftCore::does_pre_candidate_vote_match",
+     "openraft/src/engine/engine_impl.rs:Engine::pre_elect",
+     "openraft/src/engine/engine_impl.rs:Engine::handle_pre_vote_resp",
+     "openraft/src/proposer/candidate.rs:Candidate::grant_by"
+    ],
+    "actions": [
+     "PreElect",
+     "HandlePreVoteResponse",
+     "SendPreVoteRequests"
+    ],
+    "invariants": [
+     "PreVoteStaleResponseIgnored",
+     "PreVoteResponseNeverPanics"
+    ],
+    "premises": [
+     "Two Pre-Vote rounds of one node can start at the same local term (timer restart after election_timeout, operator trigger().elect(true) without rate limit, or a new round after become_following dropped one).",
+     "A granted response to the earlier round can be processed after the later round started (within the RPC ttl election_timeout_min, or queued as a notification).",
+     "For the panic consequence, the responder is removed from the voter set between the rounds."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn does_pre_candidate_vote_match(&self, candidate_vote: &UncommittedVoteOf<C>, msg: impl fmt::Display) -> bool {",
+      "end": "    /// If a message is sent by a previous Leader but is received by current Leader,"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn pre_elect(&mut self) {",
+      "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free."
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs",
+      "start": "    pub(crate) fn grant_by(&mut self, target: &C::NodeId) -> bool {",
+      "end": "    pub(crate) fn granters(&self) -> impl Iterator<Item = C::NodeId> + '_ {"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "HandlePreVoteResponse(i, m, consume) ==",
+      "end": "DeliverPreVoteResponse(m) =="
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateProps.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update_full.cfg"
+     },
+     {
+      "root": "work",
+      "path": "spec/MC_hunt_prevote_panic_directed.cfg"
+     }
+    ]
+   }
+  },
+  {
+   "id": "MC-2",
+   "title": "A Pre-Vote round started while Candidate survives leader establishment; the new Leader starts another election",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "The election timer (and trigger().elect(true)) runs pre_elect for a Candidate without cancelling its election; establish_leader does not drop Engine.pre_candidate, and handle_pre_vote_resp calls elect() on quorum without checking the node's role, leaving a stale leader object.",
+   "trigger": "A Candidate starts a Pre-Vote round while its real election is in flight; the real election wins, then the Pre-Vote grants arrive.",
+   "consequence": "The freshly established Leader steps down and starts an election at term+1 (term inflation, leadership loss); in debug builds RaftCore panics on try_leader_handler's assertion leader.vote >= state.vote.",
+   "severity": "High",
+   "evidence": [
+    "spec/confirmation-MC-2.md",
+    "spec/bug-report.md",
+    "spec/output/cex-update-full-TimerPreVoteElectionFromFollowerState.log",
+    "harness/repro/t13_specular_pre_vote_repro.rs",
+    "harness/repro/repro-current.log",
+    "harness/repro/repro-current-release.log",
+    "traces/candidate_prevote_establish.ndjson",
+    "spec/evidence/trace-lens/candidate_prevote_establish.log"
+   ],
+   "persistence": {
+    "sites": [
+     "openraft/src/core/raft_core.rs:RaftCore::handle_tick_election",
+     "openraft/src/engine/engine_impl.rs:Engine::establish_leader",
+     "openraft/src/engine/engine_impl.rs:Engine::handle_pre_vote_resp",
+     "openraft/src/engine/engine_impl.rs:Engine::try_leader_handler"
+    ],
+    "actions": [
+     "TickElect",
+     "ExternalPreElect",
+     "HandleVoteResponse",
+     "HandlePreVoteResponse"
+    ],
+    "invariants": [
+     "TimerPreVoteElectionFromFollowerState"
+    ],
+    "premises": [
+     "The election timer keeps firing for a Candidate and, with enable_pre_vote, runs pre_elect without cancelling the running election (or an operator calls trigger().elect(true) on a Candidate).",
+     "The real election reaches quorum before the Pre-Vote grants are processed (timer path: needs vote replies delayed beyond election_timeout but within the RPC ttl or queued; operator path: no timing constraint)."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn handle_tick_election(&mut self) {",
+      "end": "    /// If a message is sent by a previous Candidate but is received by current Candidate,"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    fn establish_leader(&mut self) {",
+      "end": "    /// Check if a raft node is in a state that allows to initialize."
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free."
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/handler/vote_handler/mod.rs",
+      "start": "    pub(crate) fn become_following(&mut self) {",
+      "end": "    pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "HandleVoteResponse(i, m, consume) ==",
+      "end": "DeliverVoteResponse(m) =="
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateProps.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update_full_cont1.cfg"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-1",
+   "title": "Pre-Vote backward-compatibility documentation contradicts the default pre_vote and grant counting",
+   "status": "FALSE POSITIVE",
+   "source": "code-review",
+   "cause": "docs/protocol/pre_vote.md says the default pre_vote returns Unreachable and Unreachable counts as a grant; the code returns a granted response and never counts transport errors.",
+   "trigger": "Reading the protocol document for a mixed-version cluster.",
+   "consequence": "No behavioral consequence: code, code comments, and tests agree; only the document is stale.",
+   "severity": "Low",
+   "evidence": [
+    "spec/confirmation-CR-1.md"
+   ]
+  }
+ ]
+}

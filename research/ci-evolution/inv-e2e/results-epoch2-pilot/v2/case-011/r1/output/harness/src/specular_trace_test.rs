@@ -1,0 +1,721 @@
+//! Specular trace harness (rebased from the V0 `specula_trace_test.rs`).
+//!
+//! Test-only instrumentation. Every event wraps one real `Engine` call (or a
+//! runtime command boundary that the harness executes the way
+//! `RaftCore::run_command` does) and records source-observable abstract
+//! state before and after it. No protocol logic is re-implemented here.
+//!
+//! Rebase notes (update revision):
+//! - `candidate_config` now records the candidate's real frozen quorum set
+//!   (`Candidate::progress().quorum_set()`), not the effective membership.
+//! - `seen_greater_log` records the real `Engine.seen_greater_log` flag.
+//! - New fields for `Engine.pre_candidate` and `Command::SendPreVote`.
+//! - New events for the Pre-Vote engine calls and runtime boundaries.
+
+use std::collections::BTreeSet;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::panic::AssertUnwindSafe;
+use std::sync::Arc;
+use std::time::Duration;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
+
+use maplit::btreeset;
+use serde_json::Value;
+use serde_json::json;
+
+use crate::Membership;
+use crate::MembershipState;
+use crate::Vote;
+use crate::core::ServerState;
+use crate::engine::CommandName;
+use crate::engine::Engine;
+use crate::engine::LogIdList;
+use crate::engine::testing::UTConfig;
+use crate::engine::testing::log_id;
+use crate::entry::payload::EntryPayload;
+use crate::progress::Progress;
+use crate::raft::VoteRequest;
+use crate::raft::VoteResponse;
+use crate::raft::message::LogSegment;
+use crate::raft_state::LogStateReader;
+use crate::type_config::TypeConfigExt;
+use crate::type_config::alias::StoredMembershipOf;
+use crate::utime::Leased;
+
+type UTVote = Vote<crate::engine::testing::UTLeaderId>;
+
+fn membership(parts: Vec<BTreeSet<u64>>) -> Membership<u64, ()> {
+    Membership::new_with_defaults(parts, [])
+}
+
+fn stored(index: u64, parts: Vec<BTreeSet<u64>>) -> Arc<StoredMembershipOf<UTConfig>> {
+    Arc::new(StoredMembershipOf::<UTConfig>::new(
+        Some(log_id(1, 1, index)),
+        membership(parts),
+    ))
+}
+
+fn base_engine(id: u64, parts: Vec<BTreeSet<u64>>, membership_index: u64) -> Engine<UTConfig> {
+    let mut eng = Engine::testing_default(id);
+    eng.state.enable_validation(false);
+    eng.config.id = id;
+    let membership = stored(membership_index, parts);
+    eng.state.membership_state = MembershipState::new(membership.clone(), membership);
+    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, membership_index)]);
+    eng.state.server_state = ServerState::Follower;
+    eng.output.clear_commands();
+    eng
+}
+
+fn vote_json(v: &UTVote) -> Value {
+    json!({
+        "term": v.leader_id.term,
+        "node": v.leader_id.node_id.to_string(),
+        "committed": v.committed,
+    })
+}
+
+fn log_json(log: Option<&crate::type_config::alias::LogIdOf<UTConfig>>, node: u64) -> Value {
+    match log {
+        Some(x) => json!({
+            "present": true,
+            "term": x.leader_id.term,
+            "node": x.leader_id.node_id.to_string(),
+            "index": x.index,
+        }),
+        None => json!({"present": false, "term": 0, "node": node.to_string(), "index": 0}),
+    }
+}
+
+fn parts_json(m: &Membership<u64, ()>) -> Value {
+    let parts = m
+        .get_joint_config()
+        .iter()
+        .map(|part| part.iter().map(u64::to_string).collect::<Vec<_>>())
+        .collect::<Vec<_>>();
+    json!(parts)
+}
+
+fn config_json(m: &StoredMembershipOf<UTConfig>) -> Value {
+    parts_json(m.membership())
+}
+
+fn has_command(eng: &Engine<UTConfig>, name: CommandName) -> bool {
+    eng.output.iter_commands().any(|cmd| cmd.name() == name)
+}
+
+fn state_json(eng: &Engine<UTConfig>, crashed: bool) -> Value {
+    let id = eng.config.id;
+    let candidate = eng.candidate_ref();
+    let candidate_vote = candidate.map(|x| x.vote_ref()).unwrap_or_else(|| eng.state.vote_ref());
+    let grants = candidate
+        .map(|x| x.granters().map(|id| id.to_string()).collect::<Vec<_>>())
+        .unwrap_or_default();
+    let pre = eng.pre_candidate_ref();
+    let pre_vote = pre.map(|x| x.vote_ref()).unwrap_or_else(|| eng.state.vote_ref());
+    let pre_grants = pre
+        .map(|x| x.granters().map(|id| id.to_string()).collect::<Vec<_>>())
+        .unwrap_or_default();
+    let (last_update, lease, enabled) = eng.state.vote.lease_info();
+    let lease_valid = enabled
+        && last_update.is_some()
+        && !eng.state.vote.is_expired(UTConfig::<()>::now(), Duration::default())
+        && !lease.is_zero();
+    let committed = eng.state.membership_state.committed();
+    let effective = eng.state.membership_state.effective();
+    // The frozen quorum sets are read from the real Candidate objects.
+    let candidate_config = candidate
+        .map(|c| parts_json(c.progress().quorum_set()))
+        .unwrap_or_else(|| config_json(effective));
+    let pre_config = pre
+        .map(|c| parts_json(c.progress().quorum_set()))
+        .unwrap_or_else(|| config_json(effective));
+    let pre_last_log = pre
+        .map(|c| log_json(c.last_log_id(), id))
+        .unwrap_or_else(|| log_json(eng.state.last_log_id(), id));
+
+    json!({
+        "role": match eng.state.server_state {
+            ServerState::Learner => "Learner",
+            ServerState::Follower => "Follower",
+            ServerState::Candidate => "Candidate",
+            ServerState::Leader => "Leader",
+            ServerState::Shutdown => "Follower",
+        },
+        "vote": vote_json(eng.state.vote_ref()),
+        "last_log": log_json(eng.state.last_log_id(), id),
+        "committed_config": config_json(committed),
+        "committed_config_index": committed.log_id().as_ref().map(|x| x.index).unwrap_or(0),
+        "effective_config": config_json(effective),
+        "effective_config_index": effective.log_id().as_ref().map(|x| x.index).unwrap_or(0),
+        "lease_valid": lease_valid,
+        "candidate_active": candidate.is_some(),
+        "candidate_vote": vote_json(candidate_vote),
+        "candidate_config": candidate_config,
+        "grants": grants,
+        "leader_active": eng.leader_ref().is_some(),
+        "save_vote_pending": has_command(eng, CommandName::SaveVote),
+        "send_vote_pending": has_command(eng, CommandName::SendVote),
+        "append_pending": has_command(eng, CommandName::AppendEntries),
+        "seen_greater_log": eng.seen_greater_log,
+        "crashed": crashed,
+        "pre_candidate_active": pre.is_some(),
+        "pre_candidate_vote": vote_json(pre_vote),
+        "pre_candidate_config": pre_config,
+        "pre_candidate_last_log": pre_last_log,
+        "pre_grants": pre_grants,
+        "send_pre_vote_pending": has_command(eng, CommandName::SendPreVote),
+    })
+}
+
+fn emit(name: &str, nid: u64, pre: Value, post: Value, args: Value) -> anyhow::Result<()> {
+    let path = std::env::var("SPECULAR_TRACE_PATH")?;
+    let mut out = OpenOptions::new().create(true).append(true).open(path)?;
+    let ts = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos().to_string();
+    let record = json!({
+        "tag": "trace",
+        "ts_unix_ns": ts,
+        "event": {
+            "name": name,
+            "nid": nid.to_string(),
+            "pre": pre,
+            "post": post,
+            "args": args,
+        }
+    });
+    serde_json::to_writer(&mut out, &record)?;
+    writeln!(&mut out)?;
+    Ok(())
+}
+
+/// Wrap one engine call: snapshot, call, snapshot, emit.
+fn step<R>(
+    eng: &mut Engine<UTConfig>,
+    name: &str,
+    args: impl FnOnce(&R) -> Value,
+    f: impl FnOnce(&mut Engine<UTConfig>) -> R,
+) -> anyhow::Result<R> {
+    let nid = eng.config.id;
+    let pre = state_json(eng, false);
+    let r = f(eng);
+    let post = state_json(eng, false);
+    emit(name, nid, pre, post, args(&r))?;
+    Ok(r)
+}
+
+/// Runtime boundary `RaftCore::run_command(SaveVote)`: the awaited save
+/// completes; the remaining queued commands stay queued.
+fn run_save_vote(eng: &mut Engine<UTConfig>) -> anyhow::Result<()> {
+    step(eng, "PersistVote", |_| json!({}), |eng| {
+        let cmds = eng.output.take_commands();
+        let mut saved = 0;
+        for c in cmds {
+            if c.name() == CommandName::SaveVote {
+                saved += 1;
+            } else {
+                eng.output.push_command(c);
+            }
+        }
+        assert_eq!(1, saved, "exactly one queued SaveVote");
+    })
+}
+
+/// Runtime boundary `RaftCore::run_command(SendVote)`: one spawned RPC per
+/// other voter of the effective membership, then the command completes.
+fn run_send_vote(eng: &mut Engine<UTConfig>) -> anyhow::Result<()> {
+    let id = eng.config.id;
+    let targets = eng.state.membership_state.effective().voter_ids().filter(|t| *t != id).collect::<Vec<_>>();
+    for t in targets {
+        step(eng, "SendVoteRequest", |_| json!({"target": t.to_string()}), |_| ())?;
+    }
+    step(eng, "FinishVoteBroadcast", |_| json!({}), |eng| {
+        let cmds = eng.output.take_commands();
+        for c in cmds {
+            if c.name() != CommandName::SendVote {
+                eng.output.push_command(c);
+            }
+        }
+    })
+}
+
+/// Runtime boundary `RaftCore::run_command(SendPreVote)`: Pre-Vote RPCs are
+/// spawned to every other voter of the effective membership.
+fn run_send_pre_vote(eng: &mut Engine<UTConfig>) -> anyhow::Result<()> {
+    let id = eng.config.id;
+    step(
+        eng,
+        "SendPreVoteRequests",
+        |r: &(Value, Value, Vec<String>)| json!({"vote": r.0, "last_log": r.1, "targets": r.2}),
+        |eng| {
+            let targets = eng
+                .state
+                .membership_state
+                .effective()
+                .voter_ids()
+                .filter(|t| *t != id)
+                .map(|t| t.to_string())
+                .collect::<Vec<_>>();
+            let cmds = eng.output.take_commands();
+            let mut req = None;
+            for c in cmds {
+                match c {
+                    crate::engine::Command::SendPreVote { vote_req } => req = Some(vote_req),
+                    other => eng.output.push_command(other),
+                }
+            }
+            let req = req.expect("queued SendPreVote");
+            (vote_json(&req.vote), log_json(req.last_log_id.as_ref(), id), targets)
+        },
+    )?;
+    Ok(())
+}
+
+fn vote_req_args(responder: u64, source: u64, req: &VoteRequest<UTConfig>, resp: &VoteResponse<UTConfig>) -> Value {
+    json!({
+        "source": source.to_string(),
+        "vote": vote_json(&req.vote),
+        "last_log": log_json(req.last_log_id.as_ref(), source),
+        "transfer": req.leadership_transfer,
+        "response_vote": vote_json(&resp.vote),
+        // `None` placeholder records the responder (it is the responder's log).
+        "response_last_log": log_json(resp.last_log_id.as_ref(), responder),
+        "response_granted": resp.vote_granted,
+    })
+}
+
+fn handle_vote_req(eng: &mut Engine<UTConfig>, source: u64, req: VoteRequest<UTConfig>) -> anyhow::Result<()> {
+    let r2 = req.clone();
+    let me = eng.config.id;
+    step(eng, "HandleVoteRequest", move |resp| vote_req_args(me, source, &r2, resp), move |eng| {
+        eng.handle_vote_req(req)
+    })?;
+    Ok(())
+}
+
+fn handle_pre_vote_req(eng: &mut Engine<UTConfig>, source: u64, req: VoteRequest<UTConfig>) -> anyhow::Result<()> {
+    let r2 = req.clone();
+    let me = eng.config.id;
+    step(eng, "HandlePreVoteRequest", move |resp| vote_req_args(me, source, &r2, resp), move |eng| {
+        eng.handle_pre_vote_req(req)
+    })?;
+    Ok(())
+}
+
+fn handle_vote_resp(eng: &mut Engine<UTConfig>, source: u64, resp: VoteResponse<UTConfig>) -> anyhow::Result<()> {
+    let args = json!({
+        "source": source.to_string(),
+        "vote": vote_json(&resp.vote),
+        "last_log": log_json(resp.last_log_id.as_ref(), source),
+        "granted": resp.vote_granted,
+    });
+    step(eng, "HandleVoteResponse", |_| args, |eng| eng.handle_vote_resp(source, resp))
+}
+
+/// `Notification::PreVoteResponse { target, resp, candidate_vote }` as
+/// forwarded by RaftCore to `Engine::handle_pre_vote_resp`.
+fn handle_pre_vote_resp(
+    eng: &mut Engine<UTConfig>,
+    source: u64,
+    candidate_vote: UTVote,
+    resp: VoteResponse<UTConfig>,
+) -> anyhow::Result<()> {
+    let args = json!({
+        "source": source.to_string(),
+        "candidate_vote": vote_json(&candidate_vote),
+        "response_vote": vote_json(&resp.vote),
+        "last_log": log_json(resp.last_log_id.as_ref(), source),
+        "granted": resp.vote_granted,
+    });
+    step(eng, "HandlePreVoteResponse", |_| args, |eng| eng.handle_pre_vote_resp(source, resp))
+}
+
+fn pre_elect(eng: &mut Engine<UTConfig>) -> anyhow::Result<()> {
+    step(eng, "PreElect", |_| json!({}), |eng| eng.pre_elect())
+}
+
+fn elect(eng: &mut Engine<UTConfig>) -> anyhow::Result<()> {
+    step(eng, "StartElection", |_| json!({"transfer": false}), |eng| eng.elect())
+}
+
+fn follower_engine(id: u64, voters: BTreeSet<u64>, leader_vote: UTVote, lease: Duration) -> Engine<UTConfig> {
+    let mut eng = base_engine(id, vec![voters], 1);
+    eng.state.vote = Leased::new(UTConfig::<()>::now(), lease, leader_vote);
+    eng.output.clear_commands();
+    eng
+}
+
+// ---------------------------------------------------------------------------
+// Prior V0 scenarios (rebased; same engine calls and fixtures).
+// ---------------------------------------------------------------------------
+
+#[test]
+fn specular_trace_start_election() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
+    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(1, 2));
+    elect(&mut eng)
+}
+
+#[test]
+fn specular_trace_reject_stale_log() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
+    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
+    eng.state.log_ids = LogIdList::new(None, [log_id(2, 1, 3)]);
+    eng.state.server_state = ServerState::Candidate;
+    eng.new_candidate(*eng.state.vote_ref());
+    eng.output.clear_commands();
+    let req = VoteRequest {
+        vote: Vote::new(3, 2),
+        last_log_id: Some(log_id(1, 2, 3)),
+        leadership_transfer: false,
+    };
+    handle_vote_req(&mut eng, 2, req)
+}
+
+#[test]
+fn specular_trace_grant_greater_vote() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
+    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
+    eng.state.log_ids = LogIdList::new(None, [log_id(2, 1, 3)]);
+    eng.state.server_state = ServerState::Candidate;
+    eng.new_candidate(*eng.state.vote_ref());
+    eng.output.clear_commands();
+    let req = VoteRequest {
+        vote: Vote::new(3, 2),
+        last_log_id: Some(log_id(2, 1, 3)),
+        leadership_transfer: false,
+    };
+    handle_vote_req(&mut eng, 2, req)
+}
+
+#[test]
+fn specular_trace_establish_leader() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 0);
+    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(500), Vote::new(2, 1));
+    eng.state.server_state = ServerState::Candidate;
+    let candidate = eng.new_candidate(*eng.state.vote_ref());
+    candidate.grant_by(&1);
+    eng.output.clear_commands();
+    let response = VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 0)), true);
+    handle_vote_resp(&mut eng, 2, response)
+}
+
+#[test]
+fn specular_trace_append_joint_membership() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 1);
+    eng.state.vote = Leased::new(
+        UTConfig::<()>::now(),
+        Duration::from_millis(500),
+        Vote::new_committed(2, 1),
+    );
+    eng.state.server_state = ServerState::Leader;
+    eng.testing_new_leader();
+    eng.output.clear_commands();
+    let target = btreeset! {2, 3};
+    let t2 = target.clone();
+    step(
+        &mut eng,
+        "AppendJointConfig",
+        |_| json!({"target_config": t2.iter().map(u64::to_string).collect::<Vec<_>>() }),
+        |eng| {
+            eng.try_leader_handler().unwrap().leader_append_entries([EntryPayload::Membership(membership(vec![
+                btreeset! {1, 2},
+                target.clone(),
+            ]))]);
+        },
+    )
+}
+
+#[test]
+fn specular_trace_commit_membership() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 1);
+    let old = stored(1, vec![btreeset! {1, 2}]);
+    let joint = stored(2, vec![btreeset! {1, 2}, btreeset! {2, 3}]);
+    eng.state.membership_state = MembershipState::new(old, joint);
+    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, 2)]);
+    eng.state.apply_progress_mut().accept(log_id(1, 1, 1));
+    eng.state.vote = Leased::new(
+        UTConfig::<()>::now(),
+        Duration::from_millis(500),
+        Vote::new_committed(2, 1),
+    );
+    eng.state.server_state = ServerState::Leader;
+    eng.testing_new_leader();
+    eng.output.clear_commands();
+    step(&mut eng, "CommitMembership", |_| json!({}), |eng| {
+        eng.state.update_local_committed(&Some(log_id(1, 1, 2)));
+    })
+}
+
+#[test]
+fn specular_trace_restart_follower() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
+    eng.state.vote = Leased::without_last_update(Vote::new(2, 2));
+    eng.state.server_state = ServerState::Learner;
+    eng.output.clear_commands();
+    let pre = state_json(&eng, true);
+    eng.startup();
+    let post = state_json(&eng, false);
+    emit("Restart", 1, pre, post, json!({}))
+}
+
+// ---------------------------------------------------------------------------
+// Update scenarios: Pre-Vote engine paths and their interactions.
+// ---------------------------------------------------------------------------
+
+/// PreElect on a multi-voter follower: no vote/role change, SendPreVote only.
+#[test]
+fn specular_trace_prevote_elect_multi() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 2), Duration::ZERO);
+    pre_elect(&mut eng)?;
+    run_send_pre_vote(&mut eng)
+}
+
+/// PreElect on a single-voter: self-grant reaches quorum, real election at once.
+#[test]
+fn specular_trace_prevote_single_voter() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1}, Vote::new(1, 1), Duration::ZERO);
+    pre_elect(&mut eng)
+}
+
+/// Responder grants a Pre-Vote (expired lease, equal log, greater vote).
+#[test]
+fn specular_trace_prevote_req_grant() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 3), Duration::ZERO);
+    eng.state.log_ids = LogIdList::new(None, [log_id(1, 3, 2)]);
+    let req = VoteRequest::new(Vote::new(2, 2), Some(log_id(1, 3, 2)));
+    handle_pre_vote_req(&mut eng, 2, req)
+}
+
+/// Responder rejects while its committed leader lease is valid.
+#[test]
+fn specular_trace_prevote_req_reject_lease() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 3), Duration::from_secs(3600));
+    eng.state.log_ids = LogIdList::new(None, [log_id(1, 3, 2)]);
+    let req = VoteRequest::new(Vote::new(2, 2), Some(log_id(1, 3, 2)));
+    handle_pre_vote_req(&mut eng, 2, req)
+}
+
+/// Responder rejects a requester with a smaller last log id.
+#[test]
+fn specular_trace_prevote_req_reject_log() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 3), Duration::ZERO);
+    eng.state.log_ids = LogIdList::new(None, [log_id(1, 3, 3)]);
+    let req = VoteRequest::new(Vote::new(2, 2), Some(log_id(1, 3, 2)));
+    handle_pre_vote_req(&mut eng, 2, req)
+}
+
+/// Responder rejects a Pre-Vote smaller than its own (uncommitted) vote.
+#[test]
+fn specular_trace_prevote_req_reject_vote() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new(2, 3), Duration::ZERO);
+    let req = VoteRequest::new(Vote::new(2, 2), Some(log_id(1, 1, 1)));
+    handle_pre_vote_req(&mut eng, 2, req)
+}
+
+/// PreElect -> SendPreVote -> granted response reaches quorum -> elect().
+#[test]
+fn specular_trace_prevote_quorum_elect() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 2), Duration::ZERO);
+    pre_elect(&mut eng)?;
+    run_send_pre_vote(&mut eng)?;
+    handle_pre_vote_resp(
+        &mut eng,
+        2,
+        Vote::new(2, 1),
+        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
+    )
+}
+
+/// A rejection carrying a greater log sets seen_greater_log without changing
+/// the vote; a later grant still reaches quorum.
+#[test]
+fn specular_trace_prevote_reject_greater_log() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 2), Duration::ZERO);
+    pre_elect(&mut eng)?;
+    run_send_pre_vote(&mut eng)?;
+    handle_pre_vote_resp(
+        &mut eng,
+        2,
+        Vote::new(2, 1),
+        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 2, 5)), false),
+    )?;
+    handle_pre_vote_resp(
+        &mut eng,
+        3,
+        Vote::new(2, 1),
+        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
+    )
+}
+
+/// Interaction: granting a real vote (become_following) drops the
+/// pre-candidate; a late Pre-Vote grant is then ignored.
+#[test]
+fn specular_trace_prevote_cleared_by_vote_request() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 2), Duration::ZERO);
+    pre_elect(&mut eng)?;
+    run_send_pre_vote(&mut eng)?;
+    handle_vote_req(&mut eng, 3, VoteRequest::new(Vote::new(2, 3), Some(log_id(1, 1, 1))))?;
+    run_save_vote(&mut eng)?;
+    handle_pre_vote_resp(
+        &mut eng,
+        2,
+        Vote::new(2, 1),
+        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
+    )
+}
+
+/// Interaction: leader contact (equal committed vote) drops the
+/// pre-candidate; a second round reuses the same leader id (2,1); a granted
+/// response carrying candidate_vote (2,1) is counted by the second round.
+#[test]
+fn specular_trace_prevote_new_round_same_leader_id() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 2), Duration::ZERO);
+    pre_elect(&mut eng)?;
+    run_send_pre_vote(&mut eng)?;
+    let leader_vote = Vote::new_committed(1, 2);
+    let last = eng.state.last_log_id().cloned();
+    step(
+        &mut eng,
+        "HandleAppendEntries",
+        |_| json!({"source": "2", "vote": vote_json(&leader_vote), "last_log": log_json(last.as_ref(), 2)}),
+        |eng| {
+            let res = eng.append_entries(&leader_vote, LogSegment::new(last, vec![]));
+            assert!(res.is_ok());
+        },
+    )?;
+    // The runtime would answer the AppendEntries; drop that response command.
+    eng.output.clear_commands();
+    // Time passes: the leader lease expires (the tick requires it).
+    step(&mut eng, "ExpireLease", |_| json!({}), |eng| eng.state.vote.disable_lease())?;
+    pre_elect(&mut eng)?;
+    run_send_pre_vote(&mut eng)?;
+    handle_pre_vote_resp(
+        &mut eng,
+        3,
+        Vote::new(2, 1),
+        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
+    )
+}
+
+/// Interaction (Scenario U-A): a Candidate's timer starts a Pre-Vote round,
+/// the earlier real election then wins (establish_leader keeps the
+/// pre-candidate), and the round's quorum makes the new Leader elect again.
+#[test]
+fn specular_trace_candidate_prevote_establish() -> anyhow::Result<()> {
+    let mut eng = follower_engine(1, btreeset! {1, 2, 3}, Vote::new_committed(1, 2), Duration::ZERO);
+    elect(&mut eng)?; // candidate (2,1)
+    run_save_vote(&mut eng)?;
+    handle_vote_resp(&mut eng, 1, VoteResponse::new(Vote::new(2, 1), None, true))?;
+    run_send_vote(&mut eng)?;
+    pre_elect(&mut eng)?; // timer fires while still a Candidate: pre-vote (3,1)
+    run_send_pre_vote(&mut eng)?;
+    handle_vote_resp(&mut eng, 2, VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true))?;
+    assert_eq!(ServerState::Leader, eng.state.server_state);
+    assert!(eng.pre_candidate_ref().is_some(), "establish_leader keeps the pre-candidate");
+    run_save_vote(&mut eng)?;
+    handle_pre_vote_resp(
+        &mut eng,
+        2,
+        Vote::new(3, 1),
+        VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true),
+    )?;
+    assert_eq!(Vote::new(3, 1), *eng.state.vote_ref(), "the new Leader started another election");
+    Ok(())
+}
+
+/// Interaction (Scenario U-C): a leader's operator-triggered Pre-Vote round,
+/// membership evolution removing node 2, a second round with the same
+/// leader id, then a granted response from node 2: grant_by panics.
+#[test]
+fn specular_trace_prevote_stale_member_panic() -> anyhow::Result<()> {
+    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
+    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new_committed(1, 1));
+    eng.state.server_state = ServerState::Leader;
+    eng.testing_new_leader();
+    eng.output.clear_commands();
+
+    pre_elect(&mut eng)?; // round A: (2,1) over {1,2,3}
+    run_send_pre_vote(&mut eng)?;
+
+    let target = btreeset! {1, 3};
+    step(
+        &mut eng,
+        "AppendJointConfig",
+        |_| json!({"target_config": ["1", "3"]}),
+        |eng| {
+            eng.try_leader_handler().unwrap().leader_append_entries([EntryPayload::Membership(membership(vec![
+                btreeset! {1, 2, 3},
+                target.clone(),
+            ]))]);
+        },
+    )?;
+    step(&mut eng, "CommitMembership", |_| json!({}), |eng| {
+        eng.state.update_local_committed(&Some(log_id(1, 1, 2)));
+    })?;
+    step(&mut eng, "AppendUniformConfig", |_| json!({}), |eng| {
+        eng.try_leader_handler()
+            .unwrap()
+            .leader_append_entries([EntryPayload::Membership(membership(vec![btreeset! {1, 3}]))]);
+    })?;
+    step(&mut eng, "CommitMembership", |_| json!({}), |eng| {
+        eng.state.update_local_committed(&Some(log_id(1, 1, 3)));
+    })?;
+    // Runtime executes the queued log append; its flush callback completes.
+    step(&mut eng, "FlushLog", |_| json!({}), |eng| eng.output.clear_commands())?;
+
+    pre_elect(&mut eng)?; // round B: (2,1) over {1,3}
+    run_send_pre_vote(&mut eng)?;
+
+    // Delayed round-A grant from node 2, forwarded because its candidate_vote
+    // (2,1) has the same leader id as round B.
+    let pre = state_json(&eng, false);
+    let resp = VoteResponse::new(Vote::new(1, 1), Some(log_id(1, 1, 1)), true);
+    let res = std::panic::catch_unwind(AssertUnwindSafe(|| eng.handle_pre_vote_resp(2, resp)));
+    let panicked = res.is_err();
+    let post = state_json(&eng, panicked);
+    emit(
+        "HandlePreVoteResponse",
+        1,
+        pre,
+        post,
+        json!({
+            "source": "2",
+            "candidate_vote": vote_json(&Vote::new(2, 1)),
+            "response_vote": vote_json(&Vote::new(1, 1)),
+            "last_log": log_json(Some(&log_id(1, 1, 1)), 2),
+            "granted": true,
+        }),
+    )?;
+    assert!(panicked, "grant_by panics for a responder outside the quorum set");
+    Ok(())
+}
+
+/// Repair evidence (pre-existing model defect): two absent last-log ids are
+/// equal (`None >= None`), so a vote request from an empty-log candidate is
+/// granted by an empty-log voter.
+#[test]
+fn specular_trace_grant_vote_empty_logs() -> anyhow::Result<()> {
+    let mut eng = Engine::<UTConfig>::testing_default(1);
+    eng.state.enable_validation(false);
+    let m = stored(1, vec![btreeset! {1, 2, 3}]);
+    eng.state.membership_state = MembershipState::new(m.clone(), m);
+    eng.state.server_state = ServerState::Follower;
+    eng.output.clear_commands();
+    assert!(eng.state.last_log_id().is_none());
+    handle_vote_req(&mut eng, 2, VoteRequest::new(Vote::new(1, 2), None))
+}
+
+/// Same for a Pre-Vote request between empty-log nodes.
+#[test]
+fn specular_trace_prevote_req_grant_empty_logs() -> anyhow::Result<()> {
+    let mut eng = Engine::<UTConfig>::testing_default(1);
+    eng.state.enable_validation(false);
+    let m = stored(1, vec![btreeset! {1, 2, 3}]);
+    eng.state.membership_state = MembershipState::new(m.clone(), m);
+    eng.state.server_state = ServerState::Follower;
+    eng.output.clear_commands();
+    assert!(eng.state.last_log_id().is_none());
+    handle_pre_vote_req(&mut eng, 2, VoteRequest::new(Vote::new(1, 2), None))
+}

@@ -1,0 +1,330 @@
+diff --git a/openraft/src/engine/mod.rs b/openraft/src/engine/mod.rs
+index 6107102..a6d21d7 100644
+--- a/openraft/src/engine/mod.rs
++++ b/openraft/src/engine/mod.rs
+@@ -54,6 +54,7 @@ mod tests {
+     mod install_full_snapshot_test;
+     mod refresh_server_state_test;
+     mod startup_test;
++    mod specula_trace_test;
+     mod trigger_purge_log_test;
+ }
+ #[cfg(test)]
+diff --git a/openraft/src/engine/tests/specula_trace_test.rs b/openraft/src/engine/tests/specula_trace_test.rs
+new file mode 100644
+index 0000000..6f2f80f
+--- /dev/null
++++ b/openraft/src/engine/tests/specula_trace_test.rs
+@@ -0,0 +1,311 @@
++//! Specula V0 trace harness.
++//!
++//! This module is test-only instrumentation. It invokes the exact-old Engine
++//! transitions directly and records only source-observable abstract state.
++
++use std::collections::BTreeSet;
++use std::fs::OpenOptions;
++use std::io::Write;
++use std::sync::Arc;
++use std::time::Duration;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use maplit::btreeset;
++use serde_json::Value;
++use serde_json::json;
++
++use crate::Membership;
++use crate::MembershipState;
++use crate::Vote;
++use crate::core::ServerState;
++use crate::engine::CommandName;
++use crate::engine::Engine;
++use crate::engine::LogIdList;
++use crate::engine::testing::UTConfig;
++use crate::engine::testing::log_id;
++use crate::entry::payload::EntryPayload;
++use crate::raft::VoteRequest;
++use crate::raft::VoteResponse;
++use crate::raft_state::LogStateReader;
++use crate::type_config::TypeConfigExt;
++use crate::type_config::alias::StoredMembershipOf;
++use crate::utime::Leased;
++
++fn membership(parts: Vec<BTreeSet<u64>>) -> Membership<u64, ()> {
++    Membership::new_with_defaults(parts, [])
++}
++
++fn stored(index: u64, parts: Vec<BTreeSet<u64>>) -> Arc<StoredMembershipOf<UTConfig>> {
++    Arc::new(StoredMembershipOf::<UTConfig>::new(
++        Some(log_id(1, 1, index)),
++        membership(parts),
++    ))
++}
++
++fn base_engine(id: u64, parts: Vec<BTreeSet<u64>>, membership_index: u64) -> Engine<UTConfig> {
++    let mut eng = Engine::testing_default(id);
++    eng.state.enable_validation(false);
++    eng.config.id = id;
++    let membership = stored(membership_index, parts);
++    eng.state.membership_state = MembershipState::new(membership.clone(), membership);
++    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, membership_index)]);
++    eng.state.server_state = ServerState::Follower;
++    eng.output.clear_commands();
++    eng
++}
++
++fn vote_json(v: &Vote<crate::engine::testing::UTLeaderId>) -> Value {
++    json!({
++        "term": v.leader_id.term,
++        "node": v.leader_id.node_id.to_string(),
++        "committed": v.committed,
++    })
++}
++
++fn log_json(log: Option<&crate::type_config::alias::LogIdOf<UTConfig>>, node: u64) -> Value {
++    match log {
++        Some(x) => json!({
++            "present": true,
++            "term": x.leader_id.term,
++            "node": x.leader_id.node_id.to_string(),
++            "index": x.index,
++        }),
++        None => json!({"present": false, "term": 0, "node": node.to_string(), "index": 0}),
++    }
++}
++
++fn config_json(m: &StoredMembershipOf<UTConfig>) -> Value {
++    let parts = m
++        .get_joint_config()
++        .iter()
++        .map(|part| part.iter().map(u64::to_string).collect::<Vec<_>>())
++        .collect::<Vec<_>>();
++    json!(parts)
++}
++
++fn state_json(eng: &Engine<UTConfig>, crashed: bool) -> Value {
++    let candidate = eng.candidate_ref();
++    let candidate_vote = candidate.map(|x| x.vote_ref()).unwrap_or_else(|| eng.state.vote_ref());
++    let grants = candidate
++        .map(|x| x.granters().map(|id| id.to_string()).collect::<Vec<_>>())
++        .unwrap_or_default();
++    let has_command = |name| eng.output.iter_commands().any(|cmd| cmd.name() == name);
++    let (last_update, lease, enabled) = eng.state.vote.lease_info();
++    let lease_valid = enabled
++        && last_update.is_some()
++        && !eng.state.vote.is_expired(UTConfig::<()>::now(), Duration::default())
++        && !lease.is_zero();
++    let committed = eng.state.membership_state.committed();
++    let effective = eng.state.membership_state.effective();
++
++    json!({
++        "role": match eng.state.server_state {
++            ServerState::Learner => "Learner",
++            ServerState::Follower => "Follower",
++            ServerState::Candidate => "Candidate",
++            ServerState::Leader => "Leader",
++            ServerState::Shutdown => "Follower",
++        },
++        "vote": vote_json(eng.state.vote_ref()),
++        "last_log": log_json(eng.state.last_log_id(), eng.config.id),
++        "committed_config": config_json(committed),
++        "committed_config_index": committed.log_id().as_ref().map(|x| x.index).unwrap_or(0),
++        "effective_config": config_json(effective),
++        "effective_config_index": effective.log_id().as_ref().map(|x| x.index).unwrap_or(0),
++        "lease_valid": lease_valid,
++        "candidate_active": candidate.is_some(),
++        "candidate_vote": vote_json(candidate_vote),
++        // Candidate keeps an internal frozen quorum. In these scenarios it is
++        // equal to the observable effective membership at election creation.
++        "candidate_config": config_json(effective),
++        "grants": grants,
++        "leader_active": eng.leader_ref().is_some(),
++        "save_vote_pending": has_command(CommandName::SaveVote),
++        "send_vote_pending": has_command(CommandName::SendVote),
++        "append_pending": has_command(CommandName::AppendEntries),
++        "seen_greater_log": false,
++        "crashed": crashed,
++    })
++}
++
++fn emit(name: &str, nid: u64, pre: Value, post: Value, args: Value) -> anyhow::Result<()> {
++    let path = std::env::var("SPECULA_TRACE_PATH")?;
++    let mut out = OpenOptions::new().create(true).append(true).open(path)?;
++    let ts = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos().to_string();
++    let record = json!({
++        "tag": "trace",
++        "ts_unix_ns": ts,
++        "event": {
++            "name": name,
++            "nid": nid.to_string(),
++            "pre": pre,
++            "post": post,
++            "args": args,
++        }
++    });
++    serde_json::to_writer(&mut out, &record)?;
++    writeln!(&mut out)?;
++    Ok(())
++}
++
++#[test]
++fn specula_trace_start_election() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(1, 2));
++    let pre = state_json(&eng, false);
++    eng.elect();
++    let post = state_json(&eng, false);
++    emit("StartElection", 1, pre, post, json!({"transfer": false}))
++}
++
++#[test]
++fn specula_trace_reject_stale_log() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
++    eng.state.log_ids = LogIdList::new(None, [log_id(2, 1, 3)]);
++    eng.state.server_state = ServerState::Candidate;
++    eng.new_candidate(*eng.state.vote_ref());
++    eng.output.clear_commands();
++    let req = VoteRequest {
++        vote: Vote::new(3, 2),
++        last_log_id: Some(log_id(1, 2, 3)),
++        leadership_transfer: false,
++    };
++    let pre = state_json(&eng, false);
++    let resp = eng.handle_vote_req(req.clone());
++    let post = state_json(&eng, false);
++    emit(
++        "HandleVoteRequest",
++        1,
++        pre,
++        post,
++        json!({
++            "source": "2",
++            "vote": vote_json(&req.vote),
++            "last_log": log_json(req.last_log_id.as_ref(), 2),
++            "transfer": req.leadership_transfer,
++            "response_vote": vote_json(&resp.vote),
++            "response_granted": resp.vote_granted,
++        }),
++    )
++}
++
++#[test]
++fn specula_trace_grant_greater_vote() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
++    eng.state.log_ids = LogIdList::new(None, [log_id(2, 1, 3)]);
++    eng.state.server_state = ServerState::Candidate;
++    eng.new_candidate(*eng.state.vote_ref());
++    eng.output.clear_commands();
++    let req = VoteRequest {
++        vote: Vote::new(3, 2),
++        last_log_id: Some(log_id(2, 1, 3)),
++        leadership_transfer: false,
++    };
++    let pre = state_json(&eng, false);
++    let resp = eng.handle_vote_req(req.clone());
++    let post = state_json(&eng, false);
++    emit(
++        "HandleVoteRequest",
++        1,
++        pre,
++        post,
++        json!({
++            "source": "2",
++            "vote": vote_json(&req.vote),
++            "last_log": log_json(req.last_log_id.as_ref(), 2),
++            "transfer": req.leadership_transfer,
++            "response_vote": vote_json(&resp.vote),
++            "response_granted": resp.vote_granted,
++        }),
++    )
++}
++
++#[test]
++fn specula_trace_establish_leader() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 0);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(500), Vote::new(2, 1));
++    eng.state.server_state = ServerState::Candidate;
++    let candidate = eng.new_candidate(*eng.state.vote_ref());
++    candidate.grant_by(&1);
++    eng.output.clear_commands();
++    let response = VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 0)), true);
++    let pre = state_json(&eng, false);
++    eng.handle_vote_resp(2, response.clone());
++    let post = state_json(&eng, false);
++    emit(
++        "HandleVoteResponse",
++        1,
++        pre,
++        post,
++        json!({
++            "source": "2",
++            "vote": vote_json(&response.vote),
++            "last_log": log_json(response.last_log_id.as_ref(), 2),
++            "granted": response.vote_granted,
++        }),
++    )
++}
++
++#[test]
++fn specula_trace_append_joint_membership() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 1);
++    eng.state.vote = Leased::new(
++        UTConfig::<()>::now(),
++        Duration::from_millis(500),
++        Vote::new_committed(2, 1),
++    );
++    eng.state.server_state = ServerState::Leader;
++    eng.testing_new_leader();
++    eng.output.clear_commands();
++    let target = btreeset! {2, 3};
++    let pre = state_json(&eng, false);
++    eng.try_leader_handler()?.leader_append_entries([EntryPayload::Membership(membership(vec![
++        btreeset! {1, 2},
++        target.clone(),
++    ]))]);
++    let post = state_json(&eng, false);
++    emit(
++        "AppendJointConfig",
++        1,
++        pre,
++        post,
++        json!({"target_config": target.iter().map(u64::to_string).collect::<Vec<_>>() }),
++    )
++}
++
++#[test]
++fn specula_trace_commit_membership() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 1);
++    let old = stored(1, vec![btreeset! {1, 2}]);
++    let joint = stored(2, vec![btreeset! {1, 2}, btreeset! {2, 3}]);
++    eng.state.membership_state = MembershipState::new(old, joint);
++    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, 2)]);
++    eng.state.apply_progress_mut().accept(log_id(1, 1, 1));
++    eng.state.vote = Leased::new(
++        UTConfig::<()>::now(),
++        Duration::from_millis(500),
++        Vote::new_committed(2, 1),
++    );
++    eng.state.server_state = ServerState::Leader;
++    eng.testing_new_leader();
++    eng.output.clear_commands();
++    let pre = state_json(&eng, false);
++    eng.state.update_local_committed(&Some(log_id(1, 1, 2)));
++    let post = state_json(&eng, false);
++    emit("CommitMembership", 1, pre, post, json!({}))
++}
++
++#[test]
++fn specula_trace_restart_follower() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::without_last_update(Vote::new(2, 2));
++    eng.state.server_state = ServerState::Learner;
++    eng.output.clear_commands();
++    let pre = state_json(&eng, true);
++    eng.startup();
++    let post = state_json(&eng, false);
++    emit("Restart", 1, pre, post, json!({}))
++}
+

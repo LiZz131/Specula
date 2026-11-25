@@ -1,0 +1,19 @@
+{
+ "decision": "MODEL_UPDATED",
+ "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "summary": "The update adds an optional Pre-Vote round to OpenRaft (pre_candidate state, SendPreVote/RequestPreVote/PreVoteResponse, a timer Pre-Vote branch, trigger().elect(pre_vote)), so the model had to change (MODEL_CHANGE_REQUIRED). I updated base/MC/Trace, added Update.tla/UpdateProps.tla with focused, open, and discharge views, and repaired three model defects that predated this update: (1) empty last-log ids compared unequal, which made 3-voter elections unreachable in the V0 MC.cfg; (2) a new Leader's lease after establish_leader; (3) tick guards. I rebased the V0 harness. 21 fresh traces from the updated implementation (7 V0 reruns, 14 update scenarios) pass TLC trace validation with TraceConsumed, and all 20 single-field mutants are rejected. Model checking is bounded and budget-limited (LIMITED_COVERAGE). All 8 reachability canaries were hit, and 4 regression mutants were detected. Model checking found two update-introduced defects, both reproduced through the public Raft API in debug and release builds. MC-1: Pre-Vote responses are matched to rounds only by leader id, and every round at one term shares that id, so a later round counts a grant from an earlier one. If the responder was removed in between, Candidate::grant_by panics and RaftCore stops. MC-2: a Pre-Vote round started while the node is a Candidate survives establish_leader, and when its quorum arrives the new Leader starts another election (term inflation, leadership loss; debug builds also panic on try_leader_handler's assertion). CR-1 is a documentation-only inconsistency in pre_vote.md and is not a code defect. CI verdict: FAIL.",
+ "findings_paths": [
+  "/work/current/.specular-output/spec/final-result.json",
+  "/work/current/.specular-output/spec/findings.json",
+  "/work/current/.specular-output/spec/bug-report.md",
+  "/work/current/.specular-output/spec/confirmation-MC-1.md",
+  "/work/current/.specular-output/spec/confirmation-MC-2.md",
+  "/work/current/.specular-output/spec/confirmation-CR-1.md",
+  "/work/current/.specular-output/spec/output/cex-update-full-PreVoteStaleResponseIgnored.log",
+  "/work/current/.specular-output/spec/output/cex-update-full-TimerPreVoteElectionFromFollowerState.log",
+  "/work/current/.specular-output/spec/output/cex-hunt-PreVoteResponseNeverPanics.log",
+  "/work/current/.specular-output/harness/repro/t13_specular_pre_vote_repro.rs",
+  "/work/current/.specular-output/ci-verdict.json"
+ ],
+ "blockers": []
+}

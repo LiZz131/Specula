@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "id": "MC-1",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-705b7bab5f0d",
+  "source_revision": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+  "reusable": true,
+  "title": "Pre-Vote responses of an earlier round are accepted by a later round of the same term",
+  "cause": "Engine::pre_elect builds every round from the unchanged local vote, so all rounds at one local term share the leader id (term+1, self); RaftCore::does_pre_candidate_vote_match compares only leader ids, and Candidate::grant_by expects the responder to be a voter of the current round.",
+  "trigger": "A node starts a Pre-Vote round, starts another round at the same term (timer restart, trigger().elect(true), or after leader contact dropped the first), and a granted response to the first round arrives; for the panic, the responder was removed from the voter set between the rounds.",
+  "consequence": "The grant is tallied by the wrong round: RaftCore panics (Fatal::Panicked) when the responder is no longer a voter, and otherwise a real election can start on grants the current round never received, inflating the term.",
+  "sites": [
+    "openraft/src/core/raft_core.rs:RaftCore::does_pre_candidate_vote_match",
+    "openraft/src/engine/engine_impl.rs:Engine::pre_elect",
+    "openraft/src/engine/engine_impl.rs:Engine::handle_pre_vote_resp",
+    "openraft/src/proposer/candidate.rs:Candidate::grant_by"
+  ],
+  "actions": [
+    "PreElect",
+    "HandlePreVoteResponse",
+    "SendPreVoteRequests"
+  ],
+  "invariants": [
+    "PreVoteStaleResponseIgnored",
+    "PreVoteResponseNeverPanics"
+  ],
+  "premises": [
+    "Two Pre-Vote rounds of one node can start at the same local term (timer restart after election_timeout, operator trigger().elect(true) without rate limit, or a new round after become_following dropped one).",
+    "A granted response to the earlier round can be processed after the later round started (within the RPC ttl election_timeout_min, or queued as a notification).",
+    "For the panic consequence, the responder is removed from the voter set between the rounds."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn does_pre_candidate_vote_match(&self, candidate_vote: &UncommittedVoteOf<C>, msg: impl fmt::Display) -> bool {",
+      "end": "    /// If a message is sent by a previous Leader but is received by current Leader,",
+      "sha256": "b02ede97536368ea3b20fa9b715ce63f0ff63170f23f78812e001955a77977a6"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn pre_elect(&mut self) {",
+      "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {",
+      "sha256": "6fba605a4eb613da868c00f7871391a349cc8230d3356f34c5e582818cc8a0b0"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free.",
+      "sha256": "4d76dc41305bdb9f3582e64319b977375ec0da446aa409805b5e980e8a6b0129"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs",
+      "start": "    pub(crate) fn grant_by(&mut self, target: &C::NodeId) -> bool {",
+      "end": "    pub(crate) fn granters(&self) -> impl Iterator<Item = C::NodeId> + '_ {",
+      "sha256": "2e97903fda9d305014b3f49692ec75559a8c3c80e0e1d9ce09dda229b0f20b5f"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "HandlePreVoteResponse(i, m, consume) ==",
+      "end": "DeliverPreVoteResponse(m) ==",
+      "sha256": "7abde2590b492df5a084914d65c37150af74888f22aa91a184384376214c2a44"
+    },
+    {
+      "root": "work",
+      "path": "spec/UpdateProps.tla",
+      "sha256": "17a489fa6126d06c7d06bdf780acb38aa558efb682df2360a3761f0c5bc09c7c"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_full.cfg",
+      "sha256": "678c34cacfa51d21ebb7460fd260480f787a4014144042a39caa8263363debd9"
+    },
+    {
+      "root": "work",
+      "path": "spec/MC_hunt_prevote_panic_directed.cfg",
+      "sha256": "76bc20909439d719d55d23d5bbad7bf16999b5092fcdb0a1df640867c6b8e3f8"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-1.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/confirmation-MC-1.md",
+      "sha256": "71f2963f7a99cec2e540fca843db2d5f2f289723c681db0639d3d26197b79530"
+    },
+    {
+      "original": "spec/bug-report.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/bug-report.md",
+      "sha256": "eed1da3231c64993a63ae159f1700022d21c9d4d10ecfe4da428a5e016f9b125"
+    },
+    {
+      "original": "spec/output/cex-update-full-PreVoteStaleResponseIgnored.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/cex-update-full-PreVoteStaleResponseIgnored.log",
+      "sha256": "ef20c072bb7a911d150bad27b89ff3d230214509f0830e56e726cc42138ba96a"
+    },
+    {
+      "original": "spec/output/cex-hunt-PreVoteResponseNeverPanics.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/cex-hunt-PreVoteResponseNeverPanics.log",
+      "sha256": "98b3be4f9cef6ce1fe490f3b2f84f844517473335c95355adf871fbcdd2d8e50"
+    },
+    {
+      "original": "harness/repro/t13_specular_pre_vote_repro.rs",
+      "path": "spec/persistent-findings/evidence/MC-1/harness/repro/t13_specular_pre_vote_repro.rs",
+      "sha256": "f3b9425130c5e5d70ec2020f5a004774154c7d2a011e1f2360ac61d9089df39e"
+    },
+    {
+      "original": "harness/repro/repro-current.log",
+      "path": "spec/persistent-findings/evidence/MC-1/harness/repro/repro-current.log",
+      "sha256": "5b3d0a2cb7b2cdd800ed549ea347b2f8e4d5a6e11892233303fb18f88add55d7"
+    },
+    {
+      "original": "harness/repro/repro-current-release.log",
+      "path": "spec/persistent-findings/evidence/MC-1/harness/repro/repro-current-release.log",
+      "sha256": "2e219a3a8adf7a099cba94e9c8a4abffb312b867a85eb8d06d3204c35e9ffe97"
+    },
+    {
+      "original": "traces/prevote_stale_member_panic.ndjson",
+      "path": "spec/persistent-findings/evidence/MC-1/traces/prevote_stale_member_panic.ndjson",
+      "sha256": "1daafa62a91f54177f816019ad478a3cb00c6cb3b1b39dd71c10b9ad4679b9d2"
+    },
+    {
+      "original": "spec/evidence/trace-lens/prevote_stale_member_panic.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/evidence/trace-lens/prevote_stale_member_panic.log",
+      "sha256": "57e4a797d00060eecdc859ab4445b4155fa344c0b3714fa973c93c7a358aa18f"
+    }
+  ]
+}
