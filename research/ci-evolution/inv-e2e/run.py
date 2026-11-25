@@ -40,7 +40,7 @@ import threading
 import time
 from datetime import datetime
 
-from agent import limit_wait_seconds, run_agent
+from agent import limit_wait_seconds, run_agent, wait_for_credentials
 from common import (ARMS, CASE_IDS, RESULTS, WORK, blind_helpers, check_arm, check_case, read_json, sha256,
                     write_json)
 from prepare import prepare
@@ -159,6 +159,9 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
         attempt["main_tools"] = {"root": str(main_tools), "manifest_sha256": sha256(main_tools / "manifest.json"),
                                  "tree_sha256": mt["tree_sha256"], "source_commit": mt["source_commit"],
                                  "servers": sorted(mt["servers"])}
+    if args.backend == "claude":
+        left = wait_for_credentials(args.timeout / 3600 + 0.5)
+        attempt["credential_hours_left_at_start"] = round(left, 2)
     attempt["agent_started"] = True
     write_json(attempt_path, attempt)
     manifest = run_agent(

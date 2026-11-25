@@ -82,6 +82,31 @@ def _expires(path: Path) -> int:
         return 0
 
 
+def credential_hours_left() -> float:
+    """Hours until the host's claude access token expires (0 if unreadable)."""
+    return max(0.0, (_expires(HOME / ".claude/.credentials.json") / 1000 - time.time()) / 3600)
+
+
+def wait_for_credentials(min_hours: float, max_wait_hours: float = 10.0, poll_s: int = 300) -> float:
+    """Block until the host's access token has at least min_hours left.
+
+    A sandboxed agent that has to refresh its token mid-run can race the host's other Claude
+    sessions, which rotate the shared refresh token (epoch-2 round 1: AUTH_ERROR after 234 min).
+    Starting only with a token that outlives the run means the agent never refreshes. The host
+    refreshes on its own when its sessions next call the API after expiry; this only waits."""
+    deadline = time.time() + max_wait_hours * 3600
+    while True:
+        left = credential_hours_left()
+        if left >= min_hours:
+            return left
+        if time.time() > deadline:
+            raise RuntimeError(f"OAuth token has {left:.2f} h left after waiting {max_wait_hours} h; "
+                               "refresh the host login (claude /login) and rerun")
+        print(f"{datetime.now():%F %T} waiting for credentials: {left:.2f} h left, need {min_hours:.2f} h",
+              flush=True)
+        time.sleep(poll_s)
+
+
 def _replace(src: Path, dest: Path) -> None:
     tmp = dest.with_name(dest.name + ".inv-e2e-tmp")
     shutil.copy2(src, tmp)
@@ -91,12 +116,12 @@ def _replace(src: Path, dest: Path) -> None:
 def _credential_sync(home: Path, activity: Path, proc, stop) -> None:
     """Keep the sandbox's and the host's claude OAuth credentials consistent during a run.
 
-    Refresh tokens rotate: whichever side refreshes invalidates the other's copy. Every 30 s,
+    Refresh tokens rotate: whichever side refreshes invalidates the other's copy. Every 5 s,
     the copy with the later expiresAt overwrites the other. Also stops the agent at once if it
     reports an authentication failure (otherwise it can hang until the timeout)."""
     host, box = HOME / ".claude/.credentials.json", home / ".claude/.credentials.json"
     seen = 0
-    while not stop.wait(30):
+    while not stop.wait(5):
         try:
             h, b = _expires(host), _expires(box)
             if b > h:
