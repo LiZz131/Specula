@@ -14,6 +14,19 @@ Layout matches the blind study's prepare_incremental.py, so the task text is unc
   /work/.agents/skills (= /work/.claude/skills)   the arm's skill tree
   /work/lib, /work/tools                   TLA+ jars, infra scripts, trace debugger, network guard
 
+With --layout specular (epoch 2 after the rename; needs --main-tools) the workspace follows
+Specular v1.5 (docs/Usage.md, "Switching from Specula"): `.specular-output` instead of
+`.specula-output`, and the task names the `specular` CLI. As main's incremental runner does
+(ci_workflow.prepare_source_snapshots), it also adds what `specular ci-result` and
+`specular findings` need, with a neutral run ID:
+
+  /work/ci-run/ci-source          frozen copy of the updated tree (read-only)
+  /work/ci-run/ci-input.json      final_result_version 1, old_model = /work/previous/.specular-output
+  current/.specular-output/persistent-findings-context.json, spec/persistent-findings/
+                                  seeded from the prior (ci_verdict.seed_issues) and bound
+                                  (persistent_findings.configure), run inside bwrap so the
+                                  recorded paths are the agent's /work paths
+
 The three arms differ only in .agents/skills and, for v2, the comments in previous/ and
 current/ spec files. Nothing inside the workspace names the arm: the physical directory
 is WORK/neutral/<random hex>, and the arm, skill-tree hash and prior hash are recorded
@@ -25,6 +38,8 @@ from __future__ import annotations
 import argparse
 import secrets
 import shutil
+import subprocess
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -63,7 +78,77 @@ def overlay_annotated(prior: Path, case_id: str) -> dict:
     return {"annotation_manifest_sha256": sha256(manifest), "replaced_spec_files": sorted(replaced)}
 
 
-def prepare(arm: str, case_id: str, rep: int) -> Path:
+LAYOUTS = {"specula": ".specula-output", "specular": ".specular-output"}
+
+# Final reporting as main's IncrementalPhase.build_prompt words it for a final_result_version-1 run.
+SPECULAR_FINAL = """
+## Specular final result
+
+This run also uses Specular's incremental output contract. Write only
+`/work/current/.specular-output/spec/final-result.json` using the final-result reference in the
+skill. Use run ID `{run_id}`. Run `specular ci-result --work=/work/current/.specular-output`
+before finishing; fix reported errors in that file. This generates the reports, verdict, and
+persistent records. Do not maintain those generated outputs separately. Missing reuse metadata
+only disables automatic reuse; missing core confirmation evidence prevents completion. Persistent
+findings from the prior suite can be inspected with `specular findings --work=/work/current/.specular-output`.
+"""
+
+
+def task_text(case_id: str, layout: str, run_id: str | None) -> str:
+    task = (HERE / "prompts/incremental-task.md").read_text().replace("INCREMENTAL_CASE_ID", case_id)
+    if layout == "specula":
+        return task
+    task = (task.replace(".specula-output", ".specular-output")
+            .replace("incremental Specula task", "incremental Specular task")
+            .replace("/dev/shm/specula-e2e-", "/dev/shm/specular-e2e-"))
+    if "specula" in task.lower().replace("specular", ""):
+        raise RuntimeError("old name left in the Specular task text")
+    return task + SPECULAR_FINAL.format(run_id=run_id)
+
+
+def bind_ci_run(stage: Path, main_tools: Path, run_id: str, synthetic: dict) -> dict:
+    """Mirror main's incremental setup for ci-result/findings; paths are the sandbox's /work paths."""
+    out = "/work/current/.specular-output"
+    ci = stage / "ci-run"
+    ci.mkdir()
+    shutil.copytree(stage / "current/.specular-output/artifact", ci / "ci-source", symlinks=True)
+    write_json(ci / "ci-input.json", {
+        "version": 1,
+        "target": "target",
+        "artifact": f"{out}/artifact",
+        "source": "ci-source",
+        "source_commit": synthetic["update_commit"],
+        "snapshot_commit": synthetic["update_commit"],
+        "dirty": False,
+        "guidance": "",
+        "previous": "prior",
+        "final_result_version": 1,
+        "old_source": "/work/old-source",
+        "old_model": "/work/previous/.specular-output",
+    })
+    code = (
+        "from pathlib import Path\n"
+        "from specular import ci_verdict, persistent_findings\n"
+        f"work = Path('{out}')\n"
+        "ci_verdict.seed_issues(work, Path('/work/old-source'), Path('/work/previous/.specular-output'))\n"
+        f"persistent_findings.configure(work, Path('/work/ci-run/ci-source'), '{run_id}', "
+        "Path('/work/previous/.specular-output'))\n"
+    )
+    from agent import MAIN_TOOLS_MOUNT, bwrap_command  # the agent's own sandbox layout
+    with tempfile.TemporaryDirectory() as home:
+        cmd = bwrap_command(stage, ["old-source", "previous", "ci-run"], ["current"],
+                            [(str(main_tools), MAIN_TOOLS_MOUNT)], Path(home),
+                            ["/usr/bin/env", f"PYTHONPATH={MAIN_TOOLS_MOUNT}/src", "python3", "-c", code],
+                            specular_env=True)
+        subprocess.run(cmd, check=True, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"})
+    work = stage / "current/.specular-output"
+    index = work / "spec/persistent-findings/index.json"
+    return {"run_id": run_id, "ci_input_sha256": sha256(ci / "ci-input.json"),
+            "ci_source_tree_sha256": tree_hash(ci / "ci-source"),
+            "seeded_findings": read_json(index) if index.exists() else None}
+
+
+def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tools: Path | None = None) -> Path:
     logical = WORK / "attempts" / arm / case_id / f"r{rep}"
     if logical.exists():
         raise SystemExit(f"refusing to overwrite {logical}")
@@ -75,6 +160,9 @@ def prepare(arm: str, case_id: str, rep: int) -> Path:
     subject_data = read_json(subject / "subject.json")
     changed = H.normalize_changed_files(subject_data["changed_files"])
     v0 = V0_ROOT / case_id / ".specula-output"
+    out = LAYOUTS[layout]
+    if layout == "specular" and not (main_tools and (main_tools / "specular").is_file()):
+        raise SystemExit("--layout specular needs --main-tools with the specular CLI (build_main_tools.py)")
 
     physical = WORK / "neutral" / secrets.token_hex(16)
     stage = physical.with_name(f".{physical.name}.tmp")
@@ -88,11 +176,11 @@ def prepare(arm: str, case_id: str, rep: int) -> Path:
         annotation = overlay_annotated(prior, case_id) if arm == "v2" else None
         (stage / "previous").mkdir()
         (stage / "current").mkdir()
-        shutil.copytree(prior, stage / "previous/.specula-output", symlinks=True)
-        shutil.copytree(prior, stage / "current/.specula-output", symlinks=True)
+        shutil.copytree(prior, stage / f"previous/{out}", symlinks=True)
+        shutil.copytree(prior, stage / f"current/{out}", symlinks=True)
         prior_hash = tree_hash(prior)
         shutil.rmtree(prior)
-        artifact = stage / "current/.specula-output/artifact"
+        artifact = stage / f"current/{out}/artifact"
         if artifact.exists() or artifact.is_symlink():
             H.remove_path(artifact)
         H.make_tree_owner_writable(stage / "current")
@@ -113,8 +201,8 @@ def prepare(arm: str, case_id: str, rep: int) -> Path:
         for jar in ("tla2tools.jar", "CommunityModules-deps.jar"):
             shutil.copy2(SPECULA / "lib" / jar, stage / "lib" / jar)
         tools_dir(stage / "tools")
-        task = (HERE / "prompts/incremental-task.md").read_text().replace("INCREMENTAL_CASE_ID", case_id)
-        (stage / "task.md").write_text(task)
+        run_id = f"incr-{physical.name[:12]}" if layout == "specular" else None
+        (stage / "task.md").write_text(task_text(case_id, layout, run_id))
         shutil.copy2(HERE / "prompts/final-schema.json", stage / "final-schema.json")
         for name in CACHE_DIRS:
             (stage / ".cache" / name).mkdir(parents=True)
@@ -124,8 +212,8 @@ def prepare(arm: str, case_id: str, rep: int) -> Path:
             "purpose": "blind_source_derived_incremental_verification",
             "inputs": {
                 "old_source": "/work/old-source", "new_source": "/work/new-source",
-                "previous": "/work/previous/.specula-output", "current": "/work/current/.specula-output",
-                "artifact": "/work/current/.specula-output/artifact", "model_scope": "/work/model-scope.md",
+                "previous": f"/work/previous/{out}", "current": f"/work/current/{out}",
+                "artifact": f"/work/current/{out}/artifact", "model_scope": "/work/model-scope.md",
                 "case_metadata": "/work/case.json", "skills": "/work/.agents/skills",
                 "libraries": "/work/lib", "tools": "/work/tools",
             },
@@ -136,7 +224,10 @@ def prepare(arm: str, case_id: str, rep: int) -> Path:
             ],
             "network_policy": "model API and ordinary build dependencies only; history and research commands are prohibited and audited",
         })
+        ci_run = bind_ci_run(stage, main_tools, run_id, synthetic) if layout == "specular" else None
         H.make_tree_read_only(stage / "previous")
+        if ci_run:
+            H.make_tree_read_only(stage / "ci-run")
         for name in ("old-source", "new-source", ".agents", "lib", "tools"):
             H.make_tree_read_only(stage / name)
         stage.rename(physical)
@@ -160,6 +251,10 @@ def prepare(arm: str, case_id: str, rep: int) -> Path:
         "annotation": annotation,
         "task_sha256": sha256(physical / "task.md"),
         "synthetic_artifact": {k: synthetic[k] for k in ("baseline_commit", "update_commit", "commit_count")},
+        "layout": layout,
+        "output_dir": out,
+        "main_tools_at_prepare": str(main_tools) if main_tools else None,
+        "ci_run": ci_run,
         "agent_started": False,
     }
     write_json(logical / "attempt.json", attempt)
@@ -173,6 +268,8 @@ def main() -> int:
     parser.add_argument("--case", action="append", dest="cases")
     parser.add_argument("--all-cases", action="store_true")
     parser.add_argument("--rep", type=int, default=1)
+    parser.add_argument("--layout", choices=sorted(LAYOUTS), default="specula")
+    parser.add_argument("--main-tools", type=Path, help="main-tools build (required for --layout specular)")
     args = parser.parse_args()
     cases = list(CASE_IDS) if args.all_cases else (args.cases or [])
     if not cases:
@@ -183,7 +280,7 @@ def main() -> int:
         check_case(case_id)
     for case_id in cases:
         for arm in args.arms:
-            prepare(arm, case_id, args.rep)
+            prepare(arm, case_id, args.rep, args.layout, args.main_tools)
     return 0
 
 

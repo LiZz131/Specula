@@ -19,6 +19,12 @@ a separate, later step (grading is not done here).
 --main-tools (claude backend) also gives the agent the four MCP servers of a Specula main
 install, from the frozen runtime WORK/main-tools (build_main_tools.py) mounted read-only at
 /opt/specular; attempt.json, run-manifest.json and run.json record its manifest hash and servers.
+--main-tools-dir picks another build (default WORK/main-tools).
+
+A workspace prepared with `prepare.py --layout specular` (Specular v1.5 names, see prepare.py)
+runs in the Specular environment: /opt/specular on PATH (the `specular` CLI), SPECULAR_ROOT,
+and /work/ci-run read-only. It needs --main-tools. The layout is read from attempt.json, and a
+retry re-prepares with the same layout and main-tools build.
 """
 
 from __future__ import annotations
@@ -124,7 +130,8 @@ def run_one(arm: str, case_id: str, rep: int, args) -> dict:
             STOP.set()
             raise StopQueue(f"usage limit without a 5-hour reset time: {(manifest['behavior'].get('error') or {}).get('text')}")
         time.sleep(wait)
-        logical = prepare(arm, case_id, rep)
+        layout = args.layout_of.get((arm, case_id, rep), "specula")  # recorded by run_once (attempt.json is archived)
+        logical = prepare(arm, case_id, rep, layout, args.main_tools_dir if layout == "specular" else None)
         attempt = read_json(logical / "attempt.json")
         attempt["attempt_no"] = attempt_no + 1
         write_json(logical / "attempt.json", attempt)
@@ -140,9 +147,14 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
     if attempt.get("agent_started"):
         raise RuntimeError(f"already started: {logical} (prepare a new rep instead of rerunning)")
     ws = Path(attempt["physical"])
+    layout = attempt.get("layout", "specula")
+    args.layout_of[(arm, case_id, rep)] = layout
+    out_dir = attempt.get("output_dir", ".specula-output")
+    if layout == "specular" and not args.main_tools:
+        raise RuntimeError(f"{logical}: prepared with --layout specular; run with --main-tools")
     main_tools = None
     if args.main_tools:
-        main_tools = WORK / "main-tools"
+        main_tools = args.main_tools_dir
         mt = read_json(main_tools / "manifest.json")
         attempt["main_tools"] = {"root": str(main_tools), "manifest_sha256": sha256(main_tools / "manifest.json"),
                                  "tree_sha256": mt["tree_sha256"], "source_commit": mt["source_commit"],
@@ -150,14 +162,14 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
     attempt["agent_started"] = True
     write_json(attempt_path, attempt)
     manifest = run_agent(
-        backend=args.backend, workspace=ws, ro=RO, rw=RW,
+        backend=args.backend, workspace=ws, ro=RO + (["ci-run"] if layout == "specular" else []), rw=RW,
         prompt=(ws / "task.md").read_text(), log_dir=logical / "log",
         timeout_s=args.timeout, model=args.model, effort=args.effort, budget_usd=args.budget,
         schema="/work/final-schema.json", final_path="/work/current/final-response.json",
         extra_binds=[(str(ws / ".agents/skills"), "/work/.claude/skills")],
         meta={"arm": arm, "case_id": case_id, "rep": rep, "attempt_no": attempt.get("attempt_no", 1),
               "skills_tree_sha256": attempt["skills_tree_sha256"], "prior_tree_sha256": attempt["prior_tree_sha256"]},
-        main_tools=main_tools,
+        main_tools=main_tools, specular_env=layout == "specular",
     )
     if manifest["status"] in ("USAGE_LIMIT", "AUTH_ERROR"):
         return None, manifest
@@ -171,7 +183,7 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
             final_data = json.loads(final.read_text())
         except json.JSONDecodeError:
             final_data = {"parse_error": True}
-    evidence = ws / "current/.specula-output/spec/invariant-evidence.json"
+    evidence = ws / "current" / out_dir / "spec/invariant-evidence.json"
     if evidence.is_file():
         shutil.copy2(evidence, out / "invariant-evidence.json")
     if manifest["status"] != "EXITED_0":
@@ -200,6 +212,7 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
         "truncated": manifest["status"] in ("BUDGET_CAP", "TIMEOUT"),
         "session_log": str(logical / "log" / "activity.jsonl"),
         "graded": None,
+        "layout": layout,
     }
     if "main_tools" in manifest:
         summary["main_tools"] = {k: manifest["main_tools"][k]
@@ -240,8 +253,10 @@ def main() -> int:
     parser.add_argument("--seed", default="1")
     parser.add_argument("--plan", action="store_true")
     parser.add_argument("--main-tools", action="store_true",
-                        help="mount WORK/main-tools at /opt/specular and give the agent main's MCP servers")
+                        help="mount the main-tools build at /opt/specular and give the agent main's MCP servers")
+    parser.add_argument("--main-tools-dir", type=Path, default=WORK / "main-tools")
     args = parser.parse_args()
+    args.layout_of = {}
     args.reps = args.reps or [1]
     for arm in args.arms:
         check_arm(arm)
@@ -250,8 +265,8 @@ def main() -> int:
     if args.main_tools:
         if args.backend != "claude":
             raise SystemExit("--main-tools is wired for the claude backend only")
-        if not (WORK / "main-tools/manifest.json").is_file():
-            raise SystemExit(f"no {WORK / 'main-tools'}: run build_main_tools.py first")
+        if not (args.main_tools_dir / "manifest.json").is_file():
+            raise SystemExit(f"no {args.main_tools_dir}: run build_main_tools.py first")
     jobs = plan(args)
     if not jobs:
         raise SystemExit("nothing to run: give --case or --all-cases")

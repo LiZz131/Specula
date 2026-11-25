@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Freeze the Specula-main MCP tool runtime that `run.py --main-tools` mounts at /opt/specular.
 
-    python3 build_main_tools.py            # -> $INV_E2E_WORK/main-tools (refuses to overwrite)
+    python3 build_main_tools.py [--dest DIR]   # default $INV_E2E_WORK/main-tools (refuses to overwrite)
+
+Builds before 2026-11-25 (epoch-2 round 1, WORK/main-tools) held only the four files of
+src/specular the MCP servers import, and no CLI.
 
 A Specula main install gives agents four MCP servers: tracedebugger, spec_analyzer and
 inv_checking_tool (registered by scripts/infra/setup.sh) and specular_tlc (per run, from
@@ -10,8 +13,11 @@ those servers need, keeping the checkout's layout so their SPECULAR_ROOT lookups
 
   tools/{trace_debugger,spec_analyzer,inv_checking_tool,tlc_tools}   server code + .venv
   tools/cfa/target/<parser jar>      spec_analyzer's run_vav_analysis
-  src/specular/{__init__,context_control,tlc_tasks,tlc_resources}.py  start_tlc/wait_tlc + TLC guard
+  src/specular/                      the whole package: start_tlc/wait_tlc + TLC guard, and the
+                                     `specular` CLI (ci-result, findings, ...) that the skills call
   scripts/tlc/                       run_model_check.sh (the TLC wrapper start_tlc runs)
+  scripts/launch/, specular          the CLI's launch scripts and its repo-root shim; agent.py puts
+                                     /opt/specular on PATH, as `uv tool install` does on main
   lib/{tla2tools,CommunityModules-deps}.jar
 
 Tool tests, examples and source bytecode caches are left out; the venvs are copied as is
@@ -31,7 +37,6 @@ from pathlib import Path
 from common import SPECULA, WORK, blind_helpers, tree_hash, write_json
 
 TOOLS = ("trace_debugger", "spec_analyzer", "inv_checking_tool", "tlc_tools")
-SPECULAR_FILES = ("__init__.py", "context_control.py", "tlc_tasks.py", "tlc_resources.py")
 JARS = ("lib/tla2tools.jar", "lib/CommunityModules-deps.jar",
         "tools/cfa/target/tlaplus-parser-1.0-SNAPSHOT-jar-with-dependencies.jar")
 SKIP_SOURCE = {"tests", "examples", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
@@ -68,14 +73,14 @@ def build(dest: Path) -> dict:
     try:
         for tool in TOOLS:
             shutil.copytree(SPECULA / "tools" / tool, stage / "tools" / tool, symlinks=True, ignore=_ignore_source)
-        (stage / "src/specular").mkdir(parents=True)
-        for name in SPECULAR_FILES:
-            shutil.copy2(SPECULA / "src/specular" / name, stage / "src/specular" / name)
+        shutil.copytree(SPECULA / "src/specular", stage / "src/specular", ignore=_ignore_source)
         shutil.copytree(SPECULA / "scripts/tlc", stage / "scripts/tlc", ignore=_ignore_source)
+        shutil.copytree(SPECULA / "scripts/launch", stage / "scripts/launch", ignore=_ignore_source)
+        shutil.copy2(SPECULA / "specular", stage / "specular")
         for rel in JARS:
             (stage / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(SPECULA / rel, stage / rel)
-        paths = [f"tools/{t}" for t in TOOLS] + [f"src/specular/{f}" for f in SPECULAR_FILES] + ["scripts/tlc"]
+        paths = [f"tools/{t}" for t in TOOLS] + ["src/specular", "scripts/tlc", "scripts/launch", "specular"]
         files = [p for p in stage.rglob("*") if p.is_file() and not p.is_symlink()]
         manifest = {
             "schema_version": 1,
@@ -86,6 +91,7 @@ def build(dest: Path) -> dict:
             # Tracked files under the copied paths that differ from the commit (should be empty).
             "source_dirty_paths": git("status", "--porcelain", "--", *paths).splitlines(),
             "untracked_inputs": list(JARS) + [f"tools/{t}/.venv" for t in TOOLS],
+            "cli": "specular",
             "servers": {name: {"command": f"tools/{d}/.venv/bin/python", "args": [f"tools/{d}/{s}"]}
                         for name, (d, s) in SERVERS.items()},
             "excluded": sorted(SKIP_SOURCE | {"*.pyc outside .venv", "tools/context_control (runner-internal)"}),

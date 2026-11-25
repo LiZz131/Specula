@@ -131,7 +131,10 @@ def _home(backend: str) -> Path:
 
 
 def bwrap_command(workspace: Path, ro: list[str], rw: list[str], extra_binds: list[tuple[str, str]],
-                  home: Path, agent_argv: list[str]) -> list[str]:
+                  home: Path, agent_argv: list[str], specular_env: bool = False) -> list[str]:
+    """specular_env: the environment of a Specular (main, v1.5+) install, as phaselib gives its agents:
+    SPECULAR_ROOT is the install root (/opt/specular) and the `specular` CLI is on PATH. Without it,
+    the epoch-1 environment (SPECULA_ROOT=/work, no CLI) is kept for reproducibility."""
     cmd = [
         "bwrap", "--die-with-parent", "--unshare-all", "--share-net", "--new-session", "--clearenv",
         "--proc", "/proc", "--dev", "/dev",
@@ -164,12 +167,16 @@ def bwrap_command(workspace: Path, ro: list[str], rw: list[str], extra_binds: li
         "MAVEN_OPTS": "-Dmaven.repo.local=/work/.cache/m2",
         "REBAR_CACHE_DIR": "/work/.cache/rebar3",
         "TMPDIR": "/work/.cache/tmp",
-        "SPECULA_ROOT": "/work",
         "LANG": "C.UTF-8",
         "USER": "agent",
         "SHELL": "/bin/bash",
         "TERM": "dumb",
     }
+    if specular_env:
+        env["PATH"] = f"{MAIN_TOOLS_MOUNT}:{SANDBOX_PATH}"
+        env["SPECULAR_ROOT"] = MAIN_TOOLS_MOUNT
+    else:
+        env["SPECULA_ROOT"] = "/work"
     for key, value in env.items():
         cmd += ["--setenv", key, value]
     cmd += ["--chdir", "/work", *agent_argv]
@@ -423,7 +430,7 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
               budget_usd: float | None = None, schema: str | None = None,
               final_path: str = "/work/current/final-response.json",
               extra_binds: list[tuple[str, str]] | None = None, meta: dict[str, Any] | None = None,
-              main_tools: Path | None = None) -> dict[str, Any]:
+              main_tools: Path | None = None, specular_env: bool = False) -> dict[str, Any]:
     """Run one session; write log_dir/{activity.jsonl, stderr.log, run-manifest.json}; return the manifest."""
     model = model or DEFAULTS[backend]["model"]
     effort = effort or DEFAULTS[backend]["effort"]
@@ -456,12 +463,15 @@ def run_agent(*, backend: str, workspace: Path, ro: list[str], rw: list[str], pr
     }
     if tools_record:
         manifest["main_tools"] = tools_record
+    manifest["environment"] = "specular" if specular_env else "specula-epoch1"
     write_json(manifest_path, manifest)
     activity = log_dir / "activity.jsonl"
     stderr = log_dir / "stderr.log"
     home = _home(backend)
     try:
-        cmd = bwrap_command(workspace, ro, rw, binds + (extra_binds or []), home, argv)
+        if specular_env and not main_tools:
+            raise ValueError("the Specular environment needs main tools (the CLI lives there)")
+        cmd = bwrap_command(workspace, ro, rw, binds + (extra_binds or []), home, argv, specular_env)
         (log_dir / "command.json").write_text(json.dumps(cmd, indent=1))
         t0 = time.monotonic()
         with activity.open("wb") as out, stderr.open("wb") as err:

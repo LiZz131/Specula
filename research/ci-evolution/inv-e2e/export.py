@@ -232,7 +232,9 @@ def timeline(activity: Path) -> str:
 
 def export_run(arm: str, case: str, rep: str) -> dict | None:
     att = WORK / "attempts" / arm / case / f"r{rep}"
-    src = att / "ws" / "current" / ".specula-output"
+    out_dir = read_json(att / "attempt.json").get("output_dir", ".specula-output") \
+        if (att / "attempt.json").is_file() else ".specula-output"
+    src = att / "ws" / "current" / out_dir
     res = RESULTS / arm / case / f"r{rep}"
     if not src.is_dir() or not (res / "run.json").is_file():
         return None
@@ -298,7 +300,8 @@ def export_inputs(case: str) -> None:
                 seen[name] = h
             elif seen[name] != h:
                 shutil.copy2(f, dest / f"{Path(name).stem}.{arm}{Path(name).suffix}")
-        prev = ws / "previous" / ".specula-output"
+        prev = next((ws / "previous" / d for d in (".specula-output", ".specular-output")
+                     if (ws / "previous" / d).is_dir()), ws / "previous" / ".specula-output")
         if prev.is_dir():
             (dest / f"previous.{arm}.sha256").write_text(tree_hash(prev) + "\n")
     v0 = V0_ROOT / case / ".specula-output"

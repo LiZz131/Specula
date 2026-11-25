@@ -123,7 +123,7 @@ Every omission is listed in the run's `export.json` and its file is in the archi
 one set of limits. Epoch 1 is the 21 runs below (base `5880061f`, model `claude-opus-5-5`, effort `xhigh`,
 4 h, $100). A new base commit or overlay change starts a new epoch with its own v0 runs.
 
-Epoch 2 changes the base commit and gives the agent main's MCP tools (`--main-tools`, see Controls), since the main skills tell the agent to use them. It runs case-002 and case-011, three arms, two reps (round 1 for all six cells, then round 2), with the same task text, overlays, priors (v2 reuses the epoch-1 frozen annotations), model and limits. Its work directory is `/mydata/bingzhuo/inv-e2e-epoch2` and its results go to `results-epoch2/` (`INV_E2E_WORK`, `INV_E2E_RESULTS`); `epoch2-round.sh` is the driver; it passes `--main-tools` and needs `build_main_tools.py` to have been run once.
+Epoch 2 changes the base commit and gives the agent main's MCP tools (`--main-tools`, see Controls), since the main skills tell the agent to use them. It runs case-002 and case-011, three arms, two reps (round 1 for all six cells, then round 2), with the same task text, overlays, priors (v2 reuses the epoch-1 frozen annotations), model and limits. Its work directory is `/mydata/bingzhuo/inv-e2e-epoch2` and its results go to `results-epoch2/` (`INV_E2E_WORK`, `INV_E2E_RESULTS`); `epoch2-round.sh` is the driver; it passes `--main-tools` and needs `build_main_tools.py` to have been run once. Round 1 ran with epoch-1 names and without the `specular` CLI; `epoch2-round.sh REP specular` runs a round in the Specular v1.5 layout (see Known gaps) with the `main-tools-cli` build, which is a different basis from round 1.
 
 | Epoch | Base skill commit | v0 tree | v1 tree | v2 tree | Model, effort |
 |---|---|---|---|---|---|
@@ -182,7 +182,7 @@ All three arms ended with workflow status `COMPLETED_WITH_LIMITED_COVERAGE`.
 ## Known gaps
 
 - The base skill commit of the original blind runs is not confirmed; `build_skills.py` defaults to `HEAD`. Here the shared skills come from the same base commit as `incremental-modeling`.
-- The incremental skill mentions `specula ci-result` and context compaction. Neither is available in the blind task, which uses `final-schema.json` instead, as the original blind runs did.
+- The incremental skill mentions `specula ci-result` and context compaction. Neither is available in the blind task of epoch 1 and epoch-2 round 1, which use `final-schema.json` instead, as the original blind runs did. Workspaces prepared with `prepare.py --layout specular` (after the Specula → Specular rename, main v1.5) have the `specular` CLI: `.specular-output`, `SPECULAR_ROOT=/opt/specular`, `/work/ci-run/{ci-source,ci-input.json}` and a bound persistent-findings context as main's incremental runner sets them up, and the task adds main's final-result paragraph (`spec/final-result.json`, `specular ci-result`) next to `final-schema.json`. Context compaction and controller-run confirmation (`tools/context_control`) remain out of scope: the agent confirms findings itself.
 - **Cost of killed runs.** The claude backend reports USD only in its final result event, which a timed-out or budget-killed run never emits. `run.json` then has `cost_usd: null` and `behavior.streamed_usage`. Input and cache tokens there are exact; output tokens are a lower bound.
 - The scorer of property-evolution behavior is not blind to the arm.
 
