@@ -10,6 +10,9 @@ from ..utils.logger import logger
 from .base import BaseHandler
 
 
+RESULTS_MARKER = "=== Variable Assignment Validation Results ==="
+
+
 class VAVHandler(BaseHandler):
     """Handler for run_vav_analysis tool.
 
@@ -96,6 +99,16 @@ class VAVHandler(BaseHandler):
             output = result.stdout + result.stderr
             logger.info(f"VAV output:\n{output}")
 
+            # The CLI exits 1 when SANY or CFG building fails, before any validation runs.
+            # Without this check the empty issue list read as "no issues found".
+            if result.returncode != 0 or RESULTS_MARKER not in output:
+                errors = [line for line in output.splitlines() if line.startswith("ERROR")]
+                raise ExecutionError(
+                    "VAV analysis did not run: " + (errors[-1] if errors else f"exit code {result.returncode}, "
+                                                    "no validation results in the output"),
+                    details={"spec_file": spec_file, "exit_code": result.returncode, "raw_output": output[-4000:]},
+                )
+
             # Parse the output to extract issues
             issues = self._parse_vav_output(output)
 
@@ -107,6 +120,8 @@ class VAVHandler(BaseHandler):
                 "spec_file": spec_file,
             }
 
+        except ExecutionError:
+            raise
         except subprocess.TimeoutExpired as e:
             raise ExecutionError(
                 f"VAV analysis timed out after {timeout} seconds", details={"spec_file": spec_file, "timeout": timeout}
