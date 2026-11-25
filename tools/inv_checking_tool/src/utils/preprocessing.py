@@ -21,11 +21,13 @@ ERROR_BEHAVIOR_MARKERS = (ERROR_BEHAVIOR_MARKER, LIVENESS_BEHAVIOR_MARKER)
 
 # TLC prints violations with an "Error: " prefix in raw output and without it in tool mode.
 # Each entry is (violation_type, pattern); group 1, when present, is the violated name.
-# TLC does not say which temporal property failed when a liveness check fails.
+# TLC 2026.x names the temporal property that failed a liveness check ("Temporal property X
+# was violated."); older TLC printed "Temporal properties were violated." without a name.
 VIOLATION_PATTERNS = (
     ("invariant", re.compile(r"(?:Error:\s*)?Invariant\s+(\S+)\s+is violated")),
     ("action_property", re.compile(r"(?:Error:\s*)?Action property\s+(\S+)\s+is violated")),
     ("temporal_property", re.compile(r"^(?:Error:\s*)?Property\s+(\S+)\s+is violated by the initial state", re.M)),
+    ("temporal_property", re.compile(r"^(?:Error:\s*)?Temporal property\s+(\S+)\s+was violated\.", re.M)),
     ("temporal_property", re.compile(r"^(?:Error:\s*)?Temporal properties were violated\.", re.M)),
     ("deadlock", re.compile(r"^(?:Error:\s*)?Deadlock reached\.", re.M)),
 )
@@ -60,13 +62,18 @@ def extract_violation_info(content: str) -> tuple[str | None, str | None]:
         A tuple of (violation_type, violation_name). violation_type is one of
         "invariant", "action_property", "temporal_property", or "deadlock".
         violation_name is None when TLC does not report a name, which is the
-        case for deadlocks and for liveness violations found after the initial state.
+        case for deadlocks and for liveness violations reported by older TLC.
+        A liveness counterexample whose message is not recognized is still
+        reported as ("temporal_property", None).
     """
     for violation_type, pattern in VIOLATION_PATTERNS:
         match = pattern.search(content)
         if match:
             name = match.group(1) if pattern.groups else None
             return (violation_type, name)
+
+    if LIVENESS_BEHAVIOR_MARKER in content:
+        return ("temporal_property", None)
 
     return (None, None)
 

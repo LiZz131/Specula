@@ -620,3 +620,37 @@ if __name__ == "__main__":
     except Exception:
         success = run_tests()
         sys.exit(0 if success else 1)
+
+
+class TestLivenessCounterexamplesTLC2026:
+    """The same counterexamples from the bundled TLC 2026.11 (lib/tla2tools.jar), which names the property."""
+
+    @pytest.mark.parametrize("mode", ["json", "text"])
+    def test_back_to_state(self, mode):
+        reader = TLCOutputReader(str(LIVENESS_DATA_DIR / "back_to_state_tlc2026.out"), mode=mode)
+        summary = reader.get_summary()
+        assert summary.violation_type == "temporal_property"
+        assert summary.violation_name == "EventuallyDone"
+        assert summary.lasso["kind"] == "back_to_state"
+
+    @pytest.mark.parametrize("mode", ["json", "text"])
+    def test_stuttering(self, mode):
+        reader = TLCOutputReader(str(LIVENESS_DATA_DIR / "stuttering_tlc2026.out"), mode=mode)
+        summary = reader.get_summary()
+        assert summary.violation_type == "temporal_property"
+        assert summary.violation_name == "ZeroLeadsToOne"
+        assert summary.lasso["kind"] == "stuttering"
+
+    @pytest.mark.parametrize("name,prop,kind", [("back_to_state", "EventuallyDone", "back_to_state"),
+                                                ("stuttering", "ZeroLeadsToOne", "stuttering")])
+    def test_tool_mode(self, name, prop, kind):
+        reader = TLCOutputReader(str(LIVENESS_DATA_DIR / f"{name}_tlc2026_tool.out"))
+        summary = reader.get_summary()
+        assert summary.violation_type == "temporal_property"
+        assert summary.violation_name == prop
+        assert summary.lasso["kind"] == kind
+
+    def test_unrecognized_message_with_liveness_counterexample(self):
+        """A lasso counterexample without a recognized message is still a temporal-property violation."""
+        content = "Error: Some future wording.\nThe following behavior constitutes a counter-example:\n"
+        assert extract_violation_info(content) == ("temporal_property", None)
