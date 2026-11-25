@@ -1,0 +1,63 @@
+COMMAND: cd /work/current/.specula-output/spec/evidence/E_trace && SPECULA_TRACE=/work/current/.specula-output/traces/stale_prevote_after_win.ndjson java -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 1 -metadir /dev/shm/specula-e2e-case-011/ev-TraceEvidenceAct-stale_prevote_after_win -noGenerateSpecTE -config TraceEvidenceAct.cfg TraceEvidence
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Warning: Please run the Java VM, which executes TLC with a throughput optimized garbage collector, by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 85 and seed 7586345170323230690 with 1 worker on 40 cores with 30688MB heap and 64MB offheap memory [pid: 38617] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/evidence/E_trace/TraceEvidence.tla
+Parsing file /work/current/.specula-output/spec/evidence/E_trace/Trace.tla
+Parsing file /work/current/.specula-output/spec/evidence/E_trace/base.tla
+Parsing file /tmp/tlc-6837952361722585591/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /tmp/tlc-6837952361722585591/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /tmp/tlc-6837952361722585591/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-6837952361722585591/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-6837952361722585591/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-6837952361722585591/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-6837952361722585591/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module IOUtils
+Semantic processing of module Trace
+Semantic processing of module TraceEvidence
+Linting of module base
+Linting of module Json
+Linting of module IOUtils
+Linting of module Trace
+Linting of module TraceEvidence
+Starting... (2026-11-24 23:09:33)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-24 23:09:34.
+Error: Action property PreVoteRoundNotOutlivedByOwnLeadershipT is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <TraceStep line 240, col 5 to line 254, col 27 of module Trace>
+
+State 3: <SilentPersistVote line 265, col 5 to line 269, col 23 of module Trace>
+
+State 4: <SilentSendVote line 272, col 5 to line 277, col 23 of module Trace>
+
+State 5: <SilentSendVote line 272, col 5 to line 277, col 23 of module Trace>
+
+State 6: <SilentSendVote line 272, col 5 to line 277, col 23 of module Trace>
+
+State 7: <TraceStep line 240, col 5 to line 254, col 27 of module Trace>
+
+State 8: <TraceStep line 240, col 5 to line 254, col 27 of module Trace>
+
+State 9: <TraceStep line 240, col 5 to line 254, col 27 of module Trace>
+
+State 10: <SilentPersistVote line 265, col 5 to line 269, col 23 of module Trace>
+
+State 11: <SilentFlushLog line 280, col 5 to line 284, col 23 of module Trace>
+
+State 12: <TraceStep line 240, col 5 to line 254, col 27 of module Trace>
+
+16 states generated, 14 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 12.
+Finished in 03s at (2026-11-24 23:09:35)

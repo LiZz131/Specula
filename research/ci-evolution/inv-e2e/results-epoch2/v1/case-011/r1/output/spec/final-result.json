@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "run_id": "case-011",
+  "summary": "Pre-Vote update modeled (MODEL_CHANGE_REQUIRED); traces validated; two update-introduced model-checking findings; confirmation (Part 4) not executed in this run.",
+  "validation_limits": [
+    "Bounded three-node model; no full-model BFS exhausted its queue within the 30-minute budgets.",
+    "The livelock witness was found under a pruning-only search monitor; liveness is checked as a safety witness plus exhaustive closure from the witness, without fairness assumptions.",
+    "Multi-node schedules were not replayed on the real runtime; the per-node mechanisms were observed on the real Engine (spec/output/observations.log)."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote can leave a live majority permanently leaderless",
+      "status": "DEFERRED",
+      "source": "model-checking",
+      "cause": "Pre-Vote never transfers vote information: handle_pre_vote_resp ignores a rejecting responder's higher vote and handle_pre_vote_req rejects Pre-Votes below the local vote, so a lower-term voter with the longest log and higher-term voters with shorter logs reject each other forever.",
+      "trigger": "Three voters with Pre-Vote on: node 3 wins a Pre-Vote quorum and starts a term-2 election that node 2 refuses after receiving the leader's last entry; the leader then crashes.",
+      "consequence": "The two live voters never elect a leader until the crashed node returns or an operator forces a real election.",
+      "severity": "High",
+      "evidence": ["spec/bug-report.md", "spec/output/mc-hunt-livelock-phased-bfs.log", "spec/witness/livelock/closure_on.log", "spec/witness/livelock/control_off.log", "spec/output/observations.log"]
+    },
+    {
+      "id": "MC-2",
+      "title": "A stale Pre-Vote round demotes a newly established leader",
+      "status": "DEFERRED",
+      "source": "model-checking",
+      "cause": "establish_leader/become_leader keep Engine.pre_candidate and handle_pre_vote_resp does not check the node's role, so a Pre-Vote round started while the node was still a Candidate later calls elect() on the Leader.",
+      "trigger": "A Candidate's election tick runs pre_elect while its real election is open; the real election succeeds; a granted Pre-Vote response then arrives.",
+      "consequence": "The new leader steps down to Candidate and bumps the term without any failure.",
+      "severity": "Medium",
+      "evidence": ["spec/bug-report.md", "spec/output/mc-hunt-leader-demote-bfs.log", "spec/output/mc-Update_full.log", "traces/candidate_prevote_then_establish.ndjson", "spec/output/observations.log"]
+    }
+  ]
+}

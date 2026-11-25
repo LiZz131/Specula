@@ -1,0 +1,119 @@
+{
+ "schema_version": 1,
+ "case_id": "case-002",
+ "run": "incremental (Generation, Validation, Model Checking)",
+ "source": {
+  "artifact": "artifact/",
+  "baseline_commit": "1414ebfb1d16fd81abc38550a96950d919ecf805",
+  "update_commit": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "old_snapshot_sha256": "6a8a5f131f4f4fb4f1540826552965156b7dbab47e1e6ef86f3ec4e04fa93359",
+  "new_snapshot_sha256": "3f4f644becaf1c353180d89ededf9b575941dec5acb810a52c760665c2394768",
+  "history_or_external_behavioral_research_used": false
+ },
+ "inputs": {
+  "model_scope_md_sha256": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+  "case_json_sha256": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+  "input_manifest_json_sha256": "a17fd8d3fbbc607b034d160a262100a1c062fba83c816fedc24deafd891417da",
+  "final_schema_json_sha256": "e0c88cbc950a439a459c83bd17a5824963b690345d1f0672d892398756ba6a01",
+  "tla2tools_jar_sha256": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+  "community_modules_jar_sha256": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99",
+  "prior_suite": "/work/previous/.specula-output (unchanged)"
+ },
+ "decision": "MODEL_CHANGE_REQUIRED (reported as MODEL_UPDATED)",
+ "spec_final_artifacts": {
+  "base.tla": "fcae1b3234bf96c69f3fa4138444a4b5b03218a8b7defbc155decf4152536549",
+  "MC.tla": "193344e541d3bbd33a938c24963b7bf814c999899a79623edb9e8c6345052dbd",
+  "Update.tla": "4b115d74eecdc33cb8a0d747c62fa950b8670dc0e523fa8311042fef2c8a9825",
+  "Trace.tla": "3b5c27573a3786a205bd60a52aac5e826fdd0e6367ca946f7cc6fda0ee51e6fe",
+  "Trace.cfg": "e0063da47856058254e213f5316bf22298548a435d9844a90ac1f31098ba8ecc",
+  "MC.cfg": "7b674bd47de76f2dd8fc2a062f499eadcdff217a74bc0304f853a6589044fc41",
+  "TraceUpdateCheck.tla": "d76e19951956a0e2818a0adcd4a9d96a61c73fc4932215955d7df30f0acbf157"
+ },
+ "instrumentation": {
+  "patch": "harness/patches/instrumentation.patch",
+  "patch_sha256": "4f2393e9943d0683b32cc262f0001962f5e009d085f086d0db38ddfb0bd11659",
+  "applies_to": "git archive of artifact HEAD (harness/build/work-source)",
+  "command": "timeout 3600s bash harness/run.sh"
+ },
+ "traces": [
+  {
+   "path": "traces/follower-snap.ndjson",
+   "records": 27,
+   "sha256": "648635000a8ce4e805038a576b1d35ab5570cf0b34b3ad64a475f2e27463a494",
+   "formal_trace_validation": "passed",
+   "validation_log": "spec/output/trace-final2-follower-snap.log",
+   "role": "prior regression scenario"
+  },
+  {
+   "path": "traces/follower-diff.ndjson",
+   "records": 27,
+   "sha256": "e80b41e0375ac5b29cdb61fc26e7940fcc28b6de6b876dcb2153077fb335b37a",
+   "formal_trace_validation": "passed",
+   "validation_log": "spec/output/trace-final2-follower-diff.log",
+   "role": "prior regression scenario"
+  },
+  {
+   "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+   "records": 89,
+   "sha256": "cd3e38e8f51deed99409396f5077471bbe04d48e9eea0cbdd1165f5d6b9c0100",
+   "formal_trace_validation": "passed",
+   "validation_log": "spec/output/trace-final2-quorum-startup-mutation-shutdown.log",
+   "role": "prior regression scenario"
+  },
+  {
+   "path": "traces/leader-abandon-restart-recovery.ndjson",
+   "records": 349,
+   "sha256": "d0f1e532a855ca05449bb1d5914b706cbf0ea53b673747b946639f0790792a21",
+   "formal_trace_validation": "passed",
+   "validation_log": "spec/output/trace-final2-leader-abandon-restart-recovery.log",
+   "role": "prior regression scenario"
+  },
+  {
+   "path": "traces/diff-sync-uptodate-failure.ndjson",
+   "records": 185,
+   "sha256": "eb30d35ee5523e6a5988fd9d6e1edb24a08dcc7514f7ef23fe7b016f22d77794",
+   "formal_trace_validation": "passed",
+   "validation_log": "spec/output/trace-final2-diff-sync-uptodate-failure.log",
+   "role": "update-focused"
+  },
+  {
+   "path": "traces/repro-stale-tree-reelection-1.ndjson",
+   "records": 235,
+   "sha256": "a19aaf662ab4013a2e15f51b44bd6df5552e27a947d702aa5c9ac950951c6bc2",
+   "formal_trace_validation": "passed",
+   "validation_log": "spec/output/trace-final2-repro-stale-tree-reelection-1.log",
+   "role": "supplementary (MC-2 reproduction)"
+  }
+ ],
+ "archived_traces": {
+  "traces/archived-v0/*": "superseded (old schema/behaviour)",
+  "traces/superseded-attempt{2,3,4}/*": "earlier harness revisions",
+  "traces/supplementary/*": "fault-injected MC-1 reproduction (raw evidence)"
+ },
+ "commands": {
+  "trace_validation": "spec/run-trace.sh <trace> <tag>",
+  "model_checking": "spec/run-tlc.sh <Module.tla> <cfg> <tag> <bfs|sim> <minutes> [workers] [depth]",
+  "reproduction": "timeout 3000s bash harness/repro/run-repro.sh <new|old> <id> <TestClass>",
+  "tlc_state_dir": "/dev/shm/specula-e2e-case-002 (removed after every run)"
+ },
+ "verification": {
+  "trace_first": true,
+  "final_trace_regression": "spec/output/trace-final2-summary.txt (6/6 passed)",
+  "trace_nonvacuity": "spec/output/trace-nonvacuity-summary.txt (3 mutants rejected)",
+  "update_properties_on_real_traces": "spec/output/trace-update-props-summary.txt",
+  "model_checking_summary": "spec/output/campaign-summary.md",
+  "status": "completed_with_limited_coverage",
+  "findings": [
+   "MC-1",
+   "MC-2",
+   "MC-3",
+   "CR-1"
+  ]
+ },
+ "environment": {
+  "java": "OpenJDK 21.0.13",
+  "maven": "3.6.3 (dependencies from Maven Central into /work/.cache/m2)",
+  "cpus": 40,
+  "limitation": "Only JDK 21 available; specular CLI not installed (ci-result not run)"
+ }
+}

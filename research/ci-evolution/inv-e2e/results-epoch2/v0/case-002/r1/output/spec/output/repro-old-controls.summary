@@ -1,0 +1,9 @@
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 15.381 s <<< FAILURE! - in org.apache.zookeeper.server.quorum.AckBeforeFsyncReproTest
+[INFO] BUILD FAILURE
+REPRO: old leader 2 served /zk2 while follower log appends were stalled: true
+REPRO RESULT: servedWhileStalled=true new leader 1 (epoch 3) sees /zk2: false
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.059 s <<< FAILURE! - in org.apache.zookeeper.server.quorum.TruncAbsentZxidReproTest
+[INFO] BUILD FAILURE
+REPRO: learner FOLLOWERINFO zxid=0x100000000
+REPRO: learner ACKEPOCH lastLoggedZxid=0x100000001
+REPRO RESULT: after TRUNC 0 log tail=0x100000001 tree lastProcessed=0x0 /orphan in tree=true

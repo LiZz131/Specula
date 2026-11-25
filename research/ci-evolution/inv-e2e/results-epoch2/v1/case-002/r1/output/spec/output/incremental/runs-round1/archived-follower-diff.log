@@ -1,0 +1,60 @@
+COMMAND: cd /work/current/.specula-output/spec && JSON=../traces/archived-v0/follower-diff.ndjson timeout 300s java -Djava.io.tmpdir=/dev/shm/specula-e2e-case-002/archived-follower-diff -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -noGenerateSpecTE -workers 1 -metadir /dev/shm/specula-e2e-case-002/archived-follower-diff -config Trace.cfg Trace.tla
+STARTED: 2026-11-25T13:30:51Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 71 and seed 2928252845720502600 with 1 worker on 40 cores with 7282MB heap and 64MB offheap memory [pid: 6377] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Trace.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/IOUtils.tla (jar:file:/work/lib/CommunityModules-deps.jar!/IOUtils.tla)
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /dev/shm/specula-e2e-case-002/archived-follower-diff/tlc-11096690724583630728/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module Json
+Semantic processing of module IOUtils
+Semantic processing of module Trace
+Linting of module base
+Linting of module Json
+Linting of module IOUtils
+Linting of module Trace
+Starting... (2026-11-25 13:30:52)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 13:30:52.
+Progress(9) at 2026-11-25 13:30:52: 9 states generated, 9 distinct states found, 0 states left on queue.
+Checking temporal properties for the complete state space with 9 total distinct states at (2026-11-25 13:30:52)
+Error: Temporal property TraceMatched was violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+
+State 2: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 3: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 4: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 5: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 6: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 7: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 8: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 9: <TraceNext line 523, col 5 to line 525, col 29 of module Trace>
+
+State 10: Stuttering
+Finished checking temporal properties in 00s at 2026-11-25 13:30:52
+9 states generated, 9 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 00s at (2026-11-25 13:30:52)
+EXIT: 13 FINISHED: 2026-11-25T13:30:52Z

@@ -1,0 +1,78 @@
+{
+ "defects": [
+  {
+   "id": "D-1",
+   "location": [
+    "openraft/src/engine/engine_impl.rs:855-881",
+    "openraft/src/engine/engine_impl.rs:534-540",
+    "openraft/src/engine/handler/vote_handler/mod.rs:173-229"
+   ],
+   "trigger": "Candidate's tick starts a Pre-Vote round; a late real vote quorum makes it Leader; Pre-Vote grants for that round then arrive",
+   "wrong_behavior": "handle_pre_vote_resp calls elect() on the established Leader: it abandons its term, bumps to term+1 and becomes Candidate while followers hold its lease",
+   "evidence": "analysis-report.md \u00a7U.4; establish_leader/become_leader never clear pre_candidate",
+   "category": "protocol",
+   "verification": "MC",
+   "scenario": "U2",
+   "known": null,
+   "status": "confirmed as MC-1 (model checking + validated trace + real-runtime reproduction)"
+  },
+  {
+   "id": "D-2",
+   "location": [
+    "openraft/src/engine/engine_impl.rs:534-540",
+    "openraft/src/core/raft_core.rs:1683-1696"
+   ],
+   "trigger": "node holding a Pre-Vote round (leader path) is removed from voters before the quorum arrives",
+   "wrong_behavior": "elect() runs for a non-voter; the voter check is done only when the round starts",
+   "evidence": "analysis-report.md \u00a7U.4",
+   "category": "protocol",
+   "verification": "MC",
+   "scenario": "U3",
+   "known": null,
+   "status": "PreVoteElectionByVoter violated in MC (spec/output/D-2_*.out); requirement unknown -> unresolved (NEEDS MORE INFO)"
+  },
+  {
+   "id": "D-3",
+   "location": [
+    "openraft/src/docs/protocol/pre_vote.md:57-63"
+   ],
+   "trigger": "reader relies on the Backward compatibility section",
+   "wrong_behavior": "doc claims the default pre_vote returns Unreachable and Unreachable counts as a grant; code synthesizes a grant and never counts transport errors",
+   "evidence": "network/v2/network.rs:141-161; core/raft_core.rs:1459-1471; tests/tests/elect/t12_pre_vote.rs:231-272",
+   "category": "low-level",
+   "verification": "CR",
+   "scenario": null,
+   "known": null
+  },
+  {
+   "id": "D-4",
+   "location": [
+    "openraft/src/core/raft_core.rs:2067-2090",
+    "openraft/src/proposer/candidate.rs:106-112"
+   ],
+   "trigger": "two Pre-Vote rounds at an unchanged term (e.g. back-to-back trigger().elect(true)); responses of the first arrive during the second",
+   "wrong_behavior": "earlier-round grants are counted; a grant from a node not tracked by the later round's frozen membership hits expect(\"target not in quorum set\")",
+   "evidence": "leader-id-only filter; RPC ttl bounds response delay only relative to tick restarts",
+   "category": "protocol",
+   "verification": "MC",
+   "scenario": "U2b",
+   "known": null,
+   "status": "confirmed as MC-2 (model checking + real-runtime reproduction: panic at proposer/candidate.rs:107)"
+  },
+  {
+   "id": "CR-PRE-1",
+   "location": [
+    "openraft/src/core/raft_core.rs:1683-1696",
+    "openraft/src/engine/engine_impl.rs:976-981"
+   ],
+   "trigger": "operator raft.trigger().elect() / elect(false) on the current Leader",
+   "wrong_behavior": "elect() keeps the Leader object while the vote becomes (term+1, self, uncommitted); try_leader_handler's debug_assert fails and RaftCore panics (debug builds)",
+   "evidence": "spec/output/control-elect-on-leader-old.log, spec/output/control-elect-on-leader-new.log; developer TODO at raft_core.rs:1685 (old 1618)",
+   "category": "protocol",
+   "verification": "CR",
+   "scenario": null,
+   "known": "developer TODO 'reject if it is already a leader?' (no fix in either revision)",
+   "attribution": "pre-existing in both revisions; not introduced by the update"
+  }
+ ]
+}

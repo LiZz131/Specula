@@ -1,0 +1,8 @@
+org.opentest4j.AssertionFailedError: Data inconsistency: /zk2 was served by the old leader after its NEWLEADER quorum but the in-process re-elected leader 1 does not have it ==> expected: not <null>
+[ERROR]   StaleTreeReelectionReproTest.inProcessReelectionAfterUptodateFailure:177 Data inconsistency: /zk2 was served by the old leader after its NEWLEADER quorum but the in-process re-elected leader 1 does not have it ==> expected: not <null>
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
+REPRO: /zk2 visible at old leader 2 (epoch 2)
+REPRO: follower 0 lastLoggedZxid=0x100000001 (DataTree) after old-leader stop
+REPRO: follower 1 lastLoggedZxid=0x300000000 (DataTree) after old-leader stop
+REPRO RESULT: new leader 1 (epoch 4, lastLoggedZxid=0x400000001) sees /zk2: false

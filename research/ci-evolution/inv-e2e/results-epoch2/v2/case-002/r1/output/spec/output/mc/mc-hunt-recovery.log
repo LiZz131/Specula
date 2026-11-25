@@ -1,0 +1,37 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 1200s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC-hunt-recovery.cfg -metadir /dev/shm/specula-e2e-case-002/mc-mc-hunt-recovery-12652 -workers 2 -cleanup -noGenerateSpecTE MC.tla
+STARTED: 2026-11-25T05:53:02Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 27 and seed -8794450949398665143 with 2 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 12658] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-1245143186284510745/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1245143186284510745/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1245143186284510745/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1245143186284510745/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1245143186284510745/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Linting of module base
+Linting of module MC
+Starting... (2026-11-25 05:53:04)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 05:53:05.
+Error: Invariant NotRecoveryReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 3: <MCCrash(s1) line 68, col 5 to line 71, col 20 of module MC>
+
+State 4: <MCRestart(s1) line 72, col 17 to line 72, col 72 of module MC>
+
+91 states generated, 48 distinct states found, 33 states left on queue.
+The depth of the complete state graph search is 4.
+Finished in 02s at (2026-11-25 05:53:05)
+FINISHED: 2026-11-25T05:53:05Z exit=12

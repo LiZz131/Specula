@@ -1,0 +1,27 @@
+{
+ "decision": "MODEL_UPDATED",
+ "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "summary": "Pre-Vote update (engine pre_elect / handle_pre_vote_req / handle_pre_vote_resp, pre_candidate state, SendPreVote, tick/trigger paths, default pre_vote RPC) changes modeled behavior: reference base/MC/Trace updated, Update.tla with affected/interaction actions, EnvUpdate+discharge, 7 update properties and canaries. Three V0 model defects repaired with implementation evidence (leader lease on establishment, LogLE for absent logs, RefreshServerState leading case). V0 harness patch no longer applied (engine/mod.rs drift); rebased as copy-and-patch; 23 fresh traces (7 V0 regressions + 16 update scenarios) pass real TLC replay with TraceConsumed; 20/20 single-field mutants rejected; library 486/486 and elect/membership/life_cycle integration suites pass. Model checking (standard, full update, focused, open, discharge, 5 scenario hunts with BFS+simulation, canaries; all budget-limited) found two update-introduced defects, both reproduced on the real RaftCore runtime: MC-1 (High): pre_elect runs while a real candidate is active and establish_leader/become_leader never clear pre_candidate, so a late Pre-Vote quorum makes a freshly elected leader call elect() - debug builds panic at engine_impl.rs:977, release builds demote the leader to a term+1 Candidate; MC-2 (Medium): Pre-Vote responses are matched only by the reused probe leader id, so a delayed grant from an earlier same-term round reaches grant_by() for a node removed in between and panics at proposer/candidate.rs:107. Also recorded: pre-existing CR-PRE-1 (operator trigger().elect() on the leader panics in both revisions), doc mismatch D-3 (pre_vote.md vs default pre_vote/Unreachable handling), unresolved D-2 (non-voter elect after Pre-Vote quorum; requirement evidence implementation-only). Coverage limits: 3 nodes, small term/log/fault bounds, 30-minute BFS budgets with non-empty queues, time abstracted; specular ci-result and the reproduction controller were not available, so final-result.json was written but not rendered.",
+ "findings_paths": [
+  "/work/current/.specula-output/spec/findings.json",
+  "/work/current/.specula-output/spec/bug-report.md",
+  "/work/current/.specula-output/spec/final-result.json",
+  "/work/current/.specula-output/spec/code-review-findings.md",
+  "/work/current/.specula-output/spec/output/MC-1_update_full_violation.out",
+  "/work/current/.specula-output/spec/output/MC-1_update_full_violation.cex.json",
+  "/work/current/.specula-output/spec/output/MC-1_leader_object_attribution.out",
+  "/work/current/.specula-output/spec/output/MC-2_cross_round_grant_violation.out",
+  "/work/current/.specula-output/spec/output/MC-2_cross_round_grant_violation.cex.json",
+  "/work/current/.specula-output/spec/output/repro-MC-1-new.log",
+  "/work/current/.specula-output/spec/output/repro-MC-1-new-release.log",
+  "/work/current/.specula-output/spec/output/repro-D-4-new.log",
+  "/work/current/.specula-output/spec/output/control-elect-on-leader-old.log",
+  "/work/current/.specula-output/spec/output/control-elect-on-leader-new.log",
+  "/work/current/.specula-output/traces/stale_prevote_after_win.ndjson",
+  "/work/current/.specula-output/harness/repro/t13_specula_stale_prevote_repro.rs",
+  "/work/current/.specula-output/harness/repro/t15_specula_cross_round_grant_repro.rs",
+  "/work/current/.specula-output/spec/model-checking-summary.md",
+  "/work/current/.specula-output/spec/invariant-evidence.json"
+ ],
+ "blockers": []
+}

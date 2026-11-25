@@ -1,0 +1,25 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update adds an optional Pre-Vote phase (pre_elect, handle_pre_vote_req/resp, a Pre-Vote branch in the election tick, pre_candidate clearing in do_elect/become_following), which changes modeled behavior, so the disposition is MODEL_CHANGE_REQUIRED. Generation updated the full reference suite (base/MC/Trace) and added Update.tla with focused, open and discharge views. It also repaired five inherited V0 defects needed to verify the update (R-1 to R-5). R-5 was the most serious: V0 treated two absent logs as unequal, so its 3-voter MC never reached a leader or a granted remote vote, which made V0's election coverage vacuous. Validation rebased the V0 harness (only the engine/mod.rs patch context had drifted), reran the 7 V0 scenarios and added 9 update scenarios on the new code. All 16 fresh traces are fully consumed by TLC (TraceConsumed), 9/9 mutated traces are rejected, and every emitted field is consumed. In model checking, the standard MC and the update/focused/open/discharge/hunt campaigns all completed budget-limited (LIMITED_COVERAGE, not proofs) with no reference safety violation. They found two update-introduced defects. MC-1 (High): Pre-Vote never propagates a higher vote, so a live voter majority can stay leaderless forever. A 25-step witness was found; an exhaustive closure check from it shows no live leader is ever elected, while the pre-update tick recovers from the same state. MC-2 (Medium): establish_leader keeps a stale pre_candidate, and a late Pre-Vote quorum then calls elect() on the new leader, demoting it. This was found in 14 steps and over the full MCNext. The per-node mechanisms of both were observed on the real Engine (validated traces and harness observations). Multi-node runtime reproduction (Part 4) was not executed.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/mc-hunt-livelock-phased-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-hunt-livelock-phased-bfs.cex.json",
+    "/work/current/.specula-output/spec/witness/livelock/closure_on.log",
+    "/work/current/.specula-output/spec/witness/livelock/control_off.log",
+    "/work/current/.specula-output/spec/output/mc-hunt-leader-demote-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-hunt-leader-demote-bfs.cex.json",
+    "/work/current/.specula-output/spec/output/mc-Update_full.log",
+    "/work/current/.specula-output/spec/output/mc-Update_open.log",
+    "/work/current/.specula-output/spec/output/observations.log",
+    "/work/current/.specula-output/traces/candidate_prevote_then_establish.ndjson",
+    "/work/current/.specula-output/traces/prevote_reject_higher_vote.ndjson",
+    "/work/current/.specula-output/spec/invariant-evidence.json",
+    "/work/current/.specula-output/spec/changelog.md",
+    "/work/current/.specula-output/validation-summary.json"
+  ],
+  "blockers": []
+}

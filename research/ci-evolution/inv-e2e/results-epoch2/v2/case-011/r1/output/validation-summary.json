@@ -1,0 +1,311 @@
+{
+ "status": "LIMITED_COVERAGE",
+ "run": "incremental (Pre-Vote update), case-011",
+ "decision": "MODEL_CHANGE_REQUIRED",
+ "source": {
+  "baseline": "1adc857f05fc8632eca18a7ce636f9c489dd5038",
+  "update": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769"
+ },
+ "toolchain_used": "stable rustc 1.100.0 (pinned nightly-2026-03-01 unavailable)",
+ "baseline_tests_new_source": {
+  "openraft_library": "486 passed",
+  "elect": "8 passed",
+  "membership": "44 passed",
+  "life_cycle": "14 passed"
+ },
+ "harness": {
+  "rebased": true,
+  "method": "copy-and-patch (V0 git patch no longer applies)",
+  "command": "bash harness/run.sh"
+ },
+ "trace_validation": {
+  "fresh_traces": 23,
+  "passed_final": 23,
+  "log": "spec/output/trace-validation-final.log",
+  "completion_property": "TraceConsumed",
+  "field_mutants_rejected": "20/20",
+  "archived_v0_traces": "superseded by fresh regenerations (missing mandatory update fields)"
+ },
+ "model_checking": [
+  {
+   "label": "canary-grant_response",
+   "cfg": "Update_canary_grant_response.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "CanaryNoPreVoteGrantResponse"
+   ],
+   "coverage": "34 generated, 12 distinct, queue 5, depth 4",
+   "log": "spec/output/mc-canary-grant_response.log"
+  },
+  {
+   "label": "canary-leader_stale_round",
+   "cfg": "Update_canary_leader_stale_round.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "CanaryNoLeaderWithStaleRound"
+   ],
+   "coverage": "130605 generated, 30353 distinct, queue 19667, depth 9",
+   "log": "spec/output/mc-canary-leader_stale_round.log"
+  },
+  {
+   "label": "canary-nonvoter_round",
+   "cfg": "Update_canary_nonvoter_round.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "CanaryNoNonVoterWithPreRound"
+   ],
+   "coverage": "418438 generated, 96271 distinct, queue 54259, depth 13",
+   "log": "spec/output/mc-canary-nonvoter_round.log"
+  },
+  {
+   "label": "canary-prevote_elect",
+   "cfg": "Update_canary_prevote_elect.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "CanaryNoPreVoteElect"
+   ],
+   "coverage": "39 generated, 14 distinct, queue 4, depth 4",
+   "log": "spec/output/mc-canary-prevote_elect.log"
+  },
+  {
+   "label": "canary-reject_response",
+   "cfg": "Update_canary_reject_response.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "CanaryNoPreVoteRejectResponse"
+   ],
+   "coverage": "867 generated, 285 distinct, queue 201, depth 7",
+   "log": "spec/output/mc-canary-reject_response.log"
+  },
+  {
+   "label": "hunt-leader_object-bfs",
+   "cfg": "MC_hunt_prevote_leader_object.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "LeaderObjectVoteNotBehind"
+   ],
+   "coverage": "12117283 generated, 2328984 distinct, queue 1269566, depth 16",
+   "log": "spec/output/mc-hunt-leader_object-bfs.log"
+  },
+  {
+   "label": "hunt-leader_object-nofaults",
+   "cfg": "Dbg_lo.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "LeaderObjectVoteNotBehind"
+   ],
+   "coverage": "1352405 generated, 274093 distinct, queue 139475, depth 15",
+   "log": "spec/output/mc-hunt-leader_object-nofaults.log"
+  },
+  {
+   "label": "hunt-prevote_default_rpc-filtered-bfs",
+   "cfg": "MC_hunt_prevote_default_rpc_filtered.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "25414570 generated, 4502032 distinct, queue 2485561, depth 15",
+   "log": "spec/output/mc-hunt-prevote_default_rpc-filtered-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_default_rpc-filtered-sim",
+   "cfg": "MC_hunt_prevote_default_rpc_filtered.cfg",
+   "mode": "simulation",
+   "status": "LIMITED_COVERAGE (simulation budget)",
+   "violations": [],
+   "coverage": "21133192 states checked, 53414 traces",
+   "log": "spec/output/mc-hunt-prevote_default_rpc-filtered-sim.log"
+  },
+  {
+   "label": "hunt-prevote_leader_object-filtered-bfs",
+   "cfg": "MC_hunt_prevote_leader_object_filtered.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "21530385 generated, 4078580 distinct, queue 2176220, depth 18",
+   "log": "spec/output/mc-hunt-prevote_leader_object-filtered-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_leader_object-filtered-sim",
+   "cfg": "MC_hunt_prevote_leader_object_filtered.cfg",
+   "mode": "simulation",
+   "status": "LIMITED_COVERAGE (simulation budget)",
+   "violations": [],
+   "coverage": "26069014 states checked, 69297 traces",
+   "log": "spec/output/mc-hunt-prevote_leader_object-filtered-sim.log"
+  },
+  {
+   "label": "hunt-prevote_membership-filtered-bfs",
+   "cfg": "MC_hunt_prevote_membership_filtered.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "PreVoteGrantFromTrackedVoter"
+   ],
+   "coverage": "10211218 generated, 2493371 distinct, queue 1541982, depth 17",
+   "log": "spec/output/mc-hunt-prevote_membership-filtered-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_membership-filtered-nog-bfs",
+   "cfg": "MC_hunt_prevote_membership_filtered_nog.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "54231050 generated, 12945589 distinct, queue 8110483, depth 19",
+   "log": "spec/output/mc-hunt-prevote_membership-filtered-nog-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_membership-filtered-nog-sim",
+   "cfg": "MC_hunt_prevote_membership_filtered_nog.cfg",
+   "mode": "simulation",
+   "status": "LIMITED_COVERAGE (simulation budget)",
+   "violations": [],
+   "coverage": "27778833 states checked, 68754 traces",
+   "log": "spec/output/mc-hunt-prevote_membership-filtered-nog-sim.log"
+  },
+  {
+   "label": "hunt-prevote_single_voter-filtered-bfs",
+   "cfg": "MC_hunt_prevote_single_voter_filtered.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "PreVoteGrantFromTrackedVoter"
+   ],
+   "coverage": "469654 generated, 110227 distinct, queue 59789, depth 15",
+   "log": "spec/output/mc-hunt-prevote_single_voter-filtered-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_single_voter-filtered-nog-bfs",
+   "cfg": "MC_hunt_prevote_single_voter_filtered_nog.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "81093792 generated, 10179753 distinct, queue 2774682, depth 24",
+   "log": "spec/output/mc-hunt-prevote_single_voter-filtered-nog-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_single_voter-filtered-nog-sim",
+   "cfg": "MC_hunt_prevote_single_voter_filtered_nog.cfg",
+   "mode": "simulation",
+   "status": "LIMITED_COVERAGE (simulation budget)",
+   "violations": [],
+   "coverage": "23345786 states checked, 86843 traces",
+   "log": "spec/output/mc-hunt-prevote_single_voter-filtered-nog-sim.log"
+  },
+  {
+   "label": "hunt-prevote_stale_round-filtered-bfs",
+   "cfg": "MC_hunt_prevote_stale_round_filtered.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "23279454 generated, 4596957 distinct, queue 2792277, depth 15",
+   "log": "spec/output/mc-hunt-prevote_stale_round-filtered-bfs.log"
+  },
+  {
+   "label": "hunt-prevote_stale_round-filtered-sim",
+   "cfg": "MC_hunt_prevote_stale_round_filtered.cfg",
+   "mode": "simulation",
+   "status": "LIMITED_COVERAGE (simulation budget)",
+   "violations": [],
+   "coverage": "13762389 states checked, 33620 traces",
+   "log": "spec/output/mc-hunt-prevote_stale_round-filtered-sim.log"
+  },
+  {
+   "label": "std-MC-membership",
+   "cfg": "MC-membership.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "47424150 generated, 7156362 distinct, queue 2239049, depth 23",
+   "log": "spec/output/mc-std-MC-membership.log"
+  },
+  {
+   "label": "std-MC",
+   "cfg": "MC.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "78465363 generated, 14550469 distinct, queue 8396335, depth 17",
+   "log": "spec/output/mc-std-MC.log"
+  },
+  {
+   "label": "update-discharge",
+   "cfg": "Update_discharge.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "25836896 generated, 4835490 distinct, queue 2843702, depth 14",
+   "log": "spec/output/mc-update-discharge.log"
+  },
+  {
+   "label": "update-focused-filtered",
+   "cfg": "Update_focused_filtered.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "28340622 generated, 5130926 distinct, queue 3303178, depth 14",
+   "log": "spec/output/mc-update-focused-filtered.log"
+  },
+  {
+   "label": "update-full-filtered-sim",
+   "cfg": "Update_full_filtered.cfg",
+   "mode": "simulation",
+   "status": "LIMITED_COVERAGE (simulation budget)",
+   "violations": [],
+   "coverage": "17712152 states checked, 48019 traces",
+   "log": "spec/output/mc-update-full-filtered-sim.log"
+  },
+  {
+   "label": "update-full-filtered",
+   "cfg": "Update_full_filtered.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "57247493 generated, 10620289 distinct, queue 6128180, depth 18",
+   "log": "spec/output/mc-update-full-filtered.log"
+  },
+  {
+   "label": "update-full",
+   "cfg": "Update_full.cfg",
+   "mode": "BFS",
+   "status": "VIOLATION (stopped at first)",
+   "violations": [
+    "PreVoteRoundNotOutlivedByOwnLeadership"
+   ],
+   "coverage": "11811353 generated, 2237808 distinct, queue 1342292, depth 15",
+   "log": "spec/output/mc-update-full.log"
+  },
+  {
+   "label": "update-open-filtered",
+   "cfg": "Update_open_filtered.cfg",
+   "mode": "BFS",
+   "status": "LIMITED_COVERAGE (budget), no violation",
+   "violations": [],
+   "coverage": "31141660 generated, 4863056 distinct, queue 3145319, depth 15",
+   "log": "spec/output/mc-update-open-filtered.log"
+  }
+ ],
+ "findings": {
+  "MC-1": "REPRODUCED",
+  "MC-2": "REPRODUCED",
+  "CR-PRE-1": "REPRODUCED (pre-existing, both revisions)",
+  "D-3": "REPRODUCED (documentation)",
+  "D-2": "NEEDS MORE INFO (unresolved requirement)"
+ },
+ "cleanup": {
+  "tlc_state_dirs_removed_after_each_run": true
+ },
+ "limitations": [
+  "3 nodes, MaxTerm 2 (3 in traces), MaxLogIndex 4, bounded elections/pre-vote starts/membership changes/crash/drop/messages",
+  "BFS runs stopped by their 30-minute budget are LIMITED_COVERAGE (non-empty queue), not exhaustive",
+  "time (timeouts, leases, RPC ttl, round rate limit) abstracted; message delivery across a restart is an over-approximation",
+  "engine-level traces; runtime command execution between events replayed by the harness",
+  "no liveness property claimed"
+ ]
+}

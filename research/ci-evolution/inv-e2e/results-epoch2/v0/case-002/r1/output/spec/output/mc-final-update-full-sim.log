@@ -1,0 +1,147 @@
+# command: timeout 960s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=360 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-final-update-full-sim-24773 -workers 4 -dumpTrace json output/mc-final-update-full-sim.cex.json -cleanup -simulate num=999999999 -depth 60 Update.tla
+# started: 2026-11-25T08:46:22Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed -1823383917367391794 with 4 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 24779] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-15264689936463654230/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-15264689936463654230/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-15264689936463654230/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-15264689936463654230/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-15264689936463654230/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-15264689936463654230/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-15264689936463654230/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-15264689936463654230/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-15264689936463654230/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 08:46:23)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:46:23.
+Error: Invariant NewLeaderAckImpliesDurable is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 24, col 5 to line 26, col 16 of module MC>
+
+State 2: <MCCastVote(s1,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 3: <MCCrash(s2) line 83, col 5 to line 86, col 22 of module MC>
+
+State 4: <MCCrash(s1) line 83, col 5 to line 86, col 22 of module MC>
+
+State 5: <MCRestart(s1) line 87, col 17 to line 87, col 74 of module MC>
+
+State 6: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 7: <MCCastVote(s3,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 8: <MCRestart(s2) line 87, col 17 to line 87, col 74 of module MC>
+
+State 9: <MCCastVote(s2,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 10: <MCCastVote(s2,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 11: <MCBeginElection(s3) line 30, col 23 to line 30, col 87 of module MC>
+
+State 12: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+State 13: <MCFollowLeader(s3,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 14: <MCAcceptEpoch(s3) line 34, col 21 to line 34, col 59 of module MC>
+
+State 15: <MCServerShutdown(s3) line 75, col 5 to line 81, col 27 of module MC>
+
+State 16: <MCFollowLeader(s2,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 17: <MCBeginElection(s3) line 30, col 23 to line 30, col 87 of module MC>
+
+State 18: <MCAcceptEpoch(s2) line 34, col 21 to line 34, col 59 of module MC>
+
+State 19: <MCCastVote(s3,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 20: <MCFollowLeader(s3,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 21: <MCServerShutdown(s1) line 75, col 5 to line 81, col 27 of module MC>
+
+State 22: <MCServerShutdown(s2) line 75, col 5 to line 81, col 27 of module MC>
+
+State 23: <MCCastVote(s2,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 24: <MCCastVote(s2,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 25: <MCCastVote(s1,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 26: <MCCastVote(s2,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 27: <MCCastVote(s1,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 28: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+State 29: <MCFollowLeader(s2,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 30: <MCAcceptEpoch(s2) line 34, col 21 to line 34, col 59 of module MC>
+
+State 31: <MCFinishDiscovery(s1) line 35, col 25 to line 35, col 67 of module MC>
+
+State 32: <MCEnterSyncPhase(s2,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 33: <MCSyncWithLeader(s2,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 34: <MCLearnerNewLeaderPersist(s2) line 42, col 5 to line 42, col 80 of module MC>
+
+State 35: <MCAcceptEpoch(s3) line 34, col 21 to line 34, col 59 of module MC>
+
+State 36: <MCLearnerNewLeaderStartup(s2) line 44, col 5 to line 44, col 80 of module MC>
+
+State 37: <MCLearnerSendNewLeaderAck(s2) line 48, col 5 to line 48, col 76 of module MC>
+
+State 38: <MCEnterSyncPhase(s3,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 39: <MCLeaderStartZkServer(s1) line 50, col 5 to line 50, col 78 of module MC>
+
+State 40: <MCLearnerUptodateStartServing(s2) line 54, col 5 to line 54, col 83 of module MC>
+
+State 41: <MCLearnerEnterBroadcast(s2) line 60, col 5 to line 60, col 86 of module MC>
+
+State 42: <MCLeaderEnterBroadcast(s1) line 52, col 5 to line 52, col 77 of module MC>
+
+State 43: <MCPropose(s1,t1) line 61, col 20 to line 61, col 81 of module MC>
+
+State 44: <MCNext line 114, col 8 to line 114, col 47 of module MC>
+
+State 45: <MCSyncWithLeader(s3,"SNAP") line 38, col 5 to line 40, col 25 of module MC>
+
+State 46: <MCLearnerNewLeaderPersist(s3) line 42, col 5 to line 42, col 80 of module MC>
+
+State 47: <MCAppendOne(s2) line 63, col 19 to line 63, col 55 of module MC>
+
+State 48: <MCLearnerNewLeaderStartup(s3) line 44, col 5 to line 44, col 80 of module MC>
+
+State 49: <MCLearnerLogPendingOne(s3) line 46, col 5 to line 46, col 81 of module MC>
+
+State 50: <MCLearnerSendNewLeaderAck(s3) line 48, col 5 to line 48, col 76 of module MC>
+
+The number of states generated: 61759
+Simulation using seed -1823383917367391794 and aril 0
+"CounterExample written: output/mc-final-update-full-sim.cex.json"
+Progress: 61759 states checked, 1030 traces generated (trace length: mean=46, var(x)=201, sd=14)
+Finished in 06s at (2026-11-25 08:46:28)
+Trace exploration spec path: ./Update_TTrace_1795596382.tla
+# exit: 12 finished: 2026-11-25T08:46:29Z

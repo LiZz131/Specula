@@ -1,0 +1,401 @@
+{
+ "entries": [
+  {
+   "property": "TypeOK",
+   "replaces": "TypeOK (V0)",
+   "decision": "modify",
+   "kind": "representation-only (weakening for new message kinds/variables)",
+   "affected_because": "new variables preActive/preVote/preConfig/preGrants/appendBehindVote and message kinds PreVoteReq/PreVoteResp with field round (engine_impl.rs:95-165,297-322)",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-TYPE",
+    "E-TYPEc"
+   ]
+  },
+  {
+   "property": "VoteRequestAfterDurable",
+   "decision": "keep",
+   "affected_because": "a new request kind (PreVoteReq) now exists whose vote is never persisted",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-VRAD"
+   ]
+  },
+  {
+   "property": "GrantedResponseAfterDurable",
+   "decision": "keep",
+   "affected_because": "a new granted response kind (PreVoteResp) exists; its vote is the responder's unchanged vote",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-GRAD"
+   ]
+  },
+  {
+   "property": "LeaderRoleHasCommittedSelfVote / CandidateRoleHasPendingSelfVote / DurableVoteNotAhead",
+   "decision": "keep",
+   "affected_because": "DoElect is now also reached from HandlePreVoteResponse, including on an established Leader (engine_impl.rs:536-539)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-ROLE"
+   ]
+  },
+  {
+   "property": "CertifiedLeaderHasFrozenQuorum",
+   "decision": "keep (unaffected control)",
+   "affected_because": "not affected; kept enabled in every update cfg as the unaffected core control",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": []
+  },
+  {
+   "property": "PreCandidateProbesNextTerm",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new structural/update property)",
+   "affected_because": "elect() after a Pre-Vote quorum uses the current term (engine_impl.rs:536-539, 262-268), so the probed vote must still be term+1",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-U1k",
+    "E-U1s"
+   ]
+  },
+  {
+   "property": "PreVoteQuorumNeverDemotesLeader",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (new interaction property)",
+   "affected_because": "establish_leader -> become_leader keeps pre_candidate (engine_impl.rs:855-881, vote_handler/mod.rs:154-230); a later quorum calls elect() on the Leader",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-U2s",
+    "E-U2c"
+   ]
+  },
+  {
+   "property": "NoPermanentPreVoteLivelock (+ LivelockClosed)",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new liveness requirement encoded as a safety witness plus closure",
+   "affected_because": "Pre-Vote responses never adopt a higher vote and Pre-Vote requests never update the responder (engine_impl.rs:414-447,542-553), unlike real vote responses (engine_impl.rs:485-509)",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E-U3s",
+    "E-U3c"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E-TYPE",
+   "property": "TypeOK",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/E-TYPE/E_E_TYPE.tla",
+   "how_populated": "post-state of event 1 (PreElect) in traces/prevote_quorum_elect.ndjson (TLC -dump state 2)",
+   "log": "spec/evidence/E-TYPE/tlc.log",
+   "tlc_output": [
+    "<<\"E-TYPE\", \"old\", FALSE, \"new\", TRUE>>"
+   ],
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace prevote_quorum_elect event 1 (real Engine::pre_elect emits SendPreVote)"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/engine/command.rs:138-142",
+     "openraft/src/docs/protocol/pre_vote.md:28-33"
+    ]
+   },
+   "cell": "weakening justified"
+  },
+  {
+   "id": "E-TYPEc",
+   "property": "TypeOK",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/E-TYPEc/E_E_TYPEc.tla",
+   "how_populated": "E-TYPE state with one message kind replaced by \"Bogus\" (short edit)",
+   "log": "spec/evidence/E-TYPEc/tlc.log",
+   "tlc_output": [
+    "<<\"E-TYPEc\", \"new\", FALSE>>"
+   ],
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "expected": false
+  },
+  {
+   "id": "E-VRAD",
+   "property": "VoteRequestAfterDurable",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E-VRAD/E_E_VRAD.tla",
+   "how_populated": "same state as E-TYPE: PreVoteReq (2,1) in flight while durableVote[1] = (1,2,committed)",
+   "log": "spec/evidence/E-VRAD/tlc.log",
+   "tlc_output": [
+    "<<\"E-VRAD\", \"records\", TRUE, \"old\", TRUE, \"new\", TRUE, \"extended\", FALSE>>"
+   ],
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace prevote_quorum_elect event 1"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/engine/command.rs:138-142 (SendPreVote does not persist a vote)",
+     "openraft/src/docs/protocol/pre_vote.md:36-43"
+    ]
+   },
+   "cell": "keep correct: extending the property to PreVoteReq (TLC: extended=FALSE) would reject a legal state"
+  },
+  {
+   "id": "E-GRAD",
+   "property": "GrantedResponseAfterDurable",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E-GRAD/E_E_GRAD.tla",
+   "how_populated": "final state of traces/prevote_request_branches.ndjson (granted PreVoteResp in flight)",
+   "log": "spec/evidence/E-GRAD/tlc.log",
+   "tlc_output": [
+    "<<\"E-GRAD\", \"records\", TRUE, \"old\", TRUE, \"new\", TRUE>>"
+   ],
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace prevote_request_branches event 3"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/raft/mod.rs:936-943 (Pre-Vote never persists a vote)"
+    ]
+   },
+   "cell": "keep correct"
+  },
+  {
+   "id": "E-ROLE",
+   "property": "LeaderRoleHasCommittedSelfVote / CandidateRoleHasPendingSelfVote / DurableVoteNotAhead",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E-ROLE/E_E_ROLE.tla",
+   "how_populated": "post-state of event 5 of traces/candidate_prevote_then_establish.ndjson (Pre-Vote quorum elected on a Leader)",
+   "log": "spec/evidence/E-ROLE/tlc.log",
+   "tlc_output": [
+    "<< \"E-ROLE\", \"role1\", \"Candidate\", \"vote1\", [term |-> 2, node |-> \"1\", committed |-> FALSE], \"old\", <<TRUE, TRUE, TRUE>>, \"new\", <<TRUE, TRUE, TRUE>> >>"
+   ],
+   "old": {
+    "claimed": true,
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace candidate_prevote_then_establish"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/raft_state/mod.rs:416-440 (server state derived from vote)"
+    ]
+   },
+   "cell": "keep correct"
+  },
+  {
+   "id": "E-U1k",
+   "property": "PreCandidateProbesNextTerm",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "spec/evidence/E-U1k/E_E_U1k.tla",
+   "how_populated": "pre-state of event 5 of candidate_prevote_then_establish (Leader (1,1,c) with live round (2,1))",
+   "log": "spec/evidence/E-U1k/tlc.log",
+   "tlc_output": [
+    "<< \"E-U1k\", \"preActive1\", TRUE, \"vote1\", [term |-> 1, node |-> \"1\", committed |-> TRUE], \"preVote1\", [term |-> 2, node |-> \"1\", committed |-> FALSE], \"new\", TRUE >>"
+   ],
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:28-33"
+    ]
+   },
+   "cell": "added property accepts the observed state"
+  },
+  {
+   "id": "E-U1s",
+   "property": "PreCandidateProbesNextTerm",
+   "role": "separating",
+   "state_source": "constructed",
+   "state": "spec/evidence/E-U1s/E_E_U1s.tla",
+   "how_populated": "E-U1k with vote[1] replaced by (2,3,uncommitted) while the round (2,1) survives",
+   "log": "spec/evidence/E-U1s/tlc.log",
+   "tlc_output": [
+    "<< \"E-U1s\", \"vote1\", [term |-> 2, node |-> \"3\", committed |-> FALSE], \"preVote1\", [term |-> 2, node |-> \"1\", committed |-> FALSE], \"new\", FALSE >>"
+   ],
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "no",
+    "basis": "MC: PreCandidateProbesNextTerm enabled in every update cfg, never violated (see bug-report.md coverage)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:47-49 (the real election follows the probe that a quorum answered)"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E-U2s",
+   "property": "PreVoteQuorumNeverDemotesLeader",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/E-U2s/E_E_U2s.tla",
+   "how_populated": "events 4->5 of traces/candidate_prevote_then_establish.ndjson (TLC -dump states 25->26), the consumed PreVoteResp put back into the pre-state message set (short edit)",
+   "log": "spec/evidence/E-U2s/tlc.log",
+   "tlc_output": [
+    "<<\"E-U2s\", \"role1\", \"Leader\", \"preActive1\", TRUE>>",
+    "<<\"E-U2s\", \"role1\", \"Candidate\", \"preActive1\", FALSE>>"
+   ],
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "yes",
+    "basis": "real Engine run: trace candidate_prevote_then_establish event 5 (Leader -> Candidate at term 2)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:3-6",
+     "openraft/src/docs/protocol/pre_vote.md:13-24",
+     "openraft/src/config/config.rs:397-404",
+     "openraft/src/core/raft_core.rs:1966-1969"
+    ]
+   },
+   "cell": "bug candidate: keep the stronger property, record the defect (MC-2)"
+  },
+  {
+   "id": "E-U2c",
+   "property": "PreVoteQuorumNeverDemotesLeader",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/E-U2c/E_E_U2c.tla",
+   "how_populated": "E-U2s with the post-state keeping role Leader and vote (1,1,committed)",
+   "log": "spec/evidence/E-U2c/tlc.log",
+   "tlc_output": [
+    "<<\"E-U2c\", \"role1\", \"Leader\", \"preActive1\", TRUE>>",
+    "<<\"E-U2c\", \"role1\", \"Leader\", \"preActive1\", FALSE>>"
+   ],
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "expected": true
+  },
+  {
+   "id": "E-U3s",
+   "property": "NoPermanentPreVoteLivelock",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/witness/livelock/W_livelock.tla",
+   "how_populated": "last state (25) of the NoPermanentPreVoteLivelock counterexample in spec/output/mc-hunt-livelock-phased-bfs.log (MC_hunt_prevote_livelock_phased.cfg, full MCSpec actions, pruning-only monitor LivelockDirectorPhased)",
+   "log": "spec/output/mc-hunt-livelock-phased-bfs.log",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "impl_produces": {
+    "value": "yes (each step) / unknown (whole schedule)",
+    "basis": "each step is a reference action validated by traces (PreElect, HandlePreVoteRequest/Response, HandleVoteRequest/Response, HandleAppendEntries); the stuck state's per-round behaviour is observed on the real Engine in harness test specula_observe_prevote_livelock (spec/output/observations.log: 20 rounds, 0 real elections, votes unchanged); the full multi-node schedule was not run on the real runtime"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "tests/tests/elect/t12_pre_vote.rs:188-197",
+     "openraft/src/docs/protocol/pre_vote.md:47-49"
+    ]
+   },
+   "cell": "bug candidate: keep the stronger property, record the defect (MC-1)",
+   "closure": "spec/witness/livelock/closure_on.log: from the witness, TickPreVoteModes={TRUE}, no crash/restart/operator, MaxElectionCount 4, MaxTerm 5: exhaustive (9081 generated, 1456 distinct, queue 0), NoLiveLeader, VotesFrozen and PreVoteLivelock hold in every reachable state",
+   "old_behaviour_control": "spec/witness/livelock/control_off.log: same witness with TickPreVoteModes={FALSE} (pre-update tick): NoLiveLeader violated after 10 steps (node 2 adopts (2,3) from the rejected real vote response, re-elects at term 3, node 3 grants)"
+  },
+  {
+   "id": "E-U3c",
+   "property": "NoPermanentPreVoteLivelock",
+   "role": "control",
+   "state_source": "mc",
+   "state": "spec/witness/livelock/W_livelock.tla",
+   "how_populated": "same witness state with the election tick in pre-update mode (TickPreVoteModes={FALSE})",
+   "expected": "a leader is reachable",
+   "log": "spec/witness/livelock/control_off.log",
+   "tlc": "spec/witness/livelock/control_off.log: same witness with TickPreVoteModes={FALSE} (pre-update tick): NoLiveLeader violated after 10 steps (node 2 adopts (2,3) from the rejected real vote response, re-elects at term 3, node 3 grants)"
+  }
+ ],
+ "bug_candidates": [
+  "E-U2s",
+  "E-U3s"
+ ],
+ "unresolved": []
+}

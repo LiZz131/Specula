@@ -1,0 +1,81 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 2400s java -Dtlc2.TLC.stopAfter=1800 -Djava.io.tmpdir=/dev/shm/specula-e2e-case-002/mc-standard-bfs -XX:+UseParallelGC -Xmx32g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -noGenerateSpecTE -workers 8 -metadir /dev/shm/specula-e2e-case-002/mc-standard-bfs -config MC.cfg MC.tla
+STARTED: 2026-11-25T13:43:54Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 63 and seed -9104729120367207224 with 8 workers on 40 cores with 29127MB heap and 64MB offheap memory [pid: 10400] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /dev/shm/specula-e2e-case-002/mc-standard-bfs/tlc-11373381435473411061/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /dev/shm/specula-e2e-case-002/mc-standard-bfs/tlc-11373381435473411061/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /dev/shm/specula-e2e-case-002/mc-standard-bfs/tlc-11373381435473411061/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /dev/shm/specula-e2e-case-002/mc-standard-bfs/tlc-11373381435473411061/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /dev/shm/specula-e2e-case-002/mc-standard-bfs/tlc-11373381435473411061/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Linting of module base
+Linting of module MC
+Starting... (2026-11-25 13:43:55)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 13:43:55.
+Progress(12) at 2026-11-25 13:43:58: 63,553 states generated (63,553 s/min), 11,971 distinct states found (11,971 ds/min), 5,227 states left on queue.
+Progress(20) at 2026-11-25 13:44:58: 2,632,558 states generated (2,569,005 s/min), 560,113 distinct states found (548,142 ds/min), 225,779 states left on queue.
+Progress(21) at 2026-11-25 13:45:58: 5,306,810 states generated (2,674,252 s/min), 1,124,281 distinct states found (564,168 ds/min), 445,417 states left on queue.
+Progress(22) at 2026-11-25 13:46:58: 8,092,082 states generated (2,785,272 s/min), 1,691,782 distinct states found (567,501 ds/min), 657,210 states left on queue.
+Progress(22) at 2026-11-25 13:47:59: 10,846,911 states generated (2,754,829 s/min), 2,282,458 distinct states found (590,676 ds/min), 881,865 states left on queue.
+Progress(23) at 2026-11-25 13:48:59: 13,526,978 states generated (2,680,067 s/min), 2,812,680 distinct states found (530,222 ds/min), 1,072,014 states left on queue.
+Error: Invariant PipelinePrefix is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 22, col 5 to line 27, col 25 of module MC>
+
+State 3: <MCBeginElection(s2) line 22, col 5 to line 27, col 25 of module MC>
+
+State 4: <MCCastVote(s2,s1) line 28, col 21 to line 28, col 59 of module MC>
+
+State 5: <MCWinElection(s1) line 29, col 21 to line 29, col 79 of module MC>
+
+State 6: <MCFollowLeader(s3,s1) line 30, col 25 to line 30, col 67 of module MC>
+
+State 7: <MCAcceptEpoch(s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 8: <MCFinishDiscovery(s1) line 32, col 25 to line 32, col 67 of module MC>
+
+State 9: <MCEnterSyncPhase(s3,s1) line 33, col 27 to line 33, col 71 of module MC>
+
+State 10: <MCSelectSync(s3,s1,"TRUNC") line 35, col 5 to line 37, col 25 of module MC>
+
+State 11: <MCFollowerProcessNewLeader(s3) line 39, col 5 to line 42, col 25 of module MC>
+
+State 12: <MCFollowerSendNewLeaderAck(s3) line 44, col 5 to line 47, col 25 of module MC>
+
+State 13: <MCBeginElection(s3) line 22, col 5 to line 27, col 25 of module MC>
+
+State 14: <MCFollowLeader(s3,s1) line 30, col 25 to line 30, col 67 of module MC>
+
+State 15: <MCEnterSyncPhase(s3,s1) line 33, col 27 to line 33, col 71 of module MC>
+
+State 16: <MCNext line 99, col 8 to line 99, col 58 of module MC>
+
+State 17: <MCLeaderBroadcast(s1) line 52, col 25 to line 52, col 90 of module MC>
+
+State 18: <MCPropose(s1,t1) line 54, col 20 to line 54, col 79 of module MC>
+
+State 19: <MCSelectSync(s3,s1,"DIFF") line 35, col 5 to line 37, col 25 of module MC>
+
+State 20: <MCFollowerProcessNewLeader(s3) line 39, col 5 to line 42, col 25 of module MC>
+
+State 21: <MCBeginElection(s3) line 22, col 5 to line 27, col 25 of module MC>
+
+State 22: <MCCastVote(s2,s3) line 28, col 21 to line 28, col 59 of module MC>
+
+State 23: <MCWinElection(s3) line 29, col 21 to line 29, col 79 of module MC>
+
+15851266 states generated, 3330700 distinct states found, 1269775 states left on queue.
+The depth of the complete state graph search is 23.
+Finished in 06min 01s at (2026-11-25 13:49:56)
+EXIT: 12 FINISHED: 2026-11-25T13:49:57Z

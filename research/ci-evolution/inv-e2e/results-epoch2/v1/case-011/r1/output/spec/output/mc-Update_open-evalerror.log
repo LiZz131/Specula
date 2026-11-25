@@ -1,0 +1,88 @@
+# run: Update_open
+# date: 2026-11-24T21:43:48-06:00
+# cwd: /work/current/.specula-output/spec
+# cmd: java -Dtlc2.TLC.stopAfter=1800 -XX:+UseParallelGC -Xmx16g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -noGenerateSpecTE -workers 8 -metadir /dev/shm/specula-e2e-case-011/Update_open-15595 -dumpTrace json /work/current/.specula-output/spec/output/mc-Update_open.cex.json -config Update_open.cfg Update
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 0 and seed 7537565936362444502 with 8 workers on 40 cores with 14564MB heap and 64MB offheap memory [pid: 15605] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-13506521658066539507/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13506521658066539507/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13506521658066539507/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13506521658066539507/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13506521658066539507/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13506521658066539507/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13506521658066539507/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-13506521658066539507/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module Update
+Starting... (2026-11-25 03:43:49)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 03:43:50.
+Progress(8) at 2026-11-25 03:43:53: 22,138 states generated (22,138 s/min), 7,421 distinct states found (7,421 ds/min), 5,337 states left on queue.
+Error: TLC threw an unexpected exception.
+This was probably caused by an error in the spec or model.
+See the User Output or TLC Console for clues to what happened.
+The exception was a java.lang.RuntimeException
+: In evaluation, the identifier effectiveConfig is either undefined or not an operator.
+line 96, col 14 to line 96, col 28 of module Update
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickElect("2",TRUE) line 20, col 5 to line 22, col 65 of module MC>
+
+State 3: <HandlePreVoteRequestAffected line 28, col 5 to line 28, col 79 of module Update>
+
+State 4: <HandlePreVoteResponseAffected line 33, col 5 to line 33, col 80 of module Update>
+
+State 5: <InteractionActions line 59, col 8 to line 59, col 53 of module Update>
+
+State 6: <InteractionActions line 59, col 8 to line 59, col 53 of module Update>
+
+State 7: <InteractionActions line 59, col 8 to line 59, col 53 of module Update>
+
+State 8: <InteractionActions line 59, col 8 to line 59, col 53 of module Update>
+
+State 9: <InteractionActions line 59, col 8 to line 59, col 53 of module Update>
+
+State 10: <InteractionActions line 59, col 8 to line 59, col 53 of module Update>
+
+Error: The error occurred when TLC was evaluating the nested
+expressions at the following positions:
+0. Line 91, column 11 to line 105, column 73 in Update
+1. Line 91, column 14 to line 91, column 24 in Update
+2. Line 92, column 14 to line 92, column 69 in Update
+3. Line 92, column 14 to line 92, column 49 in Update
+4. Line 92, column 14 to line 92, column 28 in Update
+5. Line 92, column 33 to line 92, column 49 in Update
+6. Line 92, column 54 to line 92, column 69 in Update
+7. Line 93, column 14 to line 93, column 62 in Update
+8. Line 94, column 14 to line 94, column 50 in Update
+9. Line 95, column 14 to line 95, column 43 in Update
+10. Line 96, column 14 to line 96, column 74 in Update
+11. Line 96, column 14 to line 96, column 32 in Update
+12. Line 96, column 14 to line 96, column 29 in Update
+13. Line 96, column 14 to line 96, column 28 in Update
+
+
+2242088 states generated, 494459 distinct states found, 286449 states left on queue.
+The depth of the complete state graph search is 12.
+Finished in 52s at (2026-11-25 03:44:41)
+# verdict: VIOLATION (tlc rc=75)
+# corrected verdict: TLC EVALUATION ERROR in EnvUpdate (effectiveConfig'[i] read before assignment), not a property violation; fixed in Update.tla and rerun as mc-Update_open.log

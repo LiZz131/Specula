@@ -1,0 +1,425 @@
+{
+  "entries": [
+    {
+      "property": "NewLeaderAckImpliesDurableSync",
+      "decision": "add",
+      "kind": "strengthening (new contract)",
+      "affected_because": "The update moves logRequest before the NEWLEADER ACK (Learner.java:752-760) with the stated intent of syncing before the ACK",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "C1"
+      ]
+    },
+    {
+      "property": "CertifiedDurableOnQuorum",
+      "decision": "add",
+      "kind": "strengthening (new property)",
+      "affected_because": "A counted NEWLEADER ACK lets the leader certify/serve its initial history (Leader.java:663-712); the update changes what the ACK implies",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E2",
+        "C2"
+      ]
+    },
+    {
+      "property": "CertifiedRetainedByLaterLeaders",
+      "decision": "add",
+      "kind": "strengthening (new consequence property)",
+      "affected_because": "DIFFSyncConsistencyTest (added by the update) asserts the new leader keeps the old leader's view",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E3",
+        "C3"
+      ]
+    },
+    {
+      "property": "NewLeaderAckIsFirstAck",
+      "decision": "add",
+      "kind": "strengthening (new contract)",
+      "affected_because": "Processors now start before the NEWLEADER ACK write (Learner.java:751-760)",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E4",
+        "C4"
+      ]
+    },
+    {
+      "property": "VotingHistoryCoversDurable",
+      "decision": "add",
+      "kind": "strengthening (new property)",
+      "affected_because": "startupWithoutServing leaves state INITIAL, for which shutdown (fast-forward) is skipped (ZooKeeperServer.java:784-807)",
+      "initial_decision": "add",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E5",
+        "C5"
+      ]
+    },
+    {
+      "property": "SyncCompletionJustified",
+      "decision": "keep",
+      "kind": "keep (affected: reads currentEpoch/sync/pipeline state changed by the NEWLEADER branch)",
+      "affected_because": "V1 NEWLEADER/UPTODATE/exit semantics change the states these predicates read",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "PipelinePrefix",
+      "decision": "keep",
+      "kind": "keep (affected: reads currentEpoch/sync/pipeline state changed by the NEWLEADER branch)",
+      "affected_because": "V1 NEWLEADER/UPTODATE/exit semantics change the states these predicates read",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "EpochHistoryConsistency",
+      "decision": "keep",
+      "kind": "keep (affected: reads currentEpoch/sync/pipeline state changed by the NEWLEADER branch)",
+      "affected_because": "V1 NEWLEADER/UPTODATE/exit semantics change the states these predicates read",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "ApplyRequiresCommitCertificate",
+      "decision": "keep",
+      "kind": "keep (affected: reads currentEpoch/sync/pipeline state changed by the NEWLEADER branch)",
+      "affected_because": "V1 NEWLEADER/UPTODATE/exit semantics change the states these predicates read",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "CommittedHistoriesPrefix",
+      "decision": "keep",
+      "kind": "keep (affected: reads currentEpoch/sync/pipeline state changed by the NEWLEADER branch)",
+      "affected_because": "V1 NEWLEADER/UPTODATE/exit semantics change the states these predicates read",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "TypeOK",
+      "decision": "keep",
+      "kind": "keep (unaffected control)",
+      "affected_because": "control property kept enabled in every update cfg",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "ElectionSafety",
+      "decision": "keep",
+      "kind": "keep (unaffected control)",
+      "affected_because": "control property kept enabled in every update cfg",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    },
+    {
+      "property": "OneActiveLeaderPerEpoch",
+      "decision": "keep",
+      "kind": "keep (unaffected control)",
+      "affected_because": "control property kept enabled in every update cfg",
+      "initial_decision": "keep",
+      "changed_from_initial": false,
+      "evidence_ids": [
+        "E1",
+        "K1",
+        "C5"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E1",
+      "property": "NewLeaderAckImpliesDurableSync",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "spec/evidence/E1/E1.tla",
+      "how_populated": "post-state of line 88 of traces/diff-sync-uptodate-failure.ndjson (state 89 of spec/output/incremental/runs/final-ev-NewLeaderAckImpliesDurableSync-diff-sync-uptodate-failure.log, final Trace.tla)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E1/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "NewLeaderAckSent.update: queuedZxid (1,2), fsyncedZxidAtAck (1,1) in diff-sync-uptodate-failure; 0 of 7 fsynced in follower-diff-bulk-r1..r3; 0 of 1 in follower-diff"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "artifact/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:748",
+          "artifact/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:126-131,154-158,186-188,195-199"
+        ]
+      },
+      "cell": "bug candidate (MC-1): keep the stronger property"
+    },
+    {
+      "id": "C1",
+      "property": "NewLeaderAckImpliesDurableSync",
+      "role": "control",
+      "state_source": "trace",
+      "state": "spec/evidence/C1/C1.tla",
+      "how_populated": "post-state of line 10 of traces/follower-snap.ndjson (state 11 of runs/final-ev-stop11-follower-snap.log)",
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/C1/tlc.log",
+      "expected": true
+    },
+    {
+      "id": "E2",
+      "property": "CertifiedDurableOnQuorum",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "spec/evidence/E2/E2.tla",
+      "how_populated": "post-state of line 91 of traces/diff-sync-uptodate-failure.ndjson (state 92 of runs/final-ev-CertifiedDurableOnQuorum-diff-sync-uptodate-failure.log)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E2/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "diff-sync-uptodate-failure lines 59, 88-91, 104, 106: (1,2) fsynced by s0/s1 only after the leader entered BROADCAST"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "artifact/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:126-131,154-158,186-188,195-199",
+          "artifact/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:652-655"
+        ]
+      },
+      "cell": "bug candidate (MC-1): keep the stronger property"
+    },
+    {
+      "id": "C2",
+      "property": "CertifiedDurableOnQuorum",
+      "role": "control",
+      "state_source": "trace",
+      "state": "spec/evidence/C2/C2.tla",
+      "how_populated": "post-state of line 106 of traces/diff-sync-uptodate-failure.ndjson (state 107 of runs/final-ev-stop107-diff-sync.log): same certified txn now durable on a quorum",
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/C2/tlc.log",
+      "expected": true
+    },
+    {
+      "id": "E3",
+      "property": "CertifiedRetainedByLaterLeaders",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/evidence/E3/E3.tla",
+      "how_populated": "final state (39) of spec/output/cex/MC-2_CertifiedRetainedByLaterLeaders_noCrash_huntU1.out (final model)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E3/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "SpeculaU4ReproTest 3/3 and SpeculaU1ReproTest 3/3 on the updated implementation: after the old leader served /zk2 (certified initial history), the next established leader does not have it (spec/output/incremental/harness/repro-u4-no-restart-r*.log, repro-u1-stalled-log-r*.log)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "artifact/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:126-131,154-158,186-188,195-199"
+        ]
+      },
+      "cell": "bug candidate (MC-2/MC-1): keep the stronger property"
+    },
+    {
+      "id": "C3",
+      "property": "CertifiedRetainedByLaterLeaders",
+      "role": "control",
+      "state_source": "mc",
+      "state": "spec/evidence/C3/C3.tla",
+      "how_populated": "state 28 of the same counterexample: epoch-2 leader established and serving t1 (certEpoch = 2)",
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/C3/tlc.log",
+      "expected": true
+    },
+    {
+      "id": "E4",
+      "property": "NewLeaderAckIsFirstAck",
+      "role": "separating",
+      "state_source": "mc",
+      "state": "spec/evidence/E4/E4.tla",
+      "how_populated": "final state (22) of spec/output/cex/MC-3_NewLeaderAckIsFirstAck_hunt2s.out (final model)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E4/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "SpeculaU3ReproTest with an injected learner-thread pause before the epoch ACK write: the leader received txn ACK (1,2) first from both learners and logged rejected-zxid-mismatch 10 times; no leader established in 100 s (traces/fault-injected-repro/repro-u3-ack-delay-r1.ndjson). Not observed without the pause (9 runs, 7-3000 txns)."
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "artifact/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:606-617; Leader.java:988-993"
+        ]
+      },
+      "cell": "bug candidate (MC-3): keep the stronger property"
+    },
+    {
+      "id": "C4",
+      "property": "NewLeaderAckIsFirstAck",
+      "role": "control",
+      "state_source": "mc",
+      "state": "spec/evidence/C4/C4.tla",
+      "how_populated": "state 21 of the same counterexample (txn appended, ACK not yet written)",
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/C4/tlc.log",
+      "expected": true
+    },
+    {
+      "id": "E5",
+      "property": "VotingHistoryCoversDurable",
+      "role": "separating",
+      "state_source": "trace",
+      "state": "spec/evidence/E5/E5.tla",
+      "how_populated": "post-state of line 104 of traces/diff-sync-uptodate-failure.ndjson (state 105 of runs/final-ev-VotingHistoryCoversDurable-diff-sync-uptodate-failure.log)",
+      "old": {
+        "claimed": "not checked",
+        "tlc": "not checked"
+      },
+      "new": {
+        "claimed": false,
+        "tlc": false
+      },
+      "log": "spec/evidence/E5/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "diff-sync-uptodate-failure lines 92 (ShutdownSkipped INITIAL), 93/108 (s0 LOOKING reports (1,1)), 104-105 (TxnDurable/TxnAckSent (1,2) on SyncThread:0 after LOOKING)"
+      },
+      "requirement": {
+        "value": "forbidden",
+        "citations": [
+          "artifact/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:844"
+        ]
+      },
+      "cell": "bug candidate (MC-2): keep the stronger property"
+    },
+    {
+      "id": "C5",
+      "property": "VotingHistoryCoversDurable",
+      "role": "control",
+      "state_source": "trace",
+      "state": "spec/evidence/C5/C5.tla",
+      "how_populated": "post-state of line 89 of traces/leader-abandon-restart-recovery.ndjson (state 90 of runs/final-ev-stop90-leader-abandon.log): all peers LOOKING after RUNNING exits, in-memory = log",
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/C5/tlc.log",
+      "expected": true
+    },
+    {
+      "id": "K1",
+      "property": "SyncCompletionJustified (and other kept properties)",
+      "role": "keep",
+      "state_source": "trace",
+      "state": "spec/evidence/K1/K1.tla",
+      "how_populated": "post-state of line 14 of traces/follower-diff.ndjson (state 15 of runs/final-ev-stop15-follower-diff.log)",
+      "old": {
+        "claimed": true,
+        "tlc": true
+      },
+      "new": {
+        "claimed": true,
+        "tlc": true
+      },
+      "log": "spec/evidence/K1/tlc.log",
+      "impl_produces": {
+        "value": "yes",
+        "basis": "follower-diff lines 7-14 (epoch persisted, sync mode cleared, txn logged, ACK, UPTODATE, BROADCAST)"
+      },
+      "requirement": {
+        "value": "allowed",
+        "citations": [
+          "/work/model-scope.md: 'a server that completes synchronization enters broadcast with a state that is justified by the synchronization exchange'"
+        ]
+      },
+      "cell": "keep justified (old and new definitions agree, records nonempty)"
+    }
+  ],
+  "bug_candidates": [
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+  ],
+  "unresolved": [],
+  "notes": {
+    "kept_evaluation": "E1-E5, C1-C5 and K1 evaluate the V0 definitions (OldBase.tla = prior base.tla renamed) and the V1 definitions of TypeOK, ElectionSafety, OneActiveLeaderPerEpoch, CommittedHistoriesPrefix, ApplyRequiresCommitCertificate, PipelinePrefix, EpochHistoryConsistency, SyncCompletionJustified: all TRUE under both (see tlc.log). Kept properties therefore neither reject the legal V1 behavior nor detect the update defects, which is why P1-P5 were added.",
+    "fixture_artifact": "P2 is FALSE on K1 and on follower-diff/snap fixture traces because the scripted Zab1_0Test leader never logs; not used as evidence.",
+    "PipelinePrefix_note": "MC.cfg (standard round) found a PipelinePrefix violation through the U4 path (MC-2). Decision stays keep: the property is a valid oracle for log/in-memory divergence; the violation is a bug candidate, not a property defect.",
+    "evaluation_binding": "All evidence states were re-extracted from final-model / final-Trace runs and re-evaluated with TLC (spec/evidence/<id>/tlc.log); round-1 evaluations are archived under spec/evidence/archive-round1/.",
+    "P4_observation": "Without timing injection the NEWLEADER ACK was written first in every observed exchange (14 traced + 4 untraced runs); P4 violation was observed only with an injected learner-thread pause."
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab (V1, source revision update)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK is written before the synced transactions are durable",
+      "source": "model-checking",
+      "scenario": "U1/U2",
+      "severity": "High",
+      "invariant": "CertifiedDurableOnQuorum",
+      "config": "Update-hunt2s-CertifiedDurableOnQuorum.cfg",
+      "counterexample": "spec/output/cex/MC-1_CertifiedDurableOnQuorum_hunt2s.out",
+      "additional_counterexamples": [
+        "spec/output/cex/MC-1_NewLeaderAckImpliesDurableSync_fullMCNext.out",
+        "spec/output/cex/MC-1_CertifiedDurableOnQuorum_fullMCNext_sim.out",
+        "spec/output/cex/MC-1_CertifiedRetainedByLaterLeaders_crash_huntU1.out",
+        "spec/output/cex/MC-1_CertifiedDurableOnQuorum_focused3s_sim.out"
+      ],
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:752-760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82-89",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:156-252",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:663-712"
+      ],
+      "summary": "In the updated NEWLEADER branch the learner persists the new current epoch, hands the buffered DIFF/sync proposals to FollowerZooKeeperServer.logRequest (which only enqueues them for the SyncRequestProcessor) and immediately writes the NEWLEADER ACK. The leader counts that ACK, reaches its NEWLEADER quorum and starts serving its initial history while a quorum member has not persisted it. If that learner crashes before its SyncThread flushes and the leader is lost, the learner's newer epoch wins the next election and a committed, already-served transaction disappears. Real traces show every such ACK written with the logged txns not yet fsynced; a stalled-disk reproduction on the updated code loses the node in 3/3 runs."
+    },
+    {
+      "id": "MC-2",
+      "title": "Failure between NEWLEADER ACK and UPTODATE leaves the server INITIAL; shutdown is skipped and the stale in-memory DB is used to vote and lead",
+      "source": "model-checking",
+      "scenario": "U4",
+      "severity": "High",
+      "invariant": "CertifiedRetainedByLaterLeaders",
+      "config": "HuntU1-P3.cfg",
+      "counterexample": "spec/output/cex/MC-2_CertifiedRetainedByLaterLeaders_noCrash_huntU1.out",
+      "additional_counterexamples": [
+        "spec/output/cex/MC-2_VotingHistoryCoversDurable_hunt2s.out",
+        "spec/output/cex/MC-2_VotingHistoryCoversDurable_fullMCNext.out",
+        "spec/output/cex/MC-2_PipelinePrefix_MCcfg.out",
+        "spec/output/cex/MC-2_PipelinePrefix_MCcfg_variant.out"
+      ],
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:669-680",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-807",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-172",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java:1257-1262",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:480-503"
+      ],
+      "summary": "startupWithoutServing leaves the learner's ZooKeeperServer in State.INITIAL between the NEWLEADER ACK and UPTODATE; if the learner fails in that window, zk.shutdown() returns early (canShutdown() is false), so the in-memory DB is not fast-forwarded and the request processors leak and keep writing the log. The peer then votes with, and if elected leads from, an in-memory history that omits transactions it acknowledged and the old leader committed and served (no crash needed); with the leaked flush its log also diverges from its served history. Reproduced on the updated code in 3/3 runs (new leader lacks the node the old leader served); the old revision loses the node on the same path, so the update does not fix this path and adds the leaked-processor/log divergence."
+    },
+    {
+      "id": "MC-3",
+      "title": "A learner txn ACK can precede its NEWLEADER ACK",
+      "source": "model-checking",
+      "scenario": "U3",
+      "severity": "Medium",
+      "invariant": "NewLeaderAckIsFirstAck",
+      "config": "Update-hunt2s-NewLeaderAckIsFirstAck.cfg",
+      "counterexample": "spec/output/cex/MC-3_NewLeaderAckIsFirstAck_hunt2s.out",
+      "additional_counterexamples": [
+        "spec/output/cex/MC-3_NewLeaderAckIsFirstAck_fullMCNext.out"
+      ],
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:606-623",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547-1562",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:988-994"
+      ],
+      "summary": "The updated NEWLEADER branch starts the SyncRequestProcessor and SendAckRequestProcessor before writing the NEWLEADER ACK, so a txn ACK can be written first on the learner's stream. LearnerHandler treats the first ACK as the NEWLEADER ACK, Leader.waitForNewLeaderAck rejects its zxid, and the real NEWLEADER ACK is later ignored by processAck, so the learner is not counted toward the NEWLEADER quorum (availability) and its txn ACK is lost. Not observed in natural runs; with an injected learner-thread pause the real leader rejected both learners' first ACK and failed to establish epochs 2-4 for 100 s (the old revision establishes under the same pause)."
+    }
+  ]
+}

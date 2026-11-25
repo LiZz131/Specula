@@ -1,0 +1,150 @@
+# command: timeout 1080s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC-hunt-mutation.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-inherited-mutation-sim-18042 -workers 6 -dumpTrace json output/mc-canary-inherited-mutation-sim.cex.json -cleanup -simulate num=999999999 -depth 80 MC.tla
+# started: 2026-11-25T08:25:32Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed 4337061814941752117 with 6 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 18048] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-782775103206593021/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-782775103206593021/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-782775103206593021/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-782775103206593021/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-782775103206593021/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-782775103206593021/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-782775103206593021/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-782775103206593021/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-782775103206593021/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-25 08:25:33)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:25:33.
+Error: Invariant NotMutationReached is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 24, col 5 to line 26, col 16 of module MC>
+
+State 2: <MCCastVote(s3,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 3: <MCCastVote(s1,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 4: <MCCastVote(s3,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 5: <MCCrash(s3) line 83, col 5 to line 86, col 22 of module MC>
+
+State 6: <MCRestart(s3) line 87, col 17 to line 87, col 74 of module MC>
+
+State 7: <MCCastVote(s1,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 8: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 9: <MCBeginElection(s2) line 30, col 23 to line 30, col 87 of module MC>
+
+State 10: <MCBeginElection(s3) line 30, col 23 to line 30, col 87 of module MC>
+
+State 11: <MCCastVote(s3,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 12: <MCWinElection(s2) line 32, col 21 to line 32, col 81 of module MC>
+
+State 13: <MCCastVote(s1,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 14: <MCServerShutdown(s2) line 75, col 5 to line 81, col 27 of module MC>
+
+State 15: <MCCastVote(s3,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 16: <MCCastVote(s2,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 17: <MCCastVote(s2,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 18: <MCCastVote(s3,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 19: <MCCastVote(s1,s3) line 31, col 21 to line 31, col 59 of module MC>
+
+State 20: <MCWinElection(s2) line 32, col 21 to line 32, col 81 of module MC>
+
+State 21: <MCBeginElection(s3) line 30, col 23 to line 30, col 87 of module MC>
+
+State 22: <MCFollowLeader(s1,s2) line 33, col 25 to line 33, col 67 of module MC>
+
+State 23: <MCAcceptEpoch(s1) line 34, col 21 to line 34, col 59 of module MC>
+
+State 24: <MCFollowLeader(s3,s2) line 33, col 25 to line 33, col 67 of module MC>
+
+State 25: <MCAcceptEpoch(s3) line 34, col 21 to line 34, col 59 of module MC>
+
+State 26: <MCFinishDiscovery(s2) line 35, col 25 to line 35, col 67 of module MC>
+
+State 27: <MCEnterSyncPhase(s3,s2) line 36, col 27 to line 36, col 71 of module MC>
+
+State 28: <MCSyncWithLeader(s3,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 29: <MCEnterSyncPhase(s1,s2) line 36, col 27 to line 36, col 71 of module MC>
+
+State 30: <MCSyncWithLeader(s1,"SNAP") line 38, col 5 to line 40, col 25 of module MC>
+
+State 31: <MCLearnerNewLeaderPersist(s3) line 42, col 5 to line 42, col 80 of module MC>
+
+State 32: <MCLearnerNewLeaderPersist(s1) line 42, col 5 to line 42, col 80 of module MC>
+
+State 33: <MCLearnerNewLeaderStartup(s3) line 44, col 5 to line 44, col 80 of module MC>
+
+State 34: <MCLearnerNewLeaderStartup(s1) line 44, col 5 to line 44, col 80 of module MC>
+
+State 35: <MCLearnerSendNewLeaderAck(s1) line 48, col 5 to line 48, col 76 of module MC>
+
+State 36: <MCLeaderStartZkServer(s2) line 50, col 5 to line 50, col 78 of module MC>
+
+State 37: <MCPropose(s2,t1) line 61, col 20 to line 61, col 81 of module MC>
+
+State 38: <MCNext line 114, col 8 to line 114, col 47 of module MC>
+
+State 39: <MCAppendOne(s2) line 63, col 19 to line 63, col 55 of module MC>
+
+State 40: <MCLearnerSendNewLeaderAck(s3) line 48, col 5 to line 48, col 76 of module MC>
+
+State 41: <MCLeaderEnterBroadcast(s2) line 52, col 5 to line 52, col 77 of module MC>
+
+State 42: <MCLearnerUptodateStartServing(s1) line 54, col 5 to line 54, col 83 of module MC>
+
+State 43: <MCLearnerUptodateStartServing(s3) line 54, col 5 to line 54, col 83 of module MC>
+
+State 44: <MCLearnerUptodateLogOne(s1) line 56, col 5 to line 56, col 82 of module MC>
+
+State 45: <MCLearnerEnterBroadcast(s1) line 60, col 5 to line 60, col 86 of module MC>
+
+State 46: <MCAppendOne(s1) line 63, col 19 to line 63, col 55 of module MC>
+
+State 47: <MCNext line 125, col 8 to line 125, col 43 of module MC>
+
+State 48: <MCFsyncOne(s2) line 64, col 18 to line 64, col 76 of module MC>
+
+State 49: <MCFsyncOne(s1) line 64, col 18 to line 64, col 76 of module MC>
+
+State 50: <MCLearnerEnterBroadcast(s3) line 60, col 5 to line 60, col 86 of module MC>
+
+State 51: <MCNext line 117, col 8 to line 117, col 42 of module MC>
+
+State 52: <MCCommit(s2,t1) line 66, col 19 to line 66, col 77 of module MC>
+
+State 53: <MCApplyOne(s2) line 68, col 18 to line 68, col 74 of module MC>
+
+The number of states generated: 803
+Simulation using seed 4337061814941752117 and aril 0
+"CounterExample written: output/mc-canary-inherited-mutation-sim.cex.json"
+Progress: 804 states checked, 13 traces generated (trace length: mean=23, var(x)=972, sd=31)
+Finished in 01s at (2026-11-25 08:25:34)
+Trace exploration spec path: ./MC_TTrace_1795595132.tla
+# exit: 12 finished: 2026-11-25T08:25:34Z

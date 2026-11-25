@@ -1,0 +1,352 @@
+{
+ "schema_version": 1,
+ "case_id": "case-002",
+ "run": "V1 incremental (source revision update)",
+ "purpose": "blind_source_derived_incremental_verification",
+ "history_or_external_behavioral_research_used": false,
+ "inputs": {
+  "old_source": {
+   "old-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "9f7a2f68da8c1bf5db0ee1bed1bb117b419a624dd3d63d17dec14744626e3490",
+   "old-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "9a69113a8c5940516e39e71eab3fc99b52cd31c1c5bedf90ae23c7de48d282dc"
+  },
+  "new_source": {
+   "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111",
+   "new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866",
+   "new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java": "dfd020c786b989e78afbe0031ba2affe7537501210751d057377a107c6a5faee"
+  },
+  "artifact": {
+   "path": "artifact",
+   "commits": [
+    "2efbdfc3754df193bce05b9792297c813377cdaf update",
+    "1414ebfb1d16fd81abc38550a96950d919ecf805 baseline"
+   ],
+   "status_clean": true
+  },
+  "previous_suite": {
+   "path": "/work/previous/.specula-output",
+   "base.tla": "aaaadbf4d73c5ef246d353dcbc614aca020f06b53dd777ca42f6c7a3e4439f57",
+   "Trace.tla": "4a98ee2108fcf0128359c2095ef2dd9e7a9397802ad7d8c7d78e14bd9d8b034a",
+   "instrumentation.patch": "8579c965ec14e81ca914ab05f14e55267893fd2525fc3cfbe493b0483fb58fb6"
+  },
+  "case.json": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+  "model-scope.md": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+  "input-manifest.json": "a17fd8d3fbbc607b034d160a262100a1c062fba83c816fedc24deafd891417da",
+  "final-schema.json": "e0c88cbc950a439a459c83bd17a5824963b690345d1f0672d892398756ba6a01",
+  "tla2tools.jar": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+  "CommunityModules-deps.jar": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99"
+ },
+ "environment": {
+  "jdk": "OpenJDK 11 (/usr/lib/jvm/java-11-openjdk-amd64) for build/tests; JDK 21 for TLC",
+  "maven_repo": "/work/.cache/m2 (Maven Central, ordinary build dependencies only)",
+  "tlc_states": "/dev/shm/specula-e2e-case-002/<run-id> (removed after each run)"
+ },
+ "harness": {
+  "patch": "harness/patches/instrumentation.patch",
+  "patch_sha256": "b3240e4bb33ab0d3d738d43ddd6ed1e9171959d14ce08cb92e62a4dcdd159b0a",
+  "rebase": "V0 patch applied to commit update; only the BroadcastReady hunk (zk.startup -> zk.startServing) needed re-anchoring",
+  "patch_dry_run_log": "spec/output/incremental/harness/patch-dry-run.log",
+  "run_command": "timeout 7200s harness/run.sh (SKIP_PREPARE=1, SCENARIOS=... optional)",
+  "old_control_tree": "harness/old-control-source (git archive of commit baseline + harness-only tests, no instrumentation)"
+ },
+ "spec": {
+  "base.tla": "61576d6bdfcecc601a16280099b8768bafb607041cfcb12658a032b852304a2c",
+  "MC.tla": "c220cfb8654b9e84600ecd48fcc55818e38ad292c95dc7dde5d1439b75bacd51",
+  "Update.tla": "1ada5354a32c8d4f9c1f62e576157ec1446b7aec9f148d3f713d5b61944e003a",
+  "UpdateProps.tla": "3c62e34b60d420f584537f342e5236d0348f075e9df8f259153e98fde3d07540",
+  "Trace.tla": "2926a381c1368acd5e41a3ccec2e38e306b316f139544ab69a908643f31c1125",
+  "TraceUpdateEvidence.tla": "45a773c8f52ef81e3834fa2ae18db5b4ed06f033bcc74cf0ebcf506743c134bb",
+  "HuntU1.tla": "4eba38cb9052d290d96eaab7715b8317903d458e32ed0d3df2c6077a60348568",
+  "MCFiltered.tla": "3b18b23d348ea36694108468afaa5838fa9ca73e38c00c8cdb7bf842e2a85352",
+  "UpdateFiltered.tla": "8f3adf570f311b16fd9dc93c0b533a8d3fe8f84a9eba44105eda7db7f009b958",
+  "MC.cfg": "dbdbae7859da5430922bbd2e22d3ea8ad4de8f1a16aa3209238f960f9ca4a436",
+  "base.cfg": "8c8700806cbf417767484818b937fefbb747956e185c2f54323703e272caba36",
+  "Trace.cfg": "278f5481539a3aac9ff5504ce627af8f7f12b08bd909b564bd88d5170788c261"
+ },
+ "commands": {
+  "trace_validation_gate": "spec/run-incremental-validation.sh",
+  "campaign": "spec/run-incremental-campaign.sh",
+  "followups": "spec/run-incremental-followups.sh",
+  "single_run": "spec/run-tlc.sh ID MODULE CFG TIMEOUT [TLC args]",
+  "ledger": "spec/output/incremental/runs/ledger.ndjson"
+ },
+ "limits": [
+  "TLC runs bounded by -Dtlc2.TLC.stopAfter (600-1800 s) plus an outer timeout; finite constants (3 servers, 1 txn, epochs 2-3, crash 1-2, drop 0-1, snapshot 0-1); no run exhausted its state space except where a violation stopped it",
+  "Trace model is an observation-projection validator inherited from V0 (it does not replay base actions); V1 events are validated by explicit post-state predicates",
+  "Fault-injected U1 reproduction traces are reproduction evidence only"
+ ],
+ "traces": [
+  {
+   "path": "traces/control-diffsync-leaderwait-r1.ndjson",
+   "sha256": "0e665dbb99c501d1a9b3ff9e7d7777be59fd46eef87e05f966b1a89d2db7afc1",
+   "records": 158,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/control-diffsync-leaderwait-r2.ndjson",
+   "sha256": "c58bca6cff7cd2b2905838413e44f88c61b07f7dbdf7997a219f8e743cb8ac61",
+   "records": 158,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/diff-sync-uptodate-failure.ndjson",
+   "sha256": "8cc030bcc91483a38031c1771dacd09e317a5b583c13ce08c59bf1f5d55ec9be",
+   "records": 140,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/follower-diff-bulk-r1.ndjson",
+   "sha256": "0625ae25cb9c3c90437a3d9aababc3c5c6679ab7a37f91194157c6774c4413e1",
+   "records": 54,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/follower-diff-bulk-r2.ndjson",
+   "sha256": "2ce68a61363a5ebc507e29c6afbb3b3d3aa9e1cec0c879554eff177a72e513a9",
+   "records": 54,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/follower-diff-bulk-r3.ndjson",
+   "sha256": "b4aeb4494d1b381b89bdf54abc208851be51c21006c05f6968c6e128b12fe97d",
+   "records": 54,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/follower-diff.ndjson",
+   "sha256": "a82b170b71d1e5c7081db87ebb4cbb8250378ec759fd965b8776f8883b18c500",
+   "records": 18,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/follower-snap.ndjson",
+   "sha256": "e9f6a1bd390e85abe511b7fb09e0735d79f64f8a73a1c22c03ffba880c8d3c5d",
+   "records": 19,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/leader-abandon-restart-recovery.ndjson",
+   "sha256": "fbad8c5611db18e3d019a9b1524e532290251049726fdc55cff6c5767feb338a",
+   "records": 308,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+   "sha256": "a321d21e3ca4ae9fa9d411c29e87eac83b19678f4d761fe311ff069608013e96",
+   "records": 81,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/repro-u4-no-restart-r1.ndjson",
+   "sha256": "ea4a7bec33e548cabc3b4a145d8efa7337e226130436e33b8b3f950b08414bd2",
+   "records": 154,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/repro-u4-no-restart-r2.ndjson",
+   "sha256": "f65ea8b1509a5ee68cb75302b58e542a35a837d7094b4a48405a9f992e928d3a",
+   "records": 179,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/repro-u4-no-restart-r3.ndjson",
+   "sha256": "eccf7ed81035c7db165e848dc7f7f2ccceb1733b7037febfcea5622d73566dd4",
+   "records": 154,
+   "group": "fresh-conformance"
+  },
+  {
+   "path": "traces/fault-injected-repro/repro-u1-stalled-log-r1.ndjson",
+   "sha256": "4e8589e993fbcc24b03a622faf78eca6ac9a4ed3e5d61e200a1d7b6c377ab053",
+   "records": 165,
+   "group": "fresh-fault-injected"
+  },
+  {
+   "path": "traces/fault-injected-repro/repro-u1-stalled-log-r2.ndjson",
+   "sha256": "3fa98409e3d2ddce82e274082a3d33e89d1c7a67ff474a4975848f356aa40b9c",
+   "records": 147,
+   "group": "fresh-fault-injected"
+  },
+  {
+   "path": "traces/fault-injected-repro/repro-u1-stalled-log-r3.ndjson",
+   "sha256": "dedf24a971cbf9875882fb1b9fd85573bf673b6e49faab604bc4a51d83ea93d3",
+   "records": 147,
+   "group": "fresh-fault-injected"
+  },
+  {
+   "path": "traces/fault-injected-repro/repro-u3-ack-delay-r1.ndjson",
+   "sha256": "7b81e21f6a122b3cddcac1d4e0c01ab603276f0c46a89b1ef158c9f18824184a",
+   "records": 279,
+   "group": "fresh-fault-injected"
+  },
+  {
+   "path": "traces/observation-only/follower-diff-bigdiff-r1.ndjson",
+   "sha256": "dfed29ea407cec3257bcdc9e55b4f16c6d7f3996d4c01443c30ee271201eba9c",
+   "records": 8754,
+   "group": "observation-only"
+  },
+  {
+   "path": "traces/archived-v0/follower-diff.ndjson",
+   "sha256": "362cf547714df4c931bc8c32580b5562b30e485392fc83ea5abe7e86733814a2",
+   "records": 15,
+   "group": "archived-v0"
+  },
+  {
+   "path": "traces/archived-v0/follower-snap-attempt-001.ndjson",
+   "sha256": "c8e60eb2c19cddbdf9dd1431a3c55ba7d32fb07924cedb4f37a4d3fbd87edb17",
+   "records": 16,
+   "group": "archived-v0"
+  },
+  {
+   "path": "traces/archived-v0/follower-snap.ndjson",
+   "sha256": "e80733e381a4ef9edf43291a2b418345ae5cefac544da12c3aa00ca392e82ac5",
+   "records": 16,
+   "group": "archived-v0"
+  },
+  {
+   "path": "traces/archived-v0/leader-abandon-restart-recovery.ndjson",
+   "sha256": "e1f446e350220c95a718549befca26e6f544b3c295840ee0a634b78c43b3f7a3",
+   "records": 265,
+   "group": "archived-v0"
+  },
+  {
+   "path": "traces/archived-v0/quorum-startup-mutation-shutdown.ndjson",
+   "sha256": "a2f1825aa1580b9aed0eacb40edbd3714634e1da2c57fd97b6ad805c42c3a41d",
+   "records": 71,
+   "group": "archived-v0"
+  },
+  {
+   "path": "traces/negative/neg1-queued-mismatch.ndjson",
+   "sha256": "a24f797aa12b69900e5d8828c28129e60b5721fcca5bb76cf08d029745e0adca",
+   "records": 18,
+   "group": "negative"
+  },
+  {
+   "path": "traces/negative/neg2-syncmode-before-ack.ndjson",
+   "sha256": "c7551c44ee866be48edf311699d3375e308f14855d64b00a267ae841905cc490",
+   "records": 18,
+   "group": "negative"
+  },
+  {
+   "path": "traces/negative/neg3-initial-skip-while-running.ndjson",
+   "sha256": "acad46195223953667624607f2ebb53e8ca86acd8bda23185b4c6c67f251e337",
+   "records": 18,
+   "group": "negative"
+  },
+  {
+   "path": "traces/negative/neg4-quorum-claim.ndjson",
+   "sha256": "90a22995bd6b7ce35aaac78b624db9a7eb5b6054f58b276cb4884e6dd1f4262b",
+   "records": 140,
+   "group": "negative"
+  },
+  {
+   "path": "traces/negative/neg5-no-initial-skip.ndjson",
+   "sha256": "bad081cac2748fd3081ebcfce545339be8d0168e860a79e186efff4f89349917",
+   "records": 140,
+   "group": "negative"
+  }
+ ],
+ "v0_prior": {
+  "schema_version": 1,
+  "case_id": "case-002",
+  "attempt_name": "attempt-006-repair",
+  "purpose": "exact_old_v0_validation_repair",
+  "source": {
+   "immutable_path": "/work/source",
+   "writable_instrumented_path": "/work/work-source",
+   "baseline_commit": "774296b074905daf3924854264ec54c27842aa9f",
+   "input_tree_sha256": "0525c48c1cd94af81213ef100dd926c1bbd30baa81fa53b9591e86a1630c00ed",
+   "immutable_tree_git_status": "clean",
+   "history_or_external_behavioral_research_used": false
+  },
+  "inputs": {
+   "scope_md_sha256": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+   "input_manifest_json_sha256": "f0c832d5a3eee30f9dd0ca0c9e3f0d29d62a3377aa4964ce22656dca50795c04",
+   "final_schema_json_sha256": "411283e9c8ed20971bcffc4b5a5ec5cb218bea09f75e52fb826d8c93ef65b878",
+   "tla2tools_jar_sha256": "4cd825345098a67647908cb70df9b08c988d610595e8b011395923a10e2e6b11",
+   "community_modules_deps_jar_sha256": "2502576c0bafec1f6f566e55d2851199261c614a10ba88ce9e5f61a0b0af65d4"
+  },
+  "instrumentation": {
+   "patch": "harness/patches/instrumentation.patch",
+   "patch_sha256": "8579c965ec14e81ca914ab05f14e55267893fd2525fc3cfbe493b0483fb58fb6",
+   "target_tree_only": "/work/work-source",
+   "pristine_source_dry_run_exit_code": 0,
+   "dry_run_log": "spec/output/repair-suite/instrumentation-patch-dry-run.log"
+  },
+  "traces": [
+   {
+    "path": "traces/follower-snap.ndjson",
+    "records": 16,
+    "bytes": 5471,
+    "sha256": "e80733e381a4ef9edf43291a2b418345ae5cefac544da12c3aa00ca392e82ac5",
+    "formal_trace_validation": "passed",
+    "validation_log": "spec/output/repair-suite/trace-follower-snap.log"
+   },
+   {
+    "path": "traces/follower-diff.ndjson",
+    "records": 15,
+    "bytes": 5081,
+    "sha256": "362cf547714df4c931bc8c32580b5562b30e485392fc83ea5abe7e86733814a2",
+    "formal_trace_validation": "passed",
+    "validation_log": "spec/output/repair-suite/trace-follower-diff.log"
+   },
+   {
+    "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+    "records": 71,
+    "bytes": 27456,
+    "sha256": "a2f1825aa1580b9aed0eacb40edbd3714634e1da2c57fd97b6ad805c42c3a41d",
+    "formal_trace_validation": "passed",
+    "validation_log": "spec/output/repair-suite/trace-quorum-startup-mutation-shutdown.log"
+   },
+   {
+    "path": "traces/leader-abandon-restart-recovery.ndjson",
+    "records": 265,
+    "bytes": 104398,
+    "sha256": "e1f446e350220c95a718549befca26e6f544b3c295840ee0a634b78c43b3f7a3",
+    "formal_trace_validation": "passed",
+    "validation_log": "spec/output/repair-suite/trace-leader-abandon-restart-recovery.log"
+   },
+   {
+    "path": "traces/follower-snap-attempt-001.ndjson",
+    "records": 16,
+    "bytes": 5439,
+    "sha256": "c8e60eb2c19cddbdf9dd1431a3c55ba7d32fb07924cedb4f37a4d3fbd87edb17",
+    "formal_trace_validation": "passed",
+    "preserved_origin": "earlier numeric-zxid encoding attempt",
+    "validation_log": "spec/output/repair-suite/trace-follower-snap-attempt-001.log"
+   }
+  ],
+  "verification": {
+   "trace_first": true,
+   "all_retained_trace_count": 5,
+   "all_retained_traces_passed": true,
+   "canonical_base_complete_log": "spec/output/repair-suite/base-canonical.log",
+   "canonical_base_complete_log_sha256": "64eec699904c1ea2a3a3c85b22d8d2450b89a485c94f40a764ce36fc241f3b71",
+   "canonical_base_states_generated": 52034534,
+   "canonical_base_distinct_states": 6354157,
+   "canonical_base_states_left_on_queue": 0,
+   "canonical_mc_complete_log": "spec/output/repair-suite/mc-canonical.log",
+   "canonical_mc_complete_log_sha256": "bd2ced5f160516604983ac820ef3f4537a62398f61aca30b26111154e77eb67c",
+   "canonical_mc_states_generated": 171870841,
+   "canonical_mc_distinct_states": 21701056,
+   "canonical_mc_states_left_on_queue": 0,
+   "canonical_depth": 23,
+   "command_results": "spec/output/repair-suite/command-results.ndjson",
+   "event_coverage": "spec/output/repair-suite/event-coverage.json",
+   "suite_manifest": "spec/verification-suite-manifest.json",
+   "larger_model_check_timeout_log": "spec/output/model-check-main-001.log",
+   "larger_model_check_timeout_log_sha256": "e1a66db486253817494f6d9fd86ccb3f8c2f9042982831d8b5e9427dca8a9a81",
+   "reachability_logs": {
+    "election": "196586d57baac4060bd26ed068f444b9818261cc3731050adfa8ce43bf44f1b9",
+    "mutation": "52512700118df0ce47bbc1f942d8a6c773557436f12389c153efa507ac2eb151",
+    "recovery": "ae8631db160c81234cba0d32767d0f24938941ec3c831fd2a88a4c7e2b508a26",
+    "sync": "faef9794f6909138cae8ae4f9e6ce968c2c127eac7b6d5ece31361b9e91badfb"
+   },
+   "status": "completed_with_limited_coverage",
+   "findings": 0
+  },
+  "environment": {
+   "java": "OpenJDK 21.0.11",
+   "declared_manifest_preference": "JDK 8 preferred or validated JDK 11",
+   "limitation": "Only JDK 21 was installed; exact-old build and selected tests passed under that broader environment."
+  }
+ }
+}

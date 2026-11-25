@@ -1,0 +1,39 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 900s java -Dtlc2.TLC.stopAfter=600 -Djava.io.tmpdir=/dev/shm/specula-e2e-case-002/v0-hunt-election -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -noGenerateSpecTE -workers 8 -metadir /dev/shm/specula-e2e-case-002/v0-hunt-election -config MC-hunt-election.cfg MC.tla
+STARTED: 2026-11-25T14:15:11Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 15 and seed 4817111756731746393 with 8 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 26035] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /dev/shm/specula-e2e-case-002/v0-hunt-election/tlc-12857825810043126021/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /dev/shm/specula-e2e-case-002/v0-hunt-election/tlc-12857825810043126021/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /dev/shm/specula-e2e-case-002/v0-hunt-election/tlc-12857825810043126021/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /dev/shm/specula-e2e-case-002/v0-hunt-election/tlc-12857825810043126021/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /dev/shm/specula-e2e-case-002/v0-hunt-election/tlc-12857825810043126021/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Linting of module base
+Linting of module MC
+Starting... (2026-11-25 14:15:12)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 14:15:12.
+Error: Invariant NotElectionReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 22, col 5 to line 27, col 25 of module MC>
+
+State 3: <MCBeginElection(s2) line 22, col 5 to line 27, col 25 of module MC>
+
+State 4: <MCCastVote(s2,s1) line 28, col 21 to line 28, col 59 of module MC>
+
+State 5: <MCWinElection(s1) line 29, col 21 to line 29, col 79 of module MC>
+
+141 states generated, 35 distinct states found, 5 states left on queue.
+The depth of the complete state graph search is 6.
+Finished in 01s at (2026-11-25 14:15:12)
+EXIT: 12 FINISHED: 2026-11-25T14:15:13Z

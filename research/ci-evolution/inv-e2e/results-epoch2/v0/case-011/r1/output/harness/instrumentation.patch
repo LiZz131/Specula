@@ -1,0 +1,1560 @@
+diff --git a/openraft/src/engine/mod.rs b/openraft/src/engine/mod.rs
+index d5681e6..c53760e 100644
+--- a/openraft/src/engine/mod.rs
++++ b/openraft/src/engine/mod.rs
+@@ -57,6 +57,8 @@ mod tests {
+     mod pre_elect_test;
+     mod refresh_server_state_test;
+     mod startup_test;
++    mod specula_repro_test;
++    mod specula_trace_test;
+     mod trigger_purge_log_test;
+ }
+ #[cfg(test)]
+diff --git a/openraft/src/engine/tests/specula_repro_test.rs b/openraft/src/engine/tests/specula_repro_test.rs
+new file mode 100644
+index 0000000..907455f
+--- /dev/null
++++ b/openraft/src/engine/tests/specula_repro_test.rs
+@@ -0,0 +1,328 @@
++//! Specula reproduction tests for the Pre-Vote update.
++//!
++//! Each `specula_repro_*` test asserts the behavior the update promises; it
++//! FAILS while the defect is present. `specula_control_*` tests show the
++//! comparison path (direct elections, as in the old revision) and pass.
++
++use std::time::Duration;
++
++use maplit::btreeset;
++
++use crate::Vote;
++use crate::core::ServerState;
++use crate::engine::Command;
++use crate::engine::Engine;
++use crate::engine::LogIdList;
++use crate::engine::testing::UTConfig;
++use crate::engine::testing::log_id;
++use crate::raft::VoteRequest;
++use crate::raft::VoteResponse;
++use crate::raft_state::LogStateReader;
++use crate::type_config::TypeConfigExt;
++use crate::utime::Leased;
++
++fn node(id: u64, voters: std::collections::BTreeSet<u64>, last_index: u64, vote: Vote<crate::engine::testing::UTLeaderId>) -> Engine<UTConfig> {
++    use std::sync::Arc;
++
++    use crate::Membership;
++    use crate::MembershipState;
++    use crate::type_config::alias::StoredMembershipOf;
++
++    let mut eng = Engine::testing_default(id);
++    eng.state.enable_validation(false);
++    eng.config.id = id;
++    let m = Arc::new(StoredMembershipOf::<UTConfig>::new(
++        Some(log_id(1, 1, 1)),
++        Membership::new_with_defaults(vec![voters], []),
++    ));
++    eng.state.membership_state = MembershipState::new(m.clone(), m);
++    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, last_index)]);
++    // Expired lease: no live leader is known.
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, vote);
++    eng.state.server_state = ServerState::Follower;
++    eng.output.clear_commands();
++    eng
++}
++
++/// Scenario U2 / MC finding: a Pre-Vote round started while the node was
++/// still a Candidate survives leader establishment; a delayed grant then
++/// makes the established Leader call `elect()` and abandon its leadership.
++#[test]
++fn specula_repro_stale_pre_vote_round_deposes_leader() -> anyhow::Result<()> {
++    let mut eng = node(1, btreeset! {1, 2, 3}, 1, Vote::new(2, 1));
++    eng.state.server_state = ServerState::Candidate;
++    eng.new_candidate(*eng.state.vote_ref()).grant_by(&1);
++    eng.output.clear_commands();
++
++    // Election timer fires while the real election at term 2 is in flight.
++    eng.pre_elect();
++    let pre_vote = *eng.pre_candidate_ref().unwrap().vote_ref();
++    assert_eq!(Vote::new(3, 1), pre_vote);
++
++    // The real election wins.
++    eng.handle_vote_resp(2, VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true));
++    assert_eq!(ServerState::Leader, eng.state.server_state);
++    assert_eq!(Vote::new_committed(2, 1), *eng.state.vote_ref());
++    eng.output.clear_commands();
++
++    // Node 2 granted the Pre-Vote before it learned about the new leader; the
++    // response is delivered now and passes RaftCore's pre-candidate filter.
++    assert!(eng.pre_candidate_ref().is_some(), "the superseded Pre-Vote round is still live");
++    eng.handle_pre_vote_resp(2, VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true));
++
++    assert_eq!(
++        ServerState::Leader,
++        eng.state.server_state,
++        "a stale Pre-Vote quorum must not depose an established leader"
++    );
++    assert_eq!(Vote::new_committed(2, 1), *eng.state.vote_ref());
++    Ok(())
++}
++
++/// Drive one Pre-Vote round of node `x` against the live peers, the way
++/// RaftCore does (SendPreVote -> peers' handle_pre_vote_req -> filtered
++/// handle_pre_vote_resp). Returns true if a real election was started.
++fn pre_vote_round(nodes: &mut [Engine<UTConfig>], x: usize) -> bool {
++    nodes[x].pre_elect();
++    if nodes[x].candidate_ref().is_some() {
++        return true;
++    }
++    let req: VoteRequest<UTConfig> = nodes[x]
++        .output
++        .iter_commands()
++        .find_map(|c| match c {
++            Command::SendPreVote { vote_req } => Some(vote_req.clone()),
++            _ => None,
++        })
++        .expect("SendPreVote queued");
++    nodes[x].output.clear_commands();
++    for y in 0..nodes.len() {
++        if y == x {
++            continue;
++        }
++        let resp = nodes[y].handle_pre_vote_req(req.clone());
++        nodes[y].output.clear_commands();
++        let target = nodes[y].config.id;
++        let matches = nodes[x].pre_candidate_ref().map(|p| p.vote_ref().leader_id == req.vote.leader_id).unwrap_or(false);
++        if matches {
++            nodes[x].handle_pre_vote_resp(target, resp);
++        }
++        if nodes[x].candidate_ref().is_some() {
++            return true;
++        }
++    }
++    false
++}
++
++/// Drive one direct election of node `x` (the pre-update path): self grant
++/// after SaveVote, then the peers' handle_vote_req and filtered
++/// handle_vote_resp. Returns true if `x` became leader.
++fn direct_election(nodes: &mut [Engine<UTConfig>], x: usize) -> bool {
++    nodes[x].elect();
++    let req: VoteRequest<UTConfig> = nodes[x]
++        .output
++        .iter_commands()
++        .find_map(|c| match c {
++            Command::SendVote { vote_req } => Some(vote_req.clone()),
++            _ => None,
++        })
++        .expect("SendVote queued");
++    nodes[x].output.clear_commands();
++    let me = nodes[x].config.id;
++    let self_resp = VoteResponse::new(req.vote, nodes[x].state.last_log_id().cloned(), true);
++    nodes[x].handle_vote_resp(me, self_resp);
++    for y in 0..nodes.len() {
++        if y == x {
++            continue;
++        }
++        let resp = nodes[y].handle_vote_req(req.clone());
++        nodes[y].output.clear_commands();
++        let target = nodes[y].config.id;
++        let matches = nodes[x].candidate_ref().map(|c| c.vote_ref().leader_id == req.vote.leader_id).unwrap_or(false);
++        if matches {
++            nodes[x].handle_vote_resp(target, resp);
++        }
++        nodes[x].output.clear_commands();
++        if nodes[x].state.server_state == ServerState::Leader {
++            return true;
++        }
++    }
++    false
++}
++
++/// Five voters {1..5}; nodes 1 and 3 have crashed permanently. Node 2 holds
++/// the longest log (1,1,2) but still votes for the old leader at term 1;
++/// nodes 4 and 5 granted node 3's real vote at term 2 but lack entry 2.
++fn stalled_cluster() -> Vec<Engine<UTConfig>> {
++    let voters = btreeset! {1, 2, 3, 4, 5};
++    vec![
++        node(2, voters.clone(), 2, Vote::new_committed(1, 1)),
++        node(4, voters.clone(), 1, Vote::new(2, 3)),
++        node(5, voters, 1, Vote::new(2, 3)),
++    ]
++}
++
++/// Code-review finding: a rejected Pre-Vote never carries the responder's
++/// higher term back to the requester, so a live majority whose freshest log
++/// sits at a stale term can never pass Pre-Vote, while the higher-term nodes
++/// fail the log check. The cluster stays leaderless with 3 of 5 voters up.
++#[test]
++fn specula_repro_pre_vote_term_stall() -> anyhow::Result<()> {
++    let mut nodes = stalled_cluster();
++    let mut elected = false;
++    for _round in 0..10 {
++        for x in 0..nodes.len() {
++            if pre_vote_round(&mut nodes, x) {
++                elected = true;
++            }
++        }
++        if elected {
++            break;
++        }
++    }
++    let terms = nodes.iter().map(|n| n.state.vote_ref().leader_id.term).collect::<Vec<_>>();
++    assert!(
++        elected,
++        "a live majority (nodes 2,4,5 of 5) must eventually start an election; terms stay {:?}",
++        terms
++    );
++    Ok(())
++}
++
++/// Control: the same cluster state with direct elections (Pre-Vote disabled,
++/// the pre-update behavior). When node 2's randomized timer fires first, its
++/// rejected election adopts term 2 and its next election wins; the Pre-Vote
++/// schedule above includes this same schedule (node 2 retrying alone) and
++/// still never starts an election.
++#[test]
++fn specula_control_direct_election_progresses() -> anyhow::Result<()> {
++    let mut nodes = stalled_cluster();
++    let mut leader = None;
++    for _attempt in 0..3 {
++        if direct_election(&mut nodes, 0) {
++            leader = Some(nodes[0].config.id);
++            break;
++        }
++    }
++    assert_eq!(Some(2), leader, "direct elections let the freshest log win after adopting term 2");
++    Ok(())
++}
++
++/// The Pre-Vote counterpart of the control schedule: node 2 retries alone.
++#[test]
++fn specula_repro_pre_vote_term_stall_node2_alone() -> anyhow::Result<()> {
++    let mut nodes = stalled_cluster();
++    let mut elected = false;
++    for _attempt in 0..3 {
++        if pre_vote_round(&mut nodes, 0) {
++            elected = true;
++            break;
++        }
++    }
++    assert!(elected, "node 2 (freshest log) must be able to pass Pre-Vote once it learns term 2");
++    Ok(())
++}
++
++/// Scenario U5: Pre-Vote rounds at an unchanged term reuse the leader id
++/// `(term+1, self)`. A round started before a membership change that removes
++/// node 2 is superseded (become_following drops it) and a new round is started
++/// with the new config (e.g. `Trigger::elect(true)` again). Node 2's delayed
++/// grant to the first round passes RaftCore's filter (same leader id) and
++/// `Candidate::grant_by` hits `expect("target not in quorum set")`.
++/// The promised behavior is that a delayed response is ignored; this test
++/// FAILS (panics) while the defect is present.
++#[test]
++fn specula_repro_stale_pre_vote_grant_from_removed_member() -> anyhow::Result<()> {
++    use crate::raft::LogSegment;
++    use crate::testing::membership_ent;
++
++    let mut eng = node(1, btreeset! {1, 2, 3}, 1, Vote::new_committed(1, 2));
++
++    // Round 1 with config {1,2,3}; requests go to 2 and 3.
++    eng.pre_elect();
++    let round1 = *eng.pre_candidate_ref().unwrap().vote_ref();
++    eng.output.clear_commands();
++
++    // Leader 2 (same term 1) replicates a joint and then a uniform config that
++    // removes node 2. AppendEntries runs become_following: the round is dropped.
++    let res = eng.append_entries(
++        &Vote::new_committed(1, 2),
++        LogSegment::new(Some(log_id(1, 1, 1)), vec![
++            membership_ent::<UTConfig>(1, 2, 2, vec![btreeset! {1, 2, 3}, btreeset! {1, 3}]),
++            membership_ent::<UTConfig>(1, 2, 3, vec![btreeset! {1, 3}]),
++        ]),
++    );
++    assert!(res.is_ok(), "append_entries accepted: {:?}", res);
++    assert_eq!(
++        vec![1, 3],
++        eng.state.membership_state.effective().voter_ids().collect::<Vec<_>>(),
++        "node 2 removed from the effective config"
++    );
++    assert!(eng.pre_candidate_ref().is_none());
++    assert_eq!(Vote::new_committed(1, 2), *eng.state.vote_ref(), "same leader, same term");
++    eng.output.clear_commands();
++
++    // Round 2 (operator Trigger::elect(true)), same term -> same leader id, config {1,3}.
++    eng.pre_elect();
++    let round2 = *eng.pre_candidate_ref().unwrap().vote_ref();
++    assert_eq!(round1.leader_id, round2.leader_id, "rounds at one term share the leader id");
++    eng.output.clear_commands();
++
++    // Node 2's delayed grant to round 1 arrives; RaftCore's filter compares
++    // only the leader id, so it reaches the engine.
++    let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++        eng.handle_pre_vote_resp(2, VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true));
++    }));
++    assert!(
++        res.is_ok(),
++        "a delayed Pre-Vote grant from a node outside the round's config must be ignored, not panic"
++    );
++    Ok(())
++}
++
++/// MC-2, leader variant (the model-checking counterexample shape): a
++/// timer-started round of a Candidate survives establishment (MC-1 state);
++/// the new Leader removes node 3 from the membership; an operator
++/// `Trigger::elect(true)` starts a new round at the same term with config
++/// {1,2}; node 3's delayed grant to the first round reaches `grant_by`.
++/// FAILS (panics) while the defect is present.
++#[test]
++fn specula_repro_stale_pre_vote_grant_leader_variant() -> anyhow::Result<()> {
++    use crate::Membership;
++    use crate::entry::payload::EntryPayload;
++
++    let mut eng = node(1, btreeset! {1, 2, 3}, 1, Vote::new(2, 1));
++    eng.state.server_state = ServerState::Candidate;
++    eng.new_candidate(*eng.state.vote_ref()).grant_by(&1);
++    eng.output.clear_commands();
++
++    // Timer round on the Candidate (config {1,2,3}); requests to 2 and 3.
++    eng.pre_elect();
++    let round1 = *eng.pre_candidate_ref().unwrap().vote_ref();
++    // The real election wins; the round survives.
++    eng.handle_vote_resp(2, VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true));
++    assert_eq!(ServerState::Leader, eng.state.server_state);
++    eng.output.clear_commands();
++
++    // The Leader removes node 3: joint, then uniform {1,2}.
++    let joint = Membership::<u64, ()>::new_with_defaults(vec![btreeset! {1, 2, 3}, btreeset! {1, 2}], []);
++    let uniform = Membership::<u64, ()>::new_with_defaults(vec![btreeset! {1, 2}], []);
++    eng.try_leader_handler()?.leader_append_entries([EntryPayload::Membership(joint)]);
++    eng.try_leader_handler()?.leader_append_entries([EntryPayload::Membership(uniform)]);
++    eng.output.clear_commands();
++
++    // Operator Trigger::elect(true) on the Leader: same term -> same leader id.
++    eng.pre_elect();
++    let round2 = *eng.pre_candidate_ref().unwrap().vote_ref();
++    assert_eq!(round1.leader_id, round2.leader_id);
++    eng.output.clear_commands();
++
++    let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++        eng.handle_pre_vote_resp(3, VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true));
++    }));
++    assert!(
++        res.is_ok(),
++        "a delayed Pre-Vote grant from a node outside the round's config must be ignored, not panic"
++    );
++    Ok(())
++}
+diff --git a/openraft/src/engine/tests/specula_trace_test.rs b/openraft/src/engine/tests/specula_trace_test.rs
+new file mode 100644
+index 0000000..de018f2
+--- /dev/null
++++ b/openraft/src/engine/tests/specula_trace_test.rs
+@@ -0,0 +1,639 @@
++//! Specula incremental trace harness (rebased from the V0 harness).
++//!
++//! This module is test-only instrumentation. It invokes the real Engine
++//! transitions of the updated revision directly and records only
++//! source-observable abstract state. The seven V0 scenarios are kept
++//! unchanged in their driving calls; the update scenarios exercise the
++//! Pre-Vote engine paths (`pre_elect`, `handle_pre_vote_req`,
++//! `handle_pre_vote_resp`) and their interactions with the unchanged
++//! election, following, establishment, and restart paths.
++
++use std::collections::BTreeSet;
++use std::fs::OpenOptions;
++use std::io::Write;
++use std::sync::Arc;
++use std::time::Duration;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use maplit::btreeset;
++use serde_json::Value;
++use serde_json::json;
++
++use crate::Membership;
++use crate::MembershipState;
++use crate::Vote;
++use crate::core::ServerState;
++use crate::engine::Command;
++use crate::engine::CommandName;
++use crate::engine::Engine;
++use crate::engine::LogIdList;
++use crate::engine::testing::UTConfig;
++use crate::engine::testing::log_id;
++use crate::entry::payload::EntryPayload;
++use crate::progress::Progress;
++use crate::raft::VoteRequest;
++use crate::raft::VoteResponse;
++use crate::raft_state::LogStateReader;
++use crate::type_config::TypeConfigExt;
++use crate::type_config::alias::StoredMembershipOf;
++use crate::utime::Leased;
++
++fn membership(parts: Vec<BTreeSet<u64>>) -> Membership<u64, ()> {
++    Membership::new_with_defaults(parts, [])
++}
++
++fn stored(index: u64, parts: Vec<BTreeSet<u64>>) -> Arc<StoredMembershipOf<UTConfig>> {
++    Arc::new(StoredMembershipOf::<UTConfig>::new(
++        Some(log_id(1, 1, index)),
++        membership(parts),
++    ))
++}
++
++fn base_engine(id: u64, parts: Vec<BTreeSet<u64>>, membership_index: u64) -> Engine<UTConfig> {
++    let mut eng = Engine::testing_default(id);
++    eng.state.enable_validation(false);
++    eng.config.id = id;
++    let membership = stored(membership_index, parts);
++    eng.state.membership_state = MembershipState::new(membership.clone(), membership);
++    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, membership_index)]);
++    eng.state.server_state = ServerState::Follower;
++    eng.output.clear_commands();
++    eng
++}
++
++fn vote_json(v: &Vote<crate::engine::testing::UTLeaderId>) -> Value {
++    json!({
++        "term": v.leader_id.term,
++        "node": v.leader_id.node_id.to_string(),
++        "committed": v.committed,
++    })
++}
++
++fn log_json(log: Option<&crate::type_config::alias::LogIdOf<UTConfig>>, node: u64) -> Value {
++    match log {
++        Some(x) => json!({
++            "present": true,
++            "term": x.leader_id.term,
++            "node": x.leader_id.node_id.to_string(),
++            "index": x.index,
++        }),
++        None => json!({"present": false, "term": 0, "node": node.to_string(), "index": 0}),
++    }
++}
++
++fn joint_json(parts: &[BTreeSet<u64>]) -> Value {
++    let parts = parts
++        .iter()
++        .map(|part| part.iter().map(u64::to_string).collect::<Vec<_>>())
++        .collect::<Vec<_>>();
++    json!(parts)
++}
++
++fn config_json(m: &StoredMembershipOf<UTConfig>) -> Value {
++    joint_json(m.get_joint_config())
++}
++
++fn ids_json(ids: impl Iterator<Item = u64>) -> Value {
++    json!(ids.map(|id| id.to_string()).collect::<Vec<_>>())
++}
++
++fn state_json(eng: &Engine<UTConfig>, crashed: bool) -> Value {
++    let candidate = eng.candidate_ref();
++    let candidate_vote = candidate.map(|x| x.vote_ref()).unwrap_or_else(|| eng.state.vote_ref());
++    let grants = candidate.map(|x| ids_json(x.granters())).unwrap_or_else(|| json!([]));
++    let pre = eng.pre_candidate_ref();
++    let pre_vote = pre.map(|x| x.vote_ref()).unwrap_or_else(|| eng.state.vote_ref());
++    let pre_grants = pre.map(|x| ids_json(x.granters())).unwrap_or_else(|| json!([]));
++    let has_command = |name| eng.output.iter_commands().any(|cmd| cmd.name() == name);
++    let (last_update, lease, enabled) = eng.state.vote.lease_info();
++    let lease_valid = enabled
++        && last_update.is_some()
++        && !eng.state.vote.is_expired(UTConfig::<()>::now(), Duration::default())
++        && !lease.is_zero();
++    let committed = eng.state.membership_state.committed();
++    let effective = eng.state.membership_state.effective();
++
++    json!({
++        "role": match eng.state.server_state {
++            ServerState::Learner => "Learner",
++            ServerState::Follower => "Follower",
++            ServerState::Candidate => "Candidate",
++            ServerState::Leader => "Leader",
++            ServerState::Shutdown => "Follower",
++        },
++        "vote": vote_json(eng.state.vote_ref()),
++        "last_log": log_json(eng.state.last_log_id(), eng.config.id),
++        "committed_config": config_json(committed),
++        "committed_config_index": committed.log_id().as_ref().map(|x| x.index).unwrap_or(0),
++        "effective_config": config_json(effective),
++        "effective_config_index": effective.log_id().as_ref().map(|x| x.index).unwrap_or(0),
++        "lease_valid": lease_valid,
++        "candidate_active": candidate.is_some(),
++        "candidate_vote": vote_json(candidate_vote),
++        // The frozen quorum set of the live Candidate (no longer approximated
++        // by the effective membership).
++        "candidate_config": candidate
++            .map(|x| joint_json(x.progress().quorum_set().get_joint_config()))
++            .unwrap_or_else(|| config_json(effective)),
++        "grants": grants,
++        // Pre-Vote tracker (Engine::pre_candidate) of the updated revision.
++        "pre_candidate_active": pre.is_some(),
++        "pre_candidate_vote": vote_json(pre_vote),
++        "pre_candidate_config": pre
++            .map(|x| joint_json(x.progress().quorum_set().get_joint_config()))
++            .unwrap_or_else(|| config_json(effective)),
++        "pre_grants": pre_grants,
++        "leader_active": eng.leader_ref().is_some(),
++        "save_vote_pending": has_command(CommandName::SaveVote),
++        "send_vote_pending": has_command(CommandName::SendVote),
++        "send_pre_vote_pending": has_command(CommandName::SendPreVote),
++        "append_pending": has_command(CommandName::AppendEntries),
++        // V0 hard-coded false; the real Engine flag is now captured.
++        "seen_greater_log": eng.seen_greater_log,
++        "crashed": crashed,
++    })
++}
++
++fn emit(name: &str, nid: u64, pre: Value, post: Value, args: Value) -> anyhow::Result<()> {
++    let path = std::env::var("SPECULA_TRACE_PATH")?;
++    let mut out = OpenOptions::new().create(true).append(true).open(path)?;
++    let ts = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos().to_string();
++    let record = json!({
++        "tag": "trace",
++        "ts_unix_ns": ts,
++        "event": {
++            "name": name,
++            "nid": nid.to_string(),
++            "pre": pre,
++            "post": post,
++            "args": args,
++        }
++    });
++    serde_json::to_writer(&mut out, &record)?;
++    writeln!(&mut out)?;
++    Ok(())
++}
++
++/// Arguments of a `PreElect` event: the queued `SendPreVote` request (if any)
++/// and the targets `spawn_parallel_vote_requests` derives from the effective
++/// voters at dispatch time (raft_core.rs:1386-1394).
++fn pre_elect_args(eng: &Engine<UTConfig>) -> Value {
++    let req = eng.output.iter_commands().find_map(|cmd| match cmd {
++        Command::SendPreVote { vote_req } => Some(vote_req.clone()),
++        _ => None,
++    });
++    match req {
++        Some(r) => {
++            let me = eng.config.id;
++            let targets = eng.state.membership_state.effective().voter_ids().filter(|t| *t != me);
++            json!({
++                "request_present": true,
++                "request_vote": vote_json(&r.vote),
++                "request_last_log": log_json(r.last_log_id.as_ref(), me),
++                "request_targets": ids_json(targets),
++            })
++        }
++        None => json!({
++            "request_present": false,
++            "request_vote": vote_json(eng.state.vote_ref()),
++            "request_last_log": log_json(None, eng.config.id),
++            "request_targets": [],
++        }),
++    }
++}
++
++fn do_pre_elect(eng: &mut Engine<UTConfig>) -> anyhow::Result<()> {
++    let pre = state_json(eng, false);
++    eng.pre_elect();
++    let post = state_json(eng, false);
++    let args = pre_elect_args(eng);
++    emit("PreElect", eng.config.id, pre, post, args)
++}
++
++fn do_pre_vote_req(eng: &mut Engine<UTConfig>, source: u64, req: VoteRequest<UTConfig>) -> anyhow::Result<()> {
++    let pre = state_json(eng, false);
++    let resp = eng.handle_pre_vote_req(req.clone());
++    let post = state_json(eng, false);
++    emit(
++        "HandlePreVoteRequest",
++        eng.config.id,
++        pre,
++        post,
++        json!({
++            "source": source.to_string(),
++            "vote": vote_json(&req.vote),
++            "last_log": log_json(req.last_log_id.as_ref(), source),
++            "response_vote": vote_json(&resp.vote),
++            "response_last_log": log_json(resp.last_log_id.as_ref(), eng.config.id),
++            "response_granted": resp.vote_granted,
++        }),
++    )
++}
++
++/// `candidate_vote` is what RaftCore attaches to Notification::PreVoteResponse
++/// (the request's vote). The engine is called only after RaftCore's
++/// `does_pre_candidate_vote_match` filter, so callers pass the live
++/// pre-candidate's vote unless they test the no-tracker path.
++fn do_pre_vote_resp(
++    eng: &mut Engine<UTConfig>,
++    source: u64,
++    candidate_vote: Vote<crate::engine::testing::UTLeaderId>,
++    resp: VoteResponse<UTConfig>,
++) -> anyhow::Result<()> {
++    let pre = state_json(eng, false);
++    eng.handle_pre_vote_resp(source, resp.clone());
++    let post = state_json(eng, false);
++    emit(
++        "HandlePreVoteResponse",
++        eng.config.id,
++        pre,
++        post,
++        json!({
++            "source": source.to_string(),
++            "candidate_vote": vote_json(&candidate_vote),
++            "last_log": log_json(resp.last_log_id.as_ref(), source),
++            "granted": resp.vote_granted,
++        }),
++    )
++}
++
++fn do_vote_resp(eng: &mut Engine<UTConfig>, source: u64, resp: VoteResponse<UTConfig>) -> anyhow::Result<()> {
++    let pre = state_json(eng, false);
++    eng.handle_vote_resp(source, resp.clone());
++    let post = state_json(eng, false);
++    emit(
++        "HandleVoteResponse",
++        eng.config.id,
++        pre,
++        post,
++        json!({
++            "source": source.to_string(),
++            "vote": vote_json(&resp.vote),
++            "last_log": log_json(resp.last_log_id.as_ref(), source),
++            "granted": resp.vote_granted,
++        }),
++    )
++}
++
++fn do_vote_req(eng: &mut Engine<UTConfig>, source: u64, req: VoteRequest<UTConfig>) -> anyhow::Result<()> {
++    let pre = state_json(eng, false);
++    let resp = eng.handle_vote_req(req.clone());
++    let post = state_json(eng, false);
++    emit(
++        "HandleVoteRequest",
++        eng.config.id,
++        pre,
++        post,
++        json!({
++            "source": source.to_string(),
++            "vote": vote_json(&req.vote),
++            "last_log": log_json(req.last_log_id.as_ref(), source),
++            "transfer": req.leadership_transfer,
++            "response_vote": vote_json(&resp.vote),
++            "response_granted": resp.vote_granted,
++        }),
++    )
++}
++
++fn pre_vote_of(eng: &Engine<UTConfig>) -> Vote<crate::engine::testing::UTLeaderId> {
++    *eng.pre_candidate_ref().expect("a live pre-candidate").vote_ref()
++}
++
++// ---------------------------------------------------------------------------
++// V0 regression scenarios (driving calls unchanged).
++// ---------------------------------------------------------------------------
++
++#[test]
++fn specula_trace_start_election() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(1, 2));
++    let pre = state_json(&eng, false);
++    eng.elect();
++    let post = state_json(&eng, false);
++    emit("StartElection", 1, pre, post, json!({"transfer": false}))
++}
++
++#[test]
++fn specula_trace_reject_stale_log() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
++    eng.state.log_ids = LogIdList::new(None, [log_id(2, 1, 3)]);
++    eng.state.server_state = ServerState::Candidate;
++    eng.new_candidate(*eng.state.vote_ref());
++    eng.output.clear_commands();
++    let req = VoteRequest {
++        vote: Vote::new(3, 2),
++        last_log_id: Some(log_id(1, 2, 3)),
++        leadership_transfer: false,
++    };
++    do_vote_req(&mut eng, 2, req)
++}
++
++#[test]
++fn specula_trace_grant_greater_vote() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
++    eng.state.log_ids = LogIdList::new(None, [log_id(2, 1, 3)]);
++    eng.state.server_state = ServerState::Candidate;
++    eng.new_candidate(*eng.state.vote_ref());
++    eng.output.clear_commands();
++    let req = VoteRequest {
++        vote: Vote::new(3, 2),
++        last_log_id: Some(log_id(2, 1, 3)),
++        leadership_transfer: false,
++    };
++    do_vote_req(&mut eng, 2, req)
++}
++
++#[test]
++fn specula_trace_establish_leader() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 0);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::from_millis(500), Vote::new(2, 1));
++    eng.state.server_state = ServerState::Candidate;
++    let candidate = eng.new_candidate(*eng.state.vote_ref());
++    candidate.grant_by(&1);
++    eng.output.clear_commands();
++    let response = VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 0)), true);
++    do_vote_resp(&mut eng, 2, response)
++}
++
++#[test]
++fn specula_trace_append_joint_membership() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 1);
++    eng.state.vote = Leased::new(
++        UTConfig::<()>::now(),
++        Duration::from_millis(500),
++        Vote::new_committed(2, 1),
++    );
++    eng.state.server_state = ServerState::Leader;
++    eng.testing_new_leader();
++    eng.output.clear_commands();
++    let target = btreeset! {2, 3};
++    let pre = state_json(&eng, false);
++    eng.try_leader_handler()?.leader_append_entries([EntryPayload::Membership(membership(vec![
++        btreeset! {1, 2},
++        target.clone(),
++    ]))]);
++    let post = state_json(&eng, false);
++    emit(
++        "AppendJointConfig",
++        1,
++        pre,
++        post,
++        json!({"target_config": target.iter().map(u64::to_string).collect::<Vec<_>>() }),
++    )
++}
++
++#[test]
++fn specula_trace_commit_membership() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}], 1);
++    let old = stored(1, vec![btreeset! {1, 2}]);
++    let joint = stored(2, vec![btreeset! {1, 2}, btreeset! {2, 3}]);
++    eng.state.membership_state = MembershipState::new(old, joint);
++    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, 2)]);
++    eng.state.apply_progress_mut().accept(log_id(1, 1, 1));
++    eng.state.vote = Leased::new(
++        UTConfig::<()>::now(),
++        Duration::from_millis(500),
++        Vote::new_committed(2, 1),
++    );
++    eng.state.server_state = ServerState::Leader;
++    eng.testing_new_leader();
++    eng.output.clear_commands();
++    let pre = state_json(&eng, false);
++    eng.state.update_local_committed(&Some(log_id(1, 1, 2)));
++    let post = state_json(&eng, false);
++    emit("CommitMembership", 1, pre, post, json!({}))
++}
++
++#[test]
++fn specula_trace_restart_follower() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::without_last_update(Vote::new(2, 2));
++    eng.state.server_state = ServerState::Learner;
++    eng.output.clear_commands();
++    let pre = state_json(&eng, true);
++    eng.startup();
++    let post = state_json(&eng, false);
++    emit("Restart", 1, pre, post, json!({}))
++}
++
++// ---------------------------------------------------------------------------
++// Update scenarios: Pre-Vote (U1-U5 in modeling-brief.md).
++// ---------------------------------------------------------------------------
++
++/// A follower whose leader lease expired; committed vote (1,2), last log (1,1,1).
++fn expired_follower() -> Engine<UTConfig> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new_committed(1, 2));
++    eng
++}
++
++/// U1: a multi-voter Pre-Vote round changes no vote, role, or persistence and
++/// queues only SendPreVote.
++#[test]
++fn specula_trace_pre_elect() -> anyhow::Result<()> {
++    let mut eng = expired_follower();
++    do_pre_elect(&mut eng)
++}
++
++/// U1: a single voter wins its own Pre-Vote and elects at once.
++#[test]
++fn specula_trace_pre_elect_single_voter() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(1, 2));
++    do_pre_elect(&mut eng)
++}
++
++/// U3: a follower holding an unexpired leader lease rejects a Pre-Vote.
++#[test]
++fn specula_trace_pre_vote_req_lease_reject() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(
++        UTConfig::<()>::now(),
++        Duration::from_millis(5000),
++        Vote::new_committed(2, 2),
++    );
++    eng.output.clear_commands();
++    let req = VoteRequest::new(Vote::new(3, 3), Some(log_id(1, 1, 1)));
++    do_pre_vote_req(&mut eng, 3, req)
++}
++
++/// U3: a candidate log behind the responder's log is rejected.
++#[test]
++fn specula_trace_pre_vote_req_log_reject() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new_committed(2, 2));
++    eng.state.log_ids = LogIdList::new(None, [log_id(2, 2, 3)]);
++    eng.output.clear_commands();
++    let req = VoteRequest::new(Vote::new(3, 3), Some(log_id(1, 1, 2)));
++    do_pre_vote_req(&mut eng, 3, req)
++}
++
++/// U3: a would-be vote that is not >= the responder's vote is rejected, and
++/// the rejection does not reveal anything the requester adopts.
++#[test]
++fn specula_trace_pre_vote_req_vote_reject() -> anyhow::Result<()> {
++    let mut eng = base_engine(3, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(3, 2));
++    eng.output.clear_commands();
++    let req = VoteRequest::new(Vote::new(3, 1), Some(log_id(1, 1, 1)));
++    do_pre_vote_req(&mut eng, 1, req)
++}
++
++/// U3: a granted Pre-Vote leaves the responder untouched.
++#[test]
++fn specula_trace_pre_vote_req_grant() -> anyhow::Result<()> {
++    let mut eng = base_engine(2, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new_committed(1, 3));
++    eng.output.clear_commands();
++    let req = VoteRequest::new(Vote::new(2, 1), Some(log_id(1, 1, 1)));
++    do_pre_vote_req(&mut eng, 1, req)
++}
++
++/// U1/U2: a full round: a rejection carrying a greater log only sets the
++/// greater-log hint; a grant completes the quorum and starts the election.
++#[test]
++fn specula_trace_pre_vote_round() -> anyhow::Result<()> {
++    let mut eng = expired_follower();
++    do_pre_elect(&mut eng)?;
++    let pv = pre_vote_of(&eng);
++    do_pre_vote_resp(
++        &mut eng,
++        3,
++        pv,
++        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 2, 2)), false),
++    )?;
++    do_pre_vote_resp(
++        &mut eng,
++        2,
++        pv,
++        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
++    )
++}
++
++/// U2: without a live round, a delayed Pre-Vote response is ignored.
++#[test]
++fn specula_trace_pre_vote_stale_resp() -> anyhow::Result<()> {
++    let mut eng = expired_follower();
++    do_pre_vote_resp(
++        &mut eng,
++        2,
++        Vote::new(2, 1),
++        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
++    )
++}
++
++/// U4: granting another candidate's real vote runs become_following, which
++/// drops the Pre-Vote tracker.
++#[test]
++fn specula_trace_vote_req_cancels_pre_vote() -> anyhow::Result<()> {
++    let mut eng = expired_follower();
++    do_pre_elect(&mut eng)?;
++    let req = VoteRequest {
++        vote: Vote::new(2, 3),
++        last_log_id: Some(log_id(1, 1, 1)),
++        leadership_transfer: false,
++    };
++    do_vote_req(&mut eng, 3, req)
++}
++
++/// U4: a real election (e.g. Trigger::elect(false)) supersedes the round.
++#[test]
++fn specula_trace_elect_cancels_pre_vote() -> anyhow::Result<()> {
++    let mut eng = expired_follower();
++    do_pre_elect(&mut eng)?;
++    let pre = state_json(&eng, false);
++    eng.elect();
++    let post = state_json(&eng, false);
++    emit("StartElection", 1, pre, post, json!({"transfer": false}))
++}
++
++/// A Candidate with a self-granted real election at (2,1), commands drained.
++fn running_candidate() -> Engine<UTConfig> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new(2, 1));
++    eng.state.server_state = ServerState::Candidate;
++    let candidate = eng.new_candidate(*eng.state.vote_ref());
++    candidate.grant_by(&1);
++    eng.output.clear_commands();
++    eng
++}
++
++/// U2 (steps a+b): the election timer of a still-running Candidate starts a
++/// Pre-Vote round for the next term; the earlier real election then wins.
++/// establish_leader does not drop the Pre-Vote tracker.
++#[test]
++fn specula_trace_candidate_pre_round_survives_leadership() -> anyhow::Result<()> {
++    let mut eng = running_candidate();
++    do_pre_elect(&mut eng)?;
++    do_vote_resp(
++        &mut eng,
++        2,
++        VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true),
++    )
++}
++
++/// U2 (step c): an established Leader that still holds that Pre-Vote round
++/// receives a delayed grant; the quorum calls elect().
++#[test]
++fn specula_trace_leader_pre_vote_win() -> anyhow::Result<()> {
++    let mut eng = running_candidate();
++    eng.pre_elect();
++    eng.handle_vote_resp(2, VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true));
++    assert_eq!(ServerState::Leader, eng.state.server_state);
++    assert!(eng.pre_candidate_ref().is_some());
++    // The runtime has drained the establishment commands (vote saved, blank
++    // log appended) before the next notification is handled.
++    eng.output.clear_commands();
++    let pv = pre_vote_of(&eng);
++    do_pre_vote_resp(
++        &mut eng,
++        2,
++        pv,
++        VoteResponse::new(Vote::new(2, 1), Some(log_id(1, 1, 1)), true),
++    )
++}
++
++/// U4: the Pre-Vote tracker is volatile: a crash loses it and startup of the
++/// reconstructed engine does not bring it back.
++#[test]
++fn specula_trace_restart_drops_pre_round() -> anyhow::Result<()> {
++    let mut live = expired_follower();
++    live.pre_elect();
++    live.output.clear_commands();
++    let pre = state_json(&live, true);
++
++    // Reconstruct from durable state: vote, log, membership.
++    let mut eng = base_engine(1, vec![btreeset! {1, 2, 3}], 1);
++    eng.state.vote = Leased::without_last_update(*live.state.vote_ref());
++    eng.state.server_state = ServerState::Learner;
++    eng.output.clear_commands();
++    eng.startup();
++    let post = state_json(&eng, false);
++    emit("Restart", 1, pre, post, json!({}))
++}
++
++/// U5: a Pre-Vote round frozen on a joint config needs a majority in every
++/// component.
++#[test]
++fn specula_trace_pre_vote_joint_config() -> anyhow::Result<()> {
++    let mut eng = base_engine(1, vec![btreeset! {1, 2}, btreeset! {2, 3}], 1);
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, Vote::new_committed(1, 2));
++    eng.output.clear_commands();
++    do_pre_elect(&mut eng)?;
++    let pv = pre_vote_of(&eng);
++    do_pre_vote_resp(
++        &mut eng,
++        2,
++        pv,
++        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
++    )?;
++    do_pre_vote_resp(
++        &mut eng,
++        3,
++        pv,
++        VoteResponse::new(Vote::new_committed(1, 2), Some(log_id(1, 1, 1)), true),
++    )
++}
+diff --git a/stores/memstore/src/lib.rs b/stores/memstore/src/lib.rs
+index d1708ec..1d182bf 100644
+--- a/stores/memstore/src/lib.rs
++++ b/stores/memstore/src/lib.rs
+@@ -127,6 +127,8 @@ pub enum BlockOperation {
+     DelayBuildingSnapshot,
+     BuildSnapshot,
+     PurgeLog,
++    /// Delay `save_vote` (test-only; used by the Specula Pre-Vote reproduction).
++    DelaySaveVote,
+ }
+ 
+ /// Block operations for testing purposes.
+@@ -407,6 +409,10 @@ impl RaftLogStorage<TypeConfig> for Arc<MemLogStore> {
+     #[tracing::instrument(level = "trace", skip(self))]
+     async fn save_vote(&mut self, vote: &Vote<leader_id_mode::LeaderId<u64, u64>>) -> Result<(), io::Error> {
+         tracing::debug!(?vote, "save_vote");
++        if let Some(d) = self.block.get_blocking(&BlockOperation::DelaySaveVote) {
++            tracing::info!(?d, "delay save_vote");
++            TypeConfig::sleep(d).await;
++        }
+         let mut h = self.vote.write().await;
+ 
+         *h = Some(*vote);
+diff --git a/tests/tests/elect/main.rs b/tests/tests/elect/main.rs
+index 3ff89ce..86a53ca 100644
+--- a/tests/tests/elect/main.rs
++++ b/tests/tests/elect/main.rs
+@@ -10,3 +10,7 @@ mod fixtures;
+ mod t10_elect_compare_last_log;
+ mod t11_elect_seize_leadership;
+ mod t12_pre_vote;
++mod t91_specula_stale_pre_vote_round;
++mod t92_specula_stale_pre_vote_round_timer;
++mod t93_specula_stale_pre_vote_grant_removed_member;
++mod t94_specula_pre_vote_term_stall;
+diff --git a/tests/tests/elect/t91_specula_stale_pre_vote_round.rs b/tests/tests/elect/t91_specula_stale_pre_vote_round.rs
+new file mode 100644
+index 0000000..e7fbc70
+--- /dev/null
++++ b/tests/tests/elect/t91_specula_stale_pre_vote_round.rs
+@@ -0,0 +1,118 @@
++//! Specula reproduction (Scenario U2): a Pre-Vote round started while a node
++//! is still a Candidate is not cancelled when that node's real election wins.
++//! A delayed Pre-Vote grant then makes the established Leader start a new
++//! election at a higher term, disrupting its own healthy leadership.
++//!
++//! The Pre-Vote round is started with `Trigger::elect(true)` for determinism;
++//! the election timer reaches the same `Engine::pre_elect` on a Candidate
++//! whose election has run longer than the election timeout
++//! (RaftCore::handle_tick_election skips only Leaders).
++//!
++//! This test asserts the promised behavior and FAILS while the defect exists.
++
++use std::sync::Arc;
++use std::time::Duration;
++
++use anyhow::Result;
++use maplit::btreeset;
++use openraft::Config;
++use openraft::RPCTypes;
++use openraft::ServerState;
++use openraft::async_runtime::WatchReceiver;
++use openraft::type_config::TypeConfigExt;
++use openraft_memstore::TypeConfig;
++
++use crate::fixtures::RaftRouter;
++use crate::fixtures::rpc_request::RpcRequest;
++use crate::fixtures::rpc_response::RpcResponse;
++use crate::fixtures::ut_harness;
++
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_stale_pre_vote_round_does_not_depose_leader() -> Result<()> {
++    let config = Arc::new(
++        Config {
++            enable_heartbeat: false,
++            enable_elect: false,
++            enable_pre_vote: Some(true),
++            // Vote RPC timeout is election_timeout_min; keep it above the delays below.
++            election_timeout_min: 3000,
++            election_timeout_max: 4000,
++            ..Default::default()
++        }
++        .validate()?,
++    );
++
++    let mut router = RaftRouter::new(config.clone());
++
++    tracing::info!("--- create cluster of 0,1,2; node 0 becomes leader");
++    router.new_cluster(btreeset! {0,1,2}, btreeset! {}).await?;
++    let n0 = router.get_raft_handle(&0)?;
++    let n1 = router.get_raft_handle(&1)?;
++    n0.wait(timeout()).state(ServerState::Leader, "node 0 is leader").await?;
++    let t = n1.metrics().borrow_watched().current_term;
++
++    tracing::info!("--- let every leader lease expire (leader_lease = election_timeout_max)");
++    TypeConfig::sleep(Duration::from_millis(4500)).await;
++
++    // Real Vote requests of node 1 for term t+1 are slow to arrive (500 ms);
++    // Pre-Vote requests (term t+2) arrive at once, but their responses are
++    // slow to return (1500 ms). Both stay within the 3000 ms RPC timeout.
++    router
++        .set_rpc_pre_hook(RPCTypes::Vote, move |_r, req, from, _to| {
++            let slow = matches!(&req, RpcRequest::Vote(v) if from == 1 && v.vote.leader_id().term == t + 1);
++            Box::pin(async move {
++                if slow {
++                    TypeConfig::sleep(Duration::from_millis(500)).await;
++                }
++                Ok(())
++            })
++        })
++        .await;
++    router
++        .set_rpc_post_hook(RPCTypes::Vote, move |_r, req, _resp: RpcResponse<TypeConfig>, from, _to| {
++            let slow = matches!(&req, RpcRequest::Vote(v) if from == 1 && v.vote.leader_id().term == t + 2);
++            Box::pin(async move {
++                if slow {
++                    TypeConfig::sleep(Duration::from_millis(1500)).await;
++                }
++                Ok(())
++            })
++        })
++        .await;
++
++    tracing::info!("--- node 1 starts a real election at term t+1 (votes in flight)");
++    n1.trigger().elect(false).await?;
++    tracing::info!("--- while still Candidate, node 1 starts a Pre-Vote round for term t+2");
++    n1.trigger().elect(true).await?;
++
++    n1.wait(timeout()).state(ServerState::Leader, "node 1 wins the term t+1 election").await?;
++    assert_eq!(t + 1, n1.metrics().borrow_watched().current_term);
++    tracing::info!("--- node 1 is leader at term t+1; wait for the delayed Pre-Vote grants");
++
++    TypeConfig::sleep(Duration::from_millis(3000)).await;
++    // RaftCore must still be alive: a dead core leaves metrics frozen at the
++    // last published value, so probe it with a request it must serve.
++    let core = n1.with_raft_state(|st| (st.server_state, st.vote_ref().leader_id().term)).await;
++    println!("SPECULA_OBSERVATION node1 RaftCore probe: {:?}", core);
++    let m = n1.metrics().borrow_watched().clone();
++    tracing::info!("--- node 1 after the delayed Pre-Vote responses: state={:?} term={}", m.state, m.current_term);
++    println!("SPECULA_OBSERVATION node1 state={:?} term={} (leader term was {})", m.state, m.current_term, t + 1);
++
++    let core = core.map_err(|e| anyhow::anyhow!("RaftCore of node 1 is no longer running: {}", e))?;
++    assert_eq!(
++        (ServerState::Leader, t + 1),
++        core,
++        "RaftCore state: a superseded Pre-Vote round must not depose the leader it was started for"
++    );
++    assert_eq!(
++        (ServerState::Leader, t + 1),
++        (m.state, m.current_term),
++        "a superseded Pre-Vote round must not depose the leader it was started for"
++    );
++    Ok(())
++}
++
++fn timeout() -> Option<Duration> {
++    Some(Duration::from_millis(3000))
++}
+diff --git a/tests/tests/elect/t92_specula_stale_pre_vote_round_timer.rs b/tests/tests/elect/t92_specula_stale_pre_vote_round_timer.rs
+new file mode 100644
+index 0000000..ee71a51
+--- /dev/null
++++ b/tests/tests/elect/t92_specula_stale_pre_vote_round_timer.rs
+@@ -0,0 +1,108 @@
++//! Specula reproduction (Scenario U2), election-timer variant: no operator
++//! trigger is used. Node 1's vote save is slow (600 ms) and its real Vote
++//! RPCs take 500 ms, so its term t+1 election outlives the election timeout
++//! (~1000 ms). The timer then starts a Pre-Vote round for term t+2 on the
++//! still-running Candidate; the real election wins at term t+1; the delayed
++//! Pre-Vote grant then makes the new Leader call `elect()` again.
++//!
++//! This test asserts the promised behavior and FAILS while the defect exists.
++
++use std::sync::Arc;
++use std::time::Duration;
++
++use anyhow::Result;
++use maplit::btreeset;
++use openraft::Config;
++use openraft::RPCTypes;
++use openraft::ServerState;
++use openraft::async_runtime::WatchReceiver;
++use openraft::type_config::TypeConfigExt;
++use openraft_memstore::BlockOperation;
++use openraft_memstore::TypeConfig;
++
++use crate::fixtures::RaftRouter;
++use crate::fixtures::rpc_request::RpcRequest;
++use crate::fixtures::rpc_response::RpcResponse;
++use crate::fixtures::ut_harness;
++
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_timer_pre_vote_round_does_not_depose_leader() -> Result<()> {
++    let config = Arc::new(
++        Config {
++            enable_pre_vote: Some(true),
++            election_timeout_min: 1000,
++            election_timeout_max: 1001,
++            heartbeat_interval: 100,
++            ..Default::default()
++        }
++        .validate()?,
++    );
++
++    let mut router = RaftRouter::new(config.clone());
++    tracing::info!("--- create cluster of 0,1,2; node 0 becomes leader");
++    router.new_cluster(btreeset! {0,1,2}, btreeset! {}).await?;
++    let n0 = router.get_raft_handle(&0)?;
++    let n1 = router.get_raft_handle(&1)?;
++    let n2 = router.get_raft_handle(&2)?;
++    n0.wait(timeout()).state(ServerState::Leader, "node 0 is leader").await?;
++    let t = n1.metrics().borrow_watched().current_term;
++
++    // Only node 1 runs its election timer.
++    n0.runtime_config().elect(false);
++    n2.runtime_config().elect(false);
++
++    let (_log1, sm1) = router.get_storage_handle(&1)?;
++    sm1.block.set_blocking(BlockOperation::DelaySaveVote, Duration::from_millis(600));
++
++    router
++        .set_rpc_pre_hook(RPCTypes::Vote, move |_r, req, from, _to| {
++            let slow = matches!(&req, RpcRequest::Vote(v) if from == 1 && v.vote.leader_id().term == t + 1 && !v.vote.is_committed());
++            Box::pin(async move {
++                if slow {
++                    TypeConfig::sleep(Duration::from_millis(500)).await;
++                }
++                Ok(())
++            })
++        })
++        .await;
++    // Delay only the responses of the term t+2 Pre-Vote round (the real
++    // term t+1 election and the first Pre-Vote round are not delayed here).
++    router
++        .set_rpc_post_hook(RPCTypes::Vote, move |_r, req, _resp: RpcResponse<TypeConfig>, from, _to| {
++            let slow = matches!(&req, RpcRequest::Vote(v) if from == 1 && v.vote.leader_id().term == t + 2);
++            Box::pin(async move {
++                if slow {
++                    TypeConfig::sleep(Duration::from_millis(800)).await;
++                }
++                Ok(())
++            })
++        })
++        .await;
++
++    tracing::info!("--- isolate leader 0; node 1's timer drives Pre-Vote and election");
++    router.set_network_error(0, true);
++
++    n1.wait(Some(Duration::from_secs(10)))
++        .metrics(
++            |m| m.state == ServerState::Leader && m.current_term == t + 1,
++            "node 1 becomes leader at term t+1",
++        )
++        .await?;
++    tracing::info!("--- node 1 leads term t+1; wait for the delayed Pre-Vote grants");
++    TypeConfig::sleep(Duration::from_millis(2500)).await;
++
++    let core = n1.with_raft_state(|st| (st.server_state, st.vote_ref().leader_id().term)).await;
++    println!("SPECULA_OBSERVATION timer variant: node1 RaftCore probe: {:?}", core);
++    let core = core.map_err(|e| anyhow::anyhow!("RaftCore of node 1 is no longer running: {}", e))?;
++    assert_eq!(
++        (ServerState::Leader, t + 1),
++        core,
++        "a timer-started Pre-Vote round must not depose the leader its node became"
++    );
++    Ok(())
++}
++
++fn timeout() -> Option<Duration> {
++    Some(Duration::from_millis(3000))
++}
+diff --git a/tests/tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs b/tests/tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs
+new file mode 100644
+index 0000000..9940af8
+--- /dev/null
++++ b/tests/tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs
+@@ -0,0 +1,137 @@
++//! Specula reproduction (Scenario U5): Pre-Vote rounds at an unchanged term
++//! reuse the leader id `(term+1, self)`. Node 1 starts a Pre-Vote round
++//! (`Trigger::elect(true)`) while node 3 is still a voter; node 3's grant is
++//! delayed. The leader removes node 3 (joint, then uniform config replicated to
++//! node 1, which drops the round via become_following). Node 1 starts a new
++//! round at the same term with config {0,1,2}. The delayed grant of node 3
++//! passes RaftCore's leader-id filter and `Candidate::grant_by` panics with
++//! "target not in quorum set" (an `expect`, so also in release builds).
++//!
++//! Heartbeats are disabled because each heartbeat makes node 1 run
++//! become_following, which drops a live round; with heartbeats on, the stale
++//! grant must arrive within one heartbeat interval after round 2 starts.
++//!
++//! This test asserts the promised behavior (a delayed response is ignored)
++//! and FAILS while the defect exists.
++
++use std::sync::Arc;
++use std::time::Duration;
++
++use anyhow::Result;
++use maplit::btreeset;
++use openraft::Config;
++use openraft::RPCTypes;
++use openraft::ServerState;
++use openraft::async_runtime::WatchReceiver;
++use openraft::errors::RPCError;
++use openraft::errors::Unreachable;
++use openraft::type_config::TypeConfigExt;
++use openraft_memstore::TypeConfig;
++
++use crate::fixtures::RaftRouter;
++use crate::fixtures::rpc_request::RpcRequest;
++use crate::fixtures::rpc_response::RpcResponse;
++use crate::fixtures::ut_harness;
++
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_stale_pre_vote_grant_from_removed_member() -> Result<()> {
++    let config = Arc::new(
++        Config {
++            enable_elect: false,
++            // Every heartbeat runs become_following on node 1, which drops a
++            // live Pre-Vote round; without heartbeats the round stays live
++            // until the delayed response arrives (log replication still runs).
++            enable_heartbeat: false,
++            enable_pre_vote: Some(true),
++            election_timeout_min: 3000,
++            election_timeout_max: 4000,
++            heartbeat_interval: 200,
++            ..Default::default()
++        }
++        .validate()?,
++    );
++
++    let mut router = RaftRouter::new(config.clone());
++    tracing::info!("--- create cluster of 0,1,2,3; node 0 becomes leader");
++    router.new_cluster(btreeset! {0,1,2,3}, btreeset! {}).await?;
++    let n0 = router.get_raft_handle(&0)?;
++    let n1 = router.get_raft_handle(&1)?;
++    n0.wait(timeout()).state(ServerState::Leader, "node 0 is leader").await?;
++    let t = n1.metrics().borrow_watched().current_term;
++
++    // Node 3 stops hearing from the leader, so its lease expires and it would
++    // grant a Pre-Vote; nodes 1 and 2 keep receiving heartbeats.
++    router
++        .set_rpc_pre_hook(RPCTypes::AppendEntries, |_r, _req, _from, to| {
++            let blocked = to == 3;
++            Box::pin(async move {
++                if blocked {
++                    Err(RPCError::Unreachable(Unreachable::<TypeConfig>::from_string("specula: block 0 -> 3")))
++                } else {
++                    Ok(())
++                }
++            })
++        })
++        .await;
++    // Pre-Vote requests of node 1 do not reach the leader (keeps it out of the
++    // tally); node 3's grant for round 1 is delayed by 1500 ms (< 3000 ms RPC timeout).
++    router
++        .set_rpc_pre_hook(RPCTypes::Vote, move |_r, req, from, to| {
++            let drop_to_leader = matches!(&req, RpcRequest::Vote(v) if from == 1 && to == 0 && v.vote.leader_id().term == t + 1);
++            Box::pin(async move {
++                if drop_to_leader {
++                    Err(RPCError::Unreachable(Unreachable::<TypeConfig>::from_string("specula: drop 1 -> 0")))
++                } else {
++                    Ok(())
++                }
++            })
++        })
++        .await;
++    router
++        .set_rpc_post_hook(RPCTypes::Vote, move |_r, req, _resp: RpcResponse<TypeConfig>, from, to| {
++            let slow = matches!(&req, RpcRequest::Vote(v) if from == 1 && to == 3 && v.vote.leader_id().term == t + 1);
++            Box::pin(async move {
++                if slow {
++                    TypeConfig::sleep(Duration::from_millis(1500)).await;
++                }
++                Ok(())
++            })
++        })
++        .await;
++
++    tracing::info!("--- wait for node 3's lease to expire");
++    TypeConfig::sleep(Duration::from_millis(4500)).await;
++
++    tracing::info!("--- node 1: Pre-Vote round 1 (config 0,1,2,3)");
++    n1.trigger().elect(true).await?;
++    TypeConfig::sleep(Duration::from_millis(100)).await;
++
++    tracing::info!("--- leader removes node 3");
++    n0.change_membership([0, 1, 2], false).await?;
++    n1.wait(timeout())
++        .metrics(
++            |m| m.membership_config.membership().voter_ids().collect::<Vec<_>>() == vec![0, 1, 2],
++            "node 1 sees config 0,1,2",
++        )
++        .await?;
++
++    // Let the trailing commit-index replication reach node 1 first.
++    TypeConfig::sleep(Duration::from_millis(300)).await;
++    tracing::info!("--- node 1: Pre-Vote round 2 at the same term (config 0,1,2)");
++    n1.trigger().elect(true).await?;
++    assert_eq!(t, n1.metrics().borrow_watched().current_term);
++
++    tracing::info!("--- wait for node 3's delayed grant to round 1");
++    TypeConfig::sleep(Duration::from_millis(2500)).await;
++
++    let core = n1.with_raft_state(|st| (st.server_state, st.vote_ref().leader_id().term)).await;
++    println!("SPECULA_OBSERVATION stale grant: node1 RaftCore probe: {:?}", core);
++    let core = core.map_err(|e| anyhow::anyhow!("RaftCore of node 1 is no longer running: {}", e))?;
++    assert_eq!((ServerState::Follower, t), core, "a delayed grant from a removed member must be ignored");
++    Ok(())
++}
++
++fn timeout() -> Option<Duration> {
++    Some(Duration::from_millis(5000))
++}
+diff --git a/tests/tests/elect/t94_specula_pre_vote_term_stall.rs b/tests/tests/elect/t94_specula_pre_vote_term_stall.rs
+new file mode 100644
+index 0000000..1a054ff
+--- /dev/null
++++ b/tests/tests/elect/t94_specula_pre_vote_term_stall.rs
+@@ -0,0 +1,145 @@
++//! Specula reproduction (CR-1): a rejected Pre-Vote never carries the
++//! responder's higher term back to the requester.
++//!
++//! Five voters {0..4}. Leader 0 replicates one extra entry only to node 1 and
++//! then fails for good. While node 1 is partitioned, nodes 2,3,4 elect a
++//! leader W at a higher term; W fails before replicating anything. Node 1
++//! rejoins: it has the freshest log but a stale term; the two other live
++//! nodes hold W's higher (uncommitted) vote but a shorter log. Three of five
++//! voters are alive and connected.
++//!
++//! - With Pre-Vote: node 1's Pre-Vote is rejected (its vote is lower) and it
++//!   never learns the higher term; the others' Pre-Votes are rejected by node
++//!   1 (shorter log). Nobody ever raises its term: no leader.
++//! - Control without Pre-Vote: node 1's rejected real election adopts the
++//!   higher term and its next election wins.
++//!
++//! `specula_pre_vote_term_stall_live_majority_elects` asserts the promised
++//! progress and FAILS while the defect exists; the control passes.
++
++use std::sync::Arc;
++use std::time::Duration;
++
++use anyhow::Result;
++use maplit::btreeset;
++use openraft::Config;
++use openraft::RPCTypes;
++use openraft::ServerState;
++use openraft::async_runtime::WatchReceiver;
++use openraft::errors::RPCError;
++use openraft::errors::Unreachable;
++use openraft::type_config::TypeConfigExt;
++use openraft_memstore::TypeConfig;
++
++use crate::fixtures::RaftRouter;
++use crate::fixtures::ut_harness;
++
++/// Returns (live node ids, leader among them, their terms).
++async fn stall_scenario(pre_vote: bool) -> Result<(Vec<u64>, Option<u64>, Vec<u64>)> {
++    let config = Arc::new(
++        Config {
++            enable_pre_vote: Some(pre_vote),
++            ..Default::default()
++        }
++        .validate()?,
++    );
++    let mut router = RaftRouter::new(config.clone());
++    let mut log_index = router.new_cluster(btreeset! {0,1,2,3,4}, btreeset! {}).await?;
++    router.get_raft_handle(&0)?.wait(timeout()).state(ServerState::Leader, "node 0 is leader").await?;
++
++    // Nodes 2,3,4 do not run their election timers yet.
++    for id in [2, 3, 4] {
++        router.get_raft_handle(&id)?.runtime_config().elect(false);
++    }
++    // Leader 0 replicates only to node 1; whatever 2,3,4 would replicate never arrives.
++    router
++        .set_rpc_pre_hook(RPCTypes::AppendEntries, |_r, _req, from, to| {
++            let blocked = (from == 0 && to != 1) || [2, 3, 4].contains(&from);
++            Box::pin(async move {
++                if blocked {
++                    Err(RPCError::Unreachable(Unreachable::<TypeConfig>::from_string("specula: blocked")))
++                } else {
++                    Ok(())
++                }
++            })
++        })
++        .await;
++
++    tracing::info!("--- leader 0 appends one entry that reaches only node 1");
++    let r = router.clone();
++    TypeConfig::spawn(async move {
++        let _x = r.client_request(0, "foo", 1).await;
++    });
++    log_index += 1;
++    let n1 = router.get_raft_handle(&1)?;
++    n1.wait(timeout()).log_index(Some(log_index), "node 1 has the extra entry").await?;
++
++    tracing::info!("--- node 0 fails for good; node 1 is partitioned for now");
++    router.set_network_error(0, true);
++    router.set_network_error(1, true);
++    n1.runtime_config().elect(false);
++
++    tracing::info!("--- nodes 2,3,4 elect a leader among themselves");
++    for id in [2, 3, 4] {
++        router.get_raft_handle(&id)?.runtime_config().elect(true);
++    }
++    let mut w = None;
++    for _ in 0..200 {
++        for id in [2, 3, 4] {
++            if router.get_raft_handle(&id)?.metrics().borrow_watched().state == ServerState::Leader {
++                w = Some(id);
++            }
++        }
++        if w.is_some() {
++            break;
++        }
++        TypeConfig::sleep(Duration::from_millis(50)).await;
++    }
++    let w = w.ok_or_else(|| anyhow::anyhow!("nodes 2,3,4 did not elect a leader"))?;
++    tracing::info!("--- new leader {} fails for good before replicating", w);
++    router.set_network_error(w, true);
++
++    tracing::info!("--- node 1 rejoins; live voters: 1 and the two remaining nodes");
++    router.set_network_error(1, false);
++    n1.runtime_config().elect(true);
++    let live = [1u64, 2, 3, 4].into_iter().filter(|id| *id != w).collect::<Vec<_>>();
++
++    TypeConfig::sleep(Duration::from_millis(5000)).await;
++
++    let mut leader = None;
++    let mut terms = vec![];
++    for id in &live {
++        let m = router.get_raft_handle(id)?.metrics().borrow_watched().clone();
++        println!("SPECULA_OBSERVATION pre_vote={} node {}: state={:?} term={} last_log={:?}", pre_vote, id, m.state, m.current_term, m.last_log_index);
++        terms.push(m.current_term);
++        if m.state == ServerState::Leader {
++            leader = Some(*id);
++        }
++    }
++    Ok((live, leader, terms))
++}
++
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_pre_vote_term_stall_live_majority_elects() -> Result<()> {
++    let (live, leader, terms) = stall_scenario(true).await?;
++    assert!(
++        leader.is_some(),
++        "3 of 5 voters {:?} are alive and connected, but no leader was elected; terms stay {:?}",
++        live,
++        terms
++    );
++    Ok(())
++}
++
++#[tracing::instrument]
++#[test_harness::test(harness = ut_harness)]
++async fn specula_control_direct_election_live_majority_elects() -> Result<()> {
++    let (live, leader, terms) = stall_scenario(false).await?;
++    assert!(leader.is_some(), "control: no leader among {:?}; terms {:?}", live, terms);
++    Ok(())
++}
++
++fn timeout() -> Option<Duration> {
++    Some(Duration::from_millis(3000))
++}

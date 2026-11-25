@@ -1,0 +1,37 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 1200s java -Xmx6g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=900 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC-hunt-election.cfg -metadir /dev/shm/specula-e2e-case-002/mc-mc-hunt-election-12499 -workers 2 -cleanup -noGenerateSpecTE MC.tla
+STARTED: 2026-11-25T05:52:52Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 74 and seed 7639794052479635166 with 2 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 12505] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-3718152470050346091/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-3718152470050346091/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-3718152470050346091/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-3718152470050346091/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-3718152470050346091/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Linting of module base
+Linting of module MC
+Starting... (2026-11-25 05:52:54)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 05:52:55.
+Error: Invariant NotElectionReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 19, col 23 to line 19, col 85 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 20, col 21 to line 20, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 21, col 21 to line 21, col 79 of module MC>
+
+69 states generated, 24 distinct states found, 11 states left on queue.
+The depth of the complete state graph search is 4.
+Finished in 03s at (2026-11-25 05:52:55)
+FINISHED: 2026-11-25T05:52:55Z exit=12

@@ -1,0 +1,40 @@
+{
+  "schema_version": "2",
+  "system": "openraft (artifact 3ab6cdd, Pre-Vote revision)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote can leave a live majority permanently leaderless",
+      "source": "model-checking",
+      "scenario": "U-S2 (higher votes are invisible to Pre-Vote)",
+      "severity": "High",
+      "invariant": "NoPermanentPreVoteLivelock",
+      "config": "MC_hunt_prevote_livelock_phased.cfg",
+      "counterexample": "spec/output/mc-hunt-livelock-phased-bfs.log",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:516-554",
+        "openraft/src/engine/engine_impl.rs:441-446",
+        "openraft/src/core/raft_core.rs:2010-2035"
+      ],
+      "summary": "With enable_pre_vote, a node only increments its term after a Pre-Vote quorum, but Pre-Vote never transfers vote information: handle_pre_vote_req never updates the responder and handle_pre_vote_resp ignores a rejecting responder's higher vote (unlike handle_vote_resp, which adopts it), while the responder rejects any Pre-Vote below its own vote. If the live voter with the most up-to-date log holds a lower vote than the other live voters (e.g. node 3 started a term-2 election that node 2 refused after receiving the crashed leader's last entry), node 2's Pre-Vote is rejected by vote order and node 3's by log recency forever. TLC reaches this state in 25 steps (3 voters, one crash), shows from it that no live leader is ever elected and no live vote changes (exhaustive closure, spec/witness/livelock/closure_on.log), and shows that the pre-update direct-election tick recovers from the same state (control_off.log). The per-round behaviour is reproduced on the real Engine (spec/output/observations.log)."
+    },
+    {
+      "id": "MC-2",
+      "title": "A stale Pre-Vote round demotes a newly established leader",
+      "source": "model-checking",
+      "scenario": "U-S3 (pre-candidate survives leader establishment)",
+      "severity": "Medium",
+      "invariant": "PreVoteQuorumNeverDemotesLeader",
+      "config": "MC_hunt_prevote_leader_demote.cfg",
+      "counterexample": "spec/output/mc-hunt-leader-demote-bfs.log",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:855-881",
+        "openraft/src/engine/handler/vote_handler/mod.rs:154-230",
+        "openraft/src/engine/engine_impl.rs:516-554",
+        "openraft/src/core/raft_core.rs:2066-2090"
+      ],
+      "summary": "The election tick runs pre_elect for any non-leader voter, including a Candidate whose real election is still open. If that election then succeeds, establish_leader -> become_leader keeps Engine.pre_candidate (only do_elect and become_following clear it). A later granted Pre-Vote response passes the runtime correlation (pre-candidate exists, same leader id) and handle_pre_vote_resp calls elect() on the established Leader, which becomes a Candidate at term+1. TLC finds it in 14 states (no faults) and over the complete MCNext in Update_full.cfg (12 states); the real Engine performs the same steps in trace candidate_prevote_then_establish and in the code observation specula_observe_leader_demoted_by_stale_prevote."
+    }
+  ]
+}

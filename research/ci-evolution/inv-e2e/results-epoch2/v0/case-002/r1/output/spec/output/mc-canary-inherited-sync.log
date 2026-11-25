@@ -1,0 +1,61 @@
+# command: timeout 1080s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC-hunt-sync.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-inherited-sync-17654 -workers 4 -dumpTrace json output/mc-canary-inherited-sync.cex.json -cleanup MC.tla
+# started: 2026-11-25T08:24:44Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 31 and seed -7186697688843816721 with 4 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 17660] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-1485673013274713712/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-1485673013274713712/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-1485673013274713712/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1485673013274713712/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1485673013274713712/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1485673013274713712/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1485673013274713712/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-1485673013274713712/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-1485673013274713712/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-25 08:24:45)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:24:46.
+Error: Invariant NotSyncReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+State 5: <MCFollowLeader(s2,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 6: <MCAcceptEpoch(s2) line 34, col 21 to line 34, col 59 of module MC>
+
+State 7: <MCFinishDiscovery(s1) line 35, col 25 to line 35, col 67 of module MC>
+
+State 8: <MCEnterSyncPhase(s2,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 9: <MCSyncWithLeader(s2,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+"CounterExample written: output/mc-canary-inherited-sync.cex.json"
+15255 states generated, 2939 distinct states found, 1618 states left on queue.
+The depth of the complete state graph search is 10.
+Finished in 02s at (2026-11-25 08:24:47)
+Trace exploration spec path: ./MC_TTrace_1795595085.tla
+# exit: 12 finished: 2026-11-25T08:24:47Z

@@ -1,0 +1,9 @@
+{
+ "witness_module": "spec/witness/livelock/W_livelock.tla",
+ "how": "last state (25) of the NoPermanentPreVoteLivelock counterexample in spec/output/mc-hunt-livelock-phased-bfs.log (MC_hunt_prevote_livelock_phased.cfg, full MCSpec actions, pruning-only monitor LivelockDirectorPhased)",
+ "log": "spec/output/mc-hunt-livelock-phased-bfs.log",
+ "impl_basis": "each step is a reference action validated by traces (PreElect, HandlePreVoteRequest/Response, HandleVoteRequest/Response, HandleAppendEntries); the stuck state's per-round behaviour is observed on the real Engine in harness test specula_observe_prevote_livelock (spec/output/observations.log: 20 rounds, 0 real elections, votes unchanged); the full multi-node schedule was not run on the real runtime",
+ "closure": "spec/witness/livelock/closure_on.log: from the witness, TickPreVoteModes={TRUE}, no crash/restart/operator, MaxElectionCount 4, MaxTerm 5: exhaustive (9081 generated, 1456 distinct, queue 0), NoLiveLeader, VotesFrozen and PreVoteLivelock hold in every reachable state",
+ "control_off": "spec/witness/livelock/control_off.log: same witness with TickPreVoteModes={FALSE} (pre-update tick): NoLiveLeader violated after 10 steps (node 2 adopts (2,3) from the rejected real vote response, re-elects at term 3, node 3 grants)",
+ "control_log": "spec/witness/livelock/control_off.log"
+}

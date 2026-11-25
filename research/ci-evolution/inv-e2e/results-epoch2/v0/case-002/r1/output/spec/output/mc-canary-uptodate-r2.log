@@ -1,0 +1,79 @@
+# command: timeout 1200s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update-hunt-uptodate.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-uptodate-r2-17844 -workers 6 -dumpTrace json output/mc-canary-uptodate-r2.cex.json -cleanup Update.tla
+# started: 2026-11-25T08:25:05Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 32 and seed 4737903036451857007 with 6 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 17850] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-9636603007193447789/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-9636603007193447789/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-9636603007193447789/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-9636603007193447789/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-9636603007193447789/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-9636603007193447789/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-9636603007193447789/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-9636603007193447789/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-9636603007193447789/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 08:25:06)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:25:07.
+Progress(12) at 2026-11-25 08:25:10: 87,895 states generated (87,895 s/min), 19,982 distinct states found (19,982 ds/min), 9,635 states left on queue.
+Error: Invariant NotUptodateAfterLogging is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s3) line 30, col 23 to line 30, col 87 of module MC>
+
+State 3: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 4: <MCCastVote(s2,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 5: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+State 6: <MCFollowLeader(s3,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 7: <MCAcceptEpoch(s3) line 34, col 21 to line 34, col 59 of module MC>
+
+State 8: <MCFinishDiscovery(s1) line 35, col 25 to line 35, col 67 of module MC>
+
+State 9: <MCEnterSyncPhase(s3,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 10: <MCSyncWithLeader(s3,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 11: <MCLearnerNewLeaderPersist(s3) line 42, col 5 to line 42, col 80 of module MC>
+
+State 12: <MCLearnerNewLeaderStartup(s3) line 44, col 5 to line 44, col 80 of module MC>
+
+State 13: <MCLearnerLogPendingOne(s3) line 46, col 5 to line 46, col 81 of module MC>
+
+State 14: <MCLearnerSendNewLeaderAck(s3) line 48, col 5 to line 48, col 76 of module MC>
+
+State 15: <MCLeaderStartZkServer(s1) line 50, col 5 to line 50, col 78 of module MC>
+
+State 16: <MCLearnerUptodateStartServing(s3) line 54, col 5 to line 54, col 83 of module MC>
+
+"CounterExample written: output/mc-canary-uptodate-r2.cex.json"
+831069 states generated, 173682 distinct states found, 70882 states left on queue.
+The depth of the complete state graph search is 16.
+Finished in 17s at (2026-11-25 08:25:24)
+Trace exploration spec path: ./Update_TTrace_1795595106.tla
+# exit: 12 finished: 2026-11-25T08:25:24Z

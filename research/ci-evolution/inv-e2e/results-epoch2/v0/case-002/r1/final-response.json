@@ -1,0 +1,27 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update changes Learner.syncWithLeader. At NEWLEADER the learner now starts its server without serving (INITIAL), hands buffered DIFF proposals to the asynchronous SyncRequestProcessor, then ACKs; UPTODATE only starts serving. This changes modeled NEWLEADER state, so the model was updated: complete reference suite, Update.tla with Affected/Interaction actions, EnvUpdate and discharge, and update properties U1-U4. Prior abstractions were repaired: instant sync durability, the NEWLEADER-ACK barrier, leader establishment committing its loaded tree, DataTree versus txn log (lastLoggedZxid), and the canShutdown guard. The prior harness was rebased (one hunk re-anchored, update-window probes added) and the new DIFFSyncConsistencyTest scenario added. All 6 fresh traces pass real TLC trace validation with TraceMatched on the final artifacts; 3 mutants are rejected. Model checking (standard, full, concrete focused, open, discharge, scenario hunts, canaries; all budget-limited) produced three counterexamples. MC-1: the NEWLEADER ACK precedes the learner's fsync, so a learner crash loses a txn the leader already served. MC-2: a learner that fails before UPTODATE skips shutdown and keeps a stale DataTree, so an in-process re-election loses the served txn. MC-3 (update-independent): TRUNC to a zxid absent from the log keeps the next entry. Supplementary real tests reproduce all three on the update revision and on the old baseline: the update narrows but does not close the NEWLEADER durability gap. Coverage is limited: bounded models, planned TLC stops with non-empty queues, JDK 21 only, and the specular CLI is unavailable.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/mc-final-hunt-crash-window-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-final-hunt-crash-window-bfs.cex.json",
+    "/work/current/.specula-output/spec/output/mc-final-hunt-crash-window-fullnext-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-final-hunt-reelection-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-final-hunt-reelection-bfs.cex.json",
+    "/work/current/.specula-output/spec/output/mc-final-hunt-reelection-fullnext-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-final-focus-trunc-bfs.log",
+    "/work/current/.specula-output/spec/output/mc-final-update-full-sim.log",
+    "/work/current/.specula-output/spec/output/mc-checkpoint-witness-r2.log",
+    "/work/current/.specula-output/spec/output/campaign-summary.md",
+    "/work/current/.specula-output/spec/output/repro-ackfsync-new-1.log",
+    "/work/current/.specula-output/spec/output/repro-new-1.log",
+    "/work/current/.specula-output/spec/output/repro-trunc-new-1.log",
+    "/work/current/.specula-output/harness/repro/AckBeforeFsyncReproTest.java",
+    "/work/current/.specula-output/harness/repro/StaleTreeReelectionReproTest.java",
+    "/work/current/.specula-output/harness/repro/TruncAbsentZxidReproTest.java"
+  ],
+  "blockers": []
+}

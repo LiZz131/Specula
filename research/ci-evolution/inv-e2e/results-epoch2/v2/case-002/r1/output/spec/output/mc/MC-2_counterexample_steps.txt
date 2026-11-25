@@ -1,0 +1,15 @@
+2 votes,everCommitted,seen | votes=[s0 |-> {"s0"}, s1 |-> {}, s2 |-> {}]; everCommitted={ [ent |-> [id |-> 1, epoch |-> 1], ep |-> 2], [ent |-> [id |-> 2, epoch |-> 1], ep |-> 2] }; seen={"election"}
+3 votes | votes=[s0 |-> {"s0", "s1"}, s1 |-> {}, s2 |-> {}]
+4 leadersByEpoch,acceptedEpoch,role,seen,phase,leaderSummaryEpoch,leaderOf | leadersByEpoch=(0 :> {} @@ 1 :> {"s2"} @@ 2 :> {"s2"} @@ 3 :> {"s0"}); acceptedEpoch=[s0 |-> 3, s1 |-> 2, s2 |-> 2]; role=[s0 |-> "leading", s1 |-> "looking", s2 |-> "leading"]; seen={"election", "leader"}; phase=[s0 |-> "discovery", s1 |-> "election", s2 |-> "broadcast"]; leaderSummaryEpoch=[s0 |-> 2, s1 |-> 0, s2 |-> 1]; leaderOf=[s0 |-> "s0", s1 |-> "Nil", s2 |-> "s2"]
+5 role,phase,leaderOf | role=[s0 |-> "leading", s1 |-> "following", s2 |-> "leading"]; phase=[s0 |-> "discovery", s1 |-> "discovery", s2 |-> "broadcast"]; leaderOf=[s0 |-> "s0", s1 |-> "s0", s2 |-> "s2"]
+6 acceptedEpoch | acceptedEpoch=[s0 |-> 3, s1 |-> 3, s2 |-> 2]
+7 phase,currentEpoch | phase=[s0 |-> "sync", s1 |-> "discovery", s2 |-> "broadcast"]; currentEpoch=[s0 |-> 3, s1 |-> 2, s2 |-> 2]
+8 syncSource,phase | syncSource=[s0 |-> "Nil", s1 |-> "s0", s2 |-> "Nil"]; phase=[s0 |-> "sync", s1 |-> "sync", s2 |-> "broadcast"]
+9 syncMode,seen | syncMode=[s0 |-> "NONE", s1 |-> "DIFF", s2 |-> "NONE"]; seen={"election", "sync", "DIFF", "leader"}
+10 syncJustified | syncJustified=[s0 |-> FALSE, s1 |-> TRUE, s2 |-> FALSE]
+11 currentEpoch | currentEpoch=[s0 |-> 3, s1 |-> 3, s2 |-> 2]
+12 syncMode,zkState | syncMode=[s0 |-> "NONE", s1 |-> "NONE", s2 |-> "NONE"]; zkState=[s0 |-> "off", s1 |-> "initial", s2 |-> "running"]
+13 seen,newLeaderAcked | seen={"election", "sync", "DIFF", "leader", "nlack"}; newLeaderAcked=[s0 |-> FALSE, s1 |-> TRUE, s2 |-> FALSE]
+14 nlAcks | nlAcks=[s0 |-> {"s0"}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+15 nlAcks | nlAcks=[s0 |-> {"s0", "s1"}, s1 |-> {}, s2 |-> {"s1", "s2"}]
+16 everCommitted,seen,phase,zkState | everCommitted={ [ent |-> [id |-> 1, epoch |-> 1], ep |-> 2], [ent |-> [id |-> 1, epoch |-> 1], ep |-> 3], [ent |-> [id |-> 2, epoch |-> 1], ep |-> 2] }; seen={"election", "sync", "broadcast", "DIFF", "leader", "nlack"}; phase=[s0 |-> "broadcast", s1 |-> "sync", s2 |-> "broadcast"]; zkState=[s0 |-> "running", s1 |-> "initial", s2 |-> "running"]

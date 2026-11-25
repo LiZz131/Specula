@@ -1,0 +1,19 @@
+# First attempt of t93 with heartbeats enabled (heartbeat_interval 200 ms); extracted from spec/output/raw-test-logs (gzip).
+# Node 3 grants round 1, but leader heartbeats make node 1 run become_following, which drops round 2 before the delayed grant arrives: no panic.
+2026-11-25T01:35:17.647771Z node=0 voting: {<T1-N0:->@19:35:17.643459, last_log_id:T0-N0.0 progress:{0: true}}
+2026-11-25T01:35:22.359358Z node=1 new pre-candidate: {<T2-N1:->@19:35:22.359281, last_log_id:T1-N0.6 progress:{0: false, 1: false, 2: false, 3: false}
+2026-11-25T01:35:22.359516Z node=1 voting: {<T2-N1:->@19:35:22.359281, last_log_id:T1-N0.6 progress:{1: true, 0: false, 2: false, 3: false}}
+2026-11-25T01:35:22.359660Z node=1 ExternalCommand: triggered election, pre_vote: true
+2026-11-25T01:35:22.362201Z node=3 handle pre-vote request: req: {vote:<T2-N1:->, last_log:T1-N0.6, leadership_transfer:false}, my_vote: <T1-N0:Q>, my_last_log_id: T1-N0.6, lease: now: 19:35:22.362182, last_update: 19:35:17.851813(4.51036864s ago), lease: 4s, expire at: 19:35:21.851813(0ns since now)
+2026-11-25T01:35:22.364190Z node=1 while requesting pre-vote, error: Unreachable node: specula: drop 1 -> 0, target: 0
+2026-11-25T01:35:22.364904Z node=2 handle pre-vote request: req: {vote:<T2-N1:->, last_log:T1-N0.6, leadership_transfer:false}, my_vote: <T1-N0:Q>, my_last_log_id: T1-N0.6, lease: now: 19:35:22.364887, last_update: 19:35:22.242338(122.549735ms ago), lease: 4s, expire at: 19:35:26.242338(3.877450265s since now)
+2026-11-25T01:35:22.365024Z node=2 reject pre-vote-request: leader lease has not yet expired
+2026-11-25T01:35:22.367727Z node=1 received Notification::PreVoteResponse: target: 2, resp: {<T1-N0:Q>, last_log:Some("T1-N0.6")}
+2026-11-25T01:35:22.514642Z node=1 new pre-candidate: {<T2-N1:->@19:35:22.514594, last_log_id:T1-N0.8 progress:{0: false, 1: false, 2: false}
+2026-11-25T01:35:22.514734Z node=1 voting: {<T2-N1:->@19:35:22.514594, last_log_id:T1-N0.8 progress:{1: true, 0: false, 2: false}}
+2026-11-25T01:35:22.514869Z node=1 ExternalCommand: triggered election, pre_vote: true
+2026-11-25T01:35:22.516820Z node=1 while requesting pre-vote, error: Unreachable node: specula: drop 1 -> 0, target: 0
+2026-11-25T01:35:22.523906Z node=2 handle pre-vote request: req: {vote:<T2-N1:->, last_log:T1-N0.8, leadership_transfer:false}, my_vote: <T1-N0:Q>, my_last_log_id: T1-N0.8, lease: now: 19:35:22.523887, last_update: 19:35:22.515421(8.466951ms ago), lease: 4s, expire at: 19:35:26.515421(3.991533049s since now)
+2026-11-25T01:35:22.524038Z node=2 reject pre-vote-request: leader lease has not yet expired
+2026-11-25T01:35:22.526940Z node=1 received Notification::PreVoteResponse: target: 2, resp: {<T1-N0:Q>, last_log:Some("T1-N0.8")}
+2026-11-25T01:35:23.865257Z node=1 received Notification::PreVoteResponse: target: 3, resp: {<T1-N0:Q>, last_log:Some("T1-N0.6")}

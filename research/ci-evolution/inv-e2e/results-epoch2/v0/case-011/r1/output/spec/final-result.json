@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "run_id": "case-011-incremental-prevote",
+  "summary": "Updated the model for the Pre-Vote update; two model-checking findings and one code-review liveness finding are reproduced on the updated implementation.",
+  "validation_limits": [
+    "Every BFS/simulation run without a finding stopped at its time budget (LIMITED_COVERAGE); no exhaustive pass is claimed.",
+    "Three-node model with bounded terms, log indices, messages, elections, Pre-Vote rounds, membership changes, crashes and drops.",
+    "Runtime timer guards, IO completion, network delivery and AppendEntries receipt are not traced.",
+    "CR-1 is outside the model (followers never receive log entries; no HigherVote step-down)."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "A timer-started Pre-Vote round survives leader establishment and deposes the new Leader",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "establish_leader keeps Engine::pre_candidate and handle_pre_vote_resp calls elect() on quorum without a role check; RaftCore's filter checks only tracker presence and leader id.",
+      "trigger": "A Candidate whose election outlives the election timeout starts a Pre-Vote round (timer or Trigger::elect(true)); its real election then wins; a delayed Pre-Vote grant arrives.",
+      "consequence": "The new Leader starts an election at term+1 (leaderless window while followers hold its lease); the retained Leader object fails try_leader_handler's debug_assert and RaftCore panics in debug builds.",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/MC_hunt_prevote_leader_violation.out",
+        "spec/output/Update-full_violation.out",
+        "spec/output/repro-engine.log",
+        "spec/output/repro-integration.log",
+        "spec/output/repro-integration-timer.log",
+        "spec/output/repro-integration-timer-timeline.txt",
+        "traces/candidate_pre_round_survives_leadership.ndjson",
+        "traces/leader_pre_vote_win.ndjson"
+      ]
+    },
+    {
+      "id": "MC-2",
+      "title": "A delayed Pre-Vote grant from a node removed between two same-term rounds panics RaftCore",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "Pre-Vote rounds at an unchanged term reuse the leader id (term+1, self) and RaftCore correlates responses only by leader id; Candidate::grant_by expects the granter to be in the round's frozen quorum set.",
+      "trigger": "Start a round, remove a granter by a membership change, start another round at the same term (Trigger::elect(true)), and let the removed node's grant to the first round arrive.",
+      "consequence": "RaftCore panics with 'target not in quorum set' (an expect, also in release builds) and the node stops serving.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/reproduction-MC-2.md",
+        "spec/output/MC_hunt_prevote_stale_grant_tight_violation.out",
+        "spec/output/Update-full-noU2_sim_violation.out",
+        "spec/output/repro-engine-stale-grant.log",
+        "spec/output/repro-integration-stale-grant.log"
+      ]
+    },
+    {
+      "id": "CR-1",
+      "title": "A rejected Pre-Vote never propagates the higher term: permanent leaderless stall with a live majority",
+      "status": "REPRODUCED",
+      "source": "code-review",
+      "cause": "handle_pre_vote_resp never updates the local vote on rejection and Pre-Vote handling is read-only, so a node with the freshest log but a stale term never learns the higher term while higher-term peers fail its log check.",
+      "trigger": "Five voters: leader replicates an entry only to node 1 and fails; the others elect a leader at a higher term that fails before replicating; node 1 rejoins (3 of 5 alive).",
+      "consequence": "No live node can pass Pre-Vote; the cluster stays leaderless although a majority is alive and connected; with Pre-Vote disabled the same state recovers.",
+      "severity": "High",
+      "evidence": [
+        "spec/code-review-CR-1.md",
+        "spec/output/repro-integration-term-stall.log",
+        "spec/output/repro-engine.log",
+        "spec/output/repro-old-control.log"
+      ]
+    },
+    {
+      "id": "CR-2",
+      "title": "Pre-Vote protocol documentation contradicts the default pre_vote implementation",
+      "status": "NEEDS MORE INFO",
+      "source": "code-review",
+      "cause": "docs/protocol/pre_vote.md says the default RaftNetworkV2::pre_vote returns Unreachable and that Unreachable counts as a grant; the code synthesizes a granted response and never counts Err as a grant.",
+      "trigger": "Reading the documentation when implementing a network adapter.",
+      "consequence": "Implementors may return Unreachable for an unimplemented pre_vote expecting a grant; with Pre-Vote enabled such a node could never pass Pre-Vote. Not demonstrated.",
+      "severity": "Low",
+      "evidence": [
+        "modeling-brief.md",
+        "analysis-report.md"
+      ]
+    }
+  ]
+}

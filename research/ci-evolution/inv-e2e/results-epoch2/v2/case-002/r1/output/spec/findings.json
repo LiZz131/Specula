@@ -1,0 +1,58 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab, revision update (case-002)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK is written before the DIFF-synchronized transactions are durable",
+      "source": "model-checking",
+      "scenario": "U-Scenario 1 (NEWLEADER ACK vs. durability of the DIFF payload)",
+      "severity": "High",
+      "invariant": "UpdNewLeaderAckAfterDurable",
+      "config": "Update-hunt-diff-ack.cfg",
+      "counterexample": "spec/output/mc/MC-1_counterexample_UpdNewLeaderAckAfterDurable.log",
+      "related_counterexamples": [
+        "spec/output/mc/MC-1_counterexample_UpdEstablishedHistoryDurableOnQuorum.log",
+        "spec/output/mc/MC-2_witness_phase1_Init_to_S.log",
+        "spec/output/mc/MC-1_witness_phase2_crash_S_to_violation.log"
+      ],
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:748-760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82-89",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:181",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:227-249",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547-1586"
+      ],
+      "reference_actions": ["CompleteSync", "ClearSyncMode", "LogSyncProposal", "AckNewLeader", "CountNewLeaderAck", "LeaderBroadcast", "FsyncOne", "Crash"],
+      "update_related": "yes: the path crosses the changed NEWLEADER handling; the update moved logRequest before the ACK but logRequest only enqueues, so the obligation stated at Learner.java:748 is not met (the pre-update code was weaker: nothing queued)",
+      "summary": "In revision update, Learner.syncWithLeader hands the DIFF/outstanding proposals buffered before NEWLEADER to FollowerZooKeeperServer.logRequest and immediately writes the NEWLEADER ACK. logRequest only enqueues on the SyncRequestProcessor; append and fsync happen later on the SyncThread. The leader activates on a NEWLEADER-ACK quorum and commits/serves its whole history, so a history can become client-visible while only the leader holds it durably (UpdEstablishedHistoryDurableOnQuorum). If the acking learner then crashes before its SyncThread forces the transactions, it restarts without them, can be elected (higher currentEpoch) and activates a later epoch without the committed transaction (UpdLeaderCompleteness, crash witness). Real traces show the order ProposalQueued -> NewLeaderAckSent -> TxnAppended -> TxnDurable in all four DIFF runs and the leader entering BROADCAST before the learners' fsync in DIFFSyncConsistencyTest."
+    },
+    {
+      "id": "MC-2",
+      "title": "Learner failing between NEWLEADER and UPTODATE keeps a stale in-memory database; a later leader activates without committed transactions",
+      "source": "model-checking",
+      "scenario": "U-Scenario 2 (failure in the new INITIAL window)",
+      "severity": "Critical",
+      "invariant": "UpdLeaderCompleteness",
+      "config": "evidence/witness-lost-commit/Phase2.cfg",
+      "counterexample": "spec/output/mc/MC-2_witness_phase2_S_to_violation.log",
+      "related_counterexamples": [
+        "spec/output/mc/MC-2_witness_phase1_Init_to_S.log",
+        "spec/output/mc/MC-2_counterexample_UpdLeaderCompleteness_from_trace_prefix.log"
+      ],
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:749-760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:673-704",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-786",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:836-850",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-173",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java:1257-1262",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:592"
+      ],
+      "reference_actions": ["ClearSyncMode", "AckNewLeader", "LeaderBroadcast", "BeginElection", "CastVote", "WinElection", "CompleteSync", "LeaderBroadcast"],
+      "update_related": "yes: introduced state (startupWithoutServing -> State.INITIAL) whose failure path skips shutdown drain and fastForwardDataBase",
+      "summary": "The update starts the learner's request processors at NEWLEADER with server state INITIAL and only switches to RUNNING after UPTODATE. If the learner leaves syncWithLeader in that window (e.g. socket timeout at UPTODATE, as injected by the update's own DIFFSyncConsistencyTest, and made more likely by the update moving the syncLimit read timeout in front of the NEWLEADER ACK while the leader may wait up to initLimit ticks for its quorum), LearnerZooKeeperServer.shutdown returns early because canShutdown() is false: the SyncRequestProcessor is neither drained by the shutdown path nor stopped, and zkDb.fastForwardDataBase is skipped. The leaked SyncThread can still log the DIFF transactions, but the in-memory database, which supplies the election vote zxid and a new leader's served history, does not contain them. Meanwhile the old leader has already activated and served them on the strength of this learner's NEWLEADER ACK. When such learners elect one of themselves (old leader crashed or partitioned), the new leader activates the next epoch without the committed transaction. Init-rooted MC witness (two phases), a 15-step continuation from a validated real trace state, and real-trace evidence (stale lastLoggedZxid (1,1) with (1,2) in the log; s1 elected LEADING with (1,1)) support it; the regression test only passes because it restarts all peers."
+    }
+  ]
+}

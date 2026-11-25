@@ -1,0 +1,262 @@
+{
+ "schema_version": 1,
+ "case_id": "case-002",
+ "purpose": "blind_incremental_update_verification",
+ "source": {
+  "artifact": "/work/current/.specula-output/artifact",
+  "old_commit": "1414ebfb1d16fd81abc38550a96950d919ecf805 (baseline)",
+  "new_commit": "2efbdfc3754df193bce05b9792297c813377cdaf (update)",
+  "instrumented_copy": "/work/current/.specula-output/work-source",
+  "history_or_external_research_used": false,
+  "fixed_revision_inspected": false
+ },
+ "prior_suite": "/work/previous/.specula-output (read-only)",
+ "inputs_sha256": {
+  "model_scope_md": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+  "case_json": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+  "input_manifest_json": "a17fd8d3fbbc607b034d160a262100a1c062fba83c816fedc24deafd891417da",
+  "final_schema_json": "e0c88cbc950a439a459c83bd17a5824963b690345d1f0672d892398756ba6a01",
+  "tla2tools_jar": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+  "community_modules_jar": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99",
+  "old_ZooKeeperServer.java": "9f7a2f68da8c1bf5db0ee1bed1bb117b419a624dd3d63d17dec14744626e3490",
+  "new_ZooKeeperServer.java": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111",
+  "old_Learner.java": "9a69113a8c5940516e39e71eab3fc99b52cd31c1c5bedf90ae23c7de48d282dc",
+  "new_Learner.java": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866",
+  "new_DIFFSyncConsistencyTest.java": "dfd020c786b989e78afbe0031ba2affe7537501210751d057377a107c6a5faee",
+  "instrumentation_patch": "cb7c341a755e87d4352d4ceea0888e77d21dfe571b198613e75e6eda917158a1"
+ },
+ "commands": {
+  "build_warmup": "cd work-source && timeout 1500s mvn -B -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dspotbugs.skip -Drat.skip -pl zookeeper-server -am install (spec/output/build-warmup-pristine.log)",
+  "harness": "timeout 3600s bash harness/run.sh <scenarios> (spec/output/harness-run-2.log, spec/output/harness/*)",
+  "trace_validation": "spec/run-trace-validation.sh <label> Trace.cfg ../traces/*.ndjson (spec/output/trace/ledger.ndjson)",
+  "model_checking": "spec/run-tlc.sh <id> <module> <cfg> <minutes> (spec/output/mc/ledger.ndjson)",
+  "evidence": "spec/evidence/*: see spec/invariant-evidence.json evaluation_command"
+ },
+ "environment": {
+  "java": "OpenJDK 21.0.13 (only JDK present)",
+  "maven": "3.6.3",
+  "cpus": 40,
+  "tlc_states_dir": "/dev/shm/specula-e2e-case-002 (removed after each run)"
+ },
+ "traces": {
+  "diff-sync-uncommitted-log.ndjson": {
+   "records": 136,
+   "sha256": "6cfe70a89eb7eb5b3320090caa96567858182874d27a20f06098b717f540ca61",
+   "scenario": "diff-sync-uncommitted-log",
+   "events": {
+    "PeerDatabaseLoaded": 7,
+    "PeerRoleChanged": 18,
+    "ElectionWon": 8,
+    "PhaseChanged": 32,
+    "AcceptedEpochPersisted": 8,
+    "FollowerRegistered": 5,
+    "SyncModeChanged": 10,
+    "SyncSelected": 5,
+    "CurrentEpochPersisted": 8,
+    "NewLeaderAckCounted": 6,
+    "NewLeaderAckSent": 5,
+    "BroadcastReady": 3,
+    "TxnAppended": 6,
+    "ProposalQueued": 4,
+    "TxnDurable": 6,
+    "CommitDelivered": 2,
+    "TxnApplied": 3
+   },
+   "sync_modes": {
+    "DIFF": 5,
+    "NONE": 5
+   }
+  },
+  "follower-diff-repeat-1.ndjson": {
+   "records": 17,
+   "sha256": "a54e2dbb28aa8aaf230dbd358966a0330bf0f0cbcd6f6dc8186bd41a847dd13e",
+   "scenario": "follower-diff",
+   "events": {
+    "PeerDatabaseLoaded": 1,
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "CurrentEpochPersisted": 1,
+    "ProposalQueued": 1,
+    "NewLeaderAckSent": 1,
+    "BroadcastReady": 1,
+    "TxnAppended": 1,
+    "CommitDelivered": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   },
+   "sync_modes": {
+    "DIFF": 1,
+    "NONE": 1
+   }
+  },
+  "follower-diff-repeat-2.ndjson": {
+   "records": 17,
+   "sha256": "646280a594aadeaeccc78c25f0cb69e3838eea079b5ae7dfdbb2489dfaf016fa",
+   "scenario": "follower-diff",
+   "events": {
+    "PeerDatabaseLoaded": 1,
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "CurrentEpochPersisted": 1,
+    "ProposalQueued": 1,
+    "NewLeaderAckSent": 1,
+    "TxnAppended": 1,
+    "BroadcastReady": 1,
+    "CommitDelivered": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   },
+   "sync_modes": {
+    "DIFF": 1,
+    "NONE": 1
+   }
+  },
+  "follower-diff-repeat-3.ndjson": {
+   "records": 17,
+   "sha256": "bb3cc552944ca608891b6ff047a6d2c1d2413aac75e34ea97c621aaab3f42c6b",
+   "scenario": "follower-diff",
+   "events": {
+    "PeerDatabaseLoaded": 1,
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "CurrentEpochPersisted": 1,
+    "ProposalQueued": 1,
+    "NewLeaderAckSent": 1,
+    "BroadcastReady": 1,
+    "TxnAppended": 1,
+    "CommitDelivered": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   },
+   "sync_modes": {
+    "DIFF": 1,
+    "NONE": 1
+   }
+  },
+  "follower-diff.ndjson": {
+   "records": 17,
+   "sha256": "df38b9b6838c27f165cd35cb5cf06c3be2a0355c53bf961be584863fce87f944",
+   "scenario": "follower-diff",
+   "events": {
+    "PeerDatabaseLoaded": 1,
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "CurrentEpochPersisted": 1,
+    "ProposalQueued": 1,
+    "NewLeaderAckSent": 1,
+    "TxnAppended": 1,
+    "BroadcastReady": 1,
+    "CommitDelivered": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   },
+   "sync_modes": {
+    "DIFF": 1,
+    "NONE": 1
+   }
+  },
+  "follower-snap.ndjson": {
+   "records": 18,
+   "sha256": "26e9c88c888d58e327738bb6e6b4ac6bff2d20b0afb90085b76dd74688279cd4",
+   "scenario": "follower-snap",
+   "events": {
+    "PeerDatabaseLoaded": 1,
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "SnapshotInstalled": 1,
+    "CurrentEpochPersisted": 1,
+    "NewLeaderAckSent": 1,
+    "BroadcastReady": 1,
+    "ProposalQueued": 1,
+    "CommitDelivered": 1,
+    "TxnAppended": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   },
+   "sync_modes": {
+    "SNAP": 1,
+    "NONE": 1
+   }
+  },
+  "leader-abandon-restart-recovery.ndjson": {
+   "records": 286,
+   "sha256": "acd4bac16dbf95ead930226ff4cee3c992060643bd96f58f0f3a1743ab0c4358",
+   "scenario": "leader-abandon-restart-recovery",
+   "events": {
+    "PeerDatabaseLoaded": 9,
+    "PeerRoleChanged": 19,
+    "ElectionWon": 9,
+    "PhaseChanged": 37,
+    "AcceptedEpochPersisted": 9,
+    "FollowerRegistered": 6,
+    "SyncModeChanged": 12,
+    "SyncSelected": 6,
+    "CurrentEpochPersisted": 9,
+    "NewLeaderAckCounted": 6,
+    "NewLeaderAckSent": 6,
+    "BroadcastReady": 6,
+    "ProposalQueued": 22,
+    "TxnAppended": 36,
+    "TxnDurable": 36,
+    "CommitDelivered": 22,
+    "TxnApplied": 35,
+    "SnapshotInstalled": 1
+   },
+   "sync_modes": {
+    "DIFF": 5,
+    "NONE": 6,
+    "SNAP": 1
+   }
+  },
+  "quorum-startup-mutation-shutdown.ndjson": {
+   "records": 76,
+   "sha256": "70bd2d329b48e1d500d1672f6b2ac80f5919b8e3383884546456190366a71ae7",
+   "scenario": "quorum-startup-mutation-shutdown",
+   "events": {
+    "PeerDatabaseLoaded": 2,
+    "PeerRoleChanged": 4,
+    "ElectionWon": 2,
+    "PhaseChanged": 8,
+    "AcceptedEpochPersisted": 2,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "CurrentEpochPersisted": 2,
+    "NewLeaderAckCounted": 2,
+    "NewLeaderAckSent": 1,
+    "BroadcastReady": 1,
+    "ProposalQueued": 6,
+    "TxnAppended": 12,
+    "TxnDurable": 12,
+    "CommitDelivered": 6,
+    "TxnApplied": 12
+   },
+   "sync_modes": {
+    "DIFF": 1,
+    "NONE": 1
+   }
+  }
+ },
+ "limits": [
+  "TLC runs are budget-limited (30 min) unless a log states natural completion; recorded as LIMITED_COVERAGE",
+  "election/discovery and leader-side broadcast pipeline are observed projections in Trace.tla",
+  "TRUNC sync branch not exercised by any trace",
+  "real fail-stop crash not exercised by the harness",
+  "specular CLI (ci-result, findings) not installed in this environment"
+ ]
+}

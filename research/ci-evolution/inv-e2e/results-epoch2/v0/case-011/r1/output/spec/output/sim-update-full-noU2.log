@@ -1,0 +1,108 @@
+# run: sim-update-full-noU2  started: 2026-11-24T19:33:41-06:00
+# timeout 20m: java -XX:+UseParallelGC -Xmx12g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 6 -metadir /dev/shm/specula-e2e-case-011/sim-update-full-noU2-17596 -config Update-full-noU2.cfg -simulate -depth 60 Update
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed -6961968710168047033 with 6 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 17627] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-13920021673876052985/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-13920021673876052985/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13920021673876052985/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13920021673876052985/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13920021673876052985/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13920021673876052985/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13920021673876052985/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 01:33:42)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 01:33:42.
+Progress: 1148767 states checked, 12602 traces generated (trace length: mean=41, var(x)=362, sd=19)
+Progress: 2358698 states checked, 25824 traces generated (trace length: mean=41, var(x)=361, sd=19)
+Progress: 3587252 states checked, 39282 traces generated (trace length: mean=41, var(x)=361, sd=19)
+Progress: 4760684 states checked, 52158 traces generated (trace length: mean=41, var(x)=361, sd=19)
+Progress: 5925126 states checked, 64960 traces generated (trace length: mean=41, var(x)=361, sd=19)
+Progress: 7127135 states checked, 78127 traces generated (trace length: mean=41, var(x)=361, sd=19)
+Error: Invariant PreVoteTrackerWellFormed is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 112, col 5 to line 114, col 48 of module MC>
+
+State 2: <MCRefreshServerState("2") line 86, col 28 to line 86, col 75 of module MC>
+
+State 3: <MCRefreshServerState("3") line 86, col 28 to line 86, col 75 of module MC>
+
+State 4: <MCCrash("1") line 70, col 5 to line 72, col 62 of module MC>
+
+State 5: <MCTickElect("3") line 26, col 5 to line 28, col 65 of module MC>
+
+State 6: <MCTickElect("2") line 26, col 5 to line 28, col 65 of module MC>
+
+State 7: <MCPersistVote("3") line 81, col 21 to line 81, col 61 of module MC>
+
+State 8: <MCNext line 121, col 8 to line 121, col 43 of module MC>
+
+State 9: <MCPersistVote("2") line 81, col 21 to line 81, col 61 of module MC>
+
+State 10: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 11: <MCSendVoteRequest("2","1") line 88, col 28 to line 88, col 75 of module MC>
+
+State 12: <MCSendVoteRequest("3","1") line 88, col 28 to line 88, col 75 of module MC>
+
+State 13: <MCRestart("1") line 85, col 17 to line 85, col 53 of module MC>
+
+State 14: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 15: <MCTickPreElect("2") line 34, col 5 to line 36, col 64 of module MC>
+
+State 16: <MCSendVoteRequest("2","3") line 88, col 28 to line 88, col 75 of module MC>
+
+State 17: <MCPersistVote("1") line 81, col 21 to line 81, col 61 of module MC>
+
+State 18: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 19: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 20: <MCFinishVoteBroadcast("2") line 82, col 29 to line 82, col 77 of module MC>
+
+State 21: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 22: <MCAppendJointConfig("2",{"1", "2"}) line 60, col 5 to line 62, col 67 of module MC>
+
+State 23: <MCFlushLog("2") line 83, col 18 to line 83, col 55 of module MC>
+
+State 24: <MCCommitMembership("2") line 87, col 26 to line 87, col 71 of module MC>
+
+State 25: <MCExpireLease("2") line 84, col 21 to line 84, col 61 of module MC>
+
+State 26: <MCAppendUniformConfig("2") line 65, col 5 to line 67, col 67 of module MC>
+
+State 27: <MCExternalPreElect("2") line 48, col 5 to line 51, col 64 of module MC>
+
+State 28: <MCCommitMembership("2") line 87, col 26 to line 87, col 71 of module MC>
+
+State 29: <MCPersistVote("2") line 81, col 21 to line 81, col 61 of module MC>
+
+State 30: <MCFlushLog("2") line 83, col 18 to line 83, col 55 of module MC>
+
+State 31: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+The number of states generated: 8002463
+Simulation using seed -6961968710168047033 and aril 0
+Progress: 8002533 states checked, 87693 traces generated (trace length: mean=41, var(x)=361, sd=19)
+Finished in 06min 43s at (2026-11-25 01:40:25)
+Trace exploration spec path: ./Update_TTrace_1795570421.tla
+# exit code: 12 (TLC terminated)  finished: 2026-11-24T19:40:25-06:00

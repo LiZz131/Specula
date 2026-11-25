@@ -1,0 +1,43 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab (incremental update 1414ebf -> 2efbdfc)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK is sent before the logged sync proposals are durable",
+      "source": "model-checking",
+      "scenario": "U-1 NEWLEADER ACK versus learner durability",
+      "severity": "High",
+      "invariant": "LeaderCompleteness",
+      "config": "Update-hunt-crash-window.cfg",
+      "counterexample": "spec/output/mc-final-hunt-crash-window-bfs.log",
+      "affected_code": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:752-760", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82-90", "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:155-251", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:661-688"],
+      "summary": "The update logs buffered DIFF proposals with fzk.logRequest at NEWLEADER and then ACKs, but logRequest only enqueues to the SyncRequestProcessor, so the ACK precedes append/fsync. The leader starts serving its whole history once a NEWLEADER-ACK quorum forms. If the acknowledging learner crashes before the SyncThread fsync and the old leader is partitioned, the learner restarts without the txn, can win the next epoch with another peer and serves a history missing a txn the previous leader served (LeaderCompleteness). Real traces show the ACK long before TxnDurable and violate NewLeaderAckImpliesDurable when replayed."
+    },
+    {
+      "id": "MC-2",
+      "title": "Learner failing between NEWLEADER and UPTODATE keeps a stale DataTree and an in-process re-election loses the served txn",
+      "source": "model-checking",
+      "scenario": "U-2 UPTODATE failure after the ACK (shutdown skipped in INITIAL)",
+      "severity": "High",
+      "invariant": "LeaderCompleteness",
+      "config": "Update-hunt-reelection.cfg",
+      "counterexample": "spec/output/mc-final-hunt-reelection-bfs.log",
+      "affected_code": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:744-767", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-173", "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-850", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java:1257-1262", "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:480-503"],
+      "summary": "startupWithoutServing leaves the learner instance in State.INITIAL. If reading UPTODATE fails, LearnerZooKeeperServer.shutdown and ZooKeeperServer.shutdown return early (canShutdown requires RUNNING/ERROR), so the DataTree is not fast-forwarded from the log that now holds the synced txn. FLE votes, ACKEPOCH and Leader.lead use the DataTree position, so such learners can re-elect in-process (old leader partitioned/stopped) and a new leader serves without the txn the previous leader served after its NEWLEADER quorum. Reproduced by harness/repro/StaleTreeReelectionReproTest on the update revision and on the old baseline (pre-existing, not fixed by the update)."
+    },
+    {
+      "id": "MC-3",
+      "title": "TRUNC to a zxid absent from the learner log keeps the next entry",
+      "source": "model-checking",
+      "scenario": "V0 Scenario 2 (DIFF/TRUNC/SNAP); update-independent",
+      "severity": "Medium",
+      "invariant": "ServingApplyRequiresCommitCertificate",
+      "config": "Update-focus-trunc.cfg",
+      "counterexample": "spec/output/mc-final-focus-trunc-bfs.log",
+      "affected_code": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/persistence/FileTxnLog.java:455-475", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:836-861", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:588-598"],
+      "summary": "A newly elected leader with an empty committed log sends TRUNC with maxCommittedLog = lastProcessedZxid = 0 to a learner whose log holds an uncommitted txn. FileTxnLog.truncate keeps entries up to and including the first entry with zxid >= target, so the txn survives, ZKDatabase.truncateLog reloads it into the tree and setlastProcessedZxid(0) hides it; after UPTODATE the learner serves a txn no leader committed. Learner-side reproduction: harness/repro/TruncAbsentZxidReproTest. Not affected by the update."
+    }
+  ]
+}

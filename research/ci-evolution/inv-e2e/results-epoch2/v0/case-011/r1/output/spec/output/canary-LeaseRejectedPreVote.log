@@ -1,0 +1,60 @@
+# run: canary-LeaseRejectedPreVote  started: 2026-11-24T19:04:46-06:00
+# timeout 15m: java -XX:+UseParallelGC -Xmx12g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 4 -metadir /dev/shm/specula-e2e-case-011/canary-LeaseRejectedPreVote-15736 -config Canary-LeaseRejectedPreVote.cfg Update
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 9 and seed 4695483171703834380 with 4 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 15742] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-3925838352730324683/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-3925838352730324683/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-3925838352730324683/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-3925838352730324683/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-3925838352730324683/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-3925838352730324683/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-3925838352730324683/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 01:04:47)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 01:04:48.
+Progress(8) at 2026-11-25 01:04:51: 51,301 states generated (51,301 s/min), 14,781 distinct states found (14,781 ds/min), 10,305 states left on queue.
+Error: Action property CanaryNoLeaseRejectedPreVote is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickElect("1") line 26, col 5 to line 28, col 65 of module MC>
+
+State 3: <MCTickPreElect("2") line 34, col 5 to line 36, col 64 of module MC>
+
+State 4: <MCPersistVote("1") line 81, col 21 to line 81, col 61 of module MC>
+
+State 5: <MCSendVoteRequest("1","2") line 88, col 28 to line 88, col 75 of module MC>
+
+State 6: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 7: <MCPersistVote("2") line 81, col 21 to line 81, col 61 of module MC>
+
+State 8: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 9: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 10: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+877288 states generated, 193278 distinct states found, 106829 states left on queue.
+The depth of the complete state graph search is 11.
+Finished in 40s at (2026-11-25 01:05:27)
+Trace exploration spec path: ./Update_TTrace_1795568687.tla
+# exit code: 13 (TLC terminated)  finished: 2026-11-24T19:05:28-06:00

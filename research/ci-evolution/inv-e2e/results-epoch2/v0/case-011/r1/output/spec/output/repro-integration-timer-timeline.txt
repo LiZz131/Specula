@@ -1,0 +1,19 @@
+# Extracted from spec/output/raw-test-logs/ut.2026-11-25-00.gz (test specula_timer_pre_vote_round_does_not_depose_leader), node 1 only
+2026-11-25T00:14:13.974835Z node=1 trigger pre-vote
+2026-11-25T00:14:13.974984Z node=1 new pre-candidate: {<T2-N1:->
+2026-11-25T00:14:14.127050Z node=1 skip pre-vote, a pre-vote round is already in flight
+2026-11-25T00:14:14.481494Z node=1 received Notification::PreVoteResponse: target: 2, resp: {<T1-N0:Q>, last_log:Some("T1-N0.5")}
+2026-11-25T00:14:14.481801Z node=1 a quorum would grant the vote; starting a real election
+2026-11-25T00:14:14.481946Z node=1 new candidate: {<T2-N1:->
+2026-11-25T00:14:15.487110Z node=1 trigger pre-vote
+2026-11-25T00:14:15.487237Z node=1 new pre-candidate: {<T3-N1:->
+2026-11-25T00:14:15.597421Z node=1 a quorum granted my vote
+2026-11-25T00:14:15.598452Z node=1 id=1 becomes leader
+2026-11-25T00:14:16.292344Z node=1 received Notification::PreVoteResponse: target: 2, resp: {<T1-N0:Q>, last_log:Some("T1-N0.5")}
+2026-11-25T00:14:16.292650Z node=1 a quorum would grant the vote; starting a real election
+2026-11-25T00:14:16.292799Z node=1 new candidate: {<T3-N1:->
+2026-11-25T00:14:16.293547Z node=1 steps down from leader
+108:thread 'tokio-rt-worker' (9324) panicked at openraft/src/engine/engine_impl.rs:977:9:
+109-leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+110-stack backtrace:
+--

@@ -1,0 +1,378 @@
+{
+ "status": "LIMITED_COVERAGE",
+ "disposition": "MODEL_CHANGE_REQUIRED",
+ "source": {
+  "old": "artifact 1adc857 (baseline)",
+  "new": "artifact 3ab6cdd (update)",
+  "instrumented_copy": "work-source = 3ab6cdd + harness/instrumentation.patch (test-only)"
+ },
+ "toolchain_used": "stable 1.100.0 (pinned nightly-2026-03-01 not installed)",
+ "harness": {
+  "reused_from": "/work/previous/.specula-output/harness",
+  "rebase": "V0 patch failed only on openraft/src/engine/mod.rs context; trace module reused and extended",
+  "command": "harness/run.sh",
+  "observations": "harness/run-observations.sh -> spec/output/observations.log"
+ },
+ "trace_validation": {
+  "status": "PASS (all fresh traces fully consumed)",
+  "fresh_traces": 16,
+  "passed": 16,
+  "events_total": 28,
+  "inventory": {
+   "append_joint_membership": 1,
+   "candidate_prevote_then_establish": 5,
+   "commit_membership": 1,
+   "establish_leader": 1,
+   "grant_empty_logs": 2,
+   "grant_greater_vote": 1,
+   "prevote_cleared_by_append": 2,
+   "prevote_cleared_by_vote_grant": 2,
+   "prevote_quorum_elect": 2,
+   "prevote_reject_higher_vote": 3,
+   "prevote_request_branches": 3,
+   "prevote_request_lease": 1,
+   "prevote_single_voter": 1,
+   "reject_stale_log": 1,
+   "restart_follower": 1,
+   "start_election": 1
+  },
+  "completion_property": "TraceConsumed (temporal, checked on the complete state space)",
+  "final_log": "spec/output/trace-validation-final.log",
+  "field_consumption": "spec/output/trace-field-consumption.log",
+  "mutation_controls": "spec/output/trace-mutation-controls.log (9/9 rejected)",
+  "archived_v0_traces": "traces/archive-v0 (superseded by fresh reruns; lack mandatory new fields)"
+ },
+ "model_checking": {
+  "standard": {
+   "MC": {
+    "config": "MC.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=8388541) (tlc rc=0)",
+    "distinct": 15748310,
+    "depth": 17,
+    "queue": 8388541,
+    "log": "spec/output/mc-MC.log"
+   },
+   "MC-membership": {
+    "config": "MC-membership.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=5452163) (tlc rc=0)",
+    "distinct": 13485457,
+    "depth": 23,
+    "queue": 5452163,
+    "log": "spec/output/mc-MC-membership.log"
+   }
+  },
+  "update_full": {
+   "Update_full": {
+    "config": "Update_full.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=13)",
+    "violation": "PreVoteQuorumNeverDemotesLeader",
+    "distinct": 10437408,
+    "depth": 15,
+    "queue": 6126155,
+    "counterexample_states": 12,
+    "log": "spec/output/mc-Update_full.log"
+   },
+   "Update_full_cont1": {
+    "config": "Update_full_cont1.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=10708645) (tlc rc=0)",
+    "distinct": 18617678,
+    "depth": 15,
+    "queue": 10708645,
+    "log": "spec/output/mc-Update_full_cont1.log"
+   },
+   "Update_full_cont2": {
+    "config": "Update_full_cont2.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=11532575) (tlc rc=0)",
+    "distinct": 20065101,
+    "depth": 16,
+    "queue": 11532575,
+    "log": "spec/output/mc-Update_full_cont2.log"
+   },
+   "Update_full_cont2-sim": {
+    "config": "Update_full_cont2.cfg",
+    "mode": "simulation",
+    "verdict": "SIMULATION_BUDGET_EXHAUSTED_NO_VIOLATION (rc=0)",
+    "states_checked": 64640767,
+    "traces": 163710,
+    "log": "spec/output/mc-Update_full_cont2-sim.log"
+   }
+  },
+  "concrete_focused": {
+   "Update_focused": {
+    "config": "Update_focused.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=9207761) (tlc rc=0)",
+    "distinct": 15894086,
+    "depth": 15,
+    "queue": 9207761,
+    "log": "spec/output/mc-Update_focused.log"
+   },
+   "Update_focused-sim": {
+    "config": "Update_focused.cfg",
+    "mode": "simulation",
+    "verdict": "VIOLATION (tlc rc=13)",
+    "violation": "PreVoteQuorumNeverDemotesLeader",
+    "states_checked": 396619,
+    "traces": 1193,
+    "counterexample_states": 23,
+    "log": "spec/output/mc-Update_focused-sim.log"
+   },
+   "Update_focused_cont": {
+    "config": "Update_focused_cont.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=6833262) (tlc rc=0)",
+    "distinct": 11635196,
+    "depth": 13,
+    "queue": 6833262,
+    "log": "spec/output/mc-Update_focused_cont.log"
+   }
+  },
+  "open_focused": {
+   "Update_open": {
+    "config": "Update_open.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=13)",
+    "violation": "PreVoteQuorumNeverDemotesLeader",
+    "distinct": 4743269,
+    "depth": 16,
+    "queue": 2530001,
+    "counterexample_states": 14,
+    "log": "spec/output/mc-Update_open.log"
+   },
+   "Update_open_cont": {
+    "config": "Update_open_cont.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=7629658) (tlc rc=0)",
+    "distinct": 14612340,
+    "depth": 17,
+    "queue": 7629658,
+    "log": "spec/output/mc-Update_open_cont.log"
+   },
+   "Update_open-evalerror": {
+    "config": "Update_open.cfg",
+    "mode": "BFS",
+    "verdict": "TLC EVALUATION ERROR in EnvUpdate (effectiveConfig'[i] read before assignment), not a property violation; fixed in Update.tla and rerun as mc-Update_open.log",
+    "distinct": 494459,
+    "depth": 12,
+    "queue": 286449,
+    "counterexample_states": 10,
+    "log": "spec/output/mc-Update_open-evalerror.log"
+   }
+  },
+  "discharge": {
+   "Update_discharge": {
+    "config": "Update_discharge.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=4190952) (tlc rc=0)",
+    "distinct": 7727867,
+    "depth": 15,
+    "queue": 4190952,
+    "log": "spec/output/mc-Update_discharge.log"
+   }
+  },
+  "hunts": {
+   "hunt-leader-demote-bfs": {
+    "config": "MC_hunt_prevote_leader_demote.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=13)",
+    "violation": "PreVoteQuorumNeverDemotesLeader",
+    "distinct": 98258,
+    "depth": 17,
+    "queue": 39677,
+    "counterexample_states": 14,
+    "log": "spec/output/mc-hunt-leader-demote-bfs.log"
+   },
+   "hunt-leader-demote-cont": {
+    "config": "MC_hunt_prevote_leader_demote_cont.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=5938669) (tlc rc=0)",
+    "distinct": 15182176,
+    "depth": 25,
+    "queue": 5938669,
+    "log": "spec/output/mc-hunt-leader-demote-cont.log"
+   },
+   "hunt-leader-demote-cont-sim": {
+    "config": "MC_hunt_prevote_leader_demote_cont.cfg",
+    "mode": "simulation",
+    "verdict": "SIMULATION_BUDGET_EXHAUSTED_NO_VIOLATION (rc=0)",
+    "states_checked": 47549009,
+    "traces": 114544,
+    "log": "spec/output/mc-hunt-leader-demote-cont-sim.log"
+   },
+   "hunt-livelock-bfs": {
+    "config": "MC_hunt_prevote_livelock.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=5559486) (tlc rc=0)",
+    "distinct": 13578324,
+    "depth": 21,
+    "queue": 5559486,
+    "log": "spec/output/mc-hunt-livelock-bfs.log"
+   },
+   "hunt-livelock-phased-bfs": {
+    "config": "MC_hunt_prevote_livelock_phased.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "NoPermanentPreVoteLivelock",
+    "distinct": 4086089,
+    "depth": 26,
+    "queue": 1505969,
+    "counterexample_states": 25,
+    "log": "spec/output/mc-hunt-livelock-phased-bfs.log"
+   },
+   "hunt-livelock-cont-sim": {
+    "config": "MC_hunt_prevote_livelock_cont.cfg",
+    "mode": "simulation",
+    "verdict": "SIMULATION_BUDGET_EXHAUSTED_NO_VIOLATION (rc=0)",
+    "states_checked": 36665228,
+    "traces": 112607,
+    "log": "spec/output/mc-hunt-livelock-cont-sim.log"
+   },
+   "hunt-livelock-directed-bfs": {
+    "config": "MC_hunt_prevote_livelock_directed_bfs.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=838) (tlc rc=143)",
+    "distinct": 1219018,
+    "queue": 491838,
+    "log": "spec/output/mc-hunt-livelock-directed-bfs.log",
+    "notes": [
+     "stopped by operator; superseded by MC_hunt_prevote_livelock_phased.cfg (tighter monitor). Budget-limited, no violation."
+    ]
+   },
+   "hunt-livelock-directed-sim": {
+    "config": "MC_hunt_prevote_livelock_directed.cfg",
+    "mode": "simulation",
+    "verdict": "INCOMPLETE(rc=143) (tlc rc=143)",
+    "states_checked": 6044708,
+    "traces": 16700,
+    "log": "spec/output/mc-hunt-livelock-directed-sim.log",
+    "notes": [
+     "stopped by operator; superseded by MC_hunt_prevote_livelock_phased.cfg (tighter monitor). Budget-limited, no violation."
+    ]
+   }
+  },
+  "canaries": {
+   "canary-CanaryNoFollowerLog": {
+    "config": "Canary_CanaryNoFollowerLog.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoFollowerLog",
+    "distinct": 60879,
+    "depth": 14,
+    "queue": 24734,
+    "counterexample_states": 14,
+    "log": "spec/output/mc-canary-CanaryNoFollowerLog.log"
+   },
+   "canary-CanaryNoGrantedPreVoteResp": {
+    "config": "Canary_CanaryNoGrantedPreVoteResp.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoGrantedPreVoteResp",
+    "distinct": 45,
+    "depth": 5,
+    "queue": 27,
+    "counterexample_states": 4,
+    "log": "spec/output/mc-canary-CanaryNoGrantedPreVoteResp.log"
+   },
+   "canary-CanaryNoLeader": {
+    "config": "Canary_CanaryNoLeader.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoLeader",
+    "distinct": 9566,
+    "depth": 11,
+    "queue": 4722,
+    "counterexample_states": 11,
+    "log": "spec/output/mc-canary-CanaryNoLeader.log"
+   },
+   "canary-CanaryNoLeaderWithPreCandidate": {
+    "config": "Canary_CanaryNoLeaderWithPreCandidate.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoLeaderWithPreCandidate",
+    "distinct": 21983,
+    "depth": 12,
+    "queue": 9851,
+    "counterexample_states": 11,
+    "log": "spec/output/mc-canary-CanaryNoLeaderWithPreCandidate.log"
+   },
+   "canary-CanaryNoPreCandidate": {
+    "config": "Canary_CanaryNoPreCandidate.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoPreCandidate",
+    "distinct": 2,
+    "depth": 2,
+    "queue": 0,
+    "counterexample_states": 2,
+    "log": "spec/output/mc-canary-CanaryNoPreCandidate.log"
+   },
+   "canary-CanaryNoPreCandidateCleared": {
+    "config": "Canary_CanaryNoPreCandidateCleared.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoPreCandidateCleared",
+    "distinct": 63954,
+    "depth": 15,
+    "queue": 26016,
+    "counterexample_states": 14,
+    "log": "spec/output/mc-canary-CanaryNoPreCandidateCleared.log"
+   },
+   "canary-CanaryNoPreVoteTally": {
+    "config": "Canary_CanaryNoPreVoteTally.cfg",
+    "mode": "BFS",
+    "verdict": "LIMITED_COVERAGE(queue=471) (tlc rc=143)",
+    "distinct": 2133625,
+    "queue": 903471,
+    "log": "spec/output/mc-canary-CanaryNoPreVoteTally.log",
+    "notes": [
+     "run killed by operator after analysis: with 3 uniform voters self+1 grant is a quorum, so the canary state is unreachable by construction; canary retired (see Update.tla)"
+    ]
+   },
+   "canary-CanaryNoRejectedPreVoteResp": {
+    "config": "Canary_CanaryNoRejectedPreVoteResp.cfg",
+    "mode": "BFS",
+    "verdict": "VIOLATION (tlc rc=12)",
+    "violation": "CanaryNoRejectedPreVoteResp",
+    "distinct": 1035,
+    "depth": 8,
+    "queue": 518,
+    "counterexample_states": 7,
+    "log": "spec/output/mc-canary-CanaryNoRejectedPreVoteResp.log"
+   }
+  },
+  "livelock_witness": {
+   "closure": "spec/witness/livelock/closure_on.log (exhaustive, 1456 distinct, no live leader, votes frozen)",
+   "old_behaviour_control": "spec/witness/livelock/control_off.log (live leader reachable)"
+  },
+  "prior_v0_vacuity_check": "spec/output/prior-v0-vacuity-canary.log"
+ },
+ "findings": [
+  {
+   "id": "MC-1",
+   "property": "NoPermanentPreVoteLivelock",
+   "severity": "High"
+  },
+  {
+   "id": "MC-2",
+   "property": "PreVoteQuorumNeverDemotesLeader",
+   "severity": "Medium"
+  }
+ ],
+ "cleanup": {
+  "tlc_state_root": "/dev/shm/specula-e2e-case-011 (per-run directories removed)",
+  "background_processes_remaining": false
+ },
+ "limitations": [
+  "Finite three-node universe; bounded terms, log indices, messages, elections, operator triggers, membership changes, crashes, restarts and drops",
+  "No full-model BFS exhausted its queue within the 30-minute budgets; simulation runs are random and non-exhaustive",
+  "Livelock witness found under a pruning-only search monitor; liveness is checked as a safety witness plus closure, without fairness assumptions",
+  "Engine-level harness: runtime tick, operator command and runtime correlation filter are model-checked but not traced",
+  "Multi-node schedules of the findings were not replayed on the real runtime (Part 4 not executed); real-engine observations cover the per-node mechanisms",
+  "TLC uses probabilistic fingerprints; collision estimates are in the logs"
+ ]
+}

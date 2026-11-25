@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "run_id": "case-002",
+  "summary": "Model updated for the NEWLEADER/UPTODATE change and validated on 6 fresh traces. Model checking found three counterexamples. Each was reproduced on the update revision and on the old baseline, so the update narrows but does not close the NEWLEADER-ACK durability gap.",
+  "validation_limits": [
+    "All model-checking campaigns are budget-limited (planned stop, non-empty queue, depth 13-29 or sampled simulation); no exhaustive or unbounded claim.",
+    "Finite bounds: 3 servers, 1 txn, MaxEpoch 2-3, at most 2 crashes, 3 role exits, 1 drop, 1 snapshot; observers and reconfiguration excluded.",
+    "Leader propose/commit are not instrumented; the trace spec infers them through gated observation steps.",
+    "TRUNC sync and late-joiner commits before NEWLEADER (SyncCommitApplied) were not observed in fresh traces.",
+    "The MC-1 reproduction emulates a crash before fsync by making a stalled txn-log append fail, then restarting the process from disk.",
+    "The MC-3 reproduction drives the real learner with a scripted leader that sends LearnerHandler's TRUNC(0) decision.",
+    "Only JDK 21 was available.",
+    "The specular CLI is not installed, so ci-result reports were not generated."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK is sent before the logged sync proposals are durable",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "Learner.syncWithLeader hands buffered DIFF proposals to the asynchronous SyncRequestProcessor (logRequest) and immediately ACKs NEWLEADER; the leader serves its history on a NEWLEADER-ACK quorum.",
+      "trigger": "Old leader holds an uncommitted txn; learners DIFF-sync it and ACK NEWLEADER; the leader serves it; the learners crash before their txn-log write and restart while the old leader is unreachable; they elect a new leader.",
+      "consequence": "A txn that clients read at the old leader is missing at the new leader (lost acknowledged data).",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/mc-final-hunt-crash-window-bfs.log",
+        "spec/output/mc-final-hunt-crash-window-fullnext-bfs.log",
+        "spec/output/mc-final-update-full-sim.log",
+        "spec/output/trace-update-props-summary.txt",
+        "spec/output/repro-ackfsync-new-1.log",
+        "spec/output/repro-ackbeforefsync-old-1.log",
+        "harness/repro/AckBeforeFsyncReproTest.java"
+      ],
+      "persistence": {
+        "sites": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:logRequest"],
+        "premises": ["The NEWLEADER ACK is written without waiting for the SyncRequestProcessor flush of the requests logged at NEWLEADER.", "The leader starts serving after a NEWLEADER-ACK quorum."],
+        "dependencies": [{"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"}, {"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java"}, {"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java"}]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "Learner failing between NEWLEADER and UPTODATE keeps a stale DataTree; in-process re-election loses the served txn",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "startupWithoutServing leaves the learner instance in INITIAL; on failure before UPTODATE, LearnerZooKeeperServer/ZooKeeperServer.shutdown return early (canShutdown), so the DataTree is not fast-forwarded from the log, while votes and Leader.lead use the DataTree position.",
+      "trigger": "Learners ACK NEWLEADER after a DIFF sync, the leader serves the synced txn, the learners' UPTODATE read fails, the old leader becomes unreachable, and the learners re-elect without restarting their processes.",
+      "consequence": "The new leader serves a history without the txn clients already read; the txn remains in the learners' logs and resurfaces after a restart (replica divergence).",
+      "severity": "High",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/mc-final-hunt-reelection-bfs.log",
+        "spec/output/mc-final-hunt-reelection-fullnext-bfs.log",
+        "spec/output/mc-final-focus-conseq-bfs.log",
+        "spec/output/repro-new-1.log",
+        "spec/output/repro-old-1.log",
+        "spec/output/trace-final2-repro-stale-tree-reelection-1.log",
+        "spec/output/trace-update-props-repro-stale-tree-reelection-1-LeaderCompleteness.log",
+        "traces/repro-stale-tree-reelection-1.ndjson",
+        "harness/repro/StaleTreeReelectionReproTest.java"
+      ],
+      "persistence": {
+        "sites": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown", "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:shutdown", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader"],
+        "premises": ["A learner instance between NEWLEADER and UPTODATE is not RUNNING and its shutdown is skipped.", "FLE votes and Leader.lead use the in-memory DataTree position."],
+        "dependencies": [{"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"}, {"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"}, {"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"}, {"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java"}]
+      }
+    },
+    {
+      "id": "MC-3",
+      "title": "TRUNC to a zxid absent from the learner log keeps the next entry",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "FileTxnLog.truncate keeps entries through the first entry with zxid >= target; LearnerHandler sends TRUNC(0) when an empty leader syncs a learner that holds an uncommitted txn.",
+      "trigger": "A learner with an uncommitted txn joins a newly elected leader whose committed log is empty.",
+      "consequence": "The learner reloads the uncommitted txn into its DataTree (lastProcessedZxid 0) and serves data no leader committed.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/bug-report.md",
+        "spec/output/mc-final-focus-trunc-bfs.log",
+        "spec/output/repro-trunc-new-1.log",
+        "spec/output/repro-truncabsentzxid-old-1.log",
+        "harness/repro/TruncAbsentZxidReproTest.java"
+      ],
+      "persistence": {
+        "sites": ["zookeeper-server/src/main/java/org/apache/zookeeper/server/persistence/FileTxnLog.java:truncate", "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:syncFollower"],
+        "premises": ["An empty committed log makes syncFollower send TRUNC with lastProcessedZxid 0."],
+        "dependencies": [{"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/persistence/FileTxnLog.java"}, {"root": "source", "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java"}]
+      }
+    },
+    {
+      "id": "CR-1",
+      "title": "Per-txn ACKs from processors started at NEWLEADER can precede the NEWLEADER ACK",
+      "status": "NEEDS MORE INFO",
+      "source": "code-review",
+      "cause": "Request processors now start at NEWLEADER, so SendAckRequestProcessor may write ACK(zxid) before the NEWLEADER ACK. LearnerHandler reads the first ACK as the NEWLEADER ACK, and Leader.waitForNewLeaderAck ignores a mismatched zxid.",
+      "trigger": "The SyncThread flushes a DIFF proposal and its ACK reaches the socket before the learner thread writes ACK(newLeaderZxid).",
+      "consequence": "The leader may not count that learner toward its NEWLEADER quorum and may time out and re-elect (availability only).",
+      "severity": "Low",
+      "evidence": ["spec/bug-report.md", "spec/output/trace-inventory.json"]
+    }
+  ]
+}

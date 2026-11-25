@@ -1,0 +1,95 @@
+# command: timeout 2100s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=1500 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update-full.cfg -metadir /dev/shm/specula-e2e-case-002/mc-update-full-bfs-r2-14602 -workers 8 -dumpTrace json output/mc-update-full-bfs-r2.cex.json -cleanup Update.tla
+# started: 2026-11-25T08:02:27Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 85 and seed -6234425238594983714 with 8 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 14626] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-2782312239229948568/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-2782312239229948568/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-2782312239229948568/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2782312239229948568/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-2782312239229948568/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-2782312239229948568/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2782312239229948568/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-2782312239229948568/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-2782312239229948568/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 08:02:28)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:02:28.
+Progress(12) at 2026-11-25 08:02:31: 111,601 states generated (111,601 s/min), 19,426 distinct states found (19,426 ds/min), 9,350 states left on queue.
+Progress(20) at 2026-11-25 08:03:31: 5,524,337 states generated (5,412,736 s/min), 948,361 distinct states found (928,935 ds/min), 366,316 states left on queue.
+Progress(21) at 2026-11-25 08:04:31: 11,400,589 states generated (5,876,252 s/min), 2,004,250 distinct states found (1,055,889 ds/min), 765,445 states left on queue.
+Progress(22) at 2026-11-25 08:05:31: 15,865,385 states generated (4,464,796 s/min), 2,834,306 distinct states found (830,056 ds/min), 1,089,419 states left on queue.
+Progress(22) at 2026-11-25 08:06:31: 19,791,485 states generated (3,926,100 s/min), 3,538,957 distinct states found (704,651 ds/min), 1,356,441 states left on queue.
+Error: Invariant NewLeaderAckImpliesDurable is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+State 5: <MCFollowLeader(s2,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 6: <MCFollowLeader(s3,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 7: <MCAcceptEpoch(s2) line 34, col 21 to line 34, col 59 of module MC>
+
+State 8: <MCAcceptEpoch(s3) line 34, col 21 to line 34, col 59 of module MC>
+
+State 9: <MCFinishDiscovery(s1) line 35, col 25 to line 35, col 67 of module MC>
+
+State 10: <MCEnterSyncPhase(s2,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 11: <MCSyncWithLeader(s2,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 12: <MCEnterSyncPhase(s3,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 13: <MCLearnerNewLeaderPersist(s2) line 42, col 5 to line 42, col 80 of module MC>
+
+State 14: <MCLearnerNewLeaderStartup(s2) line 44, col 5 to line 44, col 80 of module MC>
+
+State 15: <MCLearnerSendNewLeaderAck(s2) line 48, col 5 to line 48, col 76 of module MC>
+
+State 16: <MCLeaderStartZkServer(s1) line 50, col 5 to line 50, col 78 of module MC>
+
+State 17: <MCPropose(s1,t1) line 61, col 20 to line 61, col 81 of module MC>
+
+State 18: <MCSyncWithLeader(s3,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 19: <MCLearnerNewLeaderPersist(s3) line 42, col 5 to line 42, col 80 of module MC>
+
+State 20: <MCLearnerNewLeaderStartup(s3) line 44, col 5 to line 44, col 80 of module MC>
+
+State 21: <MCLearnerLogPendingOne(s3) line 46, col 5 to line 46, col 81 of module MC>
+
+State 22: <MCLearnerSendNewLeaderAck(s3) line 48, col 5 to line 48, col 76 of module MC>
+
+"CounterExample written: output/mc-update-full-bfs-r2.cex.json"
+23189843 states generated, 4176674 distinct states found, 1613427 states left on queue.
+The depth of the complete state graph search is 23.
+Finished in 05min 02s at (2026-11-25 08:07:30)
+Trace exploration spec path: ./Update_TTrace_1795593747.tla
+# exit: 12 finished: 2026-11-25T08:07:31Z

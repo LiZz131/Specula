@@ -1,0 +1,42 @@
+{
+  "schema_version": "2",
+  "system": "openraft (case-011, Pre-Vote update 3ab6cddc34a5bf127747434bb41e20a1b9ef7769)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "A timer-started Pre-Vote round survives leader establishment and deposes the new Leader",
+      "source": "model-checking",
+      "scenario": "U2: Pre-Vote round lifecycle vs real election and leadership",
+      "severity": "High",
+      "invariant": "TickPreVoteNeverDeposesLeader",
+      "config": "MC_hunt_prevote_leader.cfg",
+      "counterexample": "spec/output/MC_hunt_prevote_leader_violation.out",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:526-541",
+        "openraft/src/engine/engine_impl.rs:855-881",
+        "openraft/src/core/raft_core.rs:2010-2035",
+        "openraft/src/core/raft_core.rs:1803-1820",
+        "openraft/src/engine/handler/vote_handler/mod.rs:154-162"
+      ],
+      "summary": "The election timer skips only Leaders, so a Candidate whose real election outlives the election timeout starts a Pre-Vote round for the next term (Engine::pre_elect). When the real election then wins, establish_leader -> update_vote -> become_leader does not drop Engine::pre_candidate. A delayed Pre-Vote grant passes RaftCore's filter (tracker present, same leader id) and Engine::handle_pre_vote_resp calls elect() on quorum without any role check, so the freshly established Leader starts an election at term+1; followers holding its fresh lease reject that election, leaving the cluster leaderless until leases expire. Because elect() keeps the Leader object, RaftCore's next try_leader_handler fails debug_assert(leader.vote >= state.vote) and panics in debug builds. Reproduced by trace validation, an engine-level test, and two integration tests (operator-started and timer-only) on the updated revision."
+    },
+    {
+      "id": "MC-2",
+      "title": "A delayed Pre-Vote grant from a node removed between two same-term rounds panics RaftCore",
+      "source": "model-checking",
+      "scenario": "U5: Frozen Pre-Vote quorum vs membership evolution (with U2)",
+      "severity": "Medium",
+      "invariant": "PreVoteTrackerWellFormed",
+      "config": "MC_hunt_prevote_stale_grant_tight.cfg",
+      "counterexample": "spec/output/MC_hunt_prevote_stale_grant_tight_violation.out",
+      "affected_code": [
+        "openraft/src/proposer/candidate.rs:105-107",
+        "openraft/src/core/raft_core.rs:2066-2090",
+        "openraft/src/engine/engine_impl.rs:298-322",
+        "openraft/src/engine/engine_impl.rs:534-535"
+      ],
+      "summary": "Engine::pre_elect always probes (vote.term+1, self), so Pre-Vote rounds at an unchanged term share a leader id, and RaftCore's does_pre_candidate_vote_match compares only the leader id. A delayed grant to an earlier round is therefore counted in a later round. If a membership change removed the granter between the rounds, handle_pre_vote_resp calls Candidate::grant_by, which expects the granter to be in the round's frozen quorum set and panics ('target not in quorum set'), killing RaftCore also in release builds. BFS of MC_hunt_prevote_stale_grant_tight.cfg found a 17-state crash-free counterexample and TLC simulation of the complete MCNext found a 31-state one (timer round kept by a new Leader, Leader removes node 3, operator Trigger::elect(true) starts a same-term round, node 3's delayed grant arrives). Reproduced by two engine-level tests (leader and follower variants) and an integration test (follower variant) on the updated revision; a timer-only path is blocked by the Pre-Vote RPC timeout."
+    }
+  ]
+}

@@ -1,0 +1,328 @@
+{
+ "status": "LIMITED_COVERAGE",
+ "decision": "MODEL_CHANGE_REQUIRED",
+ "old_revision": "1adc857 (baseline)",
+ "new_revision": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769 (update)",
+ "source_tree_modified": false,
+ "instrumented_copy": "work-source/ (artifact/ + harness/instrumentation.patch, test-only)",
+ "toolchain_used": "stable 1.100.0 (rust-toolchain requests nightly-2026-03-01, not installed; /opt/rustup read-only)",
+ "trace_validation": {
+  "status": "PASS (21/21) on the final model",
+  "fresh_files": 21,
+  "events": 28,
+  "v0_regression_scenarios_rerun": 7,
+  "update_scenarios": 14,
+  "completion_property": "TraceConsumed (temporal, checked)",
+  "final_log": "spec/output/trace-validation-round3-final.txt",
+  "mutation_control": {
+   "mutants": 34,
+   "rejected": 34,
+   "log": "spec/output/trace-mutation-check-final.txt"
+  },
+  "archived_v0_traces": "traces/prior-v0/ superseded by fresh reruns"
+ },
+ "model_checking": {
+  "standard": {
+   "mc-standard": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC.cfg",
+    "mode": "BFS",
+    "distinct": 14315098,
+    "depth": 16,
+    "queue": 7859902
+   },
+   "mc-membership": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC-membership.cfg",
+    "mode": "BFS",
+    "distinct": 7675374,
+    "depth": 23,
+    "queue": 2341889
+   },
+   "sim-mc-standard": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC.cfg",
+    "mode": "simulation",
+    "sim_states_checked": 26905845,
+    "sim_traces": 294977
+   }
+  },
+  "update_full": {
+   "update-full": {
+    "status": "VIOLATION",
+    "cfg": "Update-full.cfg",
+    "mode": "BFS",
+    "distinct": 4386936,
+    "depth": 13,
+    "queue": 2585421,
+    "property": "TickPreVoteNeverDeposesLeader",
+    "trace_states": 13
+   },
+   "update-full-noU2": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "Update-full-noU2.cfg",
+    "mode": "BFS",
+    "distinct": 21452958,
+    "depth": 16,
+    "queue": 11594404
+   },
+   "sim-update-full-noU2": {
+    "status": "VIOLATION",
+    "cfg": "Update-full-noU2.cfg",
+    "mode": "simulation",
+    "property": "PreVoteTrackerWellFormed",
+    "trace_states": 31,
+    "sim_states_checked": 8002533,
+    "sim_traces": 87693
+   },
+   "sim-update-full-noU2-noMC2": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "Update-full-noU2-noMC2.cfg",
+    "mode": "simulation",
+    "sim_states_checked": 60295516,
+    "sim_traces": 661345
+   },
+   "update-full-enabled": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "Update-full-enabled.cfg",
+    "mode": "BFS",
+    "distinct": 17960781,
+    "depth": 19,
+    "queue": 10470020
+   },
+   "sim-update-full-enabled": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "Update-full-enabled.cfg",
+    "mode": "simulation",
+    "sim_states_checked": 21700039,
+    "sim_traces": 293788
+   }
+  },
+  "update_focused_open_discharge": {
+   "update-focused": {
+    "status": "VIOLATION",
+    "cfg": "Update-focused.cfg",
+    "mode": "BFS",
+    "distinct": 5254540,
+    "depth": 13,
+    "queue": 3056771,
+    "property": "TickPreVoteNeverDeposesLeader",
+    "trace_states": 12
+   },
+   "update-open": {
+    "status": "VIOLATION",
+    "cfg": "Update-open.cfg",
+    "mode": "BFS",
+    "distinct": 4980338,
+    "depth": 13,
+    "queue": 2925782,
+    "property": "TickPreVoteNeverDeposesLeader",
+    "trace_states": 12
+   },
+   "update-discharge": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "Update-discharge.cfg",
+    "mode": "BFS",
+    "distinct": 6905721,
+    "depth": 13,
+    "queue": 3946275
+   }
+  },
+  "hunts": {
+   "hunt-prevote-leader": {
+    "status": "VIOLATION",
+    "cfg": "MC_hunt_prevote_leader.cfg",
+    "mode": "BFS",
+    "distinct": 4237363,
+    "depth": 16,
+    "queue": 2032083,
+    "property": "TickPreVoteNeverDeposesLeader",
+    "trace_states": 14
+   },
+   "hunt-prevote-term": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_term.cfg",
+    "mode": "BFS",
+    "distinct": 13862983,
+    "depth": 15,
+    "queue": 7214172
+   },
+   "sim-hunt-prevote-term": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_term.cfg",
+    "mode": "simulation",
+    "sim_states_checked": 22129714,
+    "sim_traces": 281721
+   },
+   "hunt-prevote-membership": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_membership.cfg",
+    "mode": "BFS",
+    "distinct": 9377310,
+    "depth": 20,
+    "queue": 3838822
+   },
+   "sim-hunt-prevote-membership": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_membership.cfg",
+    "mode": "simulation",
+    "sim_states_checked": 64041586,
+    "sim_traces": 1036369
+   },
+   "hunt-prevote-stale-grant": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_stale_grant.cfg",
+    "mode": "BFS",
+    "distinct": 10720816,
+    "depth": 19,
+    "queue": 6118095
+   },
+   "sim-hunt-prevote-stale-grant": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_stale_grant.cfg",
+    "mode": "simulation",
+    "sim_states_checked": 28008777,
+    "sim_traces": 370587
+   },
+   "hunt-prevote-stale-grant-tight": {
+    "status": "VIOLATION",
+    "cfg": "MC_hunt_prevote_stale_grant_tight.cfg",
+    "mode": "BFS",
+    "distinct": 3312276,
+    "depth": 20,
+    "queue": 2046878,
+    "property": "PreVoteTrackerWellFormed",
+    "trace_states": 17
+   },
+   "hunt-prevote-restart": {
+    "status": "LIMITED_COVERAGE (time budget, no violation)",
+    "cfg": "MC_hunt_prevote_restart.cfg",
+    "mode": "BFS",
+    "distinct": 15245205,
+    "depth": 14,
+    "queue": 7871295
+   }
+  },
+  "canaries": {
+   "canary-leader-tick-round": {
+    "status": "VIOLATION",
+    "cfg": "Canary-leader-tick-round.cfg",
+    "mode": "BFS",
+    "distinct": 53740,
+    "depth": 12,
+    "queue": 25786,
+    "property": "CanaryNoLeaderWithTickPreRound",
+    "trace_states": 11
+   },
+   "canary-joint-round": {
+    "status": "VIOLATION",
+    "cfg": "Canary-joint-round.cfg",
+    "mode": "BFS",
+    "distinct": 47,
+    "depth": 7,
+    "queue": 21,
+    "property": "CanaryNoJointPreVoteRound",
+    "trace_states": 6
+   },
+   "canary-rejected-resp": {
+    "status": "VIOLATION",
+    "cfg": "Canary-rejected-resp.cfg",
+    "mode": "BFS",
+    "distinct": 251,
+    "depth": 5,
+    "queue": 216,
+    "property": "CanaryNoRejectedPreVoteResponse",
+    "trace_states": 4
+   },
+   "canary-PreVoteElection": {
+    "status": "VIOLATION",
+    "cfg": "Canary-PreVoteElection.cfg",
+    "mode": "BFS",
+    "distinct": 669,
+    "depth": 6,
+    "queue": 573,
+    "property": "CanaryNoPreVoteElection",
+    "trace_states": 4
+   },
+   "canary-LeaseRejectedPreVote": {
+    "status": "VIOLATION",
+    "cfg": "Canary-LeaseRejectedPreVote.cfg",
+    "mode": "BFS",
+    "distinct": 193278,
+    "depth": 11,
+    "queue": 106829,
+    "property": "CanaryNoLeaseRejectedPreVote",
+    "trace_states": 10
+   },
+   "canary-PreVoteCancelledByFollowing": {
+    "status": "VIOLATION",
+    "cfg": "Canary-PreVoteCancelledByFollowing.cfg",
+    "mode": "BFS",
+    "distinct": 4148,
+    "depth": 7,
+    "queue": 3193,
+    "property": "CanaryNoPreVoteCancelledByFollowing",
+    "trace_states": 6
+   },
+   "canary-GreaterLogFromPreVote": {
+    "status": "VIOLATION",
+    "cfg": "Canary-GreaterLogFromPreVote.cfg",
+    "mode": "BFS",
+    "distinct": 427687,
+    "depth": 12,
+    "queue": 221781,
+    "property": "CanaryNoGreaterLogFromPreVote",
+    "trace_states": 11
+   },
+   "canary-PreVoteAfterRestart": {
+    "status": "VIOLATION",
+    "cfg": "Canary-PreVoteAfterRestart.cfg",
+    "mode": "BFS",
+    "distinct": 304,
+    "depth": 5,
+    "queue": 270,
+    "property": "CanaryNoPreVoteAfterRestart",
+    "trace_states": 5
+   }
+  },
+  "invalidated_runs": [
+   "invalid-vacuous-mc-standard",
+   "invalid-vacuous-mc-membership",
+   "hunt-prevote-membership-prerepair"
+  ]
+ },
+ "findings": {
+  "MC-1": {
+   "property": "TickPreVoteNeverDeposesLeader",
+   "status": "REPRODUCED",
+   "counterexample": "spec/output/MC_hunt_prevote_leader_violation.out"
+  },
+  "MC-2": {
+   "property": "PreVoteTrackerWellFormed",
+   "status": "REPRODUCED",
+   "counterexample": "spec/output/MC_hunt_prevote_stale_grant_tight_violation.out"
+  },
+  "CR-1": {
+   "source": "code-review",
+   "status": "REPRODUCED (integration test t94 with passing control)",
+   "evidence": "spec/code-review-CR-1.md"
+  },
+  "CR-2": {
+   "source": "code-review",
+   "status": "documentation inconsistency",
+   "evidence": "modeling-brief.md section 6"
+  }
+ },
+ "cleanup": {
+  "tlc_state_root_empty": true,
+  "background_processes_remaining": false
+ },
+ "limitations": [
+  "Finite three-node universe (five nodes only in the CR-1 integration test)",
+  "Bounded terms, log indices, messages, elections, Pre-Vote rounds, membership changes, crashes, and drops",
+  "All BFS runs without a finding stopped at their time budget; simulations are sampling",
+  "Runtime timer guards, IO completion, network delivery, AppendEntries receipt are not traced",
+  "Followers never receive log entries in the model; CR-1 is outside the model",
+  "No fairness or liveness claim from TLC"
+ ]
+}

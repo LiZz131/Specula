@@ -1,0 +1,20 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update moves the learner's DIFF/sync logging (logRequest) ahead of the NEWLEADER ACK, starts request processors in a non-serving INITIAL state (startupWithoutServing), and replaces startup() with startServing() after UPTODATE. This changes modeled state, atomicity and enablement, so the model changed (MODEL_CHANGE_REQUIRED). The reference suite (base/MC/Trace), the Update.tla lens and the harness were updated. Five update properties were added; the reference properties were kept, with TLC-evaluated evidence. Several V0 abstractions the update depends on were repaired: NEWLEADER-ACK quorum gating, the in-memory database used for voting, and the sync-time durability point. Validation: the V0 patch was rebased (one hunk moved), and V1 probes and update-focused scenarios were added. 13 fresh new-version traces pass TLC replay with TraceMatched, and 5 negative mutations are rejected; the 5 archived V0 traces are superseded. Model checking covered the standard MC.cfg, update properties over the full MCNext and the focused spec, open/discharge checks, scenario hunts and canaries, all budget-limited. It found three defects, each with counterexamples, and each reproduced on the updated code using in-process quorum tests with old-revision controls. MC-1: the NEWLEADER ACK is written before the logged sync transactions are durable, so a leader can certify and serve history that a learner crash then loses (3/3 runs with a stalled-disk fault). MC-2: a learner that fails between the NEWLEADER ACK and UPTODATE stays in INITIAL state; shutdown is skipped, its stale in-memory database then votes and leads, and a committed, served node is lost without any crash (3/3 runs; the old revision also loses it on this path). MC-3: a txn ACK can precede the NEWLEADER ACK, so the leader rejects the learner and cannot establish its epoch. This is update-introduced and was reproduced only with an injected learner-thread pause. Coverage is finite and time-bounded; the standard round exhausted its depth-23 space only with the MC-2 class filtered. The specular CLI is not installed, so ci-result reports were not generated; spec/final-result.json was written.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/confirmation-MC-1.md",
+    "/work/current/.specula-output/spec/confirmation-MC-2.md",
+    "/work/current/.specula-output/spec/confirmation-MC-3.md",
+    "/work/current/.specula-output/spec/output/cex/MC-1_CertifiedDurableOnQuorum_hunt2s.out",
+    "/work/current/.specula-output/spec/output/cex/MC-1_CertifiedRetainedByLaterLeaders_crash_huntU1.out",
+    "/work/current/.specula-output/spec/output/cex/MC-2_CertifiedRetainedByLaterLeaders_noCrash_huntU1.out",
+    "/work/current/.specula-output/spec/output/cex/MC-2_PipelinePrefix_MCcfg.out",
+    "/work/current/.specula-output/spec/output/cex/MC-3_NewLeaderAckIsFirstAck_hunt2s.out",
+    "/work/current/.specula-output/spec/invariant-evidence.json"
+  ],
+  "blockers": []
+}

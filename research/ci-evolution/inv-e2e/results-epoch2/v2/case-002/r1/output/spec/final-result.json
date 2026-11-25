@@ -1,0 +1,66 @@
+{
+ "version": 1,
+ "run_id": "case-002-incremental-update",
+ "summary": "Model updated for the NEWLEADER/startup change; harness rebased; 8 fresh traces validated; model checking found two update-path defects (ACK before fsync; stale in-memory database after a failure in the new INITIAL window) leading to loss of a committed transaction.",
+ "validation_limits": [
+  "Model-checking runs are budget-limited (30 min per run) unless a log reports natural completion; recorded as LIMITED_COVERAGE, not proof.",
+  "Trace.tla replays the update window and SyncRequestProcessor/apply path through base Actions; election/discovery and leader-side broadcast probes remain the inherited observed projection.",
+  "TRUNC synchronization is not exercised by any harness scenario; real fail-stop crashes are not exercised (in-JVM restarts only).",
+  "Part 4 reproduction/confirmation was not executed in this task; findings carry MC and real-trace evidence only.",
+  "The specular CLI (ci-result, findings lookup/record) is not installed; generated CI reports were not produced.",
+  "CR-1 (liveness) is not modeled; the NewLeaderAckMismatch probe never fired in the collected runs."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "NEWLEADER ACK is written before the DIFF-synchronized transactions are durable",
+   "status": "DEFERRED",
+   "source": "model-checking",
+   "cause": "Learner.syncWithLeader hands buffered proposals to logRequest (enqueue only) and writes the NEWLEADER ACK without waiting for the SyncRequestProcessor flush.",
+   "trigger": "Re-elected leader DIFF-syncs a transaction that only it has logged; the learner ACKs NEWLEADER and the leader activates; the learner crashes before its SyncThread forces the transaction.",
+   "consequence": "The leader activates and serves a history that is durable only on itself; after the learner's crash a later leader activates without the committed transaction.",
+   "severity": "High",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/findings.json",
+    "spec/output/mc/MC-1_counterexample_UpdNewLeaderAckAfterDurable.log",
+    "spec/output/mc/MC-1_counterexample_UpdEstablishedHistoryDurableOnQuorum.log",
+    "spec/output/mc/MC-1_witness_phase2_crash_S_to_violation.log",
+    "spec/evidence/tlc-E1.log",
+    "spec/evidence/tlc-E2.log"
+   ]
+  },
+  {
+   "id": "MC-2",
+   "title": "Learner failing between NEWLEADER and UPTODATE keeps a stale in-memory database; a later leader activates without committed transactions",
+   "status": "DEFERRED",
+   "source": "model-checking",
+   "cause": "startupWithoutServing leaves the learner in State.INITIAL; a failure before UPTODATE skips shutdown (no drain, no fastForwardDataBase), so votes and a new leader's history come from an in-memory database lacking the DIFF transactions.",
+   "trigger": "Learner ACKs NEWLEADER, old leader activates, learner fails before UPTODATE; learners elect one of themselves while the old leader is down or partitioned.",
+   "consequence": "The new leader activates the next epoch without a transaction that was committed and client-visible in the previous epoch.",
+   "severity": "Critical",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/mc/MC-2_witness_phase1_Init_to_S.log",
+    "spec/output/mc/MC-2_witness_phase2_S_to_violation.log",
+    "spec/output/mc/MC-2_counterexample_UpdLeaderCompleteness_from_trace_prefix.log",
+    "spec/evidence/tlc-E3.log",
+    "traces/diff-sync-uncommitted-log.ndjson"
+   ]
+  },
+  {
+   "id": "CR-1",
+   "title": "Proposal ACK from the SyncThread can precede the NEWLEADER ACK and be taken as the NEWLEADER ACK",
+   "status": "NEEDS MORE INFO",
+   "source": "code-review",
+   "cause": "Since the update starts the SyncRequestProcessor before the NEWLEADER ACK, SendAckRequestProcessor may write ACK(proposal zxid) first; LearnerHandler treats the first ACK as the NEWLEADER ACK and waitForNewLeaderAck rejects the mismatched zxid without counting the learner.",
+   "trigger": "Fast fsync of a DIFF proposal on the learner's SyncThread before the learner thread writes ACK(NEWLEADER).",
+   "consequence": "The learner is missing from the NEWLEADER quorum; the leader may time out and abandon the epoch (availability), not a safety violation.",
+   "severity": "Low",
+   "evidence": [
+    "modeling-brief.md",
+    "spec/output/validation-handoff.md"
+   ]
+  }
+ ]
+}

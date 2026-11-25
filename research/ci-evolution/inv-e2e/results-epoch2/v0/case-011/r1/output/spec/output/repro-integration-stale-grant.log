@@ -1,0 +1,347 @@
+warning: unused workspace dependency `bytes`
+  --> Cargo.toml:22:1
+   |
+22 | bytes              = { version = "1.0" }
+   | ^^^^^
+   |
+   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default
+help: consider removing the workspace dependency `bytes`
+warning: unused workspace dependency `tempfile`
+  --> Cargo.toml:45:1
+   |
+45 | tempfile           = { version = "3.4.0" }
+   | ^^^^^^^^
+   |
+help: consider removing the workspace dependency `tempfile`
+warning: workspace (manifest) generated 2 warnings
+warning: `package.homepage` is redundant with `package.repository`
+  --> legacy/Cargo.toml:11:1
+   |
+11 | homepage.workspace = true
+   | ^^^^^^^^
+...
+14 | repository.workspace = true
+   | ----------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-legacy` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore-custom-node-id/Cargo.toml:9:17
+   |
+ 9 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+12 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore-custom-node-id` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> tests/Cargo.toml:13:17
+   |
+13 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+16 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `tests` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> stores/memstore/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-memstore` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> openraft/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> rt/Cargo.toml:11:17
+   |
+11 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+14 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-rt` (manifest) generated 1 warning
+warning: `package.homepage` is redundant with `package.repository`
+  --> macros/Cargo.toml:10:17
+   |
+10 | homepage      = { workspace = true }
+   |                 ^^^^^^^^^^^^^^^^^^^^
+...
+13 | repository    = { workspace = true }
+   |                 --------------------
+   |
+   = note: `cargo::redundant_homepage` is set to `warn` by default
+help: consider removing `package.homepage`
+warning: `openraft-macros` (manifest) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/build/tests/50603384688cea4d/out/elect-50603384688cea4d)
+
+running 1 test
+
+thread 'tokio-rt-worker' (23195) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:676:5
+   1: core::panicking::panic_fmt
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:1870:5
+   3: <core::result::Result<&bool, &bool>>::expect
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:1184:23
+   4: <openraft::proposer::candidate::Candidate<openraft_memstore::TypeConfig, alloc::sync::Arc<openraft::membership::membership::Membership<u64, ()>>>>::grant_by
+             at /work/current/.specula-output/work-source/openraft/src/proposer/candidate.rs:107:59
+   5: <openraft::engine::engine_impl::Engine<openraft_memstore::TypeConfig, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::handle_pre_vote_resp
+             at /work/current/.specula-output/work-source/openraft/src/engine/engine_impl.rs:535:71
+   6: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::handle_notification
+             at /work/current/.specula-output/work-source/openraft/src/core/raft_core.rs:1817:37
+   7: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::runtime_loop::{closure#0}::{closure#0}
+             at /work/current/.specula-output/work-source/openraft/src/core/raft_core.rs:1241:46
+   8: <tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::runtime_loop::{closure#0}::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+   9: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::runtime_loop::{closure#0}
+             at /work/current/.specula-output/work-source/openraft/src/core/raft_core.rs:1210:5
+  10: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::do_main::{closure#0}::{closure#0}
+             at /work/current/.specula-output/work-source/openraft/src/core/raft_core.rs:328:40
+  11: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::do_main::{closure#0}
+             at /work/current/.specula-output/work-source/openraft/src/core/raft_core.rs:316:5
+  12: <tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::do_main::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+  13: <openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}
+             at /work/current/.specula-output/work-source/openraft/src/core/raft_core.rs:288:62
+  14: <tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+  15: <core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>> as core::future::future::Future>::poll
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/future/future.rs:133:9
+  16: <tokio::runtime::task::core::Core<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:380:24
+  17: <tokio::loom::std::unsafe_cell::UnsafeCell<tokio::runtime::task::core::Stage<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>>>>::with_mut::<core::task::poll::Poll<core::result::Result<openraft::errors::Infallible, openraft::errors::fatal::Fatal<openraft_memstore::TypeConfig>>>, <tokio::runtime::task::core::Core<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/loom/std/unsafe_cell.rs:16:9
+  18: <tokio::runtime::task::core::Core<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:369:30
+  19: tokio::runtime::task::harness::poll_future::<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:537:30
+  20: <core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panic/unwind_safe.rs:275:9
+  21: std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}>, core::task::poll::Poll<core::result::Result<openraft::errors::Infallible, openraft::errors::fatal::Fatal<openraft_memstore::TypeConfig>>>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573:43
+  22: __rust_try
+  23: std::panicking::catch_unwind::<core::task::poll::Poll<core::result::Result<openraft::errors::Infallible, openraft::errors::fatal::Fatal<openraft_memstore::TypeConfig>>>, core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:541:19
+  24: std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>::{closure#0}>, core::task::poll::Poll<core::result::Result<openraft::errors::Infallible, openraft::errors::fatal::Fatal<openraft_memstore::TypeConfig>>>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panic.rs:359:14
+  25: tokio::runtime::task::harness::poll_future::<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:525:18
+  26: <tokio::runtime::task::harness::Harness<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll_inner
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:210:27
+  27: <tokio::runtime::task::harness::Harness<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:155:20
+  28: tokio::runtime::task::raw::poll::<core::pin::Pin<alloc::boxed::Box<tracing::instrument::Instrumented<<openraft::core::raft_core::RaftCore<openraft_memstore::TypeConfig, elect::fixtures::TypedRaftRouter, alloc::sync::Arc<openraft_memstore::MemLogStore>, alloc::sync::Arc<openraft_memstore::MemStateMachine>>>::main::{closure#0}>>>, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:337:13
+  29: <tokio::runtime::task::raw::RawTask>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:267:18
+  30: <tokio::runtime::task::LocalNotified<alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/mod.rs:523:13
+  31: <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:791:22
+  32: tokio::task::coop::with_budget::<core::ops::control_flow::ControlFlow<(), alloc::boxed::Box<tokio::runtime::scheduler::multi_thread::worker::Core>>, <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/task/coop/mod.rs:167:5
+  33: tokio::task::coop::budget::<core::ops::control_flow::ControlFlow<(), alloc::boxed::Box<tokio::runtime::scheduler::multi_thread::worker::Core>>, <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/task/coop/mod.rs:133:5
+  34: <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:696:9
+  35: <tokio::runtime::scheduler::multi_thread::worker::Context>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:595:35
+  36: tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:560:16
+  37: <tokio::runtime::context::scoped::Scoped<tokio::runtime::scheduler::Context>>::set::<tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}, ()>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context/scoped.rs:40:9
+  38: tokio::runtime::context::set_scheduler::<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context.rs:186:38
+  39: <std::thread::local::LocalKey<tokio::runtime::context::Context>>::try_with::<tokio::runtime::context::set_scheduler<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>::{closure#0}, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/local.rs:463:12
+  40: <std::thread::local::LocalKey<tokio::runtime::context::Context>>::with::<tokio::runtime::context::set_scheduler<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>::{closure#0}, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/local.rs:427:20
+  41: tokio::runtime::context::set_scheduler::<(), tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context.rs:186:17
+  42: tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:557:9
+  43: tokio::runtime::context::runtime::enter_runtime::<tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}, ()>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context/runtime.rs:65:16
+  44: tokio::runtime::scheduler::multi_thread::worker::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:549:5
+  45: <tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/worker.rs:515:45
+  46: <tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/task.rs:42:21
+  47: <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:380:24
+  48: <tokio::loom::std::unsafe_cell::UnsafeCell<tokio::runtime::task::core::Stage<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>>>>::with_mut::<core::task::poll::Poll<()>, <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/loom/std/unsafe_cell.rs:16:9
+  49: <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/core.rs:369:30
+  50: tokio::runtime::task::harness::poll_future::<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:537:30
+  51: <core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panic/unwind_safe.rs:275:9
+  52: std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}>, core::task::poll::Poll<()>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573:43
+  53: __rust_try
+  54: std::panicking::catch_unwind::<core::task::poll::Poll<()>, core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:541:19
+  55: std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<tokio::runtime::task::harness::poll_future<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>::{closure#0}>, core::task::poll::Poll<()>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panic.rs:359:14
+  56: tokio::runtime::task::harness::poll_future::<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:525:18
+  57: <tokio::runtime::task::harness::Harness<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll_inner
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:210:27
+  58: <tokio::runtime::task::harness::Harness<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/harness.rs:155:20
+  59: tokio::runtime::task::raw::poll::<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:337:13
+  60: <tokio::runtime::task::raw::RawTask>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/raw.rs:267:18
+  61: <tokio::runtime::task::UnownedTask<tokio::runtime::blocking::schedule::BlockingSchedule>>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/task/mod.rs:560:13
+  62: <tokio::runtime::blocking::pool::Task>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:220:19
+  63: <tokio::runtime::blocking::pool::LockedImpl>::run_worker
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:660:22
+  64: <tokio::runtime::blocking::pool::InnerImpl>::run_worker
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:571:39
+  65: <tokio::runtime::blocking::pool::Inner>::run
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:764:18
+  66: <tokio::runtime::blocking::pool::Spawner>::spawn_thread::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:525:47
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+SPECULA_OBSERVATION stale grant: node1 RaftCore probe: Err(Panicked)
+Error: RaftCore of node 1 is no longer running: panicked
+
+Stack backtrace:
+   0: <anyhow::Error>::msg::<alloc::string::String>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anyhow-1.0.105/src/backtrace.rs:10:14
+   1: elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}::{closure#0}::{closure#5}
+             at ./tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs:130:33
+   2: <core::result::Result<(openraft::core::server_state::ServerState, u64), openraft::errors::fatal::Fatal<openraft_memstore::TypeConfig>>>::map_err::<anyhow::Error, elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}::{closure#0}::{closure#5}>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:967:27
+   3: elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}::{closure#0}
+             at ./tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs:130:21
+   4: <tracing::instrument::Instrumented<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}::{closure#0}> as core::future::future::Future>::poll
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tracing-0.1.44/src/instrument.rs:321:15
+   5: elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}
+             at ./tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs:36:1
+   6: <core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>> as core::future::future::Future>::poll
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/future/future.rs:133:9
+   7: <tokio::runtime::park::CachedParkThread>::block_on::<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/park.rs:376:71
+   8: tokio::task::coop::with_budget::<core::task::poll::Poll<core::result::Result<(), anyhow::Error>>, <tokio::runtime::park::CachedParkThread>::block_on<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/task/coop/mod.rs:167:5
+   9: tokio::task::coop::budget::<core::task::poll::Poll<core::result::Result<(), anyhow::Error>>, <tokio::runtime::park::CachedParkThread>::block_on<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/task/coop/mod.rs:133:5
+  10: <tokio::runtime::park::CachedParkThread>::block_on::<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/park.rs:376:31
+  11: <tokio::runtime::context::blocking::BlockingRegionGuard>::block_on::<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context/blocking.rs:66:14
+  12: <tokio::runtime::scheduler::multi_thread::MultiThread>::block_on::<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>::{closure#0}
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/mod.rs:90:22
+  13: tokio::runtime::context::runtime::enter_runtime::<<tokio::runtime::scheduler::multi_thread::MultiThread>::block_on<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>::{closure#0}, core::result::Result<(), anyhow::Error>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/context/runtime.rs:65:16
+  14: <tokio::runtime::scheduler::multi_thread::MultiThread>::block_on::<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/multi_thread/mod.rs:89:9
+  15: <tokio::runtime::runtime::Runtime>::block_on_inner::<core::pin::Pin<alloc::boxed::Box<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>>>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/runtime.rs:381:50
+  16: <tokio::runtime::runtime::Runtime>::block_on::<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>
+             at /work/.cache/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/runtime.rs:346:18
+  17: <openraft_rt_tokio::TokioRuntime as openraft_rt::async_runtime::AsyncRuntime>::block_on::<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}, core::result::Result<(), anyhow::Error>>
+             at /work/current/.specula-output/work-source/rt-tokio/src/lib.rs:123:21
+  18: <openraft_rt_tokio::TokioRuntime as openraft_rt::async_runtime::AsyncRuntime>::run::<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}, core::result::Result<(), anyhow::Error>>
+             at /work/current/.specula-output/work-source/rt/src/async_runtime.rs:142:22
+  19: <openraft_memstore::TypeConfig as openraft::type_config::util::TypeConfigExt>::run::<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}, core::result::Result<(), anyhow::Error>>
+             at /work/current/.specula-output/work-source/openraft/src/type_config/util.rs:165:9
+  20: elect::fixtures::ut_harness::<elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member, elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}>
+             at ./tests/elect/../fixtures/mod.rs:108:15
+  21: elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member
+             at ./tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs:37:1
+  22: elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0}
+             at ./tests/elect/t93_specula_stale_pre_vote_grant_removed_member.rs:37:1
+  23: <elect::t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/ops/function.rs:250:5
+  24: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/ops/function.rs:250:5
+  25: test::__rust_begin_short_backtrace::<core::result::Result<(), alloc::string::String>, fn() -> core::result::Result<(), alloc::string::String>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:701:18
+  26: test::run_test_in_process::{closure#0}
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:724:74
+  27: <core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panic/unwind_safe.rs:275:9
+  28: std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>, core::result::Result<(), alloc::string::String>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573:43
+  29: std::panicking::catch_unwind::<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:541:19
+  30: std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>, core::result::Result<(), alloc::string::String>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panic.rs:359:14
+  31: test::run_test_in_process
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:724:27
+  32: test::run_test::{closure#0}
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:645:43
+  33: test::run_test::{closure#1}
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:675:41
+  34: std::sys::backtrace::__rust_begin_short_backtrace::<test::run_test::{closure#1}, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/sys/backtrace.rs:166:18
+  35: std::thread::lifecycle::spawn_unchecked::<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:70:13
+  36: <core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/panic/unwind_safe.rs:275:9
+  37: std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573:43
+  38: std::panicking::catch_unwind::<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:541:19
+  39: std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>, ()>
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panic.rs:359:14
+  40: std::thread::lifecycle::spawn_unchecked::<test::run_test::{closure#1}, ()>::{closure#1}
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:68:26
+  41: <std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/ops/function.rs:250:5
+  42: <alloc::boxed::Box<dyn core::ops::function::FnOnce<(), Output = ()> + core::marker::Send> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/alloc/src/boxed.rs:2395:9
+  43: <std::sys::thread::unix::Thread>::new::thread_start
+             at /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/sys/thread/unix.rs:127:17
+  44: start_thread
+             at ./nptl/pthread_create.c:442:8
+  45: clone3
+             at ./misc/../sysdeps/unix/sysv/linux/x86_64/clone3.S:81:0
+test t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member ... FAILED
+
+failures:
+
+failures:
+    t93_specula_stale_pre_vote_grant_removed_member::specula_stale_pre_vote_grant_from_removed_member
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 7.80s
+
+error: test failed, to rerun pass `-p tests --test elect`

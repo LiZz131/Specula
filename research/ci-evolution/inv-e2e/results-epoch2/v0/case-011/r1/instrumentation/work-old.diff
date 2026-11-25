@@ -1,0 +1,131 @@
+diff --git a/openraft/src/engine/mod.rs b/openraft/src/engine/mod.rs
+index 6107102..62121fe 100644
+--- a/openraft/src/engine/mod.rs
++++ b/openraft/src/engine/mod.rs
+@@ -53,6 +53,7 @@ mod tests {
+     mod initialize_test;
+     mod install_full_snapshot_test;
+     mod refresh_server_state_test;
++    mod specula_old_control_test;
+     mod startup_test;
+     mod trigger_purge_log_test;
+ }
+diff --git a/openraft/src/engine/tests/specula_old_control_test.rs b/openraft/src/engine/tests/specula_old_control_test.rs
+new file mode 100644
+index 0000000..2b91c38
+--- /dev/null
++++ b/openraft/src/engine/tests/specula_old_control_test.rs
+@@ -0,0 +1,113 @@
++//! Specula old-revision control (baseline commit, no Pre-Vote).
++//!
++//! Each `specula_repro_*` test asserts the behavior the update promises; it
++//! FAILS while the defect is present. `specula_control_*` tests show the
++//! comparison path (direct elections, as in the old revision) and pass.
++
++use std::time::Duration;
++
++use maplit::btreeset;
++
++use crate::Vote;
++use crate::core::ServerState;
++use crate::engine::Command;
++use crate::engine::Engine;
++use crate::engine::LogIdList;
++use crate::engine::testing::UTConfig;
++use crate::engine::testing::log_id;
++use crate::raft::VoteRequest;
++use crate::raft::VoteResponse;
++use crate::raft_state::LogStateReader;
++use crate::type_config::TypeConfigExt;
++use crate::utime::Leased;
++
++fn node(id: u64, voters: std::collections::BTreeSet<u64>, last_index: u64, vote: Vote<crate::engine::testing::UTLeaderId>) -> Engine<UTConfig> {
++    use std::sync::Arc;
++
++    use crate::Membership;
++    use crate::MembershipState;
++    use crate::type_config::alias::StoredMembershipOf;
++
++    let mut eng = Engine::testing_default(id);
++    eng.state.enable_validation(false);
++    eng.config.id = id;
++    let m = Arc::new(StoredMembershipOf::<UTConfig>::new(
++        Some(log_id(1, 1, 1)),
++        Membership::new_with_defaults(vec![voters], []),
++    ));
++    eng.state.membership_state = MembershipState::new(m.clone(), m);
++    eng.state.log_ids = LogIdList::new(None, [log_id(1, 1, last_index)]);
++    // Expired lease: no live leader is known.
++    eng.state.vote = Leased::new(UTConfig::<()>::now(), Duration::ZERO, vote);
++    eng.state.server_state = ServerState::Follower;
++    eng.output.clear_commands();
++    eng
++}
++
++/// Drive one direct election of node `x` (the pre-update path): self grant
++/// after SaveVote, then the peers' handle_vote_req and filtered
++/// handle_vote_resp. Returns true if `x` became leader.
++fn direct_election(nodes: &mut [Engine<UTConfig>], x: usize) -> bool {
++    nodes[x].elect();
++    let req: VoteRequest<UTConfig> = nodes[x]
++        .output
++        .iter_commands()
++        .find_map(|c| match c {
++            Command::SendVote { vote_req } => Some(vote_req.clone()),
++            _ => None,
++        })
++        .expect("SendVote queued");
++    nodes[x].output.clear_commands();
++    let me = nodes[x].config.id;
++    let self_resp = VoteResponse::new(req.vote, nodes[x].state.last_log_id().cloned(), true);
++    nodes[x].handle_vote_resp(me, self_resp);
++    for y in 0..nodes.len() {
++        if y == x {
++            continue;
++        }
++        let resp = nodes[y].handle_vote_req(req.clone());
++        nodes[y].output.clear_commands();
++        let target = nodes[y].config.id;
++        let matches = nodes[x].candidate_ref().map(|c| c.vote_ref().leader_id == req.vote.leader_id).unwrap_or(false);
++        if matches {
++            nodes[x].handle_vote_resp(target, resp);
++        }
++        nodes[x].output.clear_commands();
++        if nodes[x].state.server_state == ServerState::Leader {
++            return true;
++        }
++    }
++    false
++}
++
++/// Five voters {1..5}; nodes 1 and 3 have crashed permanently. Node 2 holds
++/// the longest log (1,1,2) but still votes for the old leader at term 1;
++/// nodes 4 and 5 granted node 3's real vote at term 2 but lack entry 2.
++fn stalled_cluster() -> Vec<Engine<UTConfig>> {
++    let voters = btreeset! {1, 2, 3, 4, 5};
++    vec![
++        node(2, voters.clone(), 2, Vote::new_committed(1, 1)),
++        node(4, voters.clone(), 1, Vote::new(2, 3)),
++        node(5, voters, 1, Vote::new(2, 3)),
++    ]
++}
++
++/// Control: the same cluster state with direct elections (Pre-Vote disabled,
++/// the pre-update behavior). When node 2's randomized timer fires first, its
++/// rejected election adopts term 2 and its next election wins; the Pre-Vote
++/// schedule above includes this same schedule (node 2 retrying alone) and
++/// still never starts an election.
++#[test]
++fn specula_control_direct_election_progresses() -> anyhow::Result<()> {
++    let mut nodes = stalled_cluster();
++    let mut leader = None;
++    for _attempt in 0..3 {
++        if direct_election(&mut nodes, 0) {
++            leader = Some(nodes[0].config.id);
++            break;
++        }
++    }
++    assert_eq!(Some(2), leader, "direct elections let the freshest log win after adopting term 2");
++    Ok(())
++}
++

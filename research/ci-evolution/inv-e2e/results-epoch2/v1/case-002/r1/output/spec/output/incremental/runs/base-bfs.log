@@ -1,0 +1,76 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout 1300s java -Dtlc2.TLC.stopAfter=900 -Djava.io.tmpdir=/dev/shm/specula-e2e-case-002/base-bfs -XX:+UseParallelGC -Xmx24g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -noGenerateSpecTE -workers 8 -metadir /dev/shm/specula-e2e-case-002/base-bfs -config base.cfg base.tla
+STARTED: 2026-11-25T14:13:55Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 68 and seed 7968597376966929590 with 8 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 25806] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /dev/shm/specula-e2e-case-002/base-bfs/tlc-11594697176877405086/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /dev/shm/specula-e2e-case-002/base-bfs/tlc-11594697176877405086/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /dev/shm/specula-e2e-case-002/base-bfs/tlc-11594697176877405086/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /dev/shm/specula-e2e-case-002/base-bfs/tlc-11594697176877405086/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /dev/shm/specula-e2e-case-002/base-bfs/tlc-11594697176877405086/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Linting of module base
+Starting... (2026-11-25 14:13:57)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 14:13:57.
+Progress(13) at 2026-11-25 14:14:00: 52,842 states generated (52,842 s/min), 9,114 distinct states found (9,114 ds/min), 3,813 states left on queue.
+Progress(23) at 2026-11-25 14:15:00: 5,509,371 states generated (5,456,529 s/min), 907,279 distinct states found (898,165 ds/min), 277,242 states left on queue.
+Error: Invariant PipelinePrefix is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <BeginElection(s1) line 179, col 5 to line 200, col 20 of module base>
+
+State 3: <BeginElection(s2) line 179, col 5 to line 200, col 20 of module base>
+
+State 4: <BeginElection(s3) line 179, col 5 to line 200, col 20 of module base>
+
+State 5: <CastVote(s2,s1) line 212, col 5 to line 222, col 20 of module base>
+
+State 6: <WinElection(s1) line 229, col 5 to line 248, col 20 of module base>
+
+State 7: <FollowLeader(s3,s1) line 252, col 5 to line 264, col 20 of module base>
+
+State 8: <AcceptEpoch(s3) line 268, col 5 to line 278, col 20 of module base>
+
+State 9: <FinishDiscovery(s1) line 283, col 5 to line 293, col 20 of module base>
+
+State 10: <EnterSyncPhase(s3,s1) line 307, col 5 to line 321, col 20 of module base>
+
+State 11: <SelectSync(s3,s1,"DIFF") line 336, col 5 to line 378, col 53 of module base>
+
+State 12: <FollowerProcessNewLeader(s3) line 401, col 5 to line 427, col 73 of module base>
+
+State 13: <FollowerSendNewLeaderAck(s3) line 434, col 5 to line 446, col 20 of module base>
+
+State 14: <BeginElection(s3) line 179, col 5 to line 200, col 20 of module base>
+
+State 15: <FollowLeader(s3,s1) line 252, col 5 to line 264, col 20 of module base>
+
+State 16: <Next line 787, col 8 to line 787, col 56 of module base>
+
+State 17: <LeaderBroadcast(s1) line 485, col 5 to line 501, col 61 of module base>
+
+State 18: <EnterSyncPhase(s3,s1) line 307, col 5 to line 321, col 20 of module base>
+
+State 19: <Propose(s1,t1) line 539, col 5 to line 555, col 20 of module base>
+
+State 20: <SelectSync(s3,s1,"DIFF") line 336, col 5 to line 378, col 53 of module base>
+
+State 21: <FollowerProcessNewLeader(s3) line 401, col 5 to line 427, col 73 of module base>
+
+State 22: <BeginElection(s3) line 179, col 5 to line 200, col 20 of module base>
+
+State 23: <CastVote(s2,s3) line 212, col 5 to line 222, col 20 of module base>
+
+State 24: <WinElection(s3) line 229, col 5 to line 248, col 20 of module base>
+
+6142471 states generated, 948777 distinct states found, 243636 states left on queue.
+The depth of the complete state graph search is 23.
+Finished in 01min 14s at (2026-11-25 14:15:10)
+EXIT: 12 FINISHED: 2026-11-25T14:15:10Z

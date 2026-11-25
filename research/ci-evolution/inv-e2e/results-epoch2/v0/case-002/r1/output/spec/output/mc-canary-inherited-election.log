@@ -1,0 +1,51 @@
+# command: timeout 1080s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=480 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config MC-hunt-election.cfg -metadir /dev/shm/specula-e2e-case-002/mc-canary-inherited-election-17298 -workers 4 -dumpTrace json output/mc-canary-inherited-election.cex.json -cleanup MC.tla
+# started: 2026-11-25T08:16:35Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 36 and seed 9218900667365903852 with 4 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 17304] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-12914322299003637481/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-12914322299003637481/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-12914322299003637481/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-12914322299003637481/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-12914322299003637481/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-12914322299003637481/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-12914322299003637481/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-12914322299003637481/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-12914322299003637481/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module MC
+Linting of module base
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module MC
+Starting... (2026-11-25 08:16:37)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:16:38.
+Error: Invariant NotElectionReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+"CounterExample written: output/mc-canary-inherited-election.cex.json"
+130 states generated, 42 distinct states found, 29 states left on queue.
+The depth of the complete state graph search is 5.
+Finished in 02s at (2026-11-25 08:16:38)
+Trace exploration spec path: ./MC_TTrace_1795594596.tla
+# exit: 12 finished: 2026-11-25T08:16:38Z

@@ -1,0 +1,106 @@
+# command: timeout 1200s java -XX:+UseParallelGC -Xmx24g -Dtlc2.TLC.stopAfter=600 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update-hunt-crash-window.cfg -metadir /dev/shm/specula-e2e-case-002/mc-final-hunt-crash-window-bfs-20723 -workers 5 -dumpTrace json output/mc-final-hunt-crash-window-bfs.cex.json -cleanup Update.tla
+# started: 2026-11-25T08:32:41Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 54 and seed -246074750389589685 with 5 workers on 40 cores with 21845MB heap and 64MB offheap memory [pid: 20768] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-14442326055545230/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-14442326055545230/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-14442326055545230/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14442326055545230/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14442326055545230/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14442326055545230/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14442326055545230/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14442326055545230/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-14442326055545230/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 08:32:43)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 08:32:43.
+Progress(12) at 2026-11-25 08:32:46: 31,190 states generated (31,190 s/min), 7,878 distinct states found (7,878 ds/min), 2,932 states left on queue.
+Progress(24) at 2026-11-25 08:33:46: 1,611,070 states generated (1,579,880 s/min), 458,231 distinct states found (450,353 ds/min), 107,239 states left on queue.
+Progress(27) at 2026-11-25 08:34:46: 3,189,541 states generated (1,578,471 s/min), 891,647 distinct states found (433,416 ds/min), 169,942 states left on queue.
+Progress(29) at 2026-11-25 08:35:46: 4,665,837 states generated (1,476,296 s/min), 1,294,518 distinct states found (402,871 ds/min), 212,465 states left on queue.
+Error: Invariant LeaderCompleteness is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 30, col 23 to line 30, col 87 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 31, col 21 to line 31, col 59 of module MC>
+
+State 4: <MCWinElection(s1) line 32, col 21 to line 32, col 81 of module MC>
+
+State 5: <MCFollowLeader(s2,s1) line 33, col 25 to line 33, col 67 of module MC>
+
+State 6: <MCAcceptEpoch(s2) line 34, col 21 to line 34, col 59 of module MC>
+
+State 7: <MCFinishDiscovery(s1) line 35, col 25 to line 35, col 67 of module MC>
+
+State 8: <MCEnterSyncPhase(s2,s1) line 36, col 27 to line 36, col 71 of module MC>
+
+State 9: <MCSyncWithLeader(s2,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 10: <MCLearnerNewLeaderPersist(s2) line 42, col 5 to line 42, col 80 of module MC>
+
+State 11: <MCLearnerNewLeaderStartup(s2) line 44, col 5 to line 44, col 80 of module MC>
+
+State 12: <MCLearnerLogPendingOne(s2) line 46, col 5 to line 46, col 81 of module MC>
+
+State 13: <MCLearnerSendNewLeaderAck(s2) line 48, col 5 to line 48, col 76 of module MC>
+
+State 14: <MCLeaderStartZkServer(s1) line 50, col 5 to line 50, col 78 of module MC>
+
+State 15: <MCCrash(s2) line 83, col 5 to line 86, col 22 of module MC>
+
+State 16: <MCRestart(s2) line 87, col 17 to line 87, col 74 of module MC>
+
+State 17: <MCBeginElection(s2) line 30, col 23 to line 30, col 87 of module MC>
+
+State 18: <MCCastVote(s3,s2) line 31, col 21 to line 31, col 59 of module MC>
+
+State 19: <MCWinElection(s2) line 32, col 21 to line 32, col 81 of module MC>
+
+State 20: <MCFollowLeader(s3,s2) line 33, col 25 to line 33, col 67 of module MC>
+
+State 21: <MCAcceptEpoch(s3) line 34, col 21 to line 34, col 59 of module MC>
+
+State 22: <MCFinishDiscovery(s2) line 35, col 25 to line 35, col 67 of module MC>
+
+State 23: <MCEnterSyncPhase(s3,s2) line 36, col 27 to line 36, col 71 of module MC>
+
+State 24: <MCSyncWithLeader(s3,"DIFF") line 38, col 5 to line 40, col 25 of module MC>
+
+State 25: <MCLearnerNewLeaderPersist(s3) line 42, col 5 to line 42, col 80 of module MC>
+
+State 26: <MCLearnerNewLeaderStartup(s3) line 44, col 5 to line 44, col 80 of module MC>
+
+State 27: <MCLearnerSendNewLeaderAck(s3) line 48, col 5 to line 48, col 76 of module MC>
+
+State 28: <MCLeaderStartZkServer(s2) line 50, col 5 to line 50, col 78 of module MC>
+
+"CounterExample written: output/mc-final-hunt-crash-window-bfs.cex.json"
+4808845 states generated, 1334914 distinct states found, 218615 states left on queue.
+The depth of the complete state graph search is 29.
+Finished in 03min 11s at (2026-11-25 08:35:53)
+Trace exploration spec path: ./Update_TTrace_1795595562.tla
+# exit: 12 finished: 2026-11-25T08:35:54Z

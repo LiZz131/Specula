@@ -1,0 +1,19 @@
+{
+ "decision": "MODEL_UPDATED",
+ "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+ "summary": "Chapter 1 disposition MODEL_CHANGE_REQUIRED: the update moves the learner's request-processor startup (new State.INITIAL), setSyncMode(NONE), the syncLimit timeout and the logRequest of buffered DIFF/outstanding proposals in front of the NEWLEADER ACK, and serves only after UPTODATE (startServing). The reference suite (base/MC/Trace) now models NEWLEADER-ACK counting, the INITIAL/RUNNING lifecycle, buffer->queue->fsync for DIFF, and the in-memory database separately from the log. Implementation-backed V0 defects were repaired: leader activation on a NEWLEADER-ACK quorum instead of followers in BROADCAST, votes from the in-memory zxid, and TRUNC/SNAP certified prefix. Update.tla adds three requirement properties with TLC-evaluated separating states, plus full, focused, open, discharge and scenario views. The V0 harness was rebased (one drifted hunk; new NEWLEADER-ACK and reload probes), and 8 fresh new-version traces (4 V0 scenarios, 3 DIFF repetitions, the update's DIFFSyncConsistencyTest) all replay fully, with the update window replayed through base actions. Model checking found two update-path defects (Case C), both supported by real traces. MC-1: the NEWLEADER ACK is written while the DIFF transactions are only queued to the async SyncRequestProcessor, so the leader activates a history durable only on itself, and a learner crash then loses a committed txn. MC-2 (no crash needed): a learner failing between NEWLEADER and UPTODATE skips shutdown in INITIAL (no drain, no fastForwardDataBase), so a later leader elected from such learners activates without a txn committed and served in the previous epoch. Witnesses are Init-rooted MCNext paths plus a continuation from a validated real-trace state. All other campaigns (standard MC to the depth-30 bound, 3-server full/focused/open/discharge, simulations) are budget-limited with no further violation and are reported as LIMITED_COVERAGE; 2-server full and small models are exhaustive. Gaps: TRUNC is not traced, election and the leader pipeline are observed projections in Trace.tla, and CR-1 (a proposal ACK racing the NEWLEADER ACK, liveness) is code-review only. Part-4 reproduction was not run.",
+ "findings_paths": [
+  "/work/current/.specula-output/spec/findings.json",
+  "/work/current/.specula-output/spec/bug-report.md",
+  "/work/current/.specula-output/spec/final-result.json",
+  "/work/current/.specula-output/spec/invariant-evidence.json",
+  "/work/current/.specula-output/spec/output/mc/MC-1_counterexample_UpdNewLeaderAckAfterDurable.log",
+  "/work/current/.specula-output/spec/output/mc/MC-1_counterexample_UpdEstablishedHistoryDurableOnQuorum.log",
+  "/work/current/.specula-output/spec/output/mc/MC-1_witness_phase2_crash_S_to_violation.log",
+  "/work/current/.specula-output/spec/output/mc/MC-2_witness_phase1_Init_to_S.log",
+  "/work/current/.specula-output/spec/output/mc/MC-2_witness_phase2_S_to_violation.log",
+  "/work/current/.specula-output/spec/output/mc/MC-2_counterexample_UpdLeaderCompleteness_from_trace_prefix.log",
+  "/work/current/.specula-output/spec/output/mc/campaign-summary.md"
+ ],
+ "blockers": []
+}

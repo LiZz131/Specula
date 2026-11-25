@@ -1,0 +1,20 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "Pre-Vote update (Engine::pre_elect, handle_pre_vote_req/resp, timer and Trigger::elect(pre_vote) branches, tracker clearing) required a model change. The reference suite (base/MC/Trace) was updated and Update.tla added with full, focused, open (EnvUpdate) and discharge views, five Scenario hunts and eight reachability canaries. Model repairs: inherited V0 defect where empty logs compared unequal so no 3-voter election could succeed (the prior primary MC never reached a Leader), leader lease on establishment, timer guards, and a Restart artifact. The V0 harness was rebased; 21 fresh traces (7 V0 reruns + 14 update scenarios) pass TLC trace validation with TraceConsumed on the final model, and all 34 field mutants are rejected. Model checking found two real bugs, both reproduced on the updated implementation: MC-1, a timer-started Pre-Vote round survives leader establishment and a delayed grant makes the new Leader call elect() (leader deposed; RaftCore panics in debug builds); MC-2, same-term Pre-Vote rounds share a leader id so a delayed grant from a node removed by a membership change reaches Candidate::grant_by's expect and panics RaftCore. Code review also found CR-1, a permanent leaderless stall because rejected Pre-Votes never propagate the higher term (reproduced with a 5-node integration test and a passing direct-election control), and CR-2, a doc/code mismatch. All runs without a finding are time-budget-limited (LIMITED_COVERAGE), not exhaustive.",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/output/MC_hunt_prevote_leader_violation.out",
+    "/work/current/.specula-output/spec/output/Update-full_violation.out",
+    "/work/current/.specula-output/spec/output/Update-focused_violation.out",
+    "/work/current/.specula-output/spec/output/Update-open_violation.out",
+    "/work/current/.specula-output/spec/output/MC_hunt_prevote_stale_grant_tight_violation.out",
+    "/work/current/.specula-output/spec/output/Update-full-noU2_sim_violation.out",
+    "/work/current/.specula-output/spec/reproduction-MC-2.md",
+    "/work/current/.specula-output/spec/code-review-CR-1.md",
+    "/work/current/.specula-output/modeling-brief.md"
+  ],
+  "blockers": []
+}

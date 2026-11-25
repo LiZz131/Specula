@@ -1,0 +1,134 @@
+COMMAND: cd /work/current/.specula-output/spec && timeout --signal=TERM --kill-after=60s 30m java -Xmx20g -XX:+UseParallelGC -Dtlc2.TLC.stopAfter=1770 -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 6 -metadir /dev/shm/specula-e2e-case-011/mc-hunt-prevote_single_voter-filtered-bfs -noGenerateSpecTE -dumpTrace json /work/current/.specula-output/spec/output/mc-hunt-prevote_single_voter-filtered-bfs.cex.json -config MC_hunt_prevote_single_voter_filtered.cfg -coverage 10 Update
+START: 2026-11-24T16:35:01-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 53 and seed 3215059884366290218 with 6 workers on 40 cores with 18204MB heap and 64MB offheap memory [pid: 32553] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-18068093309658758542/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-18068093309658758542/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-18068093309658758542/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-18068093309658758542/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-18068093309658758542/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-18068093309658758542/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-18068093309658758542/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-18068093309658758542/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module Update
+Starting... (2026-11-24 22:35:03)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-24 22:35:03.
+Progress(9) at 2026-11-24 22:35:06: 3,944 states generated (3,944 s/min), 1,371 distinct states found (1,371 ds/min), 831 states left on queue.
+Error: Action property PreVoteElectionByVoter is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickElect("1") line 14, col 5 to line 16, col 65 of module MC>
+
+State 3: <MCCrash("3") line 54, col 5 to line 56, col 62 of module MC>
+
+State 4: <MCNext line 96, col 8 to line 97, col 33 of module MC>
+
+State 5: <MCNext line 96, col 8 to line 97, col 33 of module MC>
+
+State 6: <MCAppendJointConfig("1",{"2"}) line 44, col 5 to line 46, col 67 of module MC>
+
+State 7: <MCNext line 96, col 8 to line 97, col 33 of module MC>
+
+State 8: <MCExternalPreElect("1") line 39, col 5 to line 41, col 64 of module MC>
+
+State 9: <MCNext line 96, col 8 to line 97, col 33 of module MC>
+
+State 10: <MCAppendUniformConfig("1") line 49, col 5 to line 51, col 67 of module MC>
+
+State 11: <MCNext line 96, col 8 to line 97, col 33 of module MC>
+
+State 12: <MCNext line 96, col 8 to line 97, col 33 of module MC>
+
+"CounterExample written: /work/current/.specula-output/spec/output/mc-hunt-prevote_single_voter-filtered-bfs.cex.json"
+The coverage statistics at 2026-11-24 22:35:13 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<candidateActive line 155, col 5 to line 155, col 19 of module base>: 2
+<vote line 148, col 5 to line 148, col 8 of module base>: 10
+<durableVote line 149, col 5 to line 149, col 15 of module base>: 8
+<durableConfig line 172, col 5 to line 172, col 17 of module base>: 12
+<preGrants line 183, col 5 to line 183, col 13 of module base>: 4
+<sendVotePending line 153, col 5 to line 153, col 19 of module base>: 2
+<effectiveConfigIndex line 171, col 5 to line 171, col 24 of module base>: 3
+<lastLog line 165, col 5 to line 165, col 11 of module base>: 7
+<leaseValid line 154, col 5 to line 154, col 14 of module base>: 7
+<role line 147, col 5 to line 147, col 8 of module base>: 4
+<seenGreaterLog line 176, col 5 to line 176, col 18 of module base>: 1
+<grants line 158, col 5 to line 158, col 10 of module base>: 2
+<effectiveConfig line 170, col 5 to line 170, col 19 of module base>: 12
+<replyMessage line 152, col 5 to line 152, col 16 of module base>: 1
+<logFlushPending line 167, col 5 to line 167, col 19 of module base>: 2
+<crashed line 175, col 5 to line 175, col 11 of module base>: 4
+<preRoundFromLeader line 187, col 5 to line 187, col 22 of module base>: 2
+<committedConfigIndex line 169, col 5 to line 169, col 24 of module base>: 3
+<leaderConfig line 163, col 5 to line 163, col 16 of module base>: 12
+<durableConfigIndex line 173, col 5 to line 173, col 22 of module base>: 3
+<leaderGrants line 164, col 5 to line 164, col 16 of module base>: 2
+<sentVoteReq line 159, col 5 to line 159, col 15 of module base>: 1
+<candidateVote line 156, col 5 to line 156, col 17 of module base>: 5
+<preCandidateVote line 181, col 5 to line 181, col 20 of module base>: 2
+<preCandidateConfig line 182, col 5 to line 182, col 22 of module base>: 9
+<replyPending line 151, col 5 to line 151, col 16 of module base>: 1
+<durableLastLog line 166, col 5 to line 166, col 18 of module base>: 7
+<committedConfig line 168, col 5 to line 168, col 19 of module base>: 12
+<votePersistPending line 150, col 5 to line 150, col 22 of module base>: 5
+<candidateConfig line 157, col 5 to line 157, col 19 of module base>: 12
+<faultCounters line 9, col 10 to line 9, col 22 of module MC>: 58
+<leaderActive line 160, col 5 to line 160, col 16 of module base>: 2
+<messages line 174, col 5 to line 174, col 12 of module base>: 99
+<leaderCertified line 162, col 5 to line 162, col 19 of module base>: 2
+<preCandidateActive line 180, col 5 to line 180, col 22 of module base>: 2
+<leaderVote line 161, col 5 to line 161, col 14 of module base>: 5
+<MCInit line 84, col 1 to line 84, col 6 of module MC>: 3:3
+<MCTickElect line 13, col 1 to line 13, col 14 of module MC>: 14:86
+<MCExternalElect line 18, col 1 to line 18, col 18 of module MC>: 0:1082
+<MCStartTransferElection line 23, col 1 to line 23, col 26 of module MC>: 0:1082
+<MCTickPreVote line 33, col 1 to line 33, col 16 of module MC>: 18:18
+<MCExternalPreElect line 38, col 1 to line 38, col 21 of module MC>: 721:2628
+<MCAppendJointConfig line 43, col 1 to line 43, col 30 of module MC>: 730:1672
+<MCAppendUniformConfig line 48, col 1 to line 48, col 24 of module MC>: 1173:1411
+<MCCrash line 53, col 1 to line 53, col 10 of module MC>: 1486:5821
+<MCNext line 89, col 1 to line 89, col 6 of module MC (95 8 95 43)>: 1091:3942
+<MCNext line 89, col 1 to line 89, col 6 of module MC (96 8 97 33)>: 12330:43238
+<MCTypeOK line 109, col 1 to line 109, col 8 of module MC>
+<DurableVoteNotAhead line 970, col 1 to line 970, col 19 of module base>
+<DurableLogNotAhead line 986, col 1 to line 986, col 18 of module base>
+<VoteRequestAfterDurable line 1002, col 1 to line 1002, col 23 of module base>
+<GrantedResponseAfterDurable line 1021, col 1 to line 1021, col 27 of module base>
+<LeaderRoleHasCommittedSelfVote line 1039, col 1 to line 1039, col 30 of module base>
+<CandidateRoleHasPendingSelfVote line 1056, col 1 to line 1056, col 31 of module base>
+<MembershipAtMostOneOutstanding line 1102, col 1 to line 1102, col 30 of module base>
+<NoForgedMessageEndpoints line 1115, col 1 to line 1115, col 24 of module base>
+<CertifiedLeaderHasFrozenQuorum line 1079, col 1 to line 1079, col 30 of module base>
+<KnownFindingsFilter line 281, col 1 to line 281, col 19 of module Update>: 58545:60878
+<MessageBound line 101, col 1 to line 101, col 12 of module MC>: 60879:60879
+<Action line 206, col 29 to line 206, col 63 of module Update>
+<Action line 219, col 34 to line 219, col 73 of module Update>
+<Action line 232, col 27 to line 232, col 59 of module Update>
+<Action line 246, col 25 to line 246, col 55 of module Update>
+<Action line 258, col 35 to line 258, col 75 of module Update>
+End of statistics.
+60879 states generated, 17564 distinct states found, 10361 states left on queue.
+The depth of the complete state graph search is 12.
+Finished in 12s at (2026-11-24 22:35:14)
+EXIT: 13
+END: 2026-11-24T16:35:14-06:00

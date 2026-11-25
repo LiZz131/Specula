@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "run_id": "case-002",
+  "summary": "MODEL_CHANGE_REQUIRED: the update moves DIFF logging before the NEWLEADER ACK and starts processors in a non-serving INITIAL state. The model, trace harness and update lens were updated; 13 fresh traces validate. Model checking found three defects, all reproduced on the updated code: the ACK still precedes durability, an UPTODATE-time failure leaves a stale in-memory database that can lead without a committed transaction, and a txn ACK can shadow the NEWLEADER ACK.",
+  "validation_limits": [
+    "Model checking is finite-bound and time-budgeted (3 servers, 1 txn, 2-3 epochs, <=2 crashes); no run is a proof. The standard round exhausted its depth-23 space only with the analysed MC-2 class filtered.",
+    "Update property P2 was not reached by 3-server full/focused BFS within budget (depth 26 of about 28); it is covered by a 2-server hunt and by full-MCNext simulation.",
+    "Trace.tla is the inherited observation-projection validator; V1 events are checked by explicit post-state predicates, not by replaying base actions.",
+    "Learner process crashes were emulated by a stalled SyncRequestProcessor plus restart (MC-1); MC-3 was reproduced only with an injected learner-thread pause.",
+    "Open-spec checking is provisional: it violated P1 like the concrete focused spec; discharge of omitted context found no violation within budget."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK is written before the synced transactions are durable",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "Learner.syncWithLeader persists the new epoch, enqueues the buffered sync proposals with logRequest, and writes the NEWLEADER ACK before SyncRequestProcessor appends and forces them.",
+      "trigger": "A learner DIFF-syncs a transaction held only by the new leader, ACKs NEWLEADER, and stops before its log flush; the leader is then lost.",
+      "consequence": "The leader serves the transaction on a quorum that never persisted it; the learner's newer epoch wins the next election and the committed transaction disappears.",
+      "severity": "High",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/cex/MC-1_CertifiedDurableOnQuorum_hunt2s.out",
+        "spec/output/cex/MC-1_CertifiedRetainedByLaterLeaders_crash_huntU1.out",
+        "harness/repro/SpeculaU1ReproTest.java",
+        "spec/output/incremental/harness/repro-u1-stalled-log-r1.log",
+        "traces/diff-sync-uptodate-failure.ndjson"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader"
+        ],
+        "actions": [
+          "FollowerProcessNewLeader",
+          "FollowerSendNewLeaderAck",
+          "LeaderBroadcast"
+        ],
+        "invariants": [
+          "CertifiedDurableOnQuorum",
+          "NewLeaderAckImpliesDurableSync",
+          "CertifiedRetainedByLaterLeaders"
+        ],
+        "premises": [
+          "FollowerZooKeeperServer.logRequest only enqueues to SyncRequestProcessor",
+          "The NEWLEADER ACK is written before any synchronous flush",
+          "A crashed learner can lose appended-but-unflushed txn log bytes"
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "Failure between NEWLEADER ACK and UPTODATE leaves the server INITIAL; shutdown is skipped and the stale in-memory DB is used to vote and lead",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "startupWithoutServing leaves State.INITIAL; canShutdown() is false for it, so shutdown skips the database fast-forward and the processor shutdown.",
+      "trigger": "Learners ACK NEWLEADER, fail before UPTODATE, and re-elect in-process after the old leader stops.",
+      "consequence": "A new leader elected from the stale in-memory history omits a transaction the old leader committed and served; leaked processors also write it into the log behind the served history.",
+      "severity": "High",
+      "evidence": [
+        "spec/confirmation-MC-2.md",
+        "spec/bug-report.md",
+        "spec/output/cex/MC-2_CertifiedRetainedByLaterLeaders_noCrash_huntU1.out",
+        "spec/output/cex/MC-2_PipelinePrefix_MCcfg.out",
+        "harness/repro/SpeculaU4ReproTest.java",
+        "spec/output/incremental/harness/repro-u4-no-restart-r1.log",
+        "traces/repro-u4-no-restart-r1.ndjson"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:canShutdown",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+        ],
+        "actions": [
+          "BeginElection",
+          "WinElection",
+          "CastVote"
+        ],
+        "invariants": [
+          "CertifiedRetainedByLaterLeaders",
+          "VotingHistoryCoversDurable",
+          "PipelinePrefix"
+        ],
+        "premises": [
+          "shutdown() returns early for State.INITIAL",
+          "getLastLoggedZxid and Leader.lead use the initialized in-memory database"
+        ]
+      }
+    },
+    {
+      "id": "MC-3",
+      "title": "A learner txn ACK can precede its NEWLEADER ACK",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "The NEWLEADER branch starts SyncRequestProcessor and SendAckRequestProcessor before the learner writes the NEWLEADER ACK.",
+      "trigger": "The learner thread is delayed after logRequest while the sync thread flushes and acknowledges a DIFF txn.",
+      "consequence": "LearnerHandler takes the txn ACK as the NEWLEADER ACK and rejects it, so the learner is never counted and the leader cannot establish its epoch.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/confirmation-MC-3.md",
+        "spec/bug-report.md",
+        "spec/output/cex/MC-3_NewLeaderAckIsFirstAck_hunt2s.out",
+        "harness/repro/SpeculaU3ReproTest.java",
+        "traces/fault-injected-repro/repro-u3-ack-delay-r1.ndjson",
+        "spec/output/incremental/harness/old-control-repro-u3-r1.log"
+      ],
+      "persistence": {
+        "sites": [
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+          "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:run"
+        ],
+        "actions": [
+          "FsyncOne",
+          "LeaderProcessNewLeaderAck"
+        ],
+        "invariants": [
+          "NewLeaderAckIsFirstAck"
+        ],
+        "premises": [
+          "Processors are started before the NEWLEADER ACK write",
+          "LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK"
+        ]
+      }
+    }
+  ]
+}

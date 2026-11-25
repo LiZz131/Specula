@@ -1,0 +1,109 @@
+{
+  "arm": "v2",
+  "attempt_no": 1,
+  "backend": "claude",
+  "behavior": {
+    "api_messages": 213,
+    "bash_commands": 212,
+    "build_or_test_commands": 4,
+    "cost_source": "result_event",
+    "cost_usd": 34.05267900000002,
+    "error": null,
+    "network_audit": {
+      "contaminated": true,
+      "prohibited_command_matches": [
+        {
+          "command": "cd /work/current/.specula-output; du -sh artifact; git clone -q --no-hardlinks artifact work-source && cd work-source && git log --oneline | head -3 && git status --short | head"
+        }
+      ],
+      "web_tool_events": []
+    },
+    "num_turns": 236,
+    "result_subtype": "success",
+    "sany_commands": 13,
+    "skill_files_read": [
+      "/skills/incremental-modeling/SKILL.md (Skill tool)",
+      "/work/.claude/skills/incremental-modeling/guide.md"
+    ],
+    "streamed_usage": {
+      "cache_creation_input_tokens": 691647,
+      "cache_read_input_tokens": 103422095,
+      "input_tokens": 426,
+      "output_tokens": 3458
+    },
+    "tlc_commands": 57,
+    "tool_calls": {
+      "Bash": 212,
+      "Edit": 4,
+      "Read": 2,
+      "Skill": 1,
+      "TaskStop": 1,
+      "ToolSearch": 3,
+      "Write": 6,
+      "mcp__spec_analyzer__run_vav_analysis": 5
+    },
+    "usage": {
+      "cache_creation_input_tokens": 691647,
+      "cache_read_input_tokens": 103422095,
+      "input_tokens": 426,
+      "output_tokens": 391669
+    }
+  },
+  "case_id": "case-002",
+  "completed": true,
+  "decision": "MODEL_UPDATED",
+  "effort": "xhigh",
+  "findings_paths": [
+    "/work/current/.specula-output/spec/findings.json",
+    "/work/current/.specula-output/spec/bug-report.md",
+    "/work/current/.specula-output/spec/final-result.json",
+    "/work/current/.specula-output/spec/invariant-evidence.json",
+    "/work/current/.specula-output/spec/output/mc/MC-1_counterexample_UpdNewLeaderAckAfterDurable.log",
+    "/work/current/.specula-output/spec/output/mc/MC-1_counterexample_UpdEstablishedHistoryDurableOnQuorum.log",
+    "/work/current/.specula-output/spec/output/mc/MC-1_witness_phase2_crash_S_to_violation.log",
+    "/work/current/.specula-output/spec/output/mc/MC-2_witness_phase1_Init_to_S.log",
+    "/work/current/.specula-output/spec/output/mc/MC-2_witness_phase2_S_to_violation.log",
+    "/work/current/.specula-output/spec/output/mc/MC-2_counterexample_UpdLeaderCompleteness_from_trace_prefix.log",
+    "/work/current/.specula-output/spec/output/mc/campaign-summary.md"
+  ],
+  "graded": null,
+  "invariant_evidence": {
+    "bug_candidates": 3,
+    "changed_from_initial": 0,
+    "decisions": {
+      "add": 3,
+      "keep": 6,
+      "keep (unaffected control)": 1,
+      "keep in MC cfgs; not enabled in Trace.cfg": 1
+    },
+    "entries": 11,
+    "evidence_records": 7,
+    "state_sources": {
+      "constructed": 2,
+      "mc": 1,
+      "trace": 4
+    },
+    "tlc_values_matching_claim": "11/11",
+    "unresolved": 1
+  },
+  "main_tools": {
+    "manifest_sha256": "158d55c8c0d49f3896fe1ee2cf8a806989cf5f67378c012bb7dc6ebe82f540f1",
+    "servers": [
+      "inv_checking_tool",
+      "spec_analyzer",
+      "specular_tlc",
+      "tracedebugger"
+    ],
+    "source_commit": "96d6c606d8242c6aa92c7afe43b6db3a5b1a9390",
+    "tree_sha256": "da0f05f4f29a7c545f9c5aa1f0a4d02117e2bcdb0ce77fb0d09adce81388b085"
+  },
+  "model": "claude-opus-5-5",
+  "prior_tree_sha256": "a5211a815ec11bacf3d4b7064b8f4a7d24ac13a4725a64001fa6b20e6359f2f1",
+  "rep": 1,
+  "session_log": "/mydata/bingzhuo/inv-e2e-epoch2/attempts/v2/case-002/r1/log/activity.jsonl",
+  "skills_tree_sha256": "f7dddcfa1608dc142c15f67c638c17806264390013cde523861935d9372bd4d6",
+  "status": "EXITED_0",
+  "truncated": false,
+  "wall_seconds": 8603.1,
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE"
+}

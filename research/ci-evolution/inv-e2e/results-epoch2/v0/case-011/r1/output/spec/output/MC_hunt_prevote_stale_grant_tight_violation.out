@@ -1,0 +1,81 @@
+# run: hunt-prevote-stale-grant-tight  started: 2026-11-24T19:48:41-06:00
+# timeout 30m: java -XX:+UseParallelGC -Xmx12g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 5 -metadir /dev/shm/specula-e2e-case-011/hunt-prevote-stale-grant-tight-21650 -config MC_hunt_prevote_stale_grant_tight.cfg Update
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 26 and seed -8637610587885376565 with 5 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 21662] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specula-output/spec/Update.tla
+Parsing file /work/current/.specula-output/spec/MC.tla
+Parsing file /tmp/tlc-9881306461923881606/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specula-output/spec/base.tla
+Parsing file /tmp/tlc-9881306461923881606/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-9881306461923881606/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-9881306461923881606/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-9881306461923881606/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-9881306461923881606/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-9881306461923881606/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 01:48:41)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 01:48:42.
+Progress(10) at 2026-11-25 01:48:45: 24,741 states generated (24,741 s/min), 5,010 distinct states found (5,010 ds/min), 2,544 states left on queue.
+Progress(17) at 2026-11-25 01:49:45: 1,563,113 states generated (1,538,372 s/min), 293,087 distinct states found (288,077 ds/min), 145,253 states left on queue.
+Progress(18) at 2026-11-25 01:50:45: 3,279,608 states generated (1,716,495 s/min), 685,494 distinct states found (392,407 ds/min), 389,749 states left on queue.
+Progress(18) at 2026-11-25 01:51:45: 5,031,892 states generated (1,752,284 s/min), 1,089,527 distinct states found (404,033 ds/min), 646,732 states left on queue.
+Progress(19) at 2026-11-25 01:52:45: 6,961,762 states generated (1,929,870 s/min), 1,519,163 distinct states found (429,636 ds/min), 920,550 states left on queue.
+Progress(19) at 2026-11-25 01:53:45: 8,887,428 states generated (1,925,666 s/min), 1,967,559 distinct states found (448,396 ds/min), 1,204,638 states left on queue.
+Progress(19) at 2026-11-25 01:54:45: 11,461,800 states generated (2,574,372 s/min), 2,524,864 distinct states found (557,305 ds/min), 1,556,802 states left on queue.
+Progress(19) at 2026-11-25 01:55:45: 14,043,981 states generated (2,582,181 s/min), 3,085,844 distinct states found (560,980 ds/min), 1,910,813 states left on queue.
+Error: Invariant PreVoteTrackerWellFormed is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCExternalPreElect("1") line 48, col 5 to line 51, col 64 of module MC>
+
+State 3: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 4: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 5: <MCTickPreElect("1") line 34, col 5 to line 36, col 64 of module MC>
+
+State 6: <MCPersistVote("1") line 81, col 21 to line 81, col 61 of module MC>
+
+State 7: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 8: <MCSendVoteRequest("1","2") line 88, col 28 to line 88, col 75 of module MC>
+
+State 9: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 10: <MCPersistVote("2") line 81, col 21 to line 81, col 61 of module MC>
+
+State 11: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 12: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+State 13: <MCAppendJointConfig("1",{"1", "3"}) line 60, col 5 to line 62, col 67 of module MC>
+
+State 14: <MCCommitMembership("1") line 87, col 26 to line 87, col 71 of module MC>
+
+State 15: <MCAppendUniformConfig("1") line 65, col 5 to line 67, col 67 of module MC>
+
+State 16: <MCExternalPreElect("1") line 48, col 5 to line 51, col 64 of module MC>
+
+State 17: <MCReactive line 106, col 8 to line 109, col 70 of module MC>
+
+15205836 states generated, 3312276 distinct states found, 2046878 states left on queue.
+The depth of the complete state graph search is 20.
+Finished in 07min 30s at (2026-11-25 01:56:11)
+Trace exploration spec path: ./Update_TTrace_1795571321.tla
+# exit code: 12 (TLC terminated)  finished: 2026-11-24T19:56:12-06:00

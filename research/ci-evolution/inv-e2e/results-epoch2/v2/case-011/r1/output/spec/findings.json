@@ -1,0 +1,44 @@
+{
+ "schema_version": "2",
+ "system": "openraft (Pre-Vote update, case-011)",
+ "generated_by": "validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Stale Pre-Vote round survives the node's own election win and makes the new Leader call elect()",
+   "source": "model-checking",
+   "scenario": "U2: stale Pre-Vote round outlives own election win",
+   "severity": "High",
+   "invariant": "PreVoteRoundNotOutlivedByOwnLeadership",
+   "config": "Update_full.cfg",
+   "counterexample": "spec/output/MC-1_update_full_violation.out",
+   "affected_code": [
+    "openraft/src/engine/engine_impl.rs:534-540",
+    "openraft/src/engine/engine_impl.rs:855-881",
+    "openraft/src/engine/handler/vote_handler/mod.rs:173-229",
+    "openraft/src/engine/engine_impl.rs:298-322",
+    "openraft/src/core/raft_core.rs:2010-2036",
+    "openraft/src/core/raft_core.rs:2067-2090",
+    "openraft/src/engine/engine_impl.rs:976-981"
+   ],
+   "summary": "Engine::pre_elect starts a Pre-Vote round without dropping an active real candidate (the election tick does this for a timed-out Candidate; trigger().elect(true) does it on demand). If late real vote grants then make the node Leader, establish_leader/become_leader do not clear pre_candidate, the runtime filter matches only the probe leader id, and the quorum branch of handle_pre_vote_resp calls elect() on the established Leader. The node abandons the term it just won, becomes Candidate at term+1 while keeping its Leader object; in debug builds the next try_leader_handler hits debug_assert!(leader.vote >= state.vote) and RaftCore panics (reproduced on the real runtime: spec/output/repro-MC-1-new.log), in release builds the leader is demoted to a term+1 Candidate that followers holding its lease reject (spec/output/repro-MC-1-new-release.log). The same step violates the implementation-asserted LeaderObjectVoteNotBehind."
+  },
+  {
+   "id": "MC-2",
+   "title": "A delayed Pre-Vote grant from an earlier round at the same probe reaches grant_by() for a node outside the current round's quorum set and panics RaftCore",
+   "source": "model-checking",
+   "scenario": "U2b/U3: cross-round Pre-Vote responses vs. membership change",
+   "severity": "Medium",
+   "invariant": "PreVoteGrantFromTrackedVoter",
+   "config": "MC_hunt_prevote_membership_filtered.cfg",
+   "counterexample": "spec/output/MC-2_cross_round_grant_violation.out",
+   "affected_code": [
+    "openraft/src/core/raft_core.rs:2067-2090",
+    "openraft/src/engine/engine_impl.rs:531-541",
+    "openraft/src/proposer/candidate.rs:78,106-112",
+    "openraft/src/engine/engine_impl.rs:298-322"
+   ],
+   "summary": "Pre-Vote responses are correlated only by the probe leader id (term+1, self) (does_pre_candidate_vote_match), and every round started at an unchanged vote term reuses that probe. Candidate::new builds its progress over the frozen voters only (VecProgress::new(quorum_set, [], ..)), and grant_by() expect()s the target to be tracked. When a node is removed from the membership between two rounds, its delayed grant for the first round is delivered to the second round and grant_by() panics with 'target not in quorum set'. Model checking found it without crashes (leader starts a round, removes node 2 via joint/uniform changes, starts another round via trigger().elect(true), node 2's old grant arrives). Reproduced on the real runtime: spec/output/repro-D-4-new.log (3/3 runs, panic at proposer/candidate.rs:107)."
+  }
+ ]
+}

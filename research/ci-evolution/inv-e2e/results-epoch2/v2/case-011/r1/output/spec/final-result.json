@@ -1,0 +1,146 @@
+{
+ "version": 1,
+ "run_id": "case-011-incremental-prevote",
+ "summary": "Pre-Vote update modeled (MODEL_CHANGE_REQUIRED); harness rebased; 23 fresh traces validated. Model checking found two update defects, both reproduced on the real runtime: MC-1 (a stale Pre-Vote round makes a newly elected leader call elect(); debug panic / release demotion) and MC-2 (a delayed grant from an earlier same-term round panics grant_by after a membership change). Also recorded: pre-existing CR-PRE-1, doc mismatch D-3, unresolved D-2.",
+ "validation_limits": [
+  "All model-checking campaigns are bounded (3 nodes, MaxTerm 2, MaxLogIndex 4, bounded elections/pre-vote starts/membership changes/crash/drop/messages) and budget-terminated BFS runs are LIMITED_COVERAGE, not exhaustive.",
+  "Engine-level traces drive real Engine methods; runtime command execution between events is replayed by the harness (documented in instrumentation-spec.md).",
+  "Election-timer timing, RPC timeouts and round rate limiting are abstracted; the automatic (tick) trigger of MC-1 additionally needs vote-persist latency within the timeout window.",
+  "Builds use stable rustc 1.100.0; the pinned nightly toolchain is unavailable.",
+  "PreVoteElectionByVoter (D-2) has no non-implementation requirement evidence and remains unresolved; it was disabled in the continued hunts after its counterexamples were recorded."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Stale Pre-Vote round survives the node's own election win and makes the new Leader call elect()",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "pre_elect runs while a real candidate is active; establish_leader/become_leader never clear pre_candidate, and handle_pre_vote_resp elects on quorum without checking the node is still a would-be candidate.",
+   "trigger": "A Candidate starts a Pre-Vote round (tick after election timeout, or trigger().elect(true)) while its vote RPCs are in flight; a late vote grant makes it Leader; a Pre-Vote grant for that round then arrives.",
+   "consequence": "The new Leader abandons its term and becomes a term+1 Candidate while keeping its Leader object; in debug builds RaftCore panics at engine_impl.rs:977, in release builds the leader is demoted and followers holding its lease reject the new election.",
+   "severity": "High",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/MC-1_update_full_violation.out",
+    "spec/output/repro-MC-1-new.log",
+    "spec/output/repro-MC-1-new-release.log",
+    "traces/stale_prevote_after_win.ndjson",
+    "harness/repro/t13_specula_stale_prevote_repro.rs"
+   ],
+   "persistence": {
+    "sites": [
+     "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+     "openraft/src/engine/engine_impl.rs:establish_leader",
+     "openraft/src/engine/handler/vote_handler/mod.rs:become_leader"
+    ],
+    "premises": [
+     "Pre-Vote can start while a real candidate is active (tick on a timed-out Candidate or trigger().elect(true)).",
+     "The runtime filter matches Pre-Vote responses by leader id only."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/engine/handler/vote_handler/mod.rs"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update.tla"
+     }
+    ]
+   }
+  },
+  {
+   "id": "MC-2",
+   "title": "Delayed Pre-Vote grant from an earlier same-term round panics RaftCore after a membership change",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "Pre-Vote responses are matched only by the probe leader id, which every round at an unchanged term reuses; Candidate::grant_by expects the responder to be a voter of the current round's frozen membership.",
+   "trigger": "Start a Pre-Vote round (trigger().elect(true)), remove a node whose grant is still in flight, start another round at the same term; the old grant arrives.",
+   "consequence": "grant_by panics with 'target not in quorum set' (proposer/candidate.rs:107) and RaftCore stops with Fatal::Panicked.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/bug-report.md",
+    "spec/output/MC-2_cross_round_grant_violation.out",
+    "spec/output/repro-D-4-new.log",
+    "harness/repro/t15_specula_cross_round_grant_repro.rs"
+   ],
+   "persistence": {
+    "sites": [
+     "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+     "openraft/src/proposer/candidate.rs:grant_by",
+     "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp"
+    ],
+    "premises": [
+     "Two Pre-Vote rounds at the same vote term reuse one probe leader id.",
+     "A responder removed between the rounds still answers the first round within the RPC timeout."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs"
+     },
+     {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update.tla"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-PRE-1",
+   "title": "Operator election trigger on the current Leader leaves a stale Leader object (debug panic)",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "ExternalCommand::Elect calls elect() on a Leader; do_elect keeps the Leader object while the vote becomes an uncommitted term+1 self vote.",
+   "trigger": "raft.trigger().elect() (old) or elect(false) (new) on the node that is currently Leader.",
+   "consequence": "try_leader_handler's debug_assert fails and RaftCore panics (both revisions); pre-existing, not introduced by the update.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/output/control-elect-on-leader-old.log",
+    "spec/output/control-elect-on-leader-new.log",
+    "harness/repro/t14_specula_elect_on_leader_new.rs"
+   ]
+  },
+  {
+   "id": "D-3",
+   "title": "Pre-Vote protocol documentation contradicts the default pre_vote RPC and Unreachable handling",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "pre_vote.md says the default pre_vote returns Unreachable and Unreachable counts as a grant; the code synthesizes a grant and never counts transport errors.",
+   "trigger": "An implementor follows pre_vote.md and returns Unreachable from an unimplemented pre_vote.",
+   "consequence": "With Pre-Vote enabled such a node can never assemble a Pre-Vote quorum (it would rely on Unreachable being a grant).",
+   "severity": "Low",
+   "evidence": [
+    "spec/code-review-findings.md",
+    "spec/output/baseline-new-elect.log"
+   ]
+  },
+  {
+   "id": "D-2",
+   "title": "Pre-Vote quorum can make a node elect after it stopped being a voter",
+   "status": "NEEDS MORE INFO",
+   "source": "code-review",
+   "cause": "The voter check is done when the round starts (tick/ExternalCommand); handle_pre_vote_resp calls elect() without re-checking.",
+   "trigger": "A node holding a round (Leader via operator elect(true), or the MC-1 path) removes itself from the voters before the quorum arrives.",
+   "consequence": "A non-voter bumps its term and queues vote requests; only implementation evidence says non-voters must not elect (a learner may lead), so the requirement is unresolved.",
+   "severity": "Low",
+   "evidence": [
+    "spec/code-review-findings.md",
+    "spec/output/D-2_PreVoteElectionByVoter_membership.out",
+    "spec/output/D-2_PreVoteElectionByVoter_single_voter.out"
+   ]
+  }
+ ]
+}
