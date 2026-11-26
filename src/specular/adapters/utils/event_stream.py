@@ -699,6 +699,26 @@ def _cursor_cli_tool_failure(body: dict[str, object]) -> str | None:
     return None
 
 
+def _cursor_cli_tool_line(name: str, args: object) -> str | None:
+    """One log line for a started Cursor tool call, in the shared tool_summary style."""
+    args = args if isinstance(args, dict) else {}
+    if name == "getMcpTools":
+        return None  # Cursor's own tool-schema lookup before a deferred tool; not agent work
+    if name == "mcp":
+        server, tool_name = args.get("providerIdentifier"), args.get("toolName")
+        if isinstance(server, str) and isinstance(tool_name, str):
+            return tool_summary(f"{server}.{tool_name}", args)
+    if name == "glob":
+        return tool_summary("glob", {"pattern": args.get("globPattern")})
+    if name == "delete" and isinstance(args.get("path"), str):
+        return f"deleting {summary(args['path'])}"
+    if name == "await":
+        return "waiting for a background shell command"
+    if name == "webFetch":
+        return tool_summary(name, {"description": args.get("url")})
+    return tool_summary(name, args)
+
+
 def _cursor_cli_events(record: object, concise: bool) -> list[_LogEvent]:
     if not isinstance(record, dict):
         return []
@@ -718,13 +738,9 @@ def _cursor_cli_events(record: object, concise: bool) -> list[_LogEvent]:
         if tool is None:
             return []
         name, body = tool
-        args = body.get("args")
-        if name == "mcp" and isinstance(args, dict):
-            server, tool_name = args.get("providerIdentifier"), args.get("toolName")
-            if isinstance(server, str) and isinstance(tool_name, str):
-                name = f"{server}.{tool_name}"
         if record.get("subtype") == "started":
-            return [_line_event(tool_summary(name, args))]
+            line = _cursor_cli_tool_line(name, body.get("args"))
+            return [_line_event(line)] if line else []
         if record.get("subtype") == "completed":
             failure = _cursor_cli_tool_failure(body)
             if failure:

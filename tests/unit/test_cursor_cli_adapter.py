@@ -73,6 +73,30 @@ def test_recorded_tool_stream_renders_log_usage_and_session(tmp_path: Path) -> N
     assert records[-1]["type"] == "result"
 
 
+def test_recorded_builtin_tools_have_specific_log_lines(tmp_path: Path) -> None:
+    # Read, Grep, Glob, Write/Edit, Delete, Shell (pipe and background), AwaitShell,
+    # TodoWrite, WebFetch and Task, recorded in one headless run.
+    log = tmp_path / "agent.log"
+    status = stream_events("cursor-cli", tmp_path / "a.jsonl", log, _lines("builtin-tools.jsonl"))
+    assert status.successful_terminal is True
+    lines = log.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "Working through the steps in order."
+    assert lines[1:12] == [
+        "reading /work/data.txt",
+        "searching for beta",
+        "searching for *.txt",
+        "editing /work/notes.md",  # write then edit; repeated lines are collapsed
+        "deleting /work/remove-me.txt",
+        "running printf 'a\\nb\\n' | wc -l > count.txt && cat count.txt",
+        "running sleep 3 && echo bg-done > bg.txt",
+        "waiting for a background shell command",
+        "using updateTodos",
+        "using webFetch: https://example.com",
+        "spawning subagent: Count data.txt lines",
+    ]
+    assert not any("getMcpTools" in line for line in lines)
+
+
 def test_rejected_tool_call_is_reported(tmp_path: Path) -> None:
     activity = tmp_path / "agent.activity.jsonl"
     log = tmp_path / "agent.log"
