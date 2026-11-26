@@ -97,6 +97,40 @@ def test_recorded_builtin_tools_have_specific_log_lines(tmp_path: Path) -> None:
     assert not any("getMcpTools" in line for line in lines)
 
 
+def test_text_after_a_background_task_starts_a_new_line(tmp_path: Path) -> None:
+    # Recorded with --stream-partial-output: the agent ends with "VERDICT: OK" while
+    # a background command runs; when it finishes Cursor resumes the agent, which
+    # keeps writing into the same message (the result text shows them joined).
+    lines = _lines("background-task-partial.jsonl")
+    assert "VERDICT: OKThe background command finished" in json.loads(lines[-1])["result"]
+    log = tmp_path / "agent.log"
+    status = stream_events("cursor-cli", tmp_path / "a.jsonl", log, lines)
+    assert status.successful_terminal is True
+    rendered = log.read_text(encoding="utf-8").splitlines()
+    assert "VERDICT: OK" in rendered
+    assert rendered[-1].startswith("The background command finished successfully")
+    assert sum("VERDICT: OK" in line for line in rendered) == 1  # repeated whole messages are not re-logged
+
+
+def test_whole_message_events_are_logged_without_deltas(tmp_path: Path) -> None:
+    lines = [
+        json.dumps({"type": "assistant", "session_id": "s", "message": {"content": [{"type": "text", "text": "a"}]}}),
+        json.dumps(
+            {
+                "type": "assistant",
+                "session_id": "s",
+                "model_call_id": "m",
+                "timestamp_ms": 1,
+                "message": {"content": [{"type": "text", "text": "b"}]},
+            }
+        ),
+        json.dumps({"type": "result", "subtype": "success", "result": "ab", "session_id": "s"}),
+    ]
+    log = tmp_path / "agent.log"
+    stream_events("cursor-cli", tmp_path / "a.jsonl", log, [line.encode() + b"\n" for line in lines])
+    assert log.read_text().splitlines() == ["a", "b"]
+
+
 def test_rejected_tool_call_is_reported(tmp_path: Path) -> None:
     activity = tmp_path / "agent.activity.jsonl"
     log = tmp_path / "agent.log"
@@ -256,7 +290,16 @@ def test_invocation_rules_resume_and_usage(tmp_path: Path) -> None:
     assert first.returncode == 0, first.stderr
     recorded = json.loads(capture.read_text())
     argv = recorded["argv"]
-    assert argv[:7] == ["-p", "--output-format", "stream-json", "--trust", "--force", "--approve-mcps", "--model"]
+    assert argv[:8] == [
+        "-p",
+        "--output-format",
+        "stream-json",
+        "--stream-partial-output",
+        "--trust",
+        "--force",
+        "--approve-mcps",
+        "--model",
+    ]
     assert argv[argv.index("--model") + 1] == "grok-4.7-low"
     added = [argv[index + 1] for index, arg in enumerate(argv) if arg == "--add-dir"]
     assert added == [str(REPO_ROOT), str(target.resolve())]  # Specular root and the target repository

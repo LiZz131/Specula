@@ -735,11 +735,26 @@ def _cursor_cli_events(record: object, concise: bool) -> list[_LogEvent]:
         content = message.get("content") if isinstance(message, dict) else None
         if not isinstance(content, list):
             return []
-        return [
-            _text_event(block["text"], concise)
+        text = "".join(
+            block["text"]
             for block in content
             if isinstance(block, dict) and block.get("type") == "text" and isinstance(block.get("text"), str)
-        ]
+        )
+        # With --stream-partial-output, a streamed delta carries timestamp_ms but no
+        # model_call_id; every other assistant event repeats a whole message.
+        if "timestamp_ms" in record and "model_call_id" not in record:
+            return [] if concise or not text else [_LogEvent(text=readable_fragment(text), fragment=True)]
+        if concise:
+            return [_text_event(text, concise=True)] if text else []
+        # The full text is only a fallback for a message that streamed no deltas.
+        return [_LogEvent(text=readable(text) if text else "", message_end=True)]
+    if event_type == "system" and record.get("subtype") == "task_notification":
+        # A background command finished. Cursor resumes the agent and appends
+        # to the same message without a separator, so end the line here: a
+        # final "VERDICT: ..." must stay on its own line. Cursor repeats that
+        # message afterwards, so this only breaks the line (a newline fragment)
+        # and does not end the message whose repeat must stay suppressed.
+        return [] if concise else [_LogEvent(text="\n", fragment=True)]
     if event_type == "tool_call":
         tool = _cursor_cli_tool(record)
         if tool is None:
@@ -1140,7 +1155,7 @@ def stream_events(
                     continue
                 last_event = ""
                 fragment_active = True
-                if adapter_name == "pi":
+                if adapter_name in {"pi", "cursor-cli"}:
                     pi_message_had_fragments = True
                 write_readable(event.text)
                 line_open = not event.text.endswith("\n")

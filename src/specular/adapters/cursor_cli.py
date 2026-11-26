@@ -395,7 +395,19 @@ def main(argv: list[str]) -> int:
     # Cursor silently rejects shell commands (the run still exits 0).
     # --approve-mcps: otherwise configured MCP servers (Specular's from `specular
     # setup` and the run's TLC tool) stay "not loaded (needs approval)".
-    command = [executable, "-p", "--output-format", "stream-json", "--trust", "--force", "--approve-mcps"]
+    # --stream-partial-output: in whole-message mode Cursor joins the text the
+    # agent writes after a background command finishes onto its previous
+    # message without a separator, hiding the boundary (and a final VERDICT line).
+    command = [
+        executable,
+        "-p",
+        "--output-format",
+        "stream-json",
+        "--stream-partial-output",
+        "--trust",
+        "--force",
+        "--approve-mcps",
+    ]
     if session_id is not None:
         # The exact chat ID captured from this logical turn; never --continue.
         command += ["--resume", session_id]
