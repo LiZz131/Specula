@@ -7,6 +7,7 @@ tests put a fake `cursor-agent` first on PATH.
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -24,6 +25,7 @@ from specular.adapters.utils.usage import UsageTotals
 from specular.skill_refs import materialize_skill_refs, prompt_skill_ids
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+LAUNCHER = REPO_ROOT / "src/specular/adapters/utils/cursor_mcp_launch.py"
 ADAPTER_SH = REPO_ROOT / "scripts/launch/adapters/cursor-cli.sh"
 ADAPTER_PY = REPO_ROOT / "src/specular/adapters/cursor_cli.py"
 FIXTURES = Path(__file__).parent / "fixtures/cursor-cli"
@@ -242,7 +244,7 @@ json.dump({{
     "stdin": stdin,
     "stdin_sha256": __import__("hashlib").sha256(stdin.encode()).hexdigest(),
     "mcp": open(mcp).read() if os.path.exists(mcp) else None,
-    "env": {{k: v for k, v in os.environ.items() if k.startswith(("SPECULAR_TLC_TOOL_", "CURSOR_"))}},
+    "env": {{k: v for k, v in os.environ.items() if k.startswith(("SPECULAR_TLC_TOOL_", "SPECULAR_CONTEXT_PYTHON", "SPECULAR_CURSOR_MCP", "CURSOR_"))}},
 }}, open({str(capture)!r}, "w"))
 chat = os.path.join(os.environ["CURSOR_CONFIG_DIR"], "chats", "0123abcd", {session!r})
 os.makedirs(chat, exist_ok=True)
@@ -264,6 +266,7 @@ def _env(tmp_path: Path, bin_dir: Path, **extra: str) -> dict[str, str]:
     }
     env["PATH"] = f"{bin_dir}{os.pathsep}{env.get('PATH', '')}"
     env["CURSOR_CONFIG_DIR"] = str(tmp_path / "cursor-config")
+    env["XDG_CACHE_HOME"] = str(tmp_path / "cache")  # the adapter's MCP bookkeeping
     env.update(extra)
     return env
 
@@ -637,6 +640,10 @@ def _tlc_tool_json(tmp_path: Path) -> str:
     return json.dumps({"mcpServers": {"specular_tlc": {**entry, "tools": ["*"], "timeout": 1000}}})
 
 
+def _launch_description(env: dict[str, str], variable: str) -> dict[str, object]:
+    return json.loads(base64.b64decode(env[variable]))
+
+
 def test_tlc_tool_is_registered_for_the_run_and_removed_after(tmp_path: Path) -> None:
     bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
     _recording_cli(bin_dir, capture)
@@ -648,15 +655,52 @@ def test_tlc_tool_is_registered_for_the_run_and_removed_after(tmp_path: Path) ->
 
     recorded = json.loads(capture.read_text())
     assert "--approve-mcps" in recorded["argv"]
+    # A constant entry: the run's values travel in one variable, because Cursor
+    # starts MCP servers with a minimal environment of its own.
     assert json.loads(recorded["mcp"]) == {
         "mcpServers": {
-            "specular_tlc": {"command": "${env:SPECULAR_TLC_TOOL_PYTHON}", "args": ["${env:SPECULAR_TLC_TOOL_SERVER}"]}
+            "specular_tlc": {
+                "command": "${env:SPECULAR_TLC_TOOL_PYTHON}",
+                "args": ["-I", "${env:SPECULAR_CURSOR_MCP_LAUNCHER}"],
+                "env": {"SPECULAR_CURSOR_MCP": "${env:SPECULAR_CURSOR_MCP_TLC}"},
+            }
         }
     }
     assert recorded["env"]["SPECULAR_TLC_TOOL_PYTHON"] == "/opt/tlc/python"
-    assert recorded["env"]["SPECULAR_TLC_TOOL_SERVER"] == "/opt/specular/tools/tlc_tools/mcp_server.py"
-    assert recorded["env"]["SPECULAR_TLC_TOOL_WAIT_LIMIT"] == "45"  # under Cursor's fixed 60 s tool-call limit
+    assert recorded["env"]["SPECULAR_CURSOR_MCP_LAUNCHER"] == str(LAUNCHER)
+    assert _launch_description(recorded["env"], "SPECULAR_CURSOR_MCP_TLC") == {
+        "server": "/opt/specular/tools/tlc_tools/mcp_server.py",
+        # The run's own server environment, plus a wait below Cursor's fixed 60 s tool-call limit.
+        "env": {"A": "1", "SPECULAR_TLC_TOOL_WAIT_LIMIT": "45"},
+    }
     assert list(workspace.iterdir()) == []  # the workspace is left exactly as found
+    assert not (tmp_path / "cache/specular/cursor-mcp").exists() or not any(
+        (tmp_path / "cache/specular/cursor-mcp").iterdir()
+    )
+
+
+def test_launcher_starts_the_server_with_the_run_environment(tmp_path: Path) -> None:
+    server = tmp_path / "server.py"
+    out = tmp_path / "env.json"
+    server.write_text(f"import json, os, sys\njson.dump(dict(os.environ), open({str(out)!r}, 'w'))\n")
+    description = {"server": str(server), "env": {"SPECULAR_WORK_DIR": "/w d", "QUOTE": 'a "b" $HOME'}}
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "SPECULAR_CURSOR_MCP": base64.b64encode(json.dumps(description).encode()).decode(),
+    }
+    result = subprocess.run([sys.executable, "-I", str(LAUNCHER)], env=env, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    seen = json.loads(out.read_text())
+    assert seen["SPECULAR_WORK_DIR"] == "/w d" and seen["QUOTE"] == 'a "b" $HOME'
+    assert "SPECULAR_CURSOR_MCP" not in seen
+
+    bad = subprocess.run(
+        [sys.executable, "-I", str(LAUNCHER)],
+        env={"SPECULAR_CURSOR_MCP": "${env:SPECULAR_CURSOR_MCP_TLC}"},  # Cursor leaves unset variables as is
+        capture_output=True,
+        text=True,
+    )
+    assert bad.returncode == 2 and "launch description" in bad.stderr
 
 
 def test_user_workspace_mcp_config_is_kept_and_restored(tmp_path: Path) -> None:
@@ -675,21 +719,84 @@ def test_user_workspace_mcp_config_is_kept_and_restored(tmp_path: Path) -> None:
     assert sorted(path.name for path in (workspace / ".cursor").iterdir()) == ["mcp.json"]
 
 
+def _state(tmp_path: Path, workspace: Path) -> Path:
+    key = hashlib.sha256(str(workspace.resolve()).encode()).hexdigest()[:32]
+    return tmp_path / "cache/specular/cursor-mcp" / key
+
+
+def _our_entry() -> dict[str, object]:
+    return {
+        "command": "${env:SPECULAR_TLC_TOOL_PYTHON}",
+        "args": ["-I", "${env:SPECULAR_CURSOR_MCP_LAUNCHER}"],
+        "env": {"SPECULAR_CURSOR_MCP": "${env:SPECULAR_CURSOR_MCP_TLC}"},
+    }
+
+
 def test_config_left_by_a_killed_run_is_restored(tmp_path: Path) -> None:
     bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
     _recording_cli(bin_dir, capture)
     workspace = tmp_path / "ws"
-    state = workspace / ".cursor/.specular-mcp"
+    (workspace / ".cursor").mkdir(parents=True)
+    state = _state(tmp_path, workspace)
     state.mkdir(parents=True)
-    # A run (pid 2**22+1 cannot be alive) died holding a modified file.
+    # A run died holding a modified file (its marker is no longer locked).
     (state / "original").write_bytes(b'1{"mcpServers": {"mine": {"command": "x"}}}')
-    (state / f"run-{2**22 + 1}-dead").touch()
-    (workspace / ".cursor/mcp.json").write_text('{"mcpServers": {"specular_tlc": {}, "mine": {"command": "x"}}}')
+    (state / "run-1-dead").write_text("specular_tlc\n")
+    left = {"mcpServers": {"specular_tlc": _our_entry(), "mine": {"command": "x"}}}
+    (workspace / ".cursor/mcp.json").write_text(json.dumps(left))
 
     env = _env(tmp_path, bin_dir, SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path))
     assert _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, workspace).returncode == 0
     assert (workspace / ".cursor/mcp.json").read_text() == '{"mcpServers": {"mine": {"command": "x"}}}'
     assert not state.exists()
+
+
+def test_user_edits_after_a_killed_run_are_kept(tmp_path: Path) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    workspace = tmp_path / "ws"
+    (workspace / ".cursor").mkdir(parents=True)
+    state = _state(tmp_path, workspace)
+    state.mkdir(parents=True)
+    (state / "original").write_bytes(b'1{"mcpServers": {"mine": {"command": "x"}}}')
+    # After the crash the user added a server of their own.
+    edited = {"mcpServers": {"specular_tlc": _our_entry(), "mine": {"command": "x"}, "new": {"command": "y"}}}
+    (workspace / ".cursor/mcp.json").write_text(json.dumps(edited))
+
+    env = _env(tmp_path, bin_dir, SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path))
+    assert _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, workspace).returncode == 0
+    restored = json.loads((workspace / ".cursor/mcp.json").read_text())
+    assert restored == {"mcpServers": {"mine": {"command": "x"}, "new": {"command": "y"}}}
+
+
+def test_symlinked_workspace_config_is_left_alone(tmp_path: Path) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    workspace = tmp_path / "ws"
+    (workspace / ".cursor").mkdir(parents=True)
+    target = tmp_path / "dotfiles-mcp.json"
+    target.write_text('{"mcpServers": {}}')
+    (workspace / ".cursor/mcp.json").symlink_to(target)
+
+    env = _env(tmp_path, bin_dir, SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path))
+    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, workspace)
+    assert result.returncode == 0 and "symbolic link" in result.stderr
+    assert (workspace / ".cursor/mcp.json").is_symlink() and target.read_text() == '{"mcpServers": {}}'
+
+
+def test_workspace_config_permissions_are_kept(tmp_path: Path) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    workspace = tmp_path / "ws"
+    (workspace / ".cursor").mkdir(parents=True)
+    config = workspace / ".cursor/mcp.json"
+    config.write_text('{"mcpServers": {}}')
+    config.chmod(0o644)
+
+    env = _env(tmp_path, bin_dir, SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path))
+    assert _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, workspace).returncode == 0
+    assert stat.S_IMODE(config.stat().st_mode) == 0o644
+    assert config.read_text() == '{"mcpServers": {}}'
 
 
 def test_concurrent_runs_share_one_registration(tmp_path: Path) -> None:
@@ -750,8 +857,10 @@ def test_context_tools_are_registered_only_for_context_phases(tmp_path: Path, ph
     servers = json.loads(recorded["mcp"])["mcpServers"]
     assert ("specular_context" in servers) is expected and "specular_tlc" in servers
     if expected:
-        assert recorded["env"]["SPECULAR_TLC_TOOL_WAIT_LIMIT"] == "45"
-        assert json.loads(capture.read_text())["env"].keys() >= {"SPECULAR_TLC_TOOL_PYTHON", "SPECULAR_TLC_TOOL_SERVER"}
+        assert _launch_description(recorded["env"], "SPECULAR_CURSOR_MCP_CONTEXT")["server"] == (
+            "/specular/tools/context_control/mcp_server.py"
+        )
+        assert recorded["env"]["SPECULAR_CONTEXT_PYTHON"] == "/ctx/python"
 
 
 def test_concurrent_runs_get_the_union_of_their_servers(tmp_path: Path) -> None:
@@ -810,6 +919,53 @@ def test_invalid_tlc_tool_json_skips_registration(tmp_path: Path) -> None:
     assert _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, tmp_path).returncode == 0
     recorded = json.loads(capture.read_text())
     assert recorded["mcp"] is None
+
+
+def test_chat_with_messages_but_no_meta_is_resumable(tmp_path: Path) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    env = _env(tmp_path, bin_dir)
+    log, state = tmp_path / "phase.log", tmp_path / "resume.json"
+    assert _run(["--prompt=x", f"--log={log}", f"--resume-state={state}"], env, tmp_path).returncode == 0
+    for meta in (tmp_path / "cursor-config/chats").glob(f"*/{SESSION}/meta.json"):
+        (meta.parent / "store.db").write_bytes(b"x")
+        meta.unlink()
+    result = _run(["--prompt=Continue", f"--log={log}", f"--resume-state={state}"], env, tmp_path)
+    assert result.returncode == 0, result.stderr
+    argv = json.loads(capture.read_text())["argv"]
+    assert argv[argv.index("--resume") + 1] == SESSION
+
+
+def test_generic_agent_executable_is_used_only_if_it_is_cursor(tmp_path: Path) -> None:
+    for version, expected_rc in (("2026.11.22-e9042b2", 0), ("agent 3.1.0", 127)):
+        bin_dir, capture = tmp_path / f"bin-{expected_rc}", tmp_path / f"capture-{expected_rc}.json"
+        _recording_cli(bin_dir, capture)
+        (bin_dir / "cursor-agent").rename(bin_dir / "agent")
+        if expected_rc:
+            (bin_dir / "agent").write_text(f"#!/bin/sh\necho '{version}'\n")
+        env = _env(tmp_path, bin_dir)
+        env["PATH"] = f"{bin_dir}{os.pathsep}/usr/bin{os.pathsep}/bin"
+        result = _run(["--prompt=x", f"--log={tmp_path / f'p{expected_rc}.log'}"], env, tmp_path)
+        assert result.returncode == expected_rc, result.stderr
+        if expected_rc:
+            assert "cursor.com/install" in (tmp_path / f"p{expected_rc}.log").read_text() + result.stderr
+
+
+def test_failure_hint_ignores_agent_text(tmp_path: Path) -> None:
+    bin_dir = tmp_path / "bin"
+    quoted = {
+        "type": "assistant",
+        "session_id": "s",
+        "message": {"content": [{"type": "text", "text": "The handler returns 'request is not authenticated'."}]},
+    }
+    filler = [
+        {"type": "assistant", "session_id": "s", "message": {"content": [{"type": "text", "text": f"step {i}"}]}}
+        for i in range(4)
+    ]
+    _failing_cli(bin_dir, ["Error: something unexpected broke"], exit_code=1, events=[quoted, *filler])
+    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], _env(tmp_path, bin_dir), tmp_path)
+    assert result.returncode == 1
+    assert "cursor-agent login" not in result.stderr and "something unexpected broke" in result.stderr
 
 
 # ── Skills ──────────────────────────────────────────────────────────────────

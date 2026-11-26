@@ -535,7 +535,7 @@ if command_exists cursor-agent && ask_yn "Install Specular skills and MCP server
     IFS='|' read -r mcp_name mcp_python mcp_server <<< "$entry"
     set +e
     cursor_output="$(python3 -I "$SCRIPT_DIR/setup_cursor_mcp.py" \
-      "$HOME/.cursor/mcp.json" "$mcp_name" "$PROJECT_ROOT" "$mcp_python" "$mcp_server")"
+      "$HOME/.cursor/mcp.json" "$mcp_name" "$PROJECT_ROOT" "$mcp_python" "$mcp_server" 2>&1)"
     cursor_rc=$?
     set -e
     if [[ $cursor_rc -eq 0 ]]; then
