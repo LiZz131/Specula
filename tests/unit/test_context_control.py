@@ -128,7 +128,7 @@ async def test_mcp_confirmation_returns_output_problems_as_the_tool_result(
     assert not (tmp_path / "request.json").exists()
 
 
-@pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli"])
+@pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli", "cursor-cli"])
 @pytest.mark.parametrize("outcome", ["completed", "failed"])
 @pytest.mark.parametrize("native_failure", [False, True])
 def test_internal_yield_compacts_and_continues_original_session(

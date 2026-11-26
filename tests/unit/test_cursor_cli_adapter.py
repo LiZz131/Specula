@@ -686,6 +686,80 @@ print(json.dumps({{"type": "result", "subtype": "success", "result": "ok", "sess
     assert list(workspace.iterdir()) == []
 
 
+def _context_mcp_json() -> str:
+    entry = {"command": "/ctx/python", "args": ["/specular/tools/context_control/mcp_server.py"], "env": {}}
+    return json.dumps({"mcpServers": {"specular_context": entry}})
+
+
+@pytest.mark.parametrize(("phase", "expected"), [("main", True), ("incremental", True), ("spec_validation", False)])
+def test_context_tools_are_registered_only_for_context_phases(tmp_path: Path, phase: str, expected: bool) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    env = _env(
+        tmp_path,
+        bin_dir,
+        SPECULAR_PHASE=phase,
+        SPECULAR_CONTEXT_MCP_JSON=_context_mcp_json(),
+        SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path),
+    )
+    assert _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, tmp_path).returncode == 0
+    recorded = json.loads(capture.read_text())
+    servers = json.loads(recorded["mcp"])["mcpServers"]
+    assert ("specular_context" in servers) is expected and "specular_tlc" in servers
+    if expected:
+        assert recorded["env"]["SPECULAR_TLC_TOOL_WAIT_LIMIT"] == "45"
+        assert json.loads(capture.read_text())["env"].keys() >= {"SPECULAR_TLC_TOOL_PYTHON", "SPECULAR_TLC_TOOL_SERVER"}
+
+
+def test_concurrent_runs_get_the_union_of_their_servers(tmp_path: Path) -> None:
+    bin_dir = tmp_path / "bin"
+    seen = tmp_path / "seen"
+    seen.mkdir()
+    # Each run records the servers it sees after both have started.
+    _fake_cli(
+        bin_dir,
+        f"""
+import time
+sys.stdin.read()
+open(os.path.join({str(seen)!r}, "started." + str(os.getpid())), "w").close()
+deadline = time.time() + 20
+while len([p for p in os.listdir({str(seen)!r}) if p.startswith("started.")]) < 2 and time.time() < deadline:
+    time.sleep(0.05)
+servers = sorted(json.load(open(".cursor/mcp.json"))["mcpServers"])
+open(os.path.join({str(seen)!r}, "servers." + os.environ["SPECULAR_PHASE"]), "w").write(" ".join(servers))
+time.sleep(0.5)
+print(json.dumps({{"type": "result", "subtype": "success", "result": "ok", "session_id": "s" + str(os.getpid())}}))
+""",
+    )
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    runs = []
+    for phase in ("main", "spec_validation"):
+        env = _env(
+            tmp_path,
+            bin_dir,
+            SPECULAR_PHASE=phase,
+            SPECULAR_CONTEXT_MCP_JSON=_context_mcp_json(),
+            SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path),
+        )
+        runs.append(
+            subprocess.Popen(
+                [str(ADAPTER_SH), "--prompt=x", f"--log={tmp_path / f'{phase}.log'}"],
+                env=env,
+                cwd=workspace,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        )
+    for run in runs:
+        _, stderr = run.communicate(timeout=60)
+        assert run.returncode == 0, stderr
+    for phase in ("main", "spec_validation"):
+        assert (seen / f"servers.{phase}").read_text() == "specular_context specular_tlc"
+    assert list(workspace.iterdir()) == []
+
+
 def test_invalid_tlc_tool_json_skips_registration(tmp_path: Path) -> None:
     bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
     _recording_cli(bin_dir, capture)

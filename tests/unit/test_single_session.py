@@ -846,7 +846,7 @@ def runner_args(work: Path) -> list[str]:
     ]
 
 
-@pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli"])
+@pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli", "cursor-cli"])
 def test_runner_turns_an_ordinary_main_ending_into_a_bound_handoff(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, agent: str
 ) -> None:
@@ -886,7 +886,7 @@ def test_runner_rejects_an_unsupervised_main_session(monkeypatch: pytest.MonkeyP
     assert runner.run(adapter, runner_args(work)) == 1
 
 
-@pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli"])
+@pytest.mark.parametrize("agent", ["codex", "claude-code", "pi", "opencode", "copilot-cli", "cursor-cli"])
 def test_runner_compacts_main_then_records_explicit_confirmation(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, agent: str
 ) -> None:
@@ -1031,7 +1031,7 @@ def test_has_unfinished_work(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("phase", ["main", "incremental", "spec_validation"])
-@pytest.mark.parametrize("agent", ["claude-code", "codex", "copilot-cli", "opencode", "pi"])
+@pytest.mark.parametrize("agent", ["claude-code", "codex", "copilot-cli", "cursor-cli", "opencode", "pi"])
 def test_adapters_expose_context_tools_to_single_session_phases(tmp_path: Path, phase: str, agent: str) -> None:
     import test_adapters as adapters
 
@@ -1043,7 +1043,7 @@ def test_adapters_expose_context_tools_to_single_session_phases(tmp_path: Path, 
     env = {key: env[key] for key in env if key.startswith("SPECULAR_CONTEXT")}
     env.update({"SPECULAR_PHASE": phase, "SPECULAR_WORK_DIR": str(work), "SPECULAR_STOP_GATE": "off"})
     env["COPILOT_HELP_TEXT"] = "--autopilot --additional-mcp-config"
-    fake = {"claude-code": "claude", "copilot-cli": "copilot"}.get(agent, agent)
+    fake = {"claude-code": "claude", "copilot-cli": "copilot", "cursor-cli": "cursor-agent"}.get(agent, agent)
     fixture = json.dumps(adapters.CLAUDE_JSON) if agent == "claude-code" else ""
     if agent == "opencode":
         fixture = json.dumps({"type": "step_finish", "part": {"reason": "stop", "tokens": {}, "cost": 0}})
@@ -1051,6 +1051,8 @@ def test_adapters_expose_context_tools_to_single_session_phases(tmp_path: Path, 
         fixture = json.dumps(
             {"type": "message_end", "message": {"role": "assistant", "content": [], "stopReason": "stop"}}
         )
+    elif agent == "cursor-cli":
+        fixture = json.dumps({"type": "result", "subtype": "success", "result": "ok", "session_id": "s"})
     case = adapters.AdapterCase()
     try:
         observed = case.run_adapter(
@@ -1076,6 +1078,15 @@ def test_adapters_expose_context_tools_to_single_session_phases(tmp_path: Path, 
     elif agent == "opencode":
         config = json.loads(observed["opencode_config"] or "{}")
         assert ("specular_context" in config.get("mcp", {})) is wired
+    elif agent == "cursor-cli":
+        servers = json.loads(observed["cursor_mcp"] or "{}").get("mcpServers", {})
+        assert ("specular_context" in servers) is wired
+        if wired:
+            assert servers["specular_context"] == {
+                "command": "${env:SPECULAR_CONTEXT_PYTHON}",
+                "args": ["${env:SPECULAR_CONTEXT_SERVER}"],
+            }
+        assert not (tmp_path / ".cursor").exists()  # restored after the run
     else:
         extension = str(Path(runner.ROOT) / "tools/context_control/pi-extension.js")
         assert (extension in argv) is wired

@@ -161,6 +161,7 @@ class AdapterRun(TypedDict):
     opencode_permission: str
     resumeenv: str
     bgtasksenv: str
+    cursor_mcp: str
     stdin: str | None
     base: Path
 
@@ -214,6 +215,11 @@ class AdapterCase(unittest.TestCase):
                 'p and shutil.copyfile(p, sys.argv[1])" "$ADAPTER_INSTRUCTIONS_FILE.copy"',
                 "fi",
             ]
+        if name == "cursor-agent":
+            # The workspace MCP config Specular writes for this run (restored on exit).
+            lines.append(
+                'if [[ -f .cursor/mcp.json ]]; then cp .cursor/mcp.json "${ADAPTER_CURSOR_MCP_FILE:-/dev/null}"; fi'
+            )
         if name == "codex":
             lines += [
                 'if [[ "${1:-}" == "features" && "${2:-}" == "list" ]]; then',
@@ -323,6 +329,7 @@ class AdapterCase(unittest.TestCase):
             "ADAPTER_OPENCODE_PERMISSION_FILE": base / "opencode_permission.json",
             "ADAPTER_RESUME_ENV_FILE": base / "resumeenv.txt",
             "ADAPTER_BG_TASKS_ENV_FILE": base / "bgtasksenv.txt",
+            "ADAPTER_CURSOR_MCP_FILE": base / "cursor_mcp.json",
             "ADAPTER_STDIN_FILE": base / "stdin.txt",
         }
         env = {k: v for k, v in os.environ.items() if k not in _VOLATILE}
@@ -353,6 +360,7 @@ class AdapterCase(unittest.TestCase):
             "opencode_permission": (read(record["ADAPTER_OPENCODE_PERMISSION_FILE"]) or "").strip(),
             "resumeenv": (read(record["ADAPTER_RESUME_ENV_FILE"]) or "").strip(),
             "bgtasksenv": (read(record["ADAPTER_BG_TASKS_ENV_FILE"]) or "").strip(),
+            "cursor_mcp": read(record["ADAPTER_CURSOR_MCP_FILE"]) or "",
             "stdin": read(record["ADAPTER_STDIN_FILE"]),
             "base": base,
         }

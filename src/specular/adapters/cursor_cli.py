@@ -154,14 +154,45 @@ def _stage_prompt(options: AdapterOptions) -> AdapterOptions:
 # Cursor reads MCP servers only from <workspace>/.cursor/mcp.json and
 # ~/.cursor/mcp.json (neither --add-dir nor CURSOR_CONFIG_DIR is consulted), and
 # it expands ${env:NAME} in them. Specular never edits the user's global agent
-# settings, so the TLC tool is registered in a workspace file whose content is
-# constant: the per-run values travel in the agent's environment, which Cursor
-# passes on to the MCP server. Concurrent runs in one workspace therefore agree
-# on the file, and the original is restored when the last of them exits.
-_MCP_SERVER = "specular_tlc"
+# settings, so its per-run servers are registered in the workspace file. Each
+# server's entry is constant: the per-run values travel in the agent's
+# environment, which Cursor passes on to the MCP server. Concurrent runs in one
+# workspace therefore agree on every entry; the file holds the union of the
+# servers the live runs need, and the original returns when the last one exits.
 TLC_WAIT_LIMIT_SECONDS = 45
 _MCP_STATE = ".specular-mcp"
-_MCP_CONFIG = {"command": "${env:SPECULAR_TLC_TOOL_PYTHON}", "args": ["${env:SPECULAR_TLC_TOOL_SERVER}"]}
+# server name -> (Specular's per-run MCP JSON variable, python variable, server-path variable)
+_MCP_SERVERS = {
+    "specular_tlc": ("SPECULAR_TLC_TOOL_JSON", "SPECULAR_TLC_TOOL_PYTHON", "SPECULAR_TLC_TOOL_SERVER"),
+    "specular_context": ("SPECULAR_CONTEXT_MCP_JSON", "SPECULAR_CONTEXT_PYTHON", "SPECULAR_CONTEXT_SERVER"),
+}
+# Context-control phases (specular.context_control.CONTEXT_CONTROL_PHASES) get the context tools.
+_CONTEXT_PHASES = {"incremental", "main"}
+
+
+def _mcp_entry(server: str) -> dict[str, object]:
+    _, python, path = _MCP_SERVERS[server]
+    return {"command": f"${{env:{python}}}", "args": [f"${{env:{path}}}"]}
+
+
+def _run_servers(env: dict[str, str]) -> list[str]:
+    """Export the launch values of the Specular MCP servers this run gets; return their names."""
+    servers: list[str] = []
+    for server, (source, python, path) in _MCP_SERVERS.items():
+        if server == "specular_context" and env.get("SPECULAR_PHASE") not in _CONTEXT_PHASES:
+            continue
+        try:
+            entry = json.loads(env.get(source) or "null")["mcpServers"][server]
+            command, args = entry["command"], entry["args"]
+        except (ValueError, KeyError, TypeError):
+            continue
+        if isinstance(command, str) and isinstance(args, list) and len(args) == 1 and isinstance(args[0], str):
+            env[python], env[path] = command, args[0]
+            servers.append(server)
+    if "specular_tlc" in servers:
+        # Cursor ends every MCP tool call after a fixed 60 s; keep each wait_tlc below it.
+        env["SPECULAR_TLC_TOOL_WAIT_LIMIT"] = str(TLC_WAIT_LIMIT_SECONDS)
+    return servers
 
 
 def _pid_alive(pid: int) -> bool:
@@ -174,17 +205,22 @@ def _pid_alive(pid: int) -> bool:
     return True
 
 
-def _live_markers(state: Path) -> list[Path]:
-    live: list[Path] = []
+def _live_servers(state: Path) -> set[str] | None:
+    """Servers needed by live runs (each marker lists its own); None when no run is live."""
+    live: set[str] | None = None
     for marker in state.glob("run-*"):
         try:
             pid = int(marker.name.split("-")[1])
         except (IndexError, ValueError):
             continue
-        if _pid_alive(pid):
-            live.append(marker)
-        else:
+        if not _pid_alive(pid):
             marker.unlink(missing_ok=True)
+            continue
+        try:
+            names = marker.read_text().split()
+        except OSError:
+            names = []
+        live = (live or set()) | {name for name in names if name in _MCP_SERVERS}
     return live
 
 
@@ -199,15 +235,18 @@ def _replace_file(path: Path, data: bytes) -> None:
         raise
 
 
-def _merged_config(saved: bytes) -> bytes:
-    """The user's workspace MCP config (from the backup) plus the Specular TLC server."""
+def _merged_config(saved: bytes, servers: set[str]) -> bytes:
+    """The user's workspace MCP config (from the backup) plus the Specular servers."""
     try:
         base = json.loads(saved[1:].decode()) if saved[:1] == b"1" else {}
     except ValueError:
         base = {}
     base = dict(base) if isinstance(base, dict) else {}
-    servers = base.get("mcpServers")
-    base["mcpServers"] = {**(servers if isinstance(servers, dict) else {}), _MCP_SERVER: _MCP_CONFIG}
+    existing = base.get("mcpServers")
+    base["mcpServers"] = {
+        **(existing if isinstance(existing, dict) else {}),
+        **{server: _mcp_entry(server) for server in sorted(servers)},
+    }
     return (json.dumps(base, indent=2) + "\n").encode()
 
 
@@ -230,24 +269,12 @@ def _state_lock(state: Path) -> Iterator[None]:
 
 
 @contextlib.contextmanager
-def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[bool]:
-    """Expose the run's TLC task tool to Cursor; yield whether it was registered."""
-    raw = env.get("SPECULAR_TLC_TOOL_JSON")
-    try:
-        entry = json.loads(raw)["mcpServers"][_MCP_SERVER] if raw else None
-        if entry is None:
-            raise KeyError(_MCP_SERVER)
-        command, args = entry["command"], entry["args"]
-        if not isinstance(command, str) or not isinstance(args, list) or len(args) != 1:
-            raise TypeError("unexpected TLC tool entry")
-    except (ValueError, KeyError, TypeError):
-        yield False
+def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[list[str]]:
+    """Expose this run's Specular MCP servers to Cursor; yield their names."""
+    servers = _run_servers(env)
+    if not servers:
+        yield servers
         return
-    env["SPECULAR_TLC_TOOL_PYTHON"] = command
-    env["SPECULAR_TLC_TOOL_SERVER"] = str(args[0])
-    # Cursor ends every MCP tool call after a fixed 60 s; keep each wait_tlc below it.
-    env["SPECULAR_TLC_TOOL_WAIT_LIMIT"] = str(TLC_WAIT_LIMIT_SECONDS)
-
     directory = cwd / ".cursor"
     config_path = directory / "mcp.json"
     state = directory / _MCP_STATE
@@ -255,21 +282,26 @@ def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[bool]:
     marker = state / f"run-{os.getpid()}-{os.urandom(4).hex()}"
     directory_existed = directory.is_dir()
     with _state_lock(state):
-        if not _live_markers(state):
-            # A leftover backup means an earlier run died while holding the file.
-            if not backup.exists():
-                original = config_path.read_bytes() if config_path.is_file() else None
-                backup.write_bytes(b"0" if original is None else b"1" + original)
-                if not directory_existed:
-                    (state / "created-directory").touch()
-            _replace_file(config_path, _merged_config(backup.read_bytes()))
-        marker.touch()
+        live = _live_servers(state)
+        # A leftover backup means an earlier run died while holding the file.
+        if live is None and not backup.exists():
+            original = config_path.read_bytes() if config_path.is_file() else None
+            backup.write_bytes(b"0" if original is None else b"1" + original)
+            if not directory_existed:
+                (state / "created-directory").touch()
+        needed = (live or set()) | set(servers)
+        if needed != live:
+            _replace_file(config_path, _merged_config(backup.read_bytes(), needed))
+        marker.write_text("\n".join(servers) + "\n")
     try:
-        yield True
+        yield servers
     finally:
         with _state_lock(state):
             marker.unlink(missing_ok=True)
-            if not _live_markers(state):
+            live = _live_servers(state)
+            if live is not None:
+                _replace_file(config_path, _merged_config(backup.read_bytes(), live))
+            else:
                 saved = backup.read_bytes() if backup.exists() else b"0"
                 if saved[:1] == b"1":
                     _replace_file(config_path, saved[1:])
