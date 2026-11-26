@@ -2112,6 +2112,7 @@ def _tuning_identity(cfg: ConfirmConfig) -> dict[str, dict[str, str | None]]:
             "claude-code": "CLAUDE_MODEL",
             "codex": "CODEX_MODEL",
             "copilot-cli": "COPILOT_MODEL",
+            "cursor-cli": "CURSOR_MODEL",
             "opencode": "OPENCODE_MODEL",
             "pi": "PI_MODEL",
         }.get(adapter)
@@ -2127,6 +2128,7 @@ def _tuning_identity(cfg: ConfirmConfig) -> dict[str, dict[str, str | None]]:
         effort_env = {
             "agy": "AGY_EFFORT",
             "codex": "CODEX_EFFORT",
+            "cursor-cli": "CURSOR_EFFORT",
             "opencode": "OPENCODE_EFFORT",
             "pi": "PI_EFFORT",
         }.get(adapter)

@@ -72,7 +72,7 @@ class UsageTotals:
         session_id = payload.get("session_id")
         totals = cls(
             session_id=session_id if isinstance(session_id, str) else None,
-            output_includes_reasoning=payload.get("agent") in {"opencode", "agy"},
+            output_includes_reasoning=payload.get("agent") in {"opencode", "agy", "cursor-cli"},
         )
         totals.add_cost(payload.get("total_cost_usd"))
         usage = payload.get("usage")
@@ -100,6 +100,24 @@ def token_count(value: object) -> int:
 def accumulate_usage(adapter_name: str, record: object, totals: UsageTotals) -> None:
     """Accumulate one provider event into normalized counters."""
     if not isinstance(record, dict):
+        return
+    if adapter_name == "cursor-cli":
+        # Cursor's output token count already includes its reasoning tokens
+        # and it reports no cost, so total_cost_usd stays None (incomplete).
+        totals.output_includes_reasoning = True
+        session_id = record.get("session_id")
+        if totals.session_id is None and isinstance(session_id, str) and session_id:
+            totals.session_id = session_id
+        if record.get("type") != "result":
+            return
+        usage = record.get("usage")
+        if not isinstance(usage, dict):
+            return
+        totals.input_tokens += token_count(usage.get("inputTokens"))
+        totals.output_tokens += token_count(usage.get("outputTokens"))
+        totals.reasoning_output_tokens += token_count(usage.get("reasoningTokens"))
+        totals.cached_input_tokens += token_count(usage.get("cacheReadTokens"))
+        totals.cache_write_input_tokens += token_count(usage.get("cacheWriteTokens"))
         return
     if adapter_name == "agy":
         totals.output_includes_reasoning = True

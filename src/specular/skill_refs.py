@@ -17,7 +17,7 @@ from specular.skill_install import discover_skills
 CODEX_PLUGIN_NAME = "specular-codex"
 SPECULAR_ROOT = Path(__file__).resolve().parents[2]
 SKILLS_ROOT = SPECULAR_ROOT / "skills"
-LOCAL_SKILL_ADAPTERS = {"opencode", "pi", "agy"}
+LOCAL_SKILL_ADAPTERS = {"opencode", "pi", "agy", "cursor-cli"}
 _SKILL_NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 _SKILL_REF_PREFIX = f"<!-- specular-skill:{secrets.token_hex(16)}:"
 _SKILL_REF = re.compile(rf"{re.escape(_SKILL_REF_PREFIX)}([a-z0-9]+(?:-[a-z0-9]+)*) -->")

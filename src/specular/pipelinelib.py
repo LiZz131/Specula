@@ -175,7 +175,7 @@ Options:
   --max-turns=N          Max agent turns (default: 0 = unlimited)
   --policy-retries=N     Policy-block continuation retries after the initial attempt (default: 20; 0 disables)
   --transient-resumes=N  Transient provider/transport session resumes after the initial attempt (default: 20; 0 disables)
-  --agent=NAME           Agent adapter to use (default: claude-code; e.g., claude-code, codex, copilot-cli, opencode, pi, agy)
+  --agent=NAME           Agent adapter to use (default: claude-code; e.g., claude-code, codex, copilot-cli, cursor-cli, opencode, pi, agy)
   --agent-config=PATH    JSON file selecting an agent/model profile per phase
   --claude-alias=NAME    Claude CLI profile (default: claude)
   --model=NAME           Model forwarded to every agent adapter
@@ -2036,6 +2036,7 @@ class Pipeline:
                     "claude-code": "CLAUDE_MODEL",
                     "codex": "CODEX_MODEL",
                     "copilot-cli": "COPILOT_MODEL",
+                    "cursor-cli": "CURSOR_MODEL",
                     "opencode": "OPENCODE_MODEL",
                     "pi": "PI_MODEL",
                 }.get(selected.agent)
@@ -2055,6 +2056,7 @@ class Pipeline:
                     effort_env = {
                         "agy": "AGY_EFFORT",
                         "codex": "CODEX_EFFORT",
+                        "cursor-cli": "CURSOR_EFFORT",
                         "opencode": "OPENCODE_EFFORT",
                         "pi": "PI_EFFORT",
                     }.get(selected.agent)

@@ -178,9 +178,17 @@ def _write_usage(path: Path, payload: dict[str, object]) -> bool:
                 temporary_path.unlink()
 
 
-def _write_spawn_failure(adapter_name: str, command: list[str], options: AdapterOptions, exc: OSError) -> None:
+def _write_spawn_failure(
+    adapter_name: str,
+    command: list[str],
+    options: AdapterOptions,
+    exc: OSError,
+    hint: str | None = None,
+) -> None:
     executable = command[0] if command else "command"
     diagnostic = summary(f"{adapter_name} adapter: failed to launch {executable}: {exc}", None)
+    if hint:
+        diagnostic += f" ({summary(hint, None)})"
     try:
         options.log_path.write_text(diagnostic + "\n", encoding="utf-8", errors="replace")
     except OSError as log_exc:
@@ -233,6 +241,7 @@ def run_json_cli(
     command: list[str],
     options: AdapterOptions,
     child_env: dict[str, str] | None = None,
+    missing_cli_hint: str | None = None,
 ) -> int:
     """Run a JSONL CLI and persist its raw, readable, and usage sidecars."""
     inherited_env = dict(child_env if child_env is not None else os.environ)
@@ -290,7 +299,7 @@ def run_json_cli(
                 finally:
                     prompt_stream.close()
             except OSError as exc:
-                _write_spawn_failure(adapter_name, command, options, exc)
+                _write_spawn_failure(adapter_name, command, options, exc, missing_cli_hint)
                 return 127
 
             status: StreamStatus | None = None

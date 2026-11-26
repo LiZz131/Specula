@@ -375,6 +375,8 @@ def _structured_policy_block_error(adapter_name: str, record: object) -> str | N
             payload = record
     elif adapter_name == "agy":
         payload = _agy_result_error(record)
+    elif adapter_name == "cursor-cli":
+        payload = _cursor_cli_result_error(record)
 
     if payload is None or not looks_policy_blocked(payload):
         return None
@@ -402,6 +404,23 @@ def _agy_result_error(record: dict[str, object]) -> str | None:
     return error if isinstance(error, str) and error.strip() else None
 
 
+def _cursor_cli_result_error(record: dict[str, object]) -> str | None:
+    """The CLI's own error text of a failed Cursor result, never the agent's response.
+
+    Cursor reports provider/CLI failures on stderr and exits non-zero without an
+    error event, so a failed ``result`` record is rare; when one is present its
+    ``result`` string is the CLI's text.
+    """
+    if record.get("type") != "result" or not _cursor_cli_result_failed(record):
+        return None
+    text = record.get("result")
+    return text if isinstance(text, str) and text.strip() else None
+
+
+def _cursor_cli_result_failed(record: dict[str, object]) -> bool:
+    return record.get("is_error") is True or record.get("subtype") not in (None, "success")
+
+
 def _structured_rate_limit_error(adapter_name: str, record: object) -> str | None:
     """Return a diagnostic only for an explicit provider-error record."""
     if not isinstance(record, dict):
@@ -427,6 +446,8 @@ def _structured_rate_limit_error(adapter_name: str, record: object) -> str | Non
             payload = record
     elif adapter_name == "agy":
         payload = _agy_result_error(record)
+    elif adapter_name == "cursor-cli":
+        payload = _cursor_cli_result_error(record)
 
     if payload is None or not _looks_rate_limited(payload):
         return None
@@ -457,6 +478,8 @@ def _structured_transient_error(adapter_name: str, record: object) -> str | None
             payload = record
     elif adapter_name == "agy":
         payload = _agy_result_error(record)
+    elif adapter_name == "cursor-cli":
+        payload = _cursor_cli_result_error(record)
 
     if payload is None:
         return None
@@ -491,6 +514,9 @@ def _session_id(adapter_name: str, record: object) -> str | None:
         value = record.get("sessionID")
     elif adapter_name == "pi" and record.get("type") == "session":
         value = record.get("id")
+    elif adapter_name == "cursor-cli":
+        # Every Cursor event carries the chat ID, and `init` is first.
+        value = record.get("session_id")
     elif adapter_name == "agy":
         value = record.get("conversation_id")
         if not value:
@@ -536,6 +562,12 @@ def _terminal_error(
         if normalized_reason != "stop":
             detail = summary(str(reason), 60) if reason is not None else "missing"
             return f"final Pi assistant stopReason was {detail}; expected stop"
+    elif adapter_name == "cursor-cli":
+        if not isinstance(record, dict) or record.get("type") != "result":
+            return "stream ended without a Cursor result event"
+        if _cursor_cli_result_failed(record):
+            detail = summary(str(record.get("result") or record.get("subtype")), 120)
+            return f"final Cursor result was {record.get('subtype')!r} (is_error={record.get('is_error')!r}): {detail}"
     elif adapter_name == "agy":
         if not isinstance(record, dict) or record.get("event") != "result":
             return "stream ended without an agy result event"
@@ -638,8 +670,70 @@ def _agy_events(record: object, concise: bool) -> list[_LogEvent]:
     return []
 
 
+def _cursor_cli_tool(record: dict[str, object]) -> tuple[str, dict[str, object]] | None:
+    """Return Cursor's ``(tool, call body)``; the call's key is ``<tool>ToolCall``."""
+    call = record.get("tool_call")
+    if not isinstance(call, dict):
+        return None
+    for key, body in call.items():
+        if key.endswith("ToolCall") and len(key) > len("ToolCall") and isinstance(body, dict):
+            return key[: -len("ToolCall")], body
+    return None
+
+
+def _cursor_cli_tool_failure(body: dict[str, object]) -> str | None:
+    """Why a completed Cursor tool call did not run, from the CLI's own result."""
+    result = body.get("result")
+    if not isinstance(result, dict):
+        return None
+    for key in ("rejected", "error", "failure"):
+        detail = result.get(key)
+        if detail is None:
+            continue
+        reason = (
+            detail.get("reason") or detail.get("message") or detail.get("error") if isinstance(detail, dict) else detail
+        )
+        if key == "rejected":
+            return f"{key} by Cursor permissions" + (f": {reason}" if isinstance(reason, str) and reason else "")
+        return f"{key}: {reason}" if isinstance(reason, str) and reason else key
+    return None
+
+
+def _cursor_cli_events(record: object, concise: bool) -> list[_LogEvent]:
+    if not isinstance(record, dict):
+        return []
+    event_type = record.get("type")
+    if event_type == "assistant":
+        message = record.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(content, list):
+            return []
+        return [
+            _text_event(block["text"], concise)
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text" and isinstance(block.get("text"), str)
+        ]
+    if event_type == "tool_call":
+        tool = _cursor_cli_tool(record)
+        if tool is None:
+            return []
+        name, body = tool
+        if record.get("subtype") == "started":
+            return [_line_event(tool_summary(name, body.get("args")))]
+        if record.get("subtype") == "completed":
+            failure = _cursor_cli_tool_failure(body)
+            if failure:
+                return _diagnostic_event("tool error", f"{name}: {failure}", concise)
+        return []
+    if event_type == "result" and _cursor_cli_result_failed(record):
+        message = _diagnostic_message(record.get("result")) or f"cursor-cli result {record.get('subtype')}"
+        return _diagnostic_event("error", message, concise)
+    return []
+
+
 _PARSERS: dict[str, Callable[[object, bool], list[_LogEvent]]] = {
     "agy": _agy_events,
+    "cursor-cli": _cursor_cli_events,
     "claude-code": _claude_events,
     "codex": _codex_events,
     "copilot-cli": _copilot_events,
@@ -667,6 +761,11 @@ def _is_tool_echo(adapter_name: str, record: object) -> bool:
             and isinstance(item, dict)
             and item.get("type") == "command_execution"
         )
+    if adapter_name == "cursor-cli" and record.get("type") == "tool_call" and record.get("subtype") == "completed":
+        # Completed calls replay whole files and command output; keep only
+        # the ones that did not run (rejected/error), which the log reports.
+        tool = _cursor_cli_tool(record)
+        return tool is not None and _cursor_cli_tool_failure(tool[1]) is None
     if adapter_name == "agy" and record.get("event") == "step_update":
         update = record.get("step_update")
         if isinstance(update, dict) and update.get("step_type") == "tool" and update.get("state") == "DONE":
@@ -745,11 +844,14 @@ _ADAPTER_NAMES = {
     # The wrapper uses this internal alias only after capability probing proves
     # that non-JSON lines are out-of-band CLI diagnostics.
     "copilot-json": "copilot-cli",
+    "cursor-cli": "cursor-cli",
     "opencode": "opencode",
     "pi": "pi",
 }
 
-_STRUCTURED_STREAM_ADAPTERS = frozenset({"agy", "claude", "claude-code", "codex", "copilot-json", "opencode", "pi"})
+_STRUCTURED_STREAM_ADAPTERS = frozenset(
+    {"agy", "claude", "claude-code", "codex", "copilot-json", "cursor-cli", "opencode", "pi"}
+)
 
 
 def stream_events(
@@ -968,6 +1070,16 @@ def stream_events(
                     transient_error = None
             child_results = pi_subagent_results(record)
             subagent_results.extend(child_results)
+        elif adapter_name == "cursor-cli":
+            if isinstance(record, dict) and record.get("type") == "result":
+                terminal_record = record
+                successful_terminal = not _cursor_cli_result_failed(record)
+                if successful_terminal:
+                    rate_limit_error = None
+                    policy_block_error = None
+                    transient_error = None
+                else:
+                    structured_error = summary(str(record.get("result") or record.get("subtype")), None)
         elif adapter_name == "agy":
             if isinstance(record, dict) and record.get("event") == "result":
                 res = record.get("result")
@@ -1070,6 +1182,17 @@ def stream_events(
     plain_transient_error = None
     if structured_stream and not successful_terminal and final_diagnostic_has_transient_failure(final_plain_diagnostic):
         plain_transient_error = summary(final_plain_diagnostic, None)
+    if (
+        adapter_name == "cursor-cli"
+        and structured_stream
+        and not successful_terminal
+        and rate_limit_error is None
+        and final_plain_diagnostic
+        and _looks_rate_limited(final_plain_diagnostic)
+    ):
+        # Cursor reports a rate/usage limit only as the CLI's own stderr text
+        # (no error event), which stream_events sees as the final non-JSON line.
+        rate_limit_error = summary(final_plain_diagnostic, None)
     return StreamStatus(
         activity_ok=not raw_failures,
         log_ok=not readable_failures and not resume_failures,
@@ -1105,7 +1228,7 @@ def main(argv: list[str]) -> int:
     if len(argv) not in {3, 4, 7, 8} or argv[0] not in _ADAPTER_NAMES or (codex_profile and len(argv) < 7):
         print(
             "usage: python -m specular.adapters.utils.event_stream "
-            "{agy|claude|codex|copilot|opencode|pi} ACTIVITY_JSONL LOG_FILE "
+            "{agy|claude|codex|copilot|cursor-cli|opencode|pi} ACTIVITY_JSONL LOG_FILE "
             "[SESSION_ID_FILE] [RESUME_STATE CWD MODEL EFFORT [--codex-profile=NAME]]",
             file=sys.stderr,
         )
