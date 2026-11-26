@@ -1,0 +1,664 @@
+diff --git a/openraft/src/core/heartbeat/worker.rs b/openraft/src/core/heartbeat/worker.rs
+index 745f9c8..fbc0807 100644
+--- a/openraft/src/core/heartbeat/worker.rs
++++ b/openraft/src/core/heartbeat/worker.rs
+@@ -113,6 +113,17 @@ where
+                 entries: vec![],
+             };
+ 
++            if crate::tla_trace::enabled() {
++                let msg = format!(
++                    r#"{{"to":{},"vote":{},"prev_log_id":{},"entries":[],"leader_commit":{}}}"#,
++                    crate::tla_trace::d(&self.target),
++                    crate::tla_trace::vote_json::<C>(&payload.vote),
++                    crate::tla_trace::log_id_json(payload.prev_log_id.as_ref()),
++                    crate::tla_trace::log_id_json(payload.leader_commit.as_ref())
++                );
++                crate::tla_trace::emit("SendHeartbeat", &self.id.to_string(), "{}", &msg);
++            }
++
+             let input_stream = Box::pin(futures_util::stream::once(async { payload }));
+ 
+             let res = C::timeout(timeout, async {
+diff --git a/openraft/src/core/raft_core.rs b/openraft/src/core/raft_core.rs
+index 888bf0f..c3b39e2 100644
+--- a/openraft/src/core/raft_core.rs
++++ b/openraft/src/core/raft_core.rs
+@@ -296,12 +296,40 @@ where
+         Err(err)
+     }
+ 
++    /// [tla-trace] emit one event with the node's post-state.
++    fn tla_emit(&self, name: &str, msg: String) {
++        if !crate::tla_trace::enabled() {
++            return;
++        }
++        let st = crate::tla_trace::engine_state_json(&self.engine);
++        crate::tla_trace::emit(name, &self.id.to_string(), &st, &msg);
++    }
++
+     #[tracing::instrument(level = "trace", skip_all, fields(id=display(&self.id), cluster=%self.config.cluster_name
+     ))]
+     async fn do_main(&mut self, rx_shutdown: OneshotReceiverOf<C, ()>) -> Result<Infallible, Fatal<C>> {
+         tracing::debug!("raft node is initializing");
+ 
++        // [tla-trace] persisted state as loaded by get_initial_state()
++        let tla_loaded = if crate::tla_trace::enabled() {
++            let last_next = self.engine.state.last_log_id().map(|x| x.index() + 1).unwrap_or(0);
++            let mut lr = self.log_store.get_log_reader().await;
++            let ents = crate::storage::RaftLogReader::try_get_log_entries(&mut lr, 0..last_next).await.unwrap_or_default();
++            Some(format!(
++                r#"{{"vote":{},"committed":{},"log":{}}}"#,
++                crate::tla_trace::vote_json::<C>(self.engine.state.vote_ref()),
++                crate::tla_trace::log_id_json(self.engine.state.committed()),
++                crate::tla_trace::entries_json(&ents)
++            ))
++        } else {
++            None
++        };
++
+         self.engine.startup();
++
++        if let Some(loaded) = tla_loaded {
++            self.tla_emit("Startup", format!(r#"{{"loaded":{}}}"#, loaded));
++        }
+         // It may not finish running all the commands, if there is a command waiting for a callback.
+         self.run_engine_commands().await?;
+ 
+@@ -621,7 +649,18 @@ where
+         // TODO: it should returns membership config error etc. currently this is done by the
+         //       caller.
+         let entry_count = payloads.len() as u64;
++        let tla_kind = if crate::tla_trace::enabled() {
++            payloads.as_ref().iter().find_map(|p| crate::entry::RaftPayload::get_membership(p)).map(|m| crate::tla_trace::membership_json(&m))
++        } else {
++            None
++        };
+         let log_ids = lh.leader_append_entries(payloads)?;
++        if crate::tla_trace::enabled() {
++            match tla_kind {
++                Some(m) => self.tla_emit("ChangeMembership", format!(r#"{{"membership":{},"count":{}}}"#, m, entry_count)),
++                None => self.tla_emit("ClientWrite", format!(r#"{{"count":{}}}"#, entry_count)),
++            }
++        }
+ 
+         #[cfg(feature = "runtime-stats")]
+         {
+@@ -868,6 +907,10 @@ where
+         if !has_error {
+             // With the new config, start to elect to become leader
+             self.engine.elect();
++            if crate::tla_trace::enabled() {
++                let m = self.engine.state.membership_state.effective().membership().clone();
++                self.tla_emit("Initialize", format!(r#"{{"membership":{}}}"#, crate::tla_trace::membership_json(&m)));
++            }
+         }
+     }
+ 
+@@ -1216,6 +1259,7 @@ where
+             futures_util::select_biased! {
+                 _ = (&mut rx_shutdown).fuse() => {
+                     tracing::info!("recv from rx_shutdown");
++                    self.tla_emit("Shutdown", String::new());
+                     return Err(Fatal::Stopped);
+                 }
+ 
+@@ -1483,8 +1527,32 @@ where
+     pub(super) fn handle_vote_request(&mut self, req: VoteRequest<C>, tx: VoteTx<C>) {
+         tracing::info!("{}: req: {}", func_name!(), req);
+ 
++        let tla_req = if crate::tla_trace::enabled() {
++            Some(format!(
++                r#""from":{},"vote":{},"last_log_id":{},"transfer":{}"#,
++                crate::tla_trace::d(req.vote.leader_id().node_id()),
++                crate::tla_trace::vote_json::<C>(&req.vote),
++                crate::tla_trace::log_id_json(req.last_log_id.as_ref()),
++                req.leadership_transfer
++            ))
++        } else {
++            None
++        };
++
+         let resp = self.engine.handle_vote_req(req);
+ 
++        if let Some(r) = tla_req {
++            let msg = format!(
++                r#"{{{},"branch":"{}","resp":{{"vote":{},"granted":{},"last_log_id":{}}}}}"#,
++                r,
++                self.engine.tla_vote_branch,
++                crate::tla_trace::vote_json::<C>(&resp.vote),
++                resp.vote_granted,
++                crate::tla_trace::log_id_json(resp.last_log_id.as_ref())
++            );
++            self.tla_emit("HandleVoteRequest", msg);
++        }
++
+         // Record vote to external metrics recorder
+         if let Some(r) = &self.metrics_recorder {
+             r.increment_vote();
+@@ -1503,6 +1571,19 @@ where
+     pub(super) fn handle_append_entries_request(&mut self, req: AppendEntriesRequest<C>, tx: AppendEntriesTx<C>) {
+         tracing::debug!("{}: req: {}", func_name!(), req);
+ 
++        let tla_req = if crate::tla_trace::enabled() {
++            Some(format!(
++                r#""from":{},"vote":{},"prev_log_id":{},"entries":{},"leader_commit":{}"#,
++                crate::tla_trace::d(req.vote.leader_id().node_id()),
++                crate::tla_trace::vote_json::<C>(&req.vote),
++                crate::tla_trace::log_id_json(req.prev_log_id.as_ref()),
++                crate::tla_trace::entries_json(&req.entries),
++                crate::tla_trace::log_id_json(req.leader_commit.as_ref())
++            ))
++        } else {
++            None
++        };
++
+         let segment = LogSegment::new(req.prev_log_id, req.entries);
+         self.engine.handle_append_entries(&req.vote, segment, tx);
+ 
+@@ -1513,6 +1594,11 @@ where
+ 
+         let committed = LogIOId::new(req.vote.to_committed(), req.leader_commit);
+         self.engine.state.update_committed(committed);
++
++        if let Some(r) = tla_req {
++            let msg = format!(r#"{{{},"result":{}}}"#, r, self.engine.tla_ae_result);
++            self.tla_emit("HandleAppendEntriesRequest", msg);
++        }
+     }
+ 
+     // TODO: Make this method non-async. It does not need to run any async command in it.
+@@ -1617,6 +1703,7 @@ where
+                         if self.engine.state.membership_state.effective().is_voter(&self.id) {
+                             // TODO: reject if it is already a leader?
+                             self.engine.elect();
++                            self.tla_emit("Elect", r#"{"trigger":"external"}"#.to_string());
+                             tracing::debug!("ExternalCommand: triggered election");
+                         } else {
+                             // Node is switched to learner.
+@@ -1674,6 +1761,7 @@ where
+ 
+                         if vote_unchanged && membership_unchanged {
+                             self.engine.refresh_server_state();
++                            self.tla_emit("RefreshServerState", String::new());
+                         } else {
+                             tracing::info!(
+                                 "RefreshServerState is dropped: expected vote: {}, membership log id: {}; current vote: {}, membership log id: {}",
+@@ -1724,7 +1812,22 @@ where
+                 #[allow(clippy::collapsible_if)]
+                 if self.engine.candidate.is_some() {
+                     if self.does_candidate_vote_match(&candidate_vote, "VoteResponse") {
++                        let tla_msg = if crate::tla_trace::enabled() {
++                            Some(format!(
++                                r#"{{"target":{},"vote":{},"granted":{},"last_log_id":{},"candidate_vote":{}}}"#,
++                                crate::tla_trace::d(&target),
++                                crate::tla_trace::vote_json::<C>(&resp.vote),
++                                resp.vote_granted,
++                                crate::tla_trace::log_id_json(resp.last_log_id.as_ref()),
++                                crate::tla_trace::vote_json::<C>(&candidate_vote.clone().into_vote())
++                            ))
++                        } else {
++                            None
++                        };
+                         self.engine.handle_vote_resp(target, resp);
++                        if let Some(m) = tla_msg {
++                            self.tla_emit("HandleVoteResponse", m);
++                        }
+                     }
+                 }
+             }
+@@ -1742,10 +1845,25 @@ where
+                     leader_vote
+                 );
+ 
+-                if self.does_leader_vote_match(&leader_vote, "HigherVote") {
++                let tla_msg = if crate::tla_trace::enabled() {
++                    let lv: VoteOf<C> = leader_vote.clone().into_vote();
++                    Some(format!(
++                        r#""target":{},"higher":{},"leader_vote":{}"#,
++                        crate::tla_trace::d(&target),
++                        crate::tla_trace::vote_json::<C>(&higher),
++                        crate::tla_trace::vote_json::<C>(&lv)
++                    ))
++                } else {
++                    None
++                };
++                let tla_matched = self.does_leader_vote_match(&leader_vote, "HigherVote");
++                if tla_matched {
+                     // Rejected vote change is ok.
+                     self.engine.vote_handler().update_vote(&higher).ok();
+                 }
++                if let Some(m) = tla_msg {
++                    self.tla_emit("HandleHigherVote", format!(r#"{{{},"matched":{}}}"#, m, tla_matched));
++                }
+             }
+ 
+             Notification::Tick { i } => {
+@@ -1794,7 +1912,23 @@ where
+                         #[allow(clippy::collapsible_if)]
+                         if self.engine.leader.is_some() {
+                             if self.does_leader_vote_match(&log_io_id.committed_vote, "LocalIO Notification") {
++                                // [tla-trace] only an actual progress update is a model step
++                                let tla_will_update = crate::tla_trace::enabled()
++                                    && log_io_id.log_id.is_some()
++                                    && self
++                                        .engine
++                                        .leader
++                                        .as_ref()
++                                        .and_then(|l| l.progress.try_get(&self.id).map(|p| p.matching() < log_io_id.log_id.as_ref()))
++                                        .unwrap_or(false);
++                                let tla_upto = log_io_id.log_id.clone();
+                                 self.engine.replication_handler().update_local_progress(log_io_id.log_id);
++                                if tla_will_update {
++                                    self.tla_emit(
++                                        "HandleLocalIO",
++                                        format!(r#"{{"upto":{}}}"#, crate::tla_trace::log_id_json(tla_upto.as_ref())),
++                                    );
++                                }
+                             }
+                         }
+                     }
+@@ -1807,9 +1941,32 @@ where
+             Notification::ReplicationProgress { progress, inflight_id } => {
+                 tracing::debug!("recv Notification::ReplicationProgress: progress: {}", progress);
+ 
++                let tla_msg = if crate::tla_trace::enabled() {
++                    let res = match &progress.result {
++                        Ok(r) => match &r.0 {
++                            Ok(m) => format!(r#""result":"ok","log_id":{}"#, crate::tla_trace::log_id_json(m.as_ref())),
++                            Err(c) => format!(r#""result":"conflict","log_id":{}"#, crate::tla_trace::log_id_json(Some(c))),
++                        },
++                        Err(_) => r#""result":"error","log_id":{"term":0,"node":-1,"index":-1}"#.to_string(),
++                    };
++                    Some(format!(
++                        r#"{{"target":{},{},"inflight":{}}}"#,
++                        crate::tla_trace::d(&progress.target),
++                        res,
++                        inflight_id.is_some()
++                    ))
++                } else {
++                    None
++                };
++                let tla_is_leader = self.engine.leader.is_some();
+                 if let Some(mut rh) = self.engine.try_replication_handler() {
+                     rh.update_progress(progress.target, progress.result, inflight_id);
+                 }
++                if let Some(m) = tla_msg {
++                    if tla_is_leader {
++                        self.tla_emit("HandleReplicationProgress", m);
++                    }
++                }
+             }
+ 
+             Notification::HeartbeatProgress {
+@@ -1923,6 +2080,7 @@ where
+ 
+         tracing::info!("trigger election");
+         self.engine.elect();
++        self.tla_emit("Elect", r#"{"trigger":"tick"}"#.to_string());
+     }
+ 
+     /// If a message is sent by a previous Candidate but is received by current Candidate,
+diff --git a/openraft/src/engine/engine_impl.rs b/openraft/src/engine/engine_impl.rs
+index c4768db..98e2e9c 100644
+--- a/openraft/src/engine/engine_impl.rs
++++ b/openraft/src/engine/engine_impl.rs
+@@ -94,6 +94,12 @@ where C: RaftTypeConfig
+ 
+     /// Output entry for the runtime.
+     pub(crate) output: EngineOutput<C, SM>,
++
++    /// [tla-trace] branch taken by the last `handle_vote_req`: "lease" | "log" | "vote".
++    pub(crate) tla_vote_branch: &'static str,
++
++    /// [tla-trace] JSON of the last `handle_append_entries` result.
++    pub(crate) tla_ae_result: String,
+ }
+ 
+ impl<C, SM> Engine<C, SM>
+@@ -107,6 +113,8 @@ where C: RaftTypeConfig
+             leader: None,
+             candidate: None,
+             output: EngineOutput::new(4096),
++            tla_vote_branch: "",
++            tla_ae_result: String::new(),
+         }
+     }
+ 
+@@ -293,6 +301,7 @@ where C: RaftTypeConfig
+                     local_leased_vote.display_lease_info(now)
+                 );
+ 
++                self.tla_vote_branch = "lease";
+                 return VoteResponse::new(self.state.vote_ref(), self.state.last_log_id().cloned(), false);
+             }
+         }
+@@ -312,12 +321,14 @@ where C: RaftTypeConfig
+ 
+             // Return the updated vote, this way the candidate knows which vote is granted, in case
+             // the candidate's vote is changed after sending the vote request.
++            self.tla_vote_branch = "log";
+             return VoteResponse::new(self.state.vote_ref(), self.state.last_log_id().cloned(), false);
+         }
+ 
+         // Then check vote just as it does for every incoming event.
+ 
+         let res = self.vote_handler().update_vote(&req.vote);
++        self.tla_vote_branch = "vote";
+ 
+         tracing::info!("handle vote request result: req: {}, result: {:?}", req, res);
+ 
+@@ -403,6 +414,15 @@ where C: RaftTypeConfig
+         );
+ 
+         let stream_result: StreamAppendResult<C> = self.append_entries(vote, segment).map_err(Into::into);
++        self.tla_ae_result = match &stream_result {
++            Ok(last) => format!(r#"{{"result":"ok","log_id":{}}}"#, crate::tla_trace::log_id_json(last.as_ref())),
++            Err(crate::raft::StreamAppendError::Conflict(c)) => {
++                format!(r#"{{"result":"conflict","log_id":{}}}"#, crate::tla_trace::log_id_json(Some(c)))
++            }
++            Err(crate::raft::StreamAppendError::HigherVote(v)) => {
++                format!(r#"{{"result":"higher","vote":{}}}"#, crate::tla_trace::vote_json::<C>(v))
++            }
++        };
+ 
+         let condition = if stream_result.is_ok() {
+             Some(Condition::IOFlushed {
+diff --git a/openraft/src/lib.rs b/openraft/src/lib.rs
+index fe169a4..972d487 100644
+--- a/openraft/src/lib.rs
++++ b/openraft/src/lib.rs
+@@ -54,6 +54,8 @@ pub(crate) mod log_id_range;
+ pub(crate) mod proposer;
+ pub(crate) mod raft_state;
+ pub(crate) mod utime;
++// Specular TLA+ trace instrumentation (no protocol effect).
++pub(crate) mod tla_trace;
+ 
+ pub mod base;
+ #[cfg(feature = "compat")]
+diff --git a/openraft/src/replication/stream_state.rs b/openraft/src/replication/stream_state.rs
+index ae7c58e..75f7630 100644
+--- a/openraft/src/replication/stream_state.rs
++++ b/openraft/src/replication/stream_state.rs
+@@ -116,6 +116,19 @@ where
+ 
+         self.backoff_if_enabled().await;
+ 
++        if crate::tla_trace::enabled() {
++            let v: crate::type_config::alias::VoteOf<C> = self.replication_context.leader_vote.clone().into_vote();
++            let msg = format!(
++                r#"{{"to":{},"vote":{},"prev_log_id":{},"entries":{},"leader_commit":{}}}"#,
++                crate::tla_trace::d(&self.replication_context.target),
++                crate::tla_trace::vote_json::<C>(&v),
++                crate::tla_trace::log_id_json(payload.prev_log_id.as_ref()),
++                crate::tla_trace::entries_json(&payload.entries),
++                crate::tla_trace::log_id_json(payload.leader_commit.as_ref())
++            );
++            crate::tla_trace::emit("SendAppendEntries", &self.replication_context.id.to_string(), "{}", &msg);
++        }
++
+         Some(payload)
+     }
+ 
+diff --git a/openraft/src/tla_trace.rs b/openraft/src/tla_trace.rs
+new file mode 100644
+index 0000000..d41c8ff
+--- /dev/null
++++ b/openraft/src/tla_trace.rs
+@@ -0,0 +1,222 @@
++//! TLA+ trace emission for Specular trace validation (instrumentation only).
++//!
++//! Enabled when the environment variable `OPENRAFT_TLA_TRACE` names an output file.
++//! Every emitted line is an NDJSON object:
++//! `{"tag":"trace","ts":<unix-nanos>,"seq":<n>,"event":{"name":..,"nid":..,"state":{..},"msg":{..}}}`
++//!
++//! The module never changes protocol state; it only reads engine state.
++
++use std::fmt::Display;
++use std::fs::File;
++use std::fs::OpenOptions;
++use std::io::Write;
++use std::sync::Mutex;
++use std::sync::OnceLock;
++use std::sync::atomic::AtomicU64;
++use std::sync::atomic::Ordering;
++use std::time::SystemTime;
++use std::time::UNIX_EPOCH;
++
++use crate::Membership;
++use crate::RaftTypeConfig;
++use crate::engine::Engine;
++use crate::entry::RaftEntry;
++use crate::progress::Progress;
++use crate::log_id::LogId;
++use crate::raft_state::LogStateReader;
++use crate::type_config::alias::VoteOf;
++use crate::vote::RaftLeaderId;
++use crate::vote::RaftVote;
++
++struct Writer {
++    file: Option<File>,
++}
++
++static WRITER: OnceLock<Mutex<Writer>> = OnceLock::new();
++static SEQ: AtomicU64 = AtomicU64::new(0);
++
++fn writer() -> &'static Mutex<Writer> {
++    WRITER.get_or_init(|| {
++        let file = std::env::var("OPENRAFT_TLA_TRACE").ok().and_then(|p| {
++            OpenOptions::new().create(true).append(true).open(p).ok()
++        });
++        Mutex::new(Writer { file })
++    })
++}
++
++/// Whether tracing is enabled.
++pub(crate) fn enabled() -> bool {
++    writer().lock().map(|w| w.file.is_some()).unwrap_or(false)
++}
++
++/// Emit one event. `fields` is a JSON object body (without braces) or empty.
++pub(crate) fn emit(name: &str, nid: &str, state: &str, msg: &str) {
++    let mut w = match writer().lock() {
++        Ok(w) => w,
++        Err(p) => p.into_inner(),
++    };
++    let Some(f) = w.file.as_mut() else {
++        return;
++    };
++    let ts = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
++    let seq = SEQ.fetch_add(1, Ordering::SeqCst);
++    let line = format!(
++        r#"{{"tag":"trace","ts":{},"seq":{},"event":{{"name":"{}","nid":{},"state":{},"msg":{}}}}}"#,
++        ts,
++        seq,
++        name,
++        num(nid),
++        if state.is_empty() { "{}" } else { state },
++        if msg.is_empty() { "{}" } else { msg },
++    );
++    let _ = writeln!(f, "{}", line);
++    let _ = f.flush();
++}
++
++/// Render a Display value as a JSON number if it is an unsigned integer, else as a string.
++pub(crate) fn num(s: &str) -> String {
++    let digits = s.strip_prefix('-').unwrap_or(s);
++    if !digits.is_empty() && digits.chars().all(|c| c.is_ascii_digit()) {
++        s.to_string()
++    } else {
++        format!("\"{}\"", s.replace('"', "'"))
++    }
++}
++
++pub(crate) fn d<T: Display>(t: &T) -> String {
++    num(&t.to_string())
++}
++
++/// Vote as `{"term":..,"node":..,"committed":..}`.
++pub(crate) fn vote_json<C>(v: &VoteOf<C>) -> String
++where C: RaftTypeConfig {
++    let lid = v.leader_id();
++    format!(
++        r#"{{"term":{},"node":{},"committed":{}}}"#,
++        d(&lid.term()),
++        d(lid.node_id()),
++        v.is_committed()
++    )
++}
++
++/// Parse a committed leader id Display: adv `T{term}-N{node}`, std `{term}`.
++fn parse_cl(s: &str) -> (String, String) {
++    if let Some(rest) = s.strip_prefix('T')
++        && let Some((t, n)) = rest.split_once("-N")
++    {
++        return (t.to_string(), n.to_string());
++    }
++    (s.to_string(), "-1".to_string())
++}
++
++/// Option<LogId> as `{"term":..,"node":..,"index":..}` (None: index -1).
++pub(crate) fn log_id_json<CLID>(l: Option<&LogId<CLID>>) -> String
++where CLID: crate::vote::RaftCommittedLeaderId {
++    match l {
++        // None is encoded as index -1 (spec index 0) to keep the JSON null-free.
++        None => r#"{"term":0,"node":-1,"index":-1}"#.to_string(),
++        Some(l) => {
++            let (t, n) = parse_cl(&l.committed_leader_id().to_string());
++            format!(r#"{{"term":{},"node":{},"index":{}}}"#, num(&t), num(&n), l.index())
++        }
++    }
++}
++
++pub(crate) fn membership_json<NID, N>(m: &Membership<NID, N>) -> String
++where
++    NID: crate::NodeId,
++    N: crate::Node,
++{
++    let cfgs = m
++        .get_joint_config()
++        .iter()
++        .map(|c| format!("[{}]", c.iter().map(|x| d(x)).collect::<Vec<_>>().join(",")))
++        .collect::<Vec<_>>()
++        .join(",");
++    let nodes = m.nodes().map(|(id, _)| d(id)).collect::<Vec<_>>().join(",");
++    format!(r#"{{"cfgs":[{}],"nodes":[{}]}}"#, cfgs, nodes)
++}
++
++/// One log entry as `{"term","node","index","type","membership"}`.
++pub(crate) fn entry_json<E>(e: &E) -> String
++where E: RaftEntry {
++    let (clid, index) = e.log_id_parts();
++    let (t, n) = parse_cl(&clid.to_string());
++    let shown = e.to_string();
++    let (ty, mem) = match e.get_membership() {
++        Some(m) => ("membership", membership_json(&m)),
++        None => {
++            let payload = shown.split_once(':').map(|x| x.1).unwrap_or("");
++            if payload.starts_with("blank") {
++                ("blank", r#"{"cfgs":[],"nodes":[]}"#.to_string())
++            } else {
++                ("normal", r#"{"cfgs":[],"nodes":[]}"#.to_string())
++            }
++        }
++    };
++    format!(
++        r#"{{"term":{},"node":{},"index":{},"type":"{}","membership":{}}}"#,
++        num(&t),
++        num(&n),
++        index,
++        ty,
++        mem
++    )
++}
++
++pub(crate) fn entries_json<E>(es: &[E]) -> String
++where E: RaftEntry {
++    format!("[{}]", es.iter().map(|e| entry_json(e)).collect::<Vec<_>>().join(","))
++}
++
++/// Snapshot of node-local engine state used for post-state validation.
++pub(crate) fn engine_state_json<C, SM>(eng: &Engine<C, SM>) -> String
++where C: RaftTypeConfig {
++    let st = &eng.state;
++    let em = st.membership_state.effective();
++    let cm = st.membership_state.committed();
++    let cand = match eng.candidate_ref() {
++        None => r#"{"present":false}"#.to_string(),
++        Some(c) => {
++            let granted = c.granters().map(|x| d(&x)).collect::<Vec<_>>().join(",");
++            format!(
++                r#"{{"present":true,"vote":{},"last":{},"granted":[{}]}}"#,
++                vote_json::<C>(c.vote_ref()),
++                log_id_json(c.last_log_id()),
++                granted
++            )
++        }
++    };
++    let ldr = match eng.leader_ref() {
++        None => r#"{"present":false}"#.to_string(),
++        Some(l) => {
++            let v: VoteOf<C> = l.committed_vote_ref().clone().into_vote();
++            let matching = l
++                .progress
++                .iter()
++                .map(|item| format!(r#"{{"id":{},"matching":{}}}"#, d(&item.id), log_id_json(item.val.matching())))
++                .collect::<Vec<_>>()
++                .join(",");
++            format!(
++                r#"{{"present":true,"vote":{},"last":{},"noop":{},"progress":[{}]}}"#,
++                vote_json::<C>(&v),
++                log_id_json(l.last_log_id()),
++                log_id_json(Some(l.noop_log_id())),
++                matching
++            )
++        }
++    };
++    format!(
++        r#"{{"vote":{},"server_state":"{:?}","last_log_id":{},"committed":{},"membership":{{"effective":{{"log_id":{},"config":{}}},"committed":{{"log_id":{},"config":{}}}}},"candidate":{},"leader":{}}}"#,
++        vote_json::<C>(st.vote_ref()),
++        st.server_state,
++        log_id_json(st.last_log_id()),
++        log_id_json(st.committed()),
++        log_id_json(em.log_id().as_ref()),
++        membership_json(em.membership()),
++        log_id_json(cm.log_id().as_ref()),
++        membership_json(cm.membership()),
++        cand,
++        ldr
++    )
++}
+diff --git a/tests/tests/life_cycle/t50_single_follower_restart.rs b/tests/tests/life_cycle/t50_single_follower_restart.rs
+index 19559d9..1008f87 100644
+--- a/tests/tests/life_cycle/t50_single_follower_restart.rs
++++ b/tests/tests/life_cycle/t50_single_follower_restart.rs
+@@ -50,6 +50,8 @@ async fn single_follower_restart() -> anyhow::Result<()> {
+         if let Some(v) = v {
+             // Set a non-committed vote so that the node restarts as a follower.
+             sto.save_vote(&Vote::new(v.leader_id.term() + 1, v.leader_id.to_node_id())).await?;
++            // [tla-trace] environment step: the test rewrites the persisted vote of a stopped node.
++            tla_trace_test_set_vote(0, v.leader_id.term() + 1, v.leader_id.to_node_id());
+         }
+ 
+         tracing::info!(log_index, "--- restart node-0");
+@@ -78,3 +80,19 @@ async fn single_follower_restart() -> anyhow::Result<()> {
+ fn timeout() -> Option<Duration> {
+     Some(Duration::from_millis(1_000))
+ }
++
++/// [tla-trace] Record an out-of-band vote rewrite in the trace file, if tracing is enabled.
++fn tla_trace_test_set_vote(nid: u64, term: u64, node: u64) {
++    use std::io::Write;
++    let Ok(path) = std::env::var("OPENRAFT_TLA_TRACE") else {
++        return;
++    };
++    let ts = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
++    let line = format!(
++        r#"{{"tag":"trace","ts":{},"seq":-1,"event":{{"name":"TestSetVote","nid":{},"state":{{}},"msg":{{"vote":{{"term":{},"node":{},"committed":false}}}}}}}}"#,
++        ts, nid, term, node
++    );
++    if let Ok(mut f) = std::fs::OpenOptions::new().append(true).create(true).open(path) {
++        let _ = writeln!(f, "{}", line);
++    }
++}
