@@ -223,6 +223,9 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
         "session_log": str(logical / "log" / "activity.jsonl"),
         "graded": None,
         "layout": layout,
+        "prior_label": attempt.get("prior_label"),
+        "prior_source": attempt.get("prior_source"),
+        "prior_source_tree_sha256": attempt.get("prior_source_tree_sha256"),
     }
     if "main_tools" in manifest:
         summary["main_tools"] = {k: manifest["main_tools"][k]

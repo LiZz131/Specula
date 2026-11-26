@@ -51,6 +51,10 @@ TEMPLATE_SKILLS = ("code-analysis", "spec-generation", "harness-generation", "tl
                    "validation-workflow", "tla-checking-workflow")
 
 
+INIT_SKILLS = ("code-analysis", "spec-generation", "harness-generation", "tla-trace-workflow",
+               "validation-workflow", "tla-checking-workflow")
+
+
 def render_task(case_id: str, skills: Path) -> str:
     text = TEMPLATE.read_text()
     for name in TEMPLATE_SKILLS:
@@ -130,7 +134,13 @@ def prepare_init(case_id: str, rep: int, skills: Path | None = None, main_tools:
         shutil.copy2(scope, stage / "scope.md")
         (stage / "task.md").write_text(render_task(case_id, skills))
         shutil.copy2(SCHEMA, stage / "final-schema.json")
-        shutil.copytree(skills, stage / ".agents/skills", ignore=shutil.ignore_patterns("manifest.json"))
+        # Only the skills the V0 baseline task names (as when V0 was generated); main's tree also has
+        # incremental-modeling and bug-confirmation, which the task does not use.
+        (stage / ".agents/skills").mkdir(parents=True)
+        for name in INIT_SKILLS:
+            if not (skills / name / "SKILL.md").is_file():
+                raise SystemExit(f"skill tree {skills} lacks {name}")
+            shutil.copytree(skills / name, stage / ".agents/skills" / name)
         (stage / "lib").mkdir()
         for jar in ("tla2tools.jar", "CommunityModules-deps.jar"):
             shutil.copy2(LIB / jar, stage / "lib" / jar)

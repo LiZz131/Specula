@@ -281,6 +281,8 @@ def export_run(arm: str, case: str, rep: str) -> dict | None:
 
 
 def export_inputs(case: str) -> None:
+    """Inputs of the epoch-1/epoch-2 V0-prior runs (attempts r1); runs on other priors record
+    their prior in run.json (prior_label, prior_source, prior_source_tree_sha256) instead."""
     dest = INPUTS / case
     dest.mkdir(parents=True, exist_ok=True)
     seen: dict[str, str] = {}
