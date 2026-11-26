@@ -22,12 +22,16 @@ Authenticate first with `cursor-agent login` or set CURSOR_API_KEY.
 
 from __future__ import annotations
 
+import contextlib
+import fcntl
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterator
 from dataclasses import replace
 from pathlib import Path
 
@@ -147,6 +151,134 @@ def _stage_prompt(options: AdapterOptions) -> AdapterOptions:
     return replace(options, prompt_path=staged, temporary_prompt=True)
 
 
+# Cursor reads MCP servers only from <workspace>/.cursor/mcp.json and
+# ~/.cursor/mcp.json (neither --add-dir nor CURSOR_CONFIG_DIR is consulted), and
+# it expands ${env:NAME} in them. Specular never edits the user's global agent
+# settings, so the TLC tool is registered in a workspace file whose content is
+# constant: the per-run values travel in the agent's environment, which Cursor
+# passes on to the MCP server. Concurrent runs in one workspace therefore agree
+# on the file, and the original is restored when the last of them exits.
+_MCP_SERVER = "specular_tlc"
+_MCP_STATE = ".specular-mcp"
+_MCP_CONFIG = {"command": "${env:SPECULAR_TLC_TOOL_PYTHON}", "args": ["${env:SPECULAR_TLC_TOOL_SERVER}"]}
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _live_markers(state: Path) -> list[Path]:
+    live: list[Path] = []
+    for marker in state.glob("run-*"):
+        try:
+            pid = int(marker.name.split("-")[1])
+        except (IndexError, ValueError):
+            continue
+        if _pid_alive(pid):
+            live.append(marker)
+        else:
+            marker.unlink(missing_ok=True)
+    return live
+
+
+def _replace_file(path: Path, data: bytes) -> None:
+    fd, raw = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+        os.replace(raw, path)
+    except BaseException:
+        Path(raw).unlink(missing_ok=True)
+        raise
+
+
+def _merged_config(saved: bytes) -> bytes:
+    """The user's workspace MCP config (from the backup) plus the Specular TLC server."""
+    try:
+        base = json.loads(saved[1:].decode()) if saved[:1] == b"1" else {}
+    except ValueError:
+        base = {}
+    base = dict(base) if isinstance(base, dict) else {}
+    servers = base.get("mcpServers")
+    base["mcpServers"] = {**(servers if isinstance(servers, dict) else {}), _MCP_SERVER: _MCP_CONFIG}
+    return (json.dumps(base, indent=2) + "\n").encode()
+
+
+@contextlib.contextmanager
+def _state_lock(state: Path) -> Iterator[None]:
+    """Hold the workspace's lock; retry if the last run removed it meanwhile."""
+    while True:
+        state.mkdir(parents=True, exist_ok=True)
+        path = state / "lock"
+        with path.open("a+") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            try:
+                current = os.stat(path)
+            except FileNotFoundError:
+                continue
+            if os.fstat(lock.fileno()).st_ino != current.st_ino:
+                continue
+            yield
+            return
+
+
+@contextlib.contextmanager
+def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[bool]:
+    """Expose the run's TLC task tool to Cursor; yield whether it was registered."""
+    raw = env.get("SPECULAR_TLC_TOOL_JSON")
+    try:
+        entry = json.loads(raw)["mcpServers"][_MCP_SERVER] if raw else None
+        if entry is None:
+            raise KeyError(_MCP_SERVER)
+        command, args = entry["command"], entry["args"]
+        if not isinstance(command, str) or not isinstance(args, list) or len(args) != 1:
+            raise TypeError("unexpected TLC tool entry")
+    except (ValueError, KeyError, TypeError):
+        yield False
+        return
+    env["SPECULAR_TLC_TOOL_PYTHON"] = command
+    env["SPECULAR_TLC_TOOL_SERVER"] = str(args[0])
+
+    directory = cwd / ".cursor"
+    config_path = directory / "mcp.json"
+    state = directory / _MCP_STATE
+    backup = state / "original"
+    marker = state / f"run-{os.getpid()}-{os.urandom(4).hex()}"
+    directory_existed = directory.is_dir()
+    with _state_lock(state):
+        if not _live_markers(state):
+            # A leftover backup means an earlier run died while holding the file.
+            if not backup.exists():
+                original = config_path.read_bytes() if config_path.is_file() else None
+                backup.write_bytes(b"0" if original is None else b"1" + original)
+                if not directory_existed:
+                    (state / "created-directory").touch()
+            _replace_file(config_path, _merged_config(backup.read_bytes()))
+        marker.touch()
+    try:
+        yield True
+    finally:
+        with _state_lock(state):
+            marker.unlink(missing_ok=True)
+            if not _live_markers(state):
+                saved = backup.read_bytes() if backup.exists() else b"0"
+                if saved[:1] == b"1":
+                    _replace_file(config_path, saved[1:])
+                else:
+                    config_path.unlink(missing_ok=True)
+                remove_directory = (state / "created-directory").exists()
+                shutil.rmtree(state, ignore_errors=True)
+                if remove_directory:
+                    with contextlib.suppress(OSError):
+                        directory.rmdir()
+
+
 def main(argv: list[str]) -> int:
     if len(argv) == 1 and argv[0] in {"--help", "-h"}:
         print(HELP)
@@ -211,7 +343,13 @@ def main(argv: list[str]) -> int:
         print(f"cursor-cli adapter: failed to stage prompt: {exc}", file=sys.stderr)
         return 1
     try:
-        return run_json_cli("cursor-cli", command, stream_options, child_env=child_env, missing_cli_hint=INSTALL_HINT)
+        with _workspace_mcp(Path.cwd(), child_env) as mcp:
+            if mcp:
+                # Without this Cursor leaves a project MCP server "not loaded (needs approval)".
+                command.append("--approve-mcps")
+            return run_json_cli(
+                "cursor-cli", command, stream_options, child_env=child_env, missing_cli_hint=INSTALL_HINT
+            )
     finally:
         options.cleanup()
         stream_options.cleanup()

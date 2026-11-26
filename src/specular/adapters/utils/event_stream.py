@@ -718,8 +718,13 @@ def _cursor_cli_events(record: object, concise: bool) -> list[_LogEvent]:
         if tool is None:
             return []
         name, body = tool
+        args = body.get("args")
+        if name == "mcp" and isinstance(args, dict):
+            server, tool_name = args.get("providerIdentifier"), args.get("toolName")
+            if isinstance(server, str) and isinstance(tool_name, str):
+                name = f"{server}.{tool_name}"
         if record.get("subtype") == "started":
-            return [_line_event(tool_summary(name, body.get("args")))]
+            return [_line_event(tool_summary(name, args))]
         if record.get("subtype") == "completed":
             failure = _cursor_cli_tool_failure(body)
             if failure:
