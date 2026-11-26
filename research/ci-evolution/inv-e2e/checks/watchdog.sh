@@ -33,3 +33,5 @@ PY
 fi
 echo "bwrap=$(pgrep -c bwrap) tlc=$(pgrep -c -f "^[^ ]*java .*tlc2")"
 python3 -c "import json,time;d=json.load(open('/users/bingzhuo/.claude/.credentials.json'))['claudeAiOauth'];print('credential_h_left=%.2f'%((d['expiresAt']/1000-time.time())/3600))"
+# Subscription quota of the saved accounts (claude-accounts skill); a window >= 90% means switch accounts.
+command -v ca >/dev/null && ca usage 2>&1 | sed -n '1,6p'

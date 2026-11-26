@@ -4,7 +4,7 @@ Operational helpers, kept here so every check that informed a decision is in git
 
 | Script | Use |
 |---|---|
-| `watchdog.sh` | One monitoring tick (default: sleep 1800 s): round log tail, newest session's API/tool/MCP counts, MCP errors, `specular`/old-name commands, bwrap and TLC process counts, host OAuth hours left. `W=<WORK> LOG=<round log> [SLEEP=0] checks/watchdog.sh` |
+| `watchdog.sh` | One monitoring tick (default: sleep 1800 s): round log tail, newest session's API/tool/MCP counts, MCP errors, `specular`/old-name commands, bwrap and TLC process counts, host OAuth hours left. Also the 5-hour/7-day quota of each saved account (`ca usage`). `W=<WORK> LOG=<round log> [SLEEP=0] checks/watchdog.sh` |
 | `tool_errors.py [GLOB]` | MCP calls and error results per session log (default: all epoch-2 sessions). |
 | `verify_specular_cli.py WS MAIN_TOOLS` | In the agent's sandbox: environment, `specular --help`, `specular findings lookup`, a synthetic `final-result.json` through `specular ci-result`. Writes into WS: use a throwaway workspace. |
 | `verify_findings_lookup.py WS MAIN_TOOLS` | `specular findings lookup`/`check` after the previous script recorded a finding. |
