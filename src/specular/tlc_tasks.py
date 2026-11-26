@@ -29,6 +29,10 @@ MAX_WAIT_SECONDS = 3600
 START_GRACE_SECONDS = 30
 OWNED_WAIT_POLL_SECONDS = 5
 CLIENT_TIMEOUT_MS = (MAX_WAIT_SECONDS + 120) * 1000
+# An MCP client that ends tool calls sooner than CLIENT_TIMEOUT_MS (Cursor CLI:
+# a fixed 60 s) sets this in the server's environment, so each wait returns its
+# normal wait_timeout result in time and the agent simply waits again.
+WAIT_LIMIT_ENV = "SPECULAR_TLC_TOOL_WAIT_LIMIT"
 _LAUNCHER_LOCKS: dict[tuple[Path, Path], tuple[Path, int]] = {}
 _LOCK_GUARD = threading.Lock()
 START_DESCRIPTION = (
@@ -256,12 +260,20 @@ async def start_tlc(
     return result
 
 
+def _client_wait_limit() -> int:
+    try:
+        limit = int(os.environ.get(WAIT_LIMIT_ENV, ""))
+    except ValueError:
+        return MAX_WAIT_SECONDS
+    return limit if 0 < limit < MAX_WAIT_SECONDS else MAX_WAIT_SECONDS
+
+
 async def wait_tlc(task_ids: list[str], timeout_seconds: int = MAX_WAIT_SECONDS, mode: str = "any") -> dict[str, Any]:
     if not task_ids or mode not in {"any", "all"} or not 0 <= timeout_seconds <= MAX_WAIT_SECONDS:
         raise ValueError(
             f"Provide task IDs, mode any/all, and a wait timeout between 0 and {MAX_WAIT_SECONDS} seconds."
         )
-    deadline = time.monotonic() + timeout_seconds
+    deadline = time.monotonic() + min(timeout_seconds, _client_wait_limit())
     while True:
         tasks = [status(task_id) for task_id in dict.fromkeys(task_ids)]
         terminal = [task["status"] not in {"starting", "running"} for task in tasks]

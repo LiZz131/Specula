@@ -573,6 +573,7 @@ def test_tlc_tool_is_registered_for_the_run_and_removed_after(tmp_path: Path) ->
     }
     assert recorded["env"]["SPECULAR_TLC_TOOL_PYTHON"] == "/opt/tlc/python"
     assert recorded["env"]["SPECULAR_TLC_TOOL_SERVER"] == "/opt/specular/tools/tlc_tools/mcp_server.py"
+    assert recorded["env"]["SPECULAR_TLC_TOOL_WAIT_LIMIT"] == "45"  # under Cursor's fixed 60 s tool-call limit
     assert list(workspace.iterdir()) == []  # the workspace is left exactly as found
 
 

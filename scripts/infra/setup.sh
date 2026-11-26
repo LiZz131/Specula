@@ -525,6 +525,23 @@ for agent in opencode pi agy; do
     esac
   fi
 done
+# Cursor CLI reads Specular skills from the paths in each prompt, so only the
+# MCP servers need registering. Cursor has no `mcp add`; merge into its config.
+if command_exists cursor-agent && ask_yn "Register Specular MCP servers for Cursor CLI (~/.cursor/mcp.json)?"; then
+  for entry in "${MCP_SERVERS[@]}"; do
+    IFS='|' read -r mcp_name mcp_python mcp_server <<< "$entry"
+    set +e
+    cursor_output="$(python3 -I "$SCRIPT_DIR/setup_cursor_mcp.py" \
+      "$HOME/.cursor/mcp.json" "$mcp_name" "$PROJECT_ROOT" "$mcp_python" "$mcp_server")"
+    cursor_rc=$?
+    set -e
+    if [[ $cursor_rc -eq 0 ]]; then
+      print_success "$cursor_output"
+    else
+      print_warning "$cursor_output"
+    fi
+  done
+fi
 print_status "CI context tools are registered automatically for incremental runs."
 print_status "TLC task tools are registered automatically for Specular runs."
 if command_exists copilot && ! "$PROJECT_ROOT/tools/context_control/.venv/bin/python" -c 'import copilot' >/dev/null 2>&1; then

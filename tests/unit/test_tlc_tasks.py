@@ -494,6 +494,26 @@ async def test_wait_timeout_and_cancellation_do_not_restart_or_stop_tlc(
 
 
 @pytest.mark.asyncio
+async def test_client_wait_limit_ends_long_waits_early(
+    runtime: wrappers.RunModelCheckTests, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("FAKE_JAVA_SECONDS", "4")
+    started = await tasks.start_tlc(**start_args(runtime))
+    monkeypatch.setenv(tasks.WAIT_LIMIT_ENV, "1")
+    began = time.monotonic()
+    timed = await tasks.wait_tlc([started["task_id"]])  # default: up to an hour
+    assert timed["outcome"] == "wait_timeout" and "Call wait_tlc again" in timed["instruction"]
+    assert time.monotonic() - began < 3
+    assert tasks.status(started["task_id"])["status"] == "running"
+    for ignored in ("0", "-5", "junk", str(tasks.MAX_WAIT_SECONDS + 1)):
+        monkeypatch.setenv(tasks.WAIT_LIMIT_ENV, ignored)
+        assert tasks._client_wait_limit() == tasks.MAX_WAIT_SECONDS
+    monkeypatch.delenv(tasks.WAIT_LIMIT_ENV)
+    result = await tasks.wait_tlc([started["task_id"]], timeout_seconds=10)
+    assert result["tasks"][0]["exit_code"] == 0
+
+
+@pytest.mark.asyncio
 async def test_any_all_and_parallel_jobs_have_distinct_evidence(
     runtime: wrappers.RunModelCheckTests, monkeypatch: pytest.MonkeyPatch
 ) -> None:

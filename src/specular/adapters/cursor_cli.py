@@ -159,6 +159,7 @@ def _stage_prompt(options: AdapterOptions) -> AdapterOptions:
 # passes on to the MCP server. Concurrent runs in one workspace therefore agree
 # on the file, and the original is restored when the last of them exits.
 _MCP_SERVER = "specular_tlc"
+TLC_WAIT_LIMIT_SECONDS = 45
 _MCP_STATE = ".specular-mcp"
 _MCP_CONFIG = {"command": "${env:SPECULAR_TLC_TOOL_PYTHON}", "args": ["${env:SPECULAR_TLC_TOOL_SERVER}"]}
 
@@ -244,6 +245,8 @@ def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[bool]:
         return
     env["SPECULAR_TLC_TOOL_PYTHON"] = command
     env["SPECULAR_TLC_TOOL_SERVER"] = str(args[0])
+    # Cursor ends every MCP tool call after a fixed 60 s; keep each wait_tlc below it.
+    env["SPECULAR_TLC_TOOL_WAIT_LIMIT"] = str(TLC_WAIT_LIMIT_SECONDS)
 
     directory = cwd / ".cursor"
     config_path = directory / "mcp.json"
