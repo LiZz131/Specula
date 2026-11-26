@@ -72,7 +72,7 @@ class UsageTotals:
         session_id = payload.get("session_id")
         totals = cls(
             session_id=session_id if isinstance(session_id, str) else None,
-            output_includes_reasoning=payload.get("agent") == "opencode",
+            output_includes_reasoning=payload.get("agent") in {"opencode", "agy"},
         )
         totals.add_cost(payload.get("total_cost_usd"))
         usage = payload.get("usage")
@@ -100,6 +100,28 @@ def token_count(value: object) -> int:
 def accumulate_usage(adapter_name: str, record: object, totals: UsageTotals) -> None:
     """Accumulate one provider event into normalized counters."""
     if not isinstance(record, dict):
+        return
+    if adapter_name == "agy":
+        totals.output_includes_reasoning = True
+        conversation_id = record.get("conversation_id")
+        if totals.session_id is None and isinstance(conversation_id, str) and conversation_id:
+            totals.session_id = conversation_id
+        if record.get("event") != "step_update":
+            return
+        update = record.get("step_update")
+        if not isinstance(update, dict):
+            return
+        if totals.session_id is None and isinstance(update.get("conversation_id"), str) and update["conversation_id"]:
+            totals.session_id = update["conversation_id"]
+        if update.get("state") != "DONE":
+            return
+        usage = update.get("usage")
+        if not isinstance(usage, dict):
+            return
+        totals.input_tokens += token_count(usage.get("input_tokens"))
+        totals.output_tokens += token_count(usage.get("output_tokens"))
+        totals.reasoning_output_tokens += token_count(usage.get("thinking_tokens"))
+        totals.cached_input_tokens += token_count(usage.get("cache_read_tokens"))
         return
     if adapter_name == "opencode":
         totals.output_includes_reasoning = True

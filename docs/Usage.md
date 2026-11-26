@@ -162,7 +162,7 @@ specular run \
   "name|owner/repository|language|reference"
 ```
 
-Supported adapters are `claude-code` (default), `codex`, `copilot-cli`, `opencode`, and `pi`. Model names and effort values are interpreted by the selected agent. OpenCode and Pi model names use `provider/model` syntax.
+Supported adapters are `claude-code` (default), `codex`, `copilot-cli`, `opencode`, `pi`, and `agy` (Google Antigravity CLI). Model names and effort values are interpreted by the selected agent. OpenCode and Pi model names use `provider/model` syntax; Antigravity CLI model slugs can be listed with `agy models`.
 
 ## Add Specular to CI
 
@@ -351,6 +351,7 @@ We have tested the following agent and model combinations. These observations su
 | GitHub Copilot CLI | `copilot-cli` | Existing Copilot CLI login or token configuration |
 | OpenCode | `opencode` | Existing provider authentication configured in the native OpenCode CLI |
 | Pi | `pi` | Existing provider authentication configured in the native Pi CLI |
+| Antigravity CLI | `agy` | Existing authentication configured in an interactive `agy` session |
 
 Specular launches the installed agent CLI directly and uses its existing credentials. Authenticate the CLI before starting a pipeline. Claude Code runs default to maximum reasoning effort; Codex and Copilot use their configured defaults unless `--effort` is supplied.
 
@@ -490,7 +491,7 @@ specular run [options] "name|owner/repository|language|reference"
 | Option | Purpose |
 |---|---|
 | `--dry-run` | Print the step commands without starting agents |
-| `--agent=NAME` | Select `claude-code`, `codex`, `copilot-cli`, `opencode`, or `pi` |
+| `--agent=NAME` | Select `claude-code`, `codex`, `copilot-cli`, `opencode`, `pi`, or `agy` |
 | `--agent-config=PATH` | Select agent/model profiles by pipeline phase from a JSON file |
 | `--model=NAME` | Override the configured model |
 | `--effort=LEVEL` | Override reasoning effort |

@@ -180,6 +180,30 @@ setup_codex_mcp() {
   fi
 }
 
+setup_agy_mcp() {
+  local project_root="$1"
+  local mcp_name="$2"
+  local python_path="$3"
+  local server_path="$4"
+
+  print_status "Configuring $mcp_name MCP for Antigravity CLI (agy)..."
+  set +e
+  agy mcp add \
+    --env "SPECULAR_ROOT=$project_root" \
+    "$mcp_name" \
+    "$python_path" \
+    "$server_path"
+  local rc=$?
+  set -e
+
+  if [[ $rc -eq 0 ]]; then
+    print_success "agy MCP configured: $mcp_name"
+  else
+    print_warning "agy MCP auto-config failed. Run manually:"
+    echo "  agy mcp add --env SPECULAR_ROOT=$project_root $mcp_name $python_path $server_path"
+  fi
+}
+
 setup_codex_plugin() {
   local project_root="$1"
   local plugin_root="$2"
@@ -486,11 +510,18 @@ echo ""
 
 # ─── Done ────────────────────────────────────────────────────────────────────
 
-for agent in opencode pi; do
+for agent in opencode pi agy; do
   if command_exists "$agent" && ask_yn "Install Specular skills for $agent?"; then
     case "$agent" in
       opencode) setup_skills "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills" "$SKILLS_SOURCE" ;;
       pi) setup_skills "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills" "$SKILLS_SOURCE" ;;
+      agy)
+        setup_skills "$PROJECT_ROOT/.agents/skills" "$SKILLS_SOURCE"
+        for entry in "${MCP_SERVERS[@]}"; do
+          IFS='|' read -r mcp_name mcp_python mcp_server <<< "$entry"
+          setup_agy_mcp "$PROJECT_ROOT" "$mcp_name" "$mcp_python" "$mcp_server"
+        done
+        ;;
     esac
   fi
 done

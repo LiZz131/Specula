@@ -2108,6 +2108,7 @@ def _tuning_identity(cfg: ConfirmConfig) -> dict[str, dict[str, str | None]]:
         model = {"source": "specular", "value": cfg.model}
     else:
         model_env = {
+            "agy": "AGY_MODEL",
             "claude-code": "CLAUDE_MODEL",
             "codex": "CODEX_MODEL",
             "copilot-cli": "COPILOT_MODEL",
@@ -2124,6 +2125,7 @@ def _tuning_identity(cfg: ConfirmConfig) -> dict[str, dict[str, str | None]]:
         effort = {"source": "specular-default", "value": "max"}
     else:
         effort_env = {
+            "agy": "AGY_EFFORT",
             "codex": "CODEX_EFFORT",
             "opencode": "OPENCODE_EFFORT",
             "pi": "PI_EFFORT",

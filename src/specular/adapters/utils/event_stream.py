@@ -373,10 +373,33 @@ def _structured_policy_block_error(adapter_name: str, record: object) -> str | N
             payload = record.get("message")
         elif record.get("type") == "error":
             payload = record
+    elif adapter_name == "agy":
+        payload = _agy_result_error(record)
 
     if payload is None or not looks_policy_blocked(payload):
         return None
     return _policy_diagnostic(payload) or "provider content policy blocked the request"
+
+
+# agy reports provider failures only in a failed result's ``error`` string,
+# after its own in-process retries are exhausted, e.g.
+# "API error (attempt 1): UNAVAILABLE (code 503): The service is currently unavailable."
+_AGY_TRANSIENT_ERROR_RE = re.compile(
+    r"\(code (?:500|502|503|504)\)|\bMODEL_CAPACITY_EXHAUSTED\b|"
+    r"^API error \(attempt \d+\): request failed: .*: (?:unexpected )?EOF$|"
+    r"^The stream was interrupted\. Please continue the task you were working on\.$"
+)
+
+
+def _agy_result_error(record: dict[str, object]) -> str | None:
+    """The CLI's own error text of a failed agy result, never the agent's response."""
+    if record.get("event") != "result":
+        return None
+    res = record.get("result")
+    if not isinstance(res, dict) or res.get("status") == "SUCCESS":
+        return None
+    error = res.get("error")
+    return error if isinstance(error, str) and error.strip() else None
 
 
 def _structured_rate_limit_error(adapter_name: str, record: object) -> str | None:
@@ -402,6 +425,8 @@ def _structured_rate_limit_error(adapter_name: str, record: object) -> str | Non
             payload = record.get("message")
         elif record.get("type") == "error":
             payload = record
+    elif adapter_name == "agy":
+        payload = _agy_result_error(record)
 
     if payload is None or not _looks_rate_limited(payload):
         return None
@@ -430,8 +455,15 @@ def _structured_transient_error(adapter_name: str, record: object) -> str | None
             payload = record.get("message")
         elif record.get("type") == "error":
             payload = record
+    elif adapter_name == "agy":
+        payload = _agy_result_error(record)
 
-    if payload is None or not looks_transient(payload):
+    if payload is None:
+        return None
+    agy_transient = (
+        adapter_name == "agy" and isinstance(payload, str) and _AGY_TRANSIENT_ERROR_RE.search(payload.strip())
+    )
+    if not agy_transient and not looks_transient(payload):
         return None
     return _policy_diagnostic(payload) or "provider reported a transient failure"
 
@@ -459,6 +491,14 @@ def _session_id(adapter_name: str, record: object) -> str | None:
         value = record.get("sessionID")
     elif adapter_name == "pi" and record.get("type") == "session":
         value = record.get("id")
+    elif adapter_name == "agy":
+        value = record.get("conversation_id")
+        if not value:
+            for key in ("result", "step_update"):
+                nested = record.get(key)
+                if isinstance(nested, dict) and nested.get("conversation_id"):
+                    value = nested.get("conversation_id")
+                    break
     return value if isinstance(value, str) and value else None
 
 
@@ -496,6 +536,14 @@ def _terminal_error(
         if normalized_reason != "stop":
             detail = summary(str(reason), 60) if reason is not None else "missing"
             return f"final Pi assistant stopReason was {detail}; expected stop"
+    elif adapter_name == "agy":
+        if not isinstance(record, dict) or record.get("event") != "result":
+            return "stream ended without an agy result event"
+        res = record.get("result")
+        status = res.get("status") if isinstance(res, dict) else None
+        if status != "SUCCESS":
+            detail = summary(str(res.get("error") or status), 120) if isinstance(res, dict) else "missing"
+            return f"final agy status was {status!r}: {detail}"
     return None
 
 
@@ -542,7 +590,56 @@ def _pi_events(record: object, concise: bool) -> list[_LogEvent]:
     return []
 
 
+def _agy_events(record: object, concise: bool) -> list[_LogEvent]:
+    if not isinstance(record, dict):
+        return []
+    event_type = record.get("event")
+    if event_type == "step_update":
+        update = record.get("step_update")
+        if not isinstance(update, dict):
+            return []
+        step_type = update.get("step_type")
+        state = update.get("state")
+        if step_type == "agent_response":
+            delta = update.get("text_delta")
+            if concise:
+                return [_text_event(delta, concise=True)] if isinstance(delta, str) and delta else []
+            events: list[_LogEvent] = []
+            if isinstance(delta, str) and delta:
+                events.append(_LogEvent(text=readable_fragment(delta), fragment=True))
+            if state == "DONE":
+                events.append(_LogEvent(message_end=True))
+            return events
+        if step_type == "tool":
+            tool_name = update.get("tool_name")
+            tool_info = update.get("tool_info")
+            if not isinstance(tool_name, str) and isinstance(tool_info, dict):
+                tool_name = tool_info.get("name")
+            if state == "ACTIVE" and isinstance(tool_name, str):
+                params = tool_info.get("parameters") if isinstance(tool_info, dict) else None
+                return [_line_event(tool_summary(tool_name, params))]
+            if state == "DONE" and isinstance(tool_info, dict) and tool_info.get("error"):
+                error = _diagnostic_message(tool_info.get("error"))
+                if error:
+                    label = summary(tool_name, 60) if isinstance(tool_name, str) else "tool"
+                    return _diagnostic_event("tool error", f"{label}: {error}", concise)
+        return []
+    if event_type == "result":
+        res = record.get("result")
+        if not isinstance(res, dict):
+            return []
+        status = res.get("status")
+        if status != "SUCCESS":
+            message = _diagnostic_message(res.get("error")) or f"agy status={status}"
+            return _diagnostic_event("error", message, concise)
+        if concise:
+            response = res.get("response")
+            return [_text_event(response, concise=True)] if isinstance(response, str) and response else []
+    return []
+
+
 _PARSERS: dict[str, Callable[[object, bool], list[_LogEvent]]] = {
+    "agy": _agy_events,
     "claude-code": _claude_events,
     "codex": _codex_events,
     "copilot-cli": _copilot_events,
@@ -570,6 +667,11 @@ def _is_tool_echo(adapter_name: str, record: object) -> bool:
             and isinstance(item, dict)
             and item.get("type") == "command_execution"
         )
+    if adapter_name == "agy" and record.get("event") == "step_update":
+        update = record.get("step_update")
+        if isinstance(update, dict) and update.get("step_type") == "tool" and update.get("state") == "DONE":
+            tool_info = update.get("tool_info")
+            return isinstance(tool_info, dict) and not tool_info.get("error")
     return False  # copilot-cli: no pinned event for command output, keep it whole
 
 
@@ -633,6 +735,7 @@ def parse_events(adapter_name: str, lines: list[str], *, concise: bool = True) -
 
 
 _ADAPTER_NAMES = {
+    "agy": "agy",
     "claude": "claude-code",
     "claude-code": "claude-code",
     "codex": "codex",
@@ -646,7 +749,7 @@ _ADAPTER_NAMES = {
     "pi": "pi",
 }
 
-_STRUCTURED_STREAM_ADAPTERS = frozenset({"claude", "claude-code", "codex", "copilot-json", "opencode", "pi"})
+_STRUCTURED_STREAM_ADAPTERS = frozenset({"agy", "claude", "claude-code", "codex", "copilot-json", "opencode", "pi"})
 
 
 def stream_events(
@@ -865,6 +968,19 @@ def stream_events(
                     transient_error = None
             child_results = pi_subagent_results(record)
             subagent_results.extend(child_results)
+        elif adapter_name == "agy":
+            if isinstance(record, dict) and record.get("event") == "result":
+                res = record.get("result")
+                if isinstance(res, dict):
+                    terminal_record = record
+                    successful_terminal = res.get("status") == "SUCCESS"
+                    if successful_terminal:
+                        rate_limit_error = None
+                        policy_block_error = None
+                        transient_error = None
+                    else:
+                        detail = res.get("error") or f"agy status={res.get('status')}"
+                        structured_error = summary(str(detail), None)
         if keep and not raw_already_written:
             write_raw(_compact_activity_line(adapter_name, record, raw_line))
         for event in events:
@@ -989,7 +1105,7 @@ def main(argv: list[str]) -> int:
     if len(argv) not in {3, 4, 7, 8} or argv[0] not in _ADAPTER_NAMES or (codex_profile and len(argv) < 7):
         print(
             "usage: python -m specular.adapters.utils.event_stream "
-            "{claude|codex|copilot|opencode|pi} ACTIVITY_JSONL LOG_FILE "
+            "{agy|claude|codex|copilot|opencode|pi} ACTIVITY_JSONL LOG_FILE "
             "[SESSION_ID_FILE] [RESUME_STATE CWD MODEL EFFORT [--codex-profile=NAME]]",
             file=sys.stderr,
         )

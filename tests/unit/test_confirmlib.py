@@ -3876,6 +3876,7 @@ class TestCacheContracts(ConfirmCase):
         cases = (
             ("opencode", "OPENCODE_MODEL", "zai/glm-5.2", "OPENCODE_EFFORT", "high"),
             ("pi", "PI_MODEL", "openai/gpt-5.5", "PI_EFFORT", "xhigh"),
+            ("agy", "AGY_MODEL", "gemini-4-neon-high", "AGY_EFFORT", "high"),
         )
         for adapter, model_source, model_value, effort_source, effort_value in cases:
             with (
