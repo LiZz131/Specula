@@ -279,6 +279,37 @@ def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[bool]:
                         directory.rmdir()
 
 
+# The CLI's own failure lines (stderr, merged into the event stream). Only used
+# after the CLI failed, so the readable log holds its diagnostics.
+_FAILURE_HINTS = (
+    (
+        re.compile(r"authentication required|api key is invalid|not authenticated|not logged in", re.IGNORECASE),
+        "authenticate with `cursor-agent login` or set CURSOR_API_KEY",
+    ),
+    (re.compile(r"cannot use this model", re.IGNORECASE), "list the available model slugs with `cursor-agent models`"),
+)
+
+
+def _report_failure(log_path: Path) -> None:
+    """Repeat the CLI's final diagnostic on stderr with an actionable hint."""
+    try:
+        lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return
+    for line in reversed(lines):
+        hint = next((hint for pattern, hint in _FAILURE_HINTS if pattern.search(line)), None)
+        if hint is not None:
+            diagnostic = line.removeprefix("adapter error: ")
+            break
+    else:
+        errors = [line for line in lines if line.startswith("adapter error: ")]
+        if not errors:
+            return
+        diagnostic, hint = errors[-1].removeprefix("adapter error: "), None
+    shown = diagnostic if len(diagnostic) <= 300 else diagnostic[:297] + "..."
+    print(f"cursor-cli adapter: {shown}" + (f" ({hint})" if hint else ""), file=sys.stderr)
+
+
 def main(argv: list[str]) -> int:
     if len(argv) == 1 and argv[0] in {"--help", "-h"}:
         print(HELP)
@@ -347,9 +378,10 @@ def main(argv: list[str]) -> int:
             if mcp:
                 # Without this Cursor leaves a project MCP server "not loaded (needs approval)".
                 command.append("--approve-mcps")
-            return run_json_cli(
-                "cursor-cli", command, stream_options, child_env=child_env, missing_cli_hint=INSTALL_HINT
-            )
+            rc = run_json_cli("cursor-cli", command, stream_options, child_env=child_env, missing_cli_hint=INSTALL_HINT)
+        if rc not in (0, 127):
+            _report_failure(options.log_path)
+        return rc
     finally:
         options.cleanup()
         stream_options.cleanup()
