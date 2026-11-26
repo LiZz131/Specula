@@ -1,0 +1,43 @@
+{
+  "schema_version": "2",
+  "system": "OpenRaft (Pre-Vote update revision 3ab6cdd)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote round started while Candidate survives leader establishment and makes the new leader re-elect",
+      "source": "model-checking",
+      "scenario": "U-2 Pre-Vote round lifetime across elections and leadership",
+      "severity": "Medium",
+      "invariant": "PreVoteElectionPremiseCurrent",
+      "config": "Update_full.cfg",
+      "counterexample": "spec/output/MC-1_final_update_full_PreVoteElectionPremiseCurrent.out",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:855",
+        "openraft/src/engine/engine_impl.rs:534",
+        "openraft/src/engine/handler/vote_handler/mod.rs:172",
+        "openraft/src/core/raft_core.rs:1966",
+        "openraft/src/core/raft_core.rs:1815",
+        "openraft/src/engine/engine_impl.rs:977"
+      ],
+      "summary": "A node that is still a Candidate (its real vote replies in flight) can start a Pre-Vote round: the election tick skips only Leaders and Trigger::elect(true) has no role check. Engine::pre_elect stores the round in pre_candidate. When the real election then wins, establish_leader/become_leader do not clear pre_candidate (only do_elect and become_following do). A peer that granted the real vote holds an uncommitted vote without lease, so it also grants the term+1 Pre-Vote; when that grant is delivered after the win, RaftCore's leader-id filter still matches and handle_pre_vote_resp calls elect() on the established Leader, which abandons its term (term inflation, leaderless window while peers hold its lease). In debug builds the stale Leader object then trips the debug_assert in Engine::try_leader_handler and RaftCore panics. First found as a 12-state counterexample (spec/output/MC-1_update_full_PreVoteElectionPremiseCurrent.out); re-found on the final suite as an 11-state counterexample."
+    },
+    {
+      "id": "MC-2",
+      "title": "Stale Pre-Vote grant from a node outside the current round's voter set panics RaftCore",
+      "source": "model-checking",
+      "scenario": "U-5 Round identity across rounds started from the same vote",
+      "severity": "High",
+      "invariant": "PreVoteGrantFromRoundMember",
+      "config": "Update_hunt_stale_membership.cfg",
+      "counterexample": "spec/output/MC-2_hunt_stale_membership_PreVoteGrantFromRoundMember.out",
+      "affected_code": [
+        "openraft/src/core/raft_core.rs:2067",
+        "openraft/src/engine/engine_impl.rs:535",
+        "openraft/src/proposer/candidate.rs:107",
+        "openraft/src/engine/engine_impl.rs:298"
+      ],
+      "summary": "RaftCore correlates Pre-Vote responses only by the pre-candidate leader id (term+1, self), which every round started from the same local vote shares, while each round freezes its own voter set and its progress tracker holds voters only. If the voter set changes between two such rounds (leader-initiated membership change, or a follower that learned it by AppendEntries), a delayed grant for the earlier round from a removed voter passes does_pre_candidate_vote_match, and handle_pre_vote_resp calls Candidate::grant_by, whose progress.update(...).expect(\"target not in quorum set\") panics the RaftCore task (debug and release). Also found by the leader-path hunt on the final suite (spec/output/MC-2_final_hunt_leader_PreVoteGrantFromRoundMember.out, rounds started by Trigger::elect(true)). Re-found under the standard full-update bounds by simulation (spec/output/MC-2_full_sim_PreVoteGrantFromRoundMember.out, 31 states)."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+=== run 1 2026-11-26T00:04:28Z filter=specular_mc1
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/work-source/tests)
+test t13_specular_mc1_prevote_reelect::specular_mc1_control_level1_no_prevote_round ... specular: t=4.28µs node1 state=Follower term=1 vote=<T1-N0:Q> leader=Some(0)
+specular: t=1.049188592s node1 state=Candidate term=2 vote=<T2-N1:-> leader=None
+specular: hook delays vote/pre-vote response 2->1 by 250ms
+specular: t=1.33156945s node1 state=Leader term=2 vote=<T2-N1:Q> leader=Some(1)
+specular: history=[(Follower, 1), (Candidate, 2), (Leader, 2)]
+specular: leader_at_term2_index=Some(2) later_term3_index=None
+specular: node2 state=Follower term=2 vote=<T2-N1:Q> leader=Some(1)
+specular: client_write on node 1 after the term bump -> Ok(Ok(LogId { leader_id: LeaderId { term: 2, node_id: 1 }, index: 7 }))
+specular: node1 final state=Leader term=2 vote=<T2-N1:Q> running=Ok(())
+specular-control: became_leader_term2=true leader_vote_assertion_fired=false
+SPECULAR-MC1-CONTROL-OK level=1
+test t13_specular_mc1_prevote_reelect::specular_mc1_control_level3_prevote_disabled ... specular: t=4.146µs node1 state=Follower term=1 vote=<T1-N0:Q> leader=Some(0)
+specular: hook delays vote/pre-vote response 2->1 by 200ms
+specular: history=[(Follower, 1)]
+specular: leader_at_term2_index=None later_term3_index=None
+specular: node2 state=Follower term=8 vote=<T8-N1:-> leader=None
+specular: client_write on node 1 after the term bump -> Err(Elapsed(()))
+specular: node1 final state=Follower term=1 vote=<T1-N0:Q> running=Ok(())
+specular-control: became_leader=false leader_vote_assertion_fired=false
+SPECULAR-MC1-CONTROL-OK level=3
+test t13_specular_mc1_prevote_reelect::specular_mc1_level1_admin_prevote_on_candidate ... specular: isolate old leader 0
+specular: t=3.678µs node1 state=Follower term=1 vote=<T1-N0:Q> leader=Some(0)
+specular: t=1.061413461s node1 state=Candidate term=2 vote=<T2-N1:-> leader=None
+specular: node 1 is a term-2 Candidate; trigger().elect(true) (Pre-Vote)
+specular: hook delays vote/pre-vote response 2->1 by 400ms
+specular: hook delays vote/pre-vote response 2->1 by 250ms
+specular: t=1.365243008s node1 state=Leader term=2 vote=<T2-N1:Q> leader=Some(1)
+thread 'tokio-rt-worker' (13797) panicked at openraft/src/engine/engine_impl.rs:977:9:
+specular: hook delays vote/pre-vote response 2->1 by 400ms
+specular: history=[(Follower, 1), (Candidate, 2), (Leader, 2)]
+specular: leader_at_term2_index=Some(2) later_term3_index=None
+specular: node2 state=Follower term=2 vote=<T2-N1:Q> leader=Some(1)
+specular: client_write on node 1 after the term bump -> Ok(Err(Fatal(Panicked)))
+specular: node1 final state=Leader term=2 vote=<T2-N1:Q> running=Ok(())
+specular: captured panic: openraft/src/engine/engine_impl.rs:977 | leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+specular: became_leader_term2=true leader_vote_assertion_fired=true
+SPECULAR-MC1-REPRODUCED level=1: term-2 Leader re-elected itself (vote T3) from a stale Pre-Vote round; RaftCore panicked in try_leader_handler
+test t13_specular_mc1_prevote_reelect::specular_mc1_level3_timer_path_slow_vote_persistence ... specular: node 1 save_vote takes 900ms (> election timeout 500ms); isolate old leader 0
+specular: t=4.045µs node1 state=Follower term=1 vote=<T1-N0:Q> leader=Some(0)
+specular: t=1.933739088s node1 state=Candidate term=2 vote=<T2-N1:-> leader=None
+specular: hook delays vote/pre-vote response 2->1 by 200ms
+thread 'tokio-rt-worker' (13805) panicked at openraft/src/engine/engine_impl.rs:977:9:
+specular: hook delays vote/pre-vote response 2->1 by 200ms
+specular: history=[(Follower, 1), (Candidate, 2)]
+specular: leader_at_term2_index=None later_term3_index=None
+specular: node2 state=Follower term=3 vote=<T3-N1:-> leader=None
+specular: client_write on node 1 after the term bump -> Ok(Err(Fatal(Panicked)))
+specular: node1 final state=Candidate term=2 vote=<T2-N1:-> running=Ok(())
+specular: captured panic: openraft/src/engine/engine_impl.rs:977 | leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+specular: leader_vote_assertion_fired=true
+SPECULAR-MC1-REPRODUCED level=3: timer-driven Pre-Vote on a Candidate re-elected the established term-2 Leader; RaftCore panicked in try_leader_handler
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 30.30s
+=== exit 0

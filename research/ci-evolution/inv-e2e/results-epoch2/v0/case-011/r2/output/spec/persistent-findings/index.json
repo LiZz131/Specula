@@ -1,0 +1,26 @@
+{
+  "MC-1": {
+    "id": "MC-1",
+    "title": "Pre-Vote round survives leader establishment and makes the new Leader re-elect itself",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+      "openraft/src/engine/engine_impl.rs:establish_leader",
+      "openraft/src/engine/engine_impl.rs:pre_elect",
+      "openraft/src/core/raft_core.rs:handle_tick_election",
+      "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match"
+    ],
+    "actions": [
+      "HandlePreVoteResponse",
+      "HandleVoteResponse",
+      "PreElect",
+      "TickPreElect",
+      "ElectEffect"
+    ],
+    "invariants": [
+      "LeaderVoteCoversLocalVote"
+    ],
+    "reusable": true,
+    "cause": "A Candidate whose election timer fires starts a Pre-Vote round without dropping its running election; establish_leader clears only `candidate`, so `pre_candidate` survives; handle_pre_vote_resp then calls elect() on the established Leader a"
+  }
+}

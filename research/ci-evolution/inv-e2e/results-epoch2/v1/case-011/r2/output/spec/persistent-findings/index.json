@@ -1,0 +1,55 @@
+{
+  "MC-1": {
+    "id": "MC-1",
+    "title": "Pre-Vote round started while Candidate survives leader establishment and makes the new leader re-elect",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/engine/engine_impl.rs:establish_leader",
+      "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+      "openraft/src/engine/engine_impl.rs:pre_elect",
+      "openraft/src/engine/handler/vote_handler/mod.rs:become_leader",
+      "openraft/src/core/raft_core.rs:handle_tick_election"
+    ],
+    "actions": [
+      "PreElect",
+      "TickPreElect",
+      "ExternalPreElect",
+      "HandleVoteResponse",
+      "HandlePreVoteResponseElect",
+      "DoElect"
+    ],
+    "invariants": [
+      "PreVoteElectionPremiseCurrent",
+      "PreVoteNeverDisplacesLeader",
+      "EstablishedLeaderHasNoInheritedPreVote"
+    ],
+    "reusable": true,
+    "cause": "establish_leader/become_leader do not reset Engine.pre_candidate, and handle_pre_vote_resp calls elect() on a Pre-Vote quorum without checking that the node is still the non-leader whose vote the round probed; a Candidate can start such a r"
+  },
+  "MC-2": {
+    "id": "MC-2",
+    "title": "Stale Pre-Vote grant from a node outside the current round's voter set panics RaftCore",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+      "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+      "openraft/src/proposer/candidate.rs:grant_by",
+      "openraft/src/engine/engine_impl.rs:pre_elect"
+    ],
+    "actions": [
+      "PreElect",
+      "ExternalPreElect",
+      "TickPreElect",
+      "HandlePreVoteResponseNonMember",
+      "AppendJointConfig",
+      "AppendUniformConfig",
+      "CommitMembership"
+    ],
+    "invariants": [
+      "PreVoteGrantFromRoundMember",
+      "NoPanicOnStalePreVoteGrant"
+    ],
+    "reusable": true,
+    "cause": "Pre-Vote responses are correlated only by the pre-candidate leader id, which every round started from the same local vote shares, while each round freezes its own voter set; handle_pre_vote_resp passes any matching grant to Candidate::grant"
+  }
+}

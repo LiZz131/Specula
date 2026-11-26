@@ -1,0 +1,27 @@
+{
+  "schema_version": "2",
+  "system": "OpenRaft (Pre-Vote revision, artifact HEAD 3ab6cdd)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote round survives leader establishment and makes the new Leader re-elect itself",
+      "source": "model-checking",
+      "scenario": "U3 (Pre-Vote round x running election x leader establishment)",
+      "severity": "High",
+      "invariant": "LeaderVoteCoversLocalVote",
+      "config": "Update.cfg",
+      "counterexample": "spec/output/MC-1-counterexample-update-full.log",
+      "affected_code": [
+        "openraft/src/engine/engine_impl.rs:516 (handle_pre_vote_resp)",
+        "openraft/src/engine/engine_impl.rs:855 (establish_leader)",
+        "openraft/src/engine/engine_impl.rs:298 (pre_elect)",
+        "openraft/src/engine/engine_impl.rs:262 (do_elect)",
+        "openraft/src/core/raft_core.rs:1959 (handle_tick_election)",
+        "openraft/src/core/raft_core.rs:2067 (does_pre_candidate_vote_match)",
+        "openraft/src/engine/engine_impl.rs:968-982 (try_leader_handler debug_assert)"
+      ],
+      "summary": "With Pre-Vote enabled, a Candidate whose election timer fires calls pre_elect() and keeps its running election. If that election then wins, establish_leader() consumes only `candidate`; `pre_candidate` survives. A later granted Pre-Vote reply passes the runtime gate (same leader id) and handle_pre_vote_resp() calls elect() on the established Leader. do_elect() bumps the vote to (T+1, self, uncommitted) but keeps the Leader object at (T, committed), violating leader.committed_vote >= state.vote. RaftCore::trigger_routine_actions -> try_leader_handler then panics in debug builds (reproduced, Level 1 and Level 3); in release builds the healthy Leader runs behind its own persisted vote while campaigning for T+1."
+    }
+  ]
+}

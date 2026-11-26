@@ -1,0 +1,127 @@
+# command: timeout 35m java -Xmx12g -XX:+UseParallelGC tlc2.TLC -workers 4 -deadlock -coverage 10 -metadir /dev/shm/specular-e2e-case-011/update-open-continue-28397 -config Update_open_continue.cfg Update  (TLC -timeout via -Dtlc2.TLC.stopAfter=1800)
+# started: 2026-11-25T21:36:20-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 100 and seed -3301177459621404728 with 4 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 28457] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-5653661805877648226/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-5653661805877648226/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-5653661805877648226/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-5653661805877648226/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-5653661805877648226/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-5653661805877648226/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-5653661805877648226/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 03:36:21)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 03:36:22.
+Progress(6) at 2026-11-26 03:36:25: 8,255 states generated (8,255 s/min), 2,711 distinct states found (2,711 ds/min), 2,568 states left on queue.
+Error: Invariant PreVoteGrantFromRoundMember is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickElect("1") line 29, col 5 to line 32, col 29 of module MC>
+
+State 3: <MCTickElect("2") line 29, col 5 to line 32, col 29 of module MC>
+
+State 4: <MCTickPreElect("3") line 51, col 5 to line 54, col 57 of module MC>
+
+State 5: <PreVoteMessageActions line 42, col 5 to line 42, col 81 of module Update>
+
+State 6: <EnvUpdate line 103, col 8 to line 137, col 88 of module Update>
+
+State 7: <EnvUpdate line 103, col 8 to line 137, col 88 of module Update>
+
+State 8: <MCTickPreElect("3") line 51, col 5 to line 54, col 57 of module MC>
+
+The coverage statistics at 2026-11-26 03:36:50 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<candidateActive line 132, col 5 to line 132, col 19 of module base>: 8
+<vote line 125, col 5 to line 125, col 8 of module base>: 23
+<durableVote line 126, col 5 to line 126, col 15 of module base>: 12
+<durableConfig line 149, col 5 to line 149, col 17 of module base>: 37
+<preGrants line 160, col 5 to line 160, col 13 of module base>: 8
+<sendVotePending line 130, col 5 to line 130, col 19 of module base>: 8
+<effectiveConfigIndex line 148, col 5 to line 148, col 24 of module base>: 10
+<lastLog line 142, col 5 to line 142, col 11 of module base>: 66
+<leaseValid line 131, col 5 to line 131, col 14 of module base>: 1
+<role line 124, col 5 to line 124, col 8 of module base>: 9
+<seenGreaterLog line 153, col 5 to line 153, col 18 of module base>: 4
+<grants line 135, col 5 to line 135, col 10 of module base>: 5
+<effectiveConfig line 147, col 5 to line 147, col 19 of module base>: 134
+<replyMessage line 129, col 5 to line 129, col 16 of module base>: 6
+<logFlushPending line 144, col 5 to line 144, col 19 of module base>: 8
+<crashed line 152, col 5 to line 152, col 11 of module base>: 4
+<committedConfigIndex line 146, col 5 to line 146, col 24 of module base>: 7
+<leaderConfig line 140, col 5 to line 140, col 16 of module base>: 1
+<durableConfigIndex line 150, col 5 to line 150, col 22 of module base>: 7
+<leaderGrants line 141, col 5 to line 141, col 16 of module base>: 1
+<sentVoteReq line 136, col 5 to line 136, col 15 of module base>: 14
+<candidateVote line 133, col 5 to line 133, col 17 of module base>: 13
+<preCandidateVote line 158, col 5 to line 158, col 20 of module base>: 16
+<preCandidateConfig line 159, col 5 to line 159, col 22 of module base>: 25
+<replyPending line 128, col 5 to line 128, col 16 of module base>: 4
+<durableLastLog line 143, col 5 to line 143, col 18 of module base>: 14
+<committedConfig line 145, col 5 to line 145, col 19 of module base>: 37
+<votePersistPending line 127, col 5 to line 127, col 22 of module base>: 8
+<preVoteBase line 22, col 10 to line 22, col 20 of module MC>: 4
+<candidateConfig line 134, col 5 to line 134, col 19 of module base>: 31
+<faultCounters line 9, col 10 to line 9, col 22 of module MC>: 90
+<leaderActive line 137, col 5 to line 137, col 16 of module base>: 1
+<messages line 151, col 5 to line 151, col 12 of module base>: 823
+<leaderCertified line 139, col 5 to line 139, col 19 of module base>: 1
+<preCandidateActive line 157, col 5 to line 157, col 22 of module base>: 7
+<leaderVote line 138, col 5 to line 138, col 14 of module base>: 4
+<MCInit line 115, col 1 to line 115, col 6 of module MC>: 3:3
+<PreVoteMessageActions line 41, col 1 to line 41, col 21 of module Update>: 2965:9482
+<InteractionActions line 59, col 1 to line 59, col 18 of module Update (65 8 67 58)>: 2070:13017
+<EnvUpdate line 101, col 1 to line 101, col 9 of module Update (103 8 137 88)>: 87883:307946
+<MCTickElect line 28, col 1 to line 28, col 14 of module MC>: 2770:10337
+<MCExternalElect line 34, col 1 to line 34, col 18 of module MC>: 0:10317
+<MCStartTransferElection line 40, col 1 to line 40, col 26 of module MC>: 0:10317
+<MCTickPreElect line 50, col 1 to line 50, col 17 of module MC>: 4295:14154
+<MCExternalPreElect line 56, col 1 to line 56, col 21 of module MC>: 26:14175
+<MCCrash line 74, col 1 to line 74, col 10 of module MC>: 7395:21138
+<MCPersistVote line 88, col 1 to line 88, col 16 of module MC>: 395:8635
+<MCFinishVoteBroadcast line 89, col 1 to line 89, col 24 of module MC>: 3:3
+<MCExpireLease line 91, col 1 to line 91, col 16 of module MC>: 0:0
+<MCRestart line 92, col 1 to line 92, col 12 of module MC>: 211:1563
+<MCRefreshServerState line 93, col 1 to line 93, col 23 of module MC>: 694:16997
+<MCSendVoteRequest line 95, col 1 to line 95, col 23 of module MC>: 1072:3182
+<MCSendAppendEntries line 96, col 1 to line 96, col 25 of module MC>: 0:0
+<MCTypeOK line 133, col 1 to line 133, col 8 of module MC>
+<DurableVoteNotAhead line 913, col 1 to line 913, col 19 of module base>
+<DurableLogNotAhead line 914, col 1 to line 914, col 18 of module base>
+<VoteRequestAfterDurable line 916, col 1 to line 916, col 23 of module base>
+<GrantedResponseAfterDurable line 919, col 1 to line 919, col 27 of module base>
+<LeaderRoleHasCommittedSelfVote line 922, col 1 to line 922, col 30 of module base>
+<CandidateRoleHasPendingSelfVote line 925, col 1 to line 925, col 31 of module base>
+<MembershipAtMostOneOutstanding line 931, col 1 to line 931, col 30 of module base>
+<NoForgedMessageEndpoints line 936, col 1 to line 936, col 24 of module base>
+<CertifiedLeaderHasFrozenQuorum line 928, col 1 to line 928, col 30 of module base>
+<PreCandidateTermUnbumped line 200, col 1 to line 200, col 24 of module Update>
+<PreVoteMessagesWellFormed line 212, col 1 to line 212, col 25 of module Update>
+<PreVoteGrantFromRoundMember line 234, col 1 to line 234, col 27 of module Update>
+<MessageBound line 132, col 1 to line 132, col 12 of module MC>: 440932:441014
+<Action line 220, col 7 to line 221, col 60 of module Update>
+<Action line 241, col 7 to line 241, col 83 of module Update>
+End of statistics.
+441014 states generated, 109780 distinct states found, 101086 states left on queue.
+The depth of the complete state graph search is 8.
+Finished in 30s at (2026-11-26 03:36:51)
+Trace exploration spec path: ./Update_TTrace_1795664180.tla
+# finished: 2026-11-25T21:36:51-06:00 rc=12

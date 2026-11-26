@@ -1,0 +1,21 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "MODEL_CHANGE_REQUIRED: the update adds Pre-Vote (pre-candidate state, PreVote request/response, tick/external triggers, new clearing sites). The reference/MC/Trace suite was updated, Update.tla plus full/focused/open/discharge/hunt configs were generated, and two inherited model defects were repaired (absent-log LogLE equality, which had made the prior 3-voter MC vacuous; leader-lease effects of HandleVoteResponse). The prior harness was rebased; 7 prior and 10 update scenarios produced 17 fresh traces, all fully consumed by real TLC trace validation, with 6/6 field mutations rejected. Model checking found two actual counterexamples, both reproduced end-to-end on the update revision with same-revision controls: MC-1 (Medium) - a Pre-Vote round started while Candidate survives leader establishment and a delayed grant makes the new leader re-elect at term+1 (leaderless window; debug builds panic in try_leader_handler); MC-2 (High) - rounds from the same vote share a correlation key, so a delayed grant from a node removed from the voter set reaches grant_by's expect and panics RaftCore (debug and release). CR-1 (doc-only mismatch in pre_vote.md) is a false positive as a code defect. All other campaigns found no violation; every BFS was budget-limited and simulations time-bounded (LIMITED_COVERAGE, not proof).",
+  "findings_paths": [
+    "/work/current/.specular-output/spec/final-result.json",
+    "/work/current/.specular-output/spec/findings.json",
+    "/work/current/.specular-output/spec/bug-report.md",
+    "/work/current/.specular-output/spec/confirmation-MC-1.md",
+    "/work/current/.specular-output/spec/confirmation-MC-2.md",
+    "/work/current/.specular-output/spec/confirmation-CR-1.md",
+    "/work/current/.specular-output/spec/output/MC-1_final_update_full_PreVoteElectionPremiseCurrent.out",
+    "/work/current/.specular-output/spec/output/MC-1_update_full_PreVoteElectionPremiseCurrent.out",
+    "/work/current/.specular-output/spec/output/MC-2_hunt_stale_membership_PreVoteGrantFromRoundMember.out",
+    "/work/current/.specular-output/spec/output/MC-2_final_hunt_leader_PreVoteGrantFromRoundMember.out",
+    "/work/current/.specular-output/spec/output/MC-2_full_sim_PreVoteGrantFromRoundMember.out",
+    "/work/current/.specular-output/spec/repro/run-all-repro.log",
+    "/work/current/.specular-output/ci-verdict.json"
+  ],
+  "blockers": []
+}

@@ -1,0 +1,73 @@
+source: 3ab6cddc34a5bf127747434bb41e20a1b9ef7769
+    Updating crates.io index
+     Locking 178 packages to latest Rust 1.96.0-nightly compatible versions
+      Adding itertools v0.14.0 (available: v0.15.0)
+      Adding syn v2.0.119 (available: v3.0.10)
+      Adding tabled v0.20.0 (available: v0.22.0)
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/tests)
+   Compiling openraft-macros v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/macros)
+   Compiling openraft-rt v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/rt)
+   Compiling openraft-rt-tokio v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/rt-tokio)
+   Compiling openraft v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/openraft)
+   Compiling openraft-memstore v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/stores/memstore)
+   Compiling openraft-legacy v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/legacy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 23.69s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 5 tests
+test t13_specular_repro_pre_vote_after_establish::specular_repro_control_without_pre_vote_round ... SPECULAR-REPRO-CONTROL: leader_term=2 n1.state=Leader n1.term=2
+ok
+test t13_specular_repro_pre_vote_after_establish::specular_repro_stale_pre_vote_displaces_new_leader ... 
+thread 'tokio-rt-worker' (35737) panicked at openraft/src/engine/engine_impl.rs:977:9:
+leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULAR-REPRO: leader_term=2 core_alive=false n1.state=Leader n1.term=2 n1.vote=<T2-N1:Q> n2.state=Follower n2.term=2 n2.current_leader=Some(1)
+SPECULAR-REPRO: +500ms core_alive=false n1.state=Leader n1.term=2 n1.vote=<T2-N1:Q> n2.current_leader=Some(1) n2.vote=<T2-N1:Q>
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_control_follower_same_membership_no_panic ... SPECULAR-REPRO-CR2: prober=1 change_membership=false core_alive=true state=Leader term=2 voters=[0, 1, 2]
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_stale_pre_vote_grant_follower_panics ... 
+thread 'tokio-rt-worker' (35757) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+SPECULAR-REPRO-CR2: prober=1 change_membership=true core_alive=false state=Follower term=1 voters=[0, 1]
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_stale_pre_vote_grant_leader_panics ... 
+thread 'tokio-rt-worker' (35772) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+SPECULAR-REPRO-CR2: prober=0 change_membership=true core_alive=false state=Leader term=1 voters=[0, 1]
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 24.87s
+
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/tests)
+   Compiling openraft-macros v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/macros)
+   Compiling openraft-rt v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/rt)
+   Compiling openraft-rt-tokio v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/rt-tokio)
+   Compiling openraft v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/openraft)
+   Compiling openraft-memstore v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/stores/memstore)
+   Compiling openraft-legacy v0.10.0-alpha.21 (/work/current/.specular-output/harness/repro-worktree/legacy)
+    Finished `release` profile [optimized + debuginfo] target(s) in 36.95s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/release/deps/elect-7f67ee27cab184a6)
+
+running 5 tests
+test t13_specular_repro_pre_vote_after_establish::specular_repro_control_without_pre_vote_round ... SPECULAR-REPRO-CONTROL: leader_term=2 n1.state=Leader n1.term=2
+ok
+test t13_specular_repro_pre_vote_after_establish::specular_repro_stale_pre_vote_displaces_new_leader ... SPECULAR-REPRO: leader_term=2 core_alive=true n1.state=Candidate n1.term=3 n1.vote=<T3-N1:-> n2.state=Follower n2.term=2 n2.current_leader=Some(1)
+SPECULAR-REPRO: +500ms core_alive=true n1.state=Candidate n1.term=3 n1.vote=<T3-N1:-> n2.current_leader=Some(1) n2.vote=<T2-N1:Q>
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_control_follower_same_membership_no_panic ... SPECULAR-REPRO-CR2: prober=1 change_membership=false core_alive=true state=Leader term=2 voters=[0, 1, 2]
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_stale_pre_vote_grant_follower_panics ... 
+thread 'tokio-rt-worker' (36044) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULAR-REPRO-CR2: prober=1 change_membership=true core_alive=false state=Follower term=1 voters=[0, 1]
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_stale_pre_vote_grant_leader_panics ... 
+thread 'tokio-rt-worker' (36050) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+SPECULAR-REPRO-CR2: prober=0 change_membership=true core_alive=false state=Leader term=1 voters=[0, 1]
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 24.03s
+

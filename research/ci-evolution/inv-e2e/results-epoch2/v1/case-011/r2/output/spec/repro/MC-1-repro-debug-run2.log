@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 2 tests
+test t13_specular_repro_pre_vote_after_establish::specular_repro_control_without_pre_vote_round ... SPECULAR-REPRO-CONTROL: leader_term=2 n1.state=Leader n1.term=2
+ok
+test t13_specular_repro_pre_vote_after_establish::specular_repro_stale_pre_vote_displaces_new_leader ... 
+thread 'tokio-rt-worker' (18582) panicked at openraft/src/engine/engine_impl.rs:977:9:
+leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULAR-REPRO: leader_term=2 core_alive=false n1.state=Leader n1.term=2 n1.vote=<T2-N1:Q> n2.state=Follower n2.term=2 n2.current_leader=Some(1)
+SPECULAR-REPRO: +500ms core_alive=false n1.state=Leader n1.term=2 n1.vote=<T2-N1:Q> n2.current_leader=Some(1) n2.vote=<T2-N1:Q>
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 10.43s
+

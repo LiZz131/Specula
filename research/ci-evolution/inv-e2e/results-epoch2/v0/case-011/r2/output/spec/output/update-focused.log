@@ -1,0 +1,69 @@
+# command: timeout 30m java -Xmx10g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 5 -metadir /dev/shm/specular-e2e-case-011/update-focused-18154 -config Update-focused.cfg Update 
+# started: 2026-11-26T00:36:47Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 11 and seed -4355024249946675535 with 5 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 18193] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-14592295537611420294/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-14592295537611420294/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14592295537611420294/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14592295537611420294/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14592295537611420294/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14592295537611420294/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14592295537611420294/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 00:36:48)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 00:36:49.
+Progress(9) at 2026-11-26 00:36:52: 32,583 states generated (32,583 s/min), 9,091 distinct states found (9,091 ds/min), 5,235 states left on queue.
+Progress(14) at 2026-11-26 00:37:52: 2,451,352 states generated (2,418,769 s/min), 490,010 distinct states found (480,919 ds/min), 224,275 states left on queue.
+Error: Invariant LeaderVoteCoversLocalVote is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickPreElect("2") line 44, col 5 to line 46, col 65 of module MC>
+
+State 3: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 4: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+State 5: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 6: <EstablishLeaderInteraction line 68, col 5 to line 69, col 30 of module Update>
+
+State 7: <MCTickPreElect("2") line 44, col 5 to line 46, col 65 of module MC>
+
+State 8: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 9: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 10: <PreCandidateClearedByFollowing line 60, col 5 to line 62, col 30 of module Update>
+
+State 11: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 12: <EstablishLeaderInteraction line 68, col 5 to line 69, col 30 of module Update>
+
+State 13: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 14: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+4062588 states generated, 775528 distinct states found, 333475 states left on queue.
+The depth of the complete state graph search is 15.
+Finished in 01min 41s at (2026-11-26 00:38:29)
+Trace exploration spec path: ./Update_TTrace_1795653407.tla
+# finished: 2026-11-26T00:38:29Z rc=12

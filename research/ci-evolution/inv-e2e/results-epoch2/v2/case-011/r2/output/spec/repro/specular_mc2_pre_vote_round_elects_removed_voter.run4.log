@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 1 test
+
+thread 'tokio-rt-worker' (12718) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+OUTCOME: node0 term=1 state=Leader running_state=Ok(()) voters=[1, 2]
+CORE: node0 Err("panicked")
+
+thread 't90_specular_pre_vote_repro::specular_mc2_pre_vote_round_elects_removed_voter' (12712) panicked at tests/tests/elect/t90_specular_pre_vote_repro.rs:272:5:
+BUG REPRODUCED (MC-2): node 0's Pre-Vote round completed after it left the voters; elect() ran for a non-voter and RaftCore stopped: Err("panicked")
+test t90_specular_pre_vote_repro::specular_mc2_pre_vote_round_elects_removed_voter ... FAILED
+
+failures:
+
+failures:
+    t90_specular_pre_vote_repro::specular_mc2_pre_vote_round_elects_removed_voter
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 3.32s
+
+error: test failed, to rerun pass `-p tests --test elect`

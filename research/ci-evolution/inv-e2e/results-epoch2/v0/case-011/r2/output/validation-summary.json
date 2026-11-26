@@ -1,0 +1,66 @@
+{
+  "run_id": "incr-b919e9f909ea",
+  "status": "LIMITED_COVERAGE",
+  "disposition": "MODEL_CHANGE_REQUIRED",
+  "source": {
+    "artifact_head": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+    "artifact_commits": [
+      "baseline 1adc857",
+      "update 3ab6cdd"
+    ],
+    "source_tree_modified": false,
+    "work_copy": "work-source/ (artifact copy + harness/instrumentation.patch; harness/repro/memstore-savevote-block.patch for the Level 3 repro only)"
+  },
+  "toolchain_used": "nightly-2026-03-01",
+  "harness": {
+    "command": "harness/run.sh",
+    "patch": "harness/instrumentation.patch",
+    "rebased_from_prior": true,
+    "rebase_notes": "prior patch failed on engine/mod.rs context drift; same engine-level module renamed specula->specular, Pre-Vote fields and 11 update scenarios added; seen_greater_log now real"
+  },
+  "baseline_tests_new_tree": {
+    "openraft_library_excluding_trace_harness": {
+      "passed": 486,
+      "failed": 0
+    },
+    "elect_integration": {
+      "passed": 8,
+      "failed": 0
+    }
+  },
+  "trace_validation": {
+    "status": "PASS",
+    "fresh_files": 18,
+    "prior_scenarios_rerun": 7,
+    "update_scenarios": 11,
+    "records": 33,
+    "all_traces_consumed": true,
+    "temporal_check": "TraceConsumed (completed for every trace)",
+    "summary": "spec/output/trace-validation-summary-final.tsv",
+    "negative_controls": {
+      "total": 15,
+      "rejected": 15,
+      "summary": "spec/output/negative-controls/summary.tsv"
+    },
+    "archived_v0_traces": "7 retained in /work/previous (old-version evidence), superseded by fresh reruns; schema lacks mandatory Pre-Vote fields"
+  },
+  "model_repairs": [
+    "LogLE: absent logs compare equal (prior defect; multi-voter elections from Init were unreachable)",
+    "HandleVoteResponse: leader lease installed on establishment, zero lease on adopt (prior defect)"
+  ],
+  "model_checking": {
+    "status": "LIMITED_COVERAGE",
+    "summary": "spec/output/mc-campaign-summary.tsv",
+    "finding": "MC-1 LeaderVoteCoversLocalVote violated (Update.cfg 15 states; Update-nofault.cfg 14 states; Update-focused.cfg 14 states)",
+    "control": "Update-control-off.cfg (Pre-Vote disabled): no violation through BFS level 20",
+    "prior_equivalence": "repairs reverted + Pre-Vote disabled: 5,273,983 generated / 640,830 distinct / depth 24 = prior"
+  },
+  "reproduction": {
+    "MC-1": "REPRODUCED (Level 1 and Level 3, 3/3 each; controls clean)",
+    "CR-1": "FALSE POSITIVE (documentation only)"
+  },
+  "cleanup": {
+    "tlc_state_root": "/dev/shm/specular-e2e-case-011 (per-run dirs removed)",
+    "background_processes_remaining": false
+  }
+}

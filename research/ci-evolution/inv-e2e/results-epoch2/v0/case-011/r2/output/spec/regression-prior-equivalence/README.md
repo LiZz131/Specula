@@ -1,0 +1,1 @@
+Scratch copy: base.tla with the two prior-model repairs (LogLE on absent logs, leader lease on establishment) reverted, used only to show that with Pre-Vote disabled (MC-prevote-off.cfg) the refactored suite reproduces the prior exhaustive MC.cfg graph (640,830 distinct states). Not part of the reference suite.

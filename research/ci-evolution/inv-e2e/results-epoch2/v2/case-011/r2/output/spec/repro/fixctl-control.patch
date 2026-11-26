@@ -1,0 +1,30 @@
+diff --git a/openraft/src/engine/engine_impl.rs b/openraft/src/engine/engine_impl.rs
+index 62b9bcc..0f8d927 100644
+--- a/openraft/src/engine/engine_impl.rs
++++ b/openraft/src/engine/engine_impl.rs
+@@ -532,7 +532,16 @@ where C: RaftTypeConfig
+         // response, the responder does not adopt the candidate's vote, so the grant is read from
+         // `vote_granted` rather than by comparing votes.
+         if resp.vote_granted {
++            // CONTROL (Specular fixctl): ignore grants from outside this round's quorum set.
++            if crate::progress::Progress::try_get(self.pre_candidate.as_ref().unwrap().progress(), &target).is_none() {
++                return;
++            }
+             let quorum_granted = self.pre_candidate.as_mut().unwrap().grant_by(&target);
++            // CONTROL (Specular fixctl): only a voter may start the real election.
++            if quorum_granted && !self.state.membership_state.effective().is_voter(&self.config.id) {
++                self.pre_candidate = None;
++                return;
++            }
+             if quorum_granted {
+                 tracing::info!("a quorum would grant the vote; starting a real election");
+                 self.elect();
+@@ -856,6 +865,8 @@ where C: RaftTypeConfig
+         tracing::info!("{}", func_name!());
+ 
+         let candidate = self.candidate.take().unwrap();
++        // CONTROL (Specular fixctl): a leader has no use for an in-flight Pre-Vote round.
++        self.pre_candidate = None;
+         let leader = self.establish_handler().establish(candidate);
+ 
+         // There may already be a Leader with higher vote

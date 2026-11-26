@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "id": "MC-2",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-315482ff25a1",
+  "source_revision": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+  "reusable": true,
+  "title": "Stale Pre-Vote grant from a node outside the current round's voter set panics RaftCore",
+  "cause": "Pre-Vote responses are correlated only by the pre-candidate leader id, which every round started from the same local vote shares, while each round freezes its own voter set; handle_pre_vote_resp passes any matching grant to Candidate::grant_by, which expects the granter to be in that set.",
+  "trigger": "A node runs a Pre-Vote round while peer P is a voter and P's grant is delayed; the voter set changes so that P is no longer a voter; the node starts another round from the same local vote (e.g. Trigger::elect(true), or the tick); P's delayed grant arrives within the RPC timeout.",
+  "consequence": "grant_by's expect(\"target not in quorum set\") panics and the node's RaftCore task terminates (follower or leader; debug and release builds), so the node stops serving until restarted.",
+  "sites": [
+    "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+    "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+    "openraft/src/proposer/candidate.rs:grant_by",
+    "openraft/src/engine/engine_impl.rs:pre_elect"
+  ],
+  "actions": [
+    "PreElect",
+    "ExternalPreElect",
+    "TickPreElect",
+    "HandlePreVoteResponseNonMember",
+    "AppendJointConfig",
+    "AppendUniformConfig",
+    "CommitMembership"
+  ],
+  "invariants": [
+    "PreVoteGrantFromRoundMember",
+    "NoPanicOnStalePreVoteGrant"
+  ],
+  "premises": [
+    "Two Pre-Vote rounds started from the same local vote have the same correlation key (does_pre_candidate_vote_match compares leader ids only).",
+    "Each round's progress tracker contains only the voters frozen at pre_elect, and grant_by expects the granter to be one of them.",
+    "The voter set can change between two such rounds without changing the local vote (leader-proposed membership change; a follower learns it by AppendEntries with an equal vote).",
+    "A delayed grant can be delivered within the vote RPC timeout (election_timeout_min) after the second round started."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn does_pre_candidate_vote_match(&self, candidate_vote: &UncommittedVoteOf<C>, msg: impl fmt::Display) -> bool {",
+      "end": "    /// If a message is sent by a previous Leader but is received by current Leader,",
+      "sha256": "b02ede97536368ea3b20fa9b715ce63f0ff63170f23f78812e001955a77977a6"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "            Notification::PreVoteResponse {",
+      "end": "            Notification::HigherVote {",
+      "sha256": "75e235e8dcb4cdf6e605b09046f6ad9b08ab52506f39fae18e73f93c1040e476"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "    /// Append entries to follower/learner.",
+      "sha256": "f5770294168ec101fa8e1bf0b4e2ca8de8c2520e8372ea352b93cb59cc9dbf1b"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn pre_elect(&mut self) {",
+      "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {",
+      "sha256": "6fba605a4eb613da868c00f7871391a349cc8230d3356f34c5e582818cc8a0b0"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs",
+      "start": "    pub(crate) fn new(",
+      "end": "    pub(crate) fn vote_ref(&self) -> &VoteOf<C> {",
+      "sha256": "64a767986f9b57f0fdf97dded7f9576e5f4a08ebcdd6310cf24c3cac18cce557"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs",
+      "start": "    pub(crate) fn grant_by(&mut self, target: &C::NodeId) -> bool {",
+      "end": "    /// Return the node ids that have granted this vote.",
+      "sha256": "30b95bff7001014c0358c5c78753654869ae14e0804b12e4b31504895b92ee1c"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "sha256": "9ae671754d1700778196c4d0be8d3e1f45ed87c7b88aaaf112109fa3a1a08e9a"
+    },
+    {
+      "root": "work",
+      "path": "spec/MC.tla",
+      "sha256": "de6eb8e98252095771aee5e9abacb764fb67755640d210ef2516763609ff2fc6"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla",
+      "sha256": "7c4cacd5a498b6b46c490913d119c9dc886685e70d095da0b1e43dcfe4b221f2"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_hunt_stale_membership.cfg",
+      "sha256": "7a88d2681a41b868ad9479253cb64327126844bfe5b3a9d143959b78517c6680"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-2.md",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/confirmation-MC-2.md",
+      "sha256": "e9cba01f5a32cfad778064945c653084a5fb08a61fe24d87b567a057563b2a08"
+    },
+    {
+      "original": "spec/bug-report.md",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/bug-report.md",
+      "sha256": "1acf9c5fb3cea437491a997ba283e5e4f0591246a31378acf01866f4c0bea5d7"
+    },
+    {
+      "original": "spec/findings.json",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/findings.json",
+      "sha256": "5e092efaed58b05edade63d252b8bb69a0bc90ba30476bb40aa35783af7bc1e8"
+    },
+    {
+      "original": "spec/output/MC-2_hunt_stale_membership_PreVoteGrantFromRoundMember.out",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/MC-2_hunt_stale_membership_PreVoteGrantFromRoundMember.out",
+      "sha256": "512e2274124da27fe220c486aa970d1e11ea9c948fcd1d73de1b950248f68d15"
+    },
+    {
+      "original": "spec/output/MC-2_final_hunt_leader_PreVoteGrantFromRoundMember.out",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/MC-2_final_hunt_leader_PreVoteGrantFromRoundMember.out",
+      "sha256": "38d14439c205ad1fefecc510f2021dd56c577c52a5df1e191baffa60ac786454"
+    },
+    {
+      "original": "spec/output/MC-2_full_sim_PreVoteGrantFromRoundMember.out",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/MC-2_full_sim_PreVoteGrantFromRoundMember.out",
+      "sha256": "13243c1b9e1c8d65e34e347f0cce5b4f90e27e39cce622000c66811e11182056"
+    },
+    {
+      "original": "spec/repro/test_bugMC-2_stale_pre_vote_grant_nonmember.rs",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/repro/test_bugMC-2_stale_pre_vote_grant_nonmember.rs",
+      "sha256": "bba63953fea9e2ea48481894eee211a1ce1b59ae482fe1d3a66c8e821019009d"
+    },
+    {
+      "original": "spec/repro/specular-repro-all.patch",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/repro/specular-repro-all.patch",
+      "sha256": "7ed36d0b4072d22dad00f4393753cdf6c7e39858a7550a1f3fe55a8d17db1c85"
+    },
+    {
+      "original": "spec/repro/run-all-repro.sh",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/repro/run-all-repro.sh",
+      "sha256": "3a6dc0be7f400583744b2cbcb57132c8616bc3d942d0d078d7cd02389b30bfc4"
+    },
+    {
+      "original": "spec/repro/MC-2-repro-debug.log",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/repro/MC-2-repro-debug.log",
+      "sha256": "2a832e117ab088bec561780d817ad77cd97d34bc77767b28b65401f6484777c5"
+    },
+    {
+      "original": "spec/repro/MC-2-repro-release.log",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/repro/MC-2-repro-release.log",
+      "sha256": "f220e6655b11e2b43f4cccb0fabe21c6178002c3fee9046e9e27e79960bb87b7"
+    },
+    {
+      "original": "spec/repro/run-all-repro.log",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/repro/run-all-repro.log",
+      "sha256": "2ff65f823ea8a81a293afc42e3fbff2f5869a7c8156638467789b556cf38546d"
+    }
+  ]
+}

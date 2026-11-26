@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 1 test
+
+thread 'tokio-rt-worker' (12786) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+OUTCOME: node0 term=1 state=Leader running_state=Ok(()) voters=[0, 2] n1_answers=1
+CORE: node0 Err("panicked")
+
+thread 't90_specular_pre_vote_repro::specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant' (12781) panicked at tests/tests/elect/t90_specular_pre_vote_repro.rs:343:5:
+BUG REPRODUCED (MC-3): a delayed Pre-Vote grant from removed node 1 (round A) was counted by round B (same leader id, membership without node 1) and RaftCore stopped: Err("panicked")
+test t90_specular_pre_vote_repro::specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant ... FAILED
+
+failures:
+
+failures:
+    t90_specular_pre_vote_repro::specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 3.20s
+
+error: test failed, to rerun pass `-p tests --test elect`

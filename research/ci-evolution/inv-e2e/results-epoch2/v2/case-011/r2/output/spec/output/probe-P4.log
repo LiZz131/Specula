@@ -1,0 +1,60 @@
+# command: java -Xmx8g -Dtlc2.TLC.stopAfter=300 tlc2.TLC -workers 4 -deadlock -metadir /dev/shm/specular-e2e-case-011/probe-P4-6504 -config scratch/probe-P4.cfg  scratch/Probe.tla
+# started: 2026-11-25T21:02:21Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 11 and seed -5994602007351360794 with 4 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 6510] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/scratch/Probe.tla
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /tmp/tlc-1795300319979511923/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-1795300319979511923/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1795300319979511923/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1795300319979511923/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1795300319979511923/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1795300319979511923/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-1795300319979511923/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module Update
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Probe
+Linting of module base
+Linting of module MC
+Linting of module Update
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Probe
+Starting... (2026-11-25 21:02:21)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 21:02:22.
+Error: Invariant P4 is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCExternalElect("2") line 32, col 5 to line 35, col 17 of module MC>
+
+State 3: <MCTickPreElect("1") line 47, col 5 to line 51, col 82 of module MC>
+
+State 4: <MCPersistVote("2") line 86, col 21 to line 86, col 79 of module MC>
+
+State 5: <MCSendVoteRequest("2","1") line 93, col 28 to line 93, col 93 of module MC>
+
+State 6: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 7: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 8: <MCPersistVote("1") line 86, col 21 to line 86, col 79 of module MC>
+
+State 9: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+8849 states generated, 2333 distinct states found, 1239 states left on queue.
+The depth of the complete state graph search is 9.
+Finished in 01s at (2026-11-25 21:02:23)
+Trace exploration spec path: scratch/Probe_TTrace_1795640541.tla
+# exit: 12 finished: 2026-11-25T21:02:23Z

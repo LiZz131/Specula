@@ -1,0 +1,66 @@
+# command: timeout 30m java -Xmx10g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 5 -metadir /dev/shm/specular-e2e-case-011/update-open-residual-19105 -config Update-open-residual.cfg Update 
+# started: 2026-11-26T00:47:29Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 74 and seed -5447672443652396678 with 5 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 19124] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-13571825904843103206/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-13571825904843103206/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13571825904843103206/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13571825904843103206/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13571825904843103206/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13571825904843103206/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13571825904843103206/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 00:47:30)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 00:47:30.
+Progress(6) at 2026-11-26 00:47:33: 21,460 states generated (21,460 s/min), 11,494 distinct states found (11,494 ds/min), 10,589 states left on queue.
+Progress(8) at 2026-11-26 00:48:33: 2,158,791 states generated (2,137,331 s/min), 771,680 distinct states found (760,186 ds/min), 655,788 states left on queue.
+Progress(9) at 2026-11-26 00:49:33: 4,459,136 states generated (2,300,345 s/min), 1,519,571 distinct states found (747,891 ds/min), 1,270,640 states left on queue.
+Progress(9) at 2026-11-26 00:50:33: 6,877,411 states generated (2,418,275 s/min), 2,265,102 distinct states found (745,531 ds/min), 1,867,642 states left on queue.
+Progress(9) at 2026-11-26 00:51:33: 9,119,061 states generated (2,241,650 s/min), 2,976,077 distinct states found (710,975 ds/min), 2,442,983 states left on queue.
+Progress(9) at 2026-11-26 00:52:33: 11,477,199 states generated (2,358,138 s/min), 3,699,661 distinct states found (723,584 ds/min), 3,009,235 states left on queue.
+Progress(9) at 2026-11-26 00:53:33: 13,852,707 states generated (2,375,508 s/min), 4,434,337 distinct states found (734,676 ds/min), 3,579,056 states left on queue.
+Error: Invariant DurableLogNotAhead is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickPreElect("1") line 44, col 5 to line 46, col 65 of module MC>
+
+State 3: <MCTickPreElect("1") line 44, col 5 to line 46, col 65 of module MC>
+
+State 4: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 5: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+State 6: <EnvUpdate line 162, col 5 to line 164, col 60 of module Update>
+
+State 7: <EnvUpdate line 162, col 5 to line 164, col 60 of module Update>
+
+State 8: <MCCrash("1") line 68, col 5 to line 70, col 62 of module MC>
+
+State 9: <RestartClearsPreCandidate line 74, col 5 to line 75, col 30 of module Update>
+
+State 10: <EnvUpdate line 162, col 5 to line 164, col 60 of module Update>
+
+16233752 states generated, 5128844 distinct states found, 4104758 states left on queue.
+The depth of the complete state graph search is 10.
+Finished in 07min 02s at (2026-11-26 00:54:32)
+Trace exploration spec path: ./Update_TTrace_1795654049.tla
+# finished: 2026-11-26T00:54:33Z rc=12

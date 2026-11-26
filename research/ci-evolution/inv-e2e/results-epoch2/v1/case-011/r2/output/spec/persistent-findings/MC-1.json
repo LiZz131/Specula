@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "id": "MC-1",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-315482ff25a1",
+  "source_revision": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+  "reusable": true,
+  "title": "Pre-Vote round started while Candidate survives leader establishment and makes the new leader re-elect",
+  "cause": "establish_leader/become_leader do not reset Engine.pre_candidate, and handle_pre_vote_resp calls elect() on a Pre-Vote quorum without checking that the node is still the non-leader whose vote the round probed; a Candidate can start such a round because the tick skips only Leaders and Trigger::elect(true) has no role check.",
+  "trigger": "A Candidate at term T starts a Pre-Vote round (election timer or Trigger::elect(true)) while its real vote replies are in flight; a peer grants both the real vote and the term T+1 Pre-Vote (its uncommitted vote carries no lease); the real grant arrives first and the node becomes Leader at T; the Pre-Vote grant is delivered afterwards, within the RPC timeout.",
+  "consequence": "The freshly established Leader abandons term T and starts an election at T+1 that peers holding its lease reject, leaving the cluster without a working leader for at least a lease and inflating the term (the disruption Pre-Vote is documented to prevent); with debug assertions the stale Leader object trips Engine::try_leader_handler and RaftCore panics.",
+  "sites": [
+    "openraft/src/engine/engine_impl.rs:establish_leader",
+    "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+    "openraft/src/engine/engine_impl.rs:pre_elect",
+    "openraft/src/engine/handler/vote_handler/mod.rs:become_leader",
+    "openraft/src/core/raft_core.rs:handle_tick_election"
+  ],
+  "actions": [
+    "PreElect",
+    "TickPreElect",
+    "ExternalPreElect",
+    "HandleVoteResponse",
+    "HandlePreVoteResponseElect",
+    "DoElect"
+  ],
+  "invariants": [
+    "PreVoteElectionPremiseCurrent",
+    "PreVoteNeverDisplacesLeader",
+    "EstablishedLeaderHasNoInheritedPreVote"
+  ],
+  "premises": [
+    "A node can start a Pre-Vote round while it is a Candidate: handle_tick_election skips only ServerState::Leader and ExternalCommand::Elect{pre_vote:true} checks only voter membership.",
+    "Leader establishment (establish_leader -> update_vote -> become_leader) does not reset Engine.pre_candidate; only do_elect and become_following do.",
+    "A peer that granted the real vote holds an uncommitted vote without leader lease and therefore grants the term+1 Pre-Vote.",
+    "Message delay may deliver the Pre-Vote grant after the real-vote grant within the vote RPC timeout (election_timeout_min).",
+    "Pre-Vote is enabled (Config::enable_pre_vote / runtime toggle) or requested per call with Trigger::elect(true)."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    fn establish_leader(&mut self) {",
+      "end": "    /// Check if a raft node is in a state that allows to initialize.",
+      "sha256": "13a5509cc02a3e5c7f3886a0368c634dc9cb9a8a119d44ad9b41349f39dcbec1"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "    /// Append entries to follower/learner.",
+      "sha256": "f5770294168ec101fa8e1bf0b4e2ca8de8c2520e8372ea352b93cb59cc9dbf1b"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    fn do_elect(&mut self, leadership_transfer: bool) {",
+      "end": "    /// Start a Pre-Vote round.",
+      "sha256": "110e5db804fd3900e5466e50990667cce152128317b2af0f85cf0c8540624f26"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn pre_elect(&mut self) {",
+      "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {",
+      "sha256": "6fba605a4eb613da868c00f7871391a349cc8230d3356f34c5e582818cc8a0b0"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/handler/vote_handler/mod.rs",
+      "start": "    pub(crate) fn update_internal_server_state(&mut self) {",
+      "end": "    pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {",
+      "sha256": "a0f680f0f9418f71c08ba3f20bad39f22a55d7de63536f7db8ed7a59b4ada453"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn handle_tick_election(&mut self) {",
+      "end": "    /// If a message is sent by a previous Candidate but is received by current Candidate,",
+      "sha256": "41b87aabbf9290db8be71374bc7502d77a37ddea87fecb4c6e079f7c46aeff4b"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "            Notification::PreVoteResponse {",
+      "end": "            Notification::HigherVote {",
+      "sha256": "75e235e8dcb4cdf6e605b09046f6ad9b08ab52506f39fae18e73f93c1040e476"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "sha256": "9ae671754d1700778196c4d0be8d3e1f45ed87c7b88aaaf112109fa3a1a08e9a"
+    },
+    {
+      "root": "work",
+      "path": "spec/MC.tla",
+      "sha256": "de6eb8e98252095771aee5e9abacb764fb67755640d210ef2516763609ff2fc6"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla",
+      "sha256": "7c4cacd5a498b6b46c490913d119c9dc886685e70d095da0b1e43dcfe4b221f2"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_full.cfg",
+      "sha256": "225760710fe612b8b6168695deaa364c505cc103dd231c74236cbbe823b1aeff"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-1.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/confirmation-MC-1.md",
+      "sha256": "729456efe0d1abaf7c954a1eb9489d49519553034a742ab766853381550d717f"
+    },
+    {
+      "original": "spec/bug-report.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/bug-report.md",
+      "sha256": "1acf9c5fb3cea437491a997ba283e5e4f0591246a31378acf01866f4c0bea5d7"
+    },
+    {
+      "original": "spec/findings.json",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/findings.json",
+      "sha256": "5e092efaed58b05edade63d252b8bb69a0bc90ba30476bb40aa35783af7bc1e8"
+    },
+    {
+      "original": "spec/output/MC-1_update_full_PreVoteElectionPremiseCurrent.out",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/MC-1_update_full_PreVoteElectionPremiseCurrent.out",
+      "sha256": "fffdbcbf987d5cd8363c293f659d0820593ea21ad93ca2b97fb9f0a2b708498a"
+    },
+    {
+      "original": "spec/output/MC-1_final_update_full_PreVoteElectionPremiseCurrent.out",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/MC-1_final_update_full_PreVoteElectionPremiseCurrent.out",
+      "sha256": "c02d313f19b39b7a0d7751595c1f2b8396697e9be1df39edbad302b562bcbc9d"
+    },
+    {
+      "original": "spec/output/pre-nonmember-repair/mc-update-focused.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/pre-nonmember-repair/mc-update-focused.log",
+      "sha256": "726c8c73065dda37e4ef9c113381e9828b0ee53e42eb73218789a140f973bfe0"
+    },
+    {
+      "original": "spec/output/mc-hunt-stale-round.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/mc-hunt-stale-round.log",
+      "sha256": "8732cabff345ff6ec5472a1cd1779890aab4bd086a4b5cf7d4616313ae46f631"
+    },
+    {
+      "original": "spec/repro/test_bugMC-1_pre_vote_after_establish.rs",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/test_bugMC-1_pre_vote_after_establish.rs",
+      "sha256": "84be51474763d9d3276efa709a54757d06cdd2d60c958f5b717dfe369769ff02"
+    },
+    {
+      "original": "spec/repro/run-MC-1-repro.sh",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/run-MC-1-repro.sh",
+      "sha256": "f1bc0e15f263ff6af4a7b601eea98600d41104761a34439dae81022249a2731f"
+    },
+    {
+      "original": "spec/repro/MC-1-repro.patch",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/MC-1-repro.patch",
+      "sha256": "06c91b64c5ffab273c14a802d296dd993217979cfac2c2c167abb339ddb851c7"
+    },
+    {
+      "original": "spec/repro/MC-1-repro-debug.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/MC-1-repro-debug.log",
+      "sha256": "2e0b08aa385512f8342e4970d604d90ca5128a4f876b66af008d3535d2676f85"
+    },
+    {
+      "original": "spec/repro/MC-1-repro-release.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/MC-1-repro-release.log",
+      "sha256": "728beb0b84f289fd8f880f0fc9a8453ac50deb401fcff807aaaa42d6b9c6c97f"
+    },
+    {
+      "original": "spec/repro/MC-1-repro-backtrace.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/MC-1-repro-backtrace.log",
+      "sha256": "94640ea7ced188a22e839bf62126fdd250dbe6e65f02d16fdc6361b1383eb86e"
+    },
+    {
+      "original": "traces/pre_vote_after_establish.ndjson",
+      "path": "spec/persistent-findings/evidence/MC-1/traces/pre_vote_after_establish.ndjson",
+      "sha256": "2e91f3f93dc3bcbe2356b9454c4cddf79806f488d9e91eb3c4bed1e942263bf7"
+    },
+    {
+      "original": "spec/output/trace-pre_vote_after_establish.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/trace-pre_vote_after_establish.log",
+      "sha256": "784318a9d275f6695fde5a611115382f0f7344077793d15e1dc1065abcc3c4d1"
+    },
+    {
+      "original": "spec/repro/run-all-repro.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/repro/run-all-repro.log",
+      "sha256": "2ff65f823ea8a81a293afc42e3fbff2f5869a7c8156638467789b556cf38546d"
+    }
+  ]
+}

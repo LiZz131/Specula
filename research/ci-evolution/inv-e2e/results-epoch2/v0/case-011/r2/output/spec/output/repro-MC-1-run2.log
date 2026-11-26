@@ -1,0 +1,36 @@
+=== run 1 2026-11-26T00:02:57Z filter=specular_mc1
+   Compiling openraft-memstore v0.10.0-alpha.21 (/work/current/.specular-output/work-source/stores/memstore)
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/work-source/tests)
+test t13_specular_mc1_prevote_reelect::specular_mc1_level1_admin_prevote_on_candidate ... specular: isolate old leader 0
+specular: t=3.782µs node1 state=Follower term=1 vote=<T1-N0:Q> leader=Some(0)
+specular: t=1.036305086s node1 state=Candidate term=2 vote=<T2-N1:-> leader=None
+specular: node 1 is a term-2 Candidate; trigger().elect(true) (Pre-Vote)
+specular: hook delays vote/pre-vote response 2->1 by 250ms
+specular: hook delays vote/pre-vote response 2->1 by 400ms
+specular: t=1.315301346s node1 state=Leader term=2 vote=<T2-N1:Q> leader=Some(1)
+thread 'tokio-rt-worker' (13363) panicked at openraft/src/engine/engine_impl.rs:977:9:
+specular: hook delays vote/pre-vote response 2->1 by 400ms
+specular: history=[(Follower, 1), (Candidate, 2), (Leader, 2)]
+specular: leader_at_term2_index=Some(2) later_term3_index=None
+specular: node2 state=Follower term=2 vote=<T2-N1:Q> leader=Some(1)
+specular: client_write on node 1 after the term bump -> Ok(Err(Fatal(Panicked)))
+specular: node1 final state=Leader term=2 vote=<T2-N1:Q> running=Ok(())
+thread 't13_specular_mc1_prevote_reelect::specular_mc1_level1_admin_prevote_on_candidate' (13357) panicked at tests/tests/elect/t13_specular_mc1_prevote_reelect.rs:155:5:
+FAILED
+test t13_specular_mc1_prevote_reelect::specular_mc1_level3_timer_path_slow_vote_persistence ... specular: node 1 save_vote takes 900ms (> election timeout 500ms); isolate old leader 0
+specular: t=4.178µs node1 state=Follower term=1 vote=<T1-N0:Q> leader=Some(0)
+specular: hook delays vote/pre-vote response 2->1 by 200ms
+specular: t=1.910704178s node1 state=Candidate term=2 vote=<T2-N1:-> leader=None
+thread 'tokio-rt-worker' (13373) panicked at openraft/src/engine/engine_impl.rs:977:9:
+specular: hook delays vote/pre-vote response 2->1 by 200ms
+specular: history=[(Follower, 1), (Candidate, 2)]
+specular: leader_at_term2_index=None later_term3_index=None
+specular: node2 state=Follower term=3 vote=<T3-N1:-> leader=None
+specular: client_write on node 1 after the term bump -> Ok(Err(Fatal(Panicked)))
+specular: node1 final state=Candidate term=2 vote=<T2-N1:-> running=Ok(())
+thread 't13_specular_mc1_prevote_reelect::specular_mc1_level3_timer_path_slow_vote_persistence' (13367) panicked at tests/tests/elect/t13_specular_mc1_prevote_reelect.rs:173:5:
+FAILED
+    t13_specular_mc1_prevote_reelect::specular_mc1_level1_admin_prevote_on_candidate
+    t13_specular_mc1_prevote_reelect::specular_mc1_level3_timer_path_slow_vote_persistence
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 8 filtered out; finished in 13.86s
+=== exit 101

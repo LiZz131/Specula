@@ -1,0 +1,614 @@
+{
+ "run_id": "incr-4e410cd184be",
+ "notes": "Old-property verdicts use OldBase (the prior base.tla, MODULE line renamed) evaluated by TLC on the same states (spec/evidence/EvidenceTrace.tla); trace states come from replaying fresh implementation traces with Trace.tla. Action properties are evaluated on model transitions (MC counterexamples or model mutants) because trace wrappers do not consume messages.",
+ "entries": [
+  {
+   "property": "TypeOK",
+   "replaces": "TypeOK",
+   "decision": "modify",
+   "kind": "representation-only",
+   "affected_because": "new variables (pre-candidate) and new message kinds/fields (PreVoteReq/PreVoteResp, reqVote)",
+   "initial_decision": "modify",
+   "changed_from_initial": false,
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E-TYPE-1",
+    "E-TYPE-2"
+   ]
+  },
+  {
+   "property": "VoteRequestAfterDurable",
+   "decision": "keep",
+   "affected_because": "watch touched: Engine::do_elect, RaftCore::run_command SendVote arm; new sibling SendPreVote",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "impl-abstraction",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-VRAD-K"
+   ]
+  },
+  {
+   "property": "GrantedResponseAfterDurable",
+   "decision": "keep",
+   "affected_because": "new response kind PreVoteResp (replied with when: None)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E-GRAD-K"
+   ]
+  },
+  {
+   "property": "LeaderRoleHasCommittedSelfVote",
+   "decision": "keep",
+   "affected_because": "new election path (pre-vote quorum -> elect) can start from Leader role",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E-LR-K"
+   ]
+  },
+  {
+   "property": "CandidateRoleHasPendingSelfVote",
+   "decision": "keep",
+   "affected_because": "watch touched: Engine::do_elect; new caller handle_pre_vote_resp",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-CR-K"
+   ]
+  },
+  {
+   "property": "NoForgedMessageEndpoints",
+   "decision": "keep",
+   "affected_because": "quantifies over all message kinds incl. the new ones",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E-NF-K"
+   ]
+  },
+  {
+   "property": "PreCandidateWellFormed",
+   "decision": "add",
+   "kind": "structural",
+   "affected_because": "new pre-candidate state",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "model-internal",
+   "watch_touched": false,
+   "evidence_ids": [
+    "E-PCWF"
+   ]
+  },
+  {
+   "property": "TickPreVoteRoundNotHeldByLeader",
+   "decision": "add",
+   "kind": "strengthening (new)",
+   "affected_because": "new timer pre-vote round; establish_leader does not clear it",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-P1",
+    "E-P1c",
+    "E-P1fix"
+   ]
+  },
+  {
+   "property": "LeaderNotPreemptedByTimerPreVote",
+   "decision": "add",
+   "kind": "strengthening (new, action)",
+   "affected_because": "handle_pre_vote_resp calls elect() without role check",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-P2",
+    "E-P2fix"
+   ]
+  },
+  {
+   "property": "PreVoteGrantsWithinFrozenVoters",
+   "replaces": "PreVoteResponseFromFrozenVoter (initial form)",
+   "decision": "add",
+   "kind": "strengthening (new)",
+   "affected_because": "rounds at the same hypothetical vote correlate by leader id only; grant_by panics for non-members",
+   "initial_decision": "add (in-flight message form PreVoteResponseFromFrozenVoter)",
+   "changed_from_initial": true,
+   "change_reason": "the repaired-model control CTRL-D-voter-recheck-repeat showed the in-flight form also rejects a legal state (a stale non-member grant in flight that a guarded handler ignores); the property was moved to the point of counting",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-P3",
+    "E-P3c"
+   ]
+  },
+  {
+   "property": "CandidateGrantsWithinFrozenVoters",
+   "replaces": "VoteResponseFromFrozenVoter (initial form)",
+   "decision": "add",
+   "kind": "interaction strengthening (new)",
+   "affected_because": "new elect() caller without voter check; old vote-response consumer counts the self-grant",
+   "initial_decision": "add (in-flight message form VoteResponseFromFrozenVoter)",
+   "changed_from_initial": true,
+   "change_reason": "aligned with PreVoteGrantsWithinFrozenVoters (point of counting)",
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-P4",
+    "E-P4c"
+   ]
+  },
+  {
+   "property": "PreVoteElectionAtProbedVote",
+   "decision": "add",
+   "kind": "strengthening (new, action)",
+   "affected_because": "new election trigger after a probe",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-P5",
+    "E-P5k"
+   ]
+  },
+  {
+   "property": "PreVoteStepsDoNotPersist",
+   "decision": "add",
+   "kind": "strengthening (new, action)",
+   "affected_because": "new request/response handlers documented as side-effect free",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "ledger_status": "requirement",
+   "watch_touched": true,
+   "evidence_ids": [
+    "E-P6",
+    "E-P6k"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E-TYPE-1",
+   "property": "TypeOK",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceTrace.tla",
+   "how_populated": "post-state of event 3 (PreElect, tick) in traces/stale_pre_vote_after_leader.ndjson (cursor 4): PreVoteReq messages in flight",
+   "old": {
+    "claimed": false,
+    "tlc": false
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/stale.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "fresh validated trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/engine/engine_impl.rs:316-321"
+    ]
+   },
+   "cell": "weakening justified (representation extension for a new message kind)"
+  },
+  {
+   "id": "E-TYPE-2",
+   "property": "TypeOK",
+   "role": "control",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceTrace.tla",
+   "how_populated": "initial state of traces/pre_vote_req_grant.ndjson (no new records)",
+   "expected": true,
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/grant.log",
+   "note": "model-internal type predicate; a bad-type control is not meaningful beyond the declared domains"
+  },
+  {
+   "id": "E-VRAD-K",
+   "property": "VoteRequestAfterDurable",
+   "role": "keep",
+   "state_source": "trace",
+   "how_populated": "cursor 4 of stale_pre_vote_after_leader: VoteReq and PreVoteReq messages in flight",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/stale.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:42-45"
+    ]
+   },
+   "cell": "keep: pre-vote requests persist nothing and are outside the quantifier"
+  },
+  {
+   "id": "E-GRAD-K",
+   "property": "GrantedResponseAfterDurable",
+   "role": "keep",
+   "state_source": "trace",
+   "how_populated": "cursor 2 of pre_vote_req_grant: granted PreVoteResp in flight",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/grant.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:42-43",
+     "openraft/src/core/raft_core.rs:1557-1560"
+    ]
+   },
+   "cell": "keep"
+  },
+  {
+   "id": "E-LR-K",
+   "property": "LeaderRoleHasCommittedSelfVote",
+   "role": "keep",
+   "state_source": "trace",
+   "how_populated": "cursor 5 of stale_pre_vote_after_leader: role Leader with an active pre-vote round",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/stale.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/docs/data/vote.md:60-61"
+    ]
+   },
+   "cell": "keep"
+  },
+  {
+   "id": "E-CR-K",
+   "property": "CandidateRoleHasPendingSelfVote",
+   "role": "keep",
+   "state_source": "trace",
+   "how_populated": "cursor 6 of stale_pre_vote_after_leader and cursor 3 of pre_vote_resp_quorum: Candidate after a pre-vote-triggered election",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/stale.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "trace"
+   },
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "openraft/src/engine/tests/handle_pre_vote_resp_test.rs:55-61"
+    ]
+   },
+   "cell": "keep"
+  },
+  {
+   "id": "E-NF-K",
+   "property": "NoForgedMessageEndpoints",
+   "role": "keep",
+   "state_source": "trace",
+   "how_populated": "cursor 2 of pre_vote_req_grant (PreVoteResp) and cursor 4 of stale trace (PreVoteReq)",
+   "old": {
+    "tlc": true
+   },
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/grant.log",
+   "cell": "keep (model-internal)"
+  },
+  {
+   "id": "E-PCWF",
+   "property": "PreCandidateWellFormed",
+   "role": "separating",
+   "state_source": "trace",
+   "how_populated": "all states of the five evidence traces with an active round",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/evidence-summary.txt",
+   "cell": "structural"
+  },
+  {
+   "id": "E-P1",
+   "property": "TickPreVoteRoundNotHeldByLeader",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "spec/evidence/EvidenceTrace.tla (EvidenceOrigin = tick)",
+   "how_populated": "cursor 5 of traces/stale_pre_vote_after_leader.ndjson (post-state of event 4 HandleVoteResponse): role Leader, preCandidateActive, round started by the tick event 3",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/logs/stale.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "fresh trace + runtime reproduction spec/confirmation-MC-1.md"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:3",
+     "openraft/src/docs/protocol/pre_vote.md:45",
+     "openraft/src/config/config.rs:400",
+     "openraft/src/engine/engine_impl.rs:977-982"
+    ]
+   },
+   "cell": "bug candidate (MC-1)"
+  },
+  {
+   "id": "E-P1c",
+   "property": "TickPreVoteRoundNotHeldByLeader",
+   "role": "control",
+   "state_source": "trace",
+   "how_populated": "cursor 4 of the same trace: tick round active while Candidate (legal)",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/logs/stale.log"
+  },
+  {
+   "id": "E-P1fix",
+   "property": "TickPreVoteRoundNotHeldByLeader",
+   "role": "control",
+   "state_source": "mc",
+   "how_populated": "repaired-model control (establish_leader clears the round) on Update_hunt_stale_round.cfg",
+   "expected": "no violation",
+   "new": {
+    "tlc": "no violation within 15-min budget (2,633,268 distinct states)"
+   },
+   "log": "spec/evidence/mutants/CTRL-C-establish-clears-round/tlc.log"
+  },
+  {
+   "id": "E-P2",
+   "property": "LeaderNotPreemptedByTimerPreVote",
+   "role": "separating",
+   "state_source": "mc",
+   "how_populated": "counterexample transition 11->12 of Update_hunt_stale_round_consequence.cfg",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/upd-hunt-stale-round-consequence.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "spec/confirmation-MC-1.md (runtime, debug and release)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:14-20",
+     "openraft/src/config/config.rs:403-404",
+     "tests/tests/elect/t12_pre_vote.rs:59"
+    ]
+   },
+   "cell": "bug candidate (MC-1)"
+  },
+  {
+   "id": "E-P2fix",
+   "property": "LeaderNotPreemptedByTimerPreVote",
+   "role": "control",
+   "state_source": "mc",
+   "how_populated": "same repaired-model control as E-P1fix",
+   "expected": "no violation",
+   "new": {
+    "tlc": "no violation within budget"
+   },
+   "log": "spec/evidence/mutants/CTRL-C-establish-clears-round/tlc.log"
+  },
+  {
+   "id": "E-P3",
+   "property": "PreVoteGrantsWithinFrozenVoters",
+   "role": "separating",
+   "state_source": "mc",
+   "how_populated": "counterexample state 16 of Update_hunt_repeat_round_cont.cfg (round B counts round A's grant from removed node 3); BFS depth 18",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/upd-hunt-repeat-round-cont.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "spec/confirmation-MC-3.md"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/proposer/candidate.rs:107",
+     "openraft/src/core/raft_core.rs:1397"
+    ]
+   },
+   "cell": "bug candidate (MC-3)"
+  },
+  {
+   "id": "E-P3c",
+   "property": "PreVoteGrantsWithinFrozenVoters",
+   "role": "control",
+   "state_source": "mc",
+   "how_populated": "repaired-model control (non-member grants ignored, voter re-check, establish clears) on the repeat-round cfg",
+   "expected": "no violation",
+   "new": {
+    "tlc": "no violation within 20-min budget (5,357,629 distinct states)"
+   },
+   "log": "spec/evidence/mutants/CTRL-D-voter-recheck-repeat/tlc.log"
+  },
+  {
+   "id": "E-P4",
+   "property": "CandidateGrantsWithinFrozenVoters",
+   "role": "separating",
+   "state_source": "mc",
+   "how_populated": "counterexample state 17 of Update_hunt_nonvoter_elect_cont.cfg (non-voter candidate counts its own grant); also full-MCNext simulation spec/output/upd-full-cont1-sim.log (external-trigger producer)",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/output/upd-hunt-nonvoter-cont.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "spec/confirmation-MC-2.md"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/proposer/candidate.rs:107",
+     "openraft/src/raft_state/mod.rs:425-427"
+    ]
+   },
+   "cell": "bug candidate (MC-2)"
+  },
+  {
+   "id": "E-P4c",
+   "property": "CandidateGrantsWithinFrozenVoters",
+   "role": "control",
+   "state_source": "mc",
+   "how_populated": "repaired-model control on the non-voter cfg",
+   "expected": "no violation",
+   "new": {
+    "tlc": "no violation, state space exhausted (323,747 distinct states)"
+   },
+   "log": "spec/evidence/mutants/CTRL-D-voter-recheck-nonvoter/tlc.log"
+  },
+  {
+   "id": "E-P5",
+   "property": "PreVoteElectionAtProbedVote",
+   "role": "separating",
+   "state_source": "constructed",
+   "how_populated": "model mutant MUT-B (probe at term+2, election at term+1); TLC counterexample transition",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/mutants/MUT-B-probe-term-mismatch/tlc.log",
+   "impl_produces": {
+    "value": "no",
+    "basis": "traces/pre_vote_resp_quorum.ndjson: probed (2,1) == elected (2,1); no violation in any update campaign"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:31-32",
+     "openraft/src/docs/protocol/pre_vote.md:47"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E-P5k",
+   "property": "PreVoteElectionAtProbedVote",
+   "role": "control",
+   "state_source": "mc",
+   "how_populated": "all transitions of Update_full_cont1 / focused / open runs (no violation)",
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/output/upd-full-cont1.log"
+  },
+  {
+   "id": "E-P6",
+   "property": "PreVoteStepsDoNotPersist",
+   "role": "separating",
+   "state_source": "constructed",
+   "how_populated": "model mutant MUT-A (pre-vote request adopts the requested vote); TLC counterexample transition",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/mutants/MUT-A-prevote-req-adopts-vote/tlc.log",
+   "impl_produces": {
+    "value": "no",
+    "basis": "traces pre_vote_req_grant/lease_reject/stale_log validated with post == pre; mutation control M4 rejected"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "openraft/src/docs/protocol/pre_vote.md:42-45",
+     "openraft/src/engine/tests/handle_pre_vote_resp_test.rs:88"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "E-P6k",
+   "property": "PreVoteStepsDoNotPersist",
+   "role": "control",
+   "state_source": "mc",
+   "how_populated": "all transitions of Update_full_cont1 / focused / open runs (no violation)",
+   "new": {
+    "tlc": true
+   },
+   "log": "spec/output/upd-full-cont1.log"
+  }
+ ],
+ "bug_candidates": [
+  "E-P1",
+  "E-P2",
+  "E-P3",
+  "E-P4"
+ ],
+ "unresolved": []
+}

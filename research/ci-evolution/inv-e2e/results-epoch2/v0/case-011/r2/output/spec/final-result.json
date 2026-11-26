@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "run_id": "incr-b919e9f909ea",
+  "summary": "Pre-Vote update modeled (MODEL_UPDATED); harness rebased and 18 fresh traces validated; model checking found one real defect (MC-1), reproduced on the updated implementation: a Pre-Vote round survives leader establishment and the new Leader re-elects itself, tripping the leader-vote assertion.",
+  "validation_limits": [
+    "All model checking is bounded (3 nodes, MaxTerm 2, <=2 elections, <=2 Pre-Vote rounds, <=1 crash, <=1 drop, <=5 messages); 30-minute BFS/simulation budgets did not exhaust the state space (LIMITED_COVERAGE).",
+    "Traces are engine-level (real Engine methods, runtime command execution emulated by an explicit RuntimeDrain event); RaftCore tick guards, RPC dispatch, and the PreVoteResponse gate as executed in RaftCore are validated by source review, model checking, and the integration reproduction rather than trace replay.",
+    "Open focused checks are provisional and budget-limited; the discharge obligation passed only within its BFS budget.",
+    "Two prior-model defects were repaired (LogLE on absent logs; leader lease on establishment); prior state counts are not comparable, but with both repairs reverted and Pre-Vote disabled the suite reproduces the prior exhaustive MC.cfg graph exactly.",
+    "The Level 3 timer-path reproduction slows save_vote through a test-storage hook (memstore only); the Level 1 reproduction uses only public APIs."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote round survives leader establishment and makes the new Leader re-elect itself",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "A Candidate whose election timer fires starts a Pre-Vote round without dropping its running election; establish_leader clears only `candidate`, so `pre_candidate` survives; handle_pre_vote_resp then calls elect() on the established Leader and do_elect keeps the Leader object.",
+      "trigger": "Candidate at term T times out (e.g. slow save_vote, or trigger().elect(true) while Candidate) and pre-votes for T+1; the delayed real vote for T arrives first (Leader at T); the granted Pre-Vote reply arrives afterwards.",
+      "consequence": "The healthy term-T Leader bumps its own term to T+1 while keeping a Leader object at (T, committed); RaftCore::trigger_routine_actions -> try_leader_handler hits debug_assert leader.vote >= state.vote and the core panics (Fatal::Panicked); in release builds the Leader runs behind its persisted vote.",
+      "severity": "High",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/output/MC-1-counterexample-update-full.log",
+        "spec/output/update-nofault.log",
+        "spec/output/repro-MC-1-reliability.log",
+        "harness/repro/t13_specular_mc1_prevote_reelect.rs",
+        "harness/repro/run-repro.sh",
+        "spec/output/trace-update-property-candidate_prevote_then_leader.log"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+          "openraft/src/engine/engine_impl.rs:establish_leader",
+          "openraft/src/engine/engine_impl.rs:pre_elect",
+          "openraft/src/core/raft_core.rs:handle_tick_election",
+          "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match"
+        ],
+        "actions": [
+          "HandlePreVoteResponse",
+          "HandleVoteResponse",
+          "PreElect",
+          "TickPreElect",
+          "ElectEffect"
+        ],
+        "invariants": [
+          "LeaderVoteCoversLocalVote"
+        ],
+        "premises": [
+          "Pre-Vote is enabled (Config::enable_pre_vote or runtime pre_vote(true)) or trigger().elect(true) is called on a Candidate.",
+          "The Candidate's own election is still in progress when its election timer fires: e.g. save_vote slower than the election timeout (RaftCore awaits it inline), so queued Ticks run before the vote RPCs are dispatched.",
+          "The real-vote reply for term T is delivered before the granted Pre-Vote reply for T+1; both within the vote RPC ttl (election_timeout_min).",
+          "No become_following (vote grant to another node, AppendEntries from another leader, role refresh) or restart clears pre_candidate in between.",
+          "Debug assertions enabled for the panic consequence (tests); otherwise the stale Leader object persists."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn pre_elect(&mut self) {",
+            "end": "            vote_req: VoteRequest::new(pre_vote, last_log_id),"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+            "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free."
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    fn establish_leader(&mut self) {",
+            "end": "        self.try_leader_handler().unwrap().leader_append_entries([EntryPayload::Blank]);"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    fn do_elect(&mut self, leadership_transfer: bool) {",
+            "end": "        // A real election supersedes any in-flight Pre-Vote round."
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn try_leader_handler(&mut self) -> Result<LeaderHandler<'_, C, SM>, ForwardToLeader<C>> {",
+            "end": "            \"leader.vote({}) >= state.vote({})\","
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "    fn handle_tick_election(&mut self) {",
+            "end": "            self.engine.pre_elect();"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "            Notification::PreVoteResponse {",
+            "end": "            Notification::HigherVote {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "    fn does_pre_candidate_vote_match(&self, candidate_vote: &UncommittedVoteOf<C>, msg: impl fmt::Display) -> bool {",
+            "end": "    /// If a message is sent by a previous Leader but is received by current Leader,"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/handler/vote_handler/mod.rs"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla",
+            "start": "HandlePreVoteResponse(i, m, consume) ==",
+            "end": "DeliverPreVoteResponse(m) =="
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla",
+            "start": "HandleVoteResponse(i, m, consume) ==",
+            "end": "DeliverVoteResponse(m) =="
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla",
+            "start": "ElectEffect(i, resetGreater, msgs) ==",
+            "end": "EngineIdle(i) =="
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla",
+            "start": "PreElect(i, resetGreater) ==",
+            "end": "TickPreElect(i) =="
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla",
+            "start": "LeaderVoteCoversLocalVote ==",
+            "end": "PreCandidateTracksNextTerm =="
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.cfg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CR-1",
+      "title": "Pre-Vote documentation claims an Unreachable response counts as a grant",
+      "status": "FALSE POSITIVE",
+      "source": "code-review",
+      "cause": "docs/protocol/pre_vote.md says the default pre_vote returns Unreachable and that Unreachable counts as a grant; the code synthesizes a granting Ok by default and never counts transport errors.",
+      "trigger": "A peer's pre_vote RPC fails with Unreachable while Pre-Vote is enabled.",
+      "consequence": "None at runtime: the failed reply is dropped (not a grant), as the repository test pre_vote_unreachable_peer_is_not_a_grant confirms; only the documentation is stale.",
+      "severity": "Low",
+      "evidence": [
+        "spec/confirmation-CR-1.md",
+        "spec/output/baseline-new-elect.log"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+# command: timeout 20m java -Xmx6g -XX:+UseParallelGC tlc2.TLC -workers 2 -deadlock -coverage 10 -metadir /dev/shm/specular-e2e-case-011/canary-CanaryNoPreCandidateDroppedByFollow-6675 -config Update_canary_CanaryNoPreCandidateDroppedByFollow.cfg Update  (TLC -timeout via -Dtlc2.TLC.stopAfter=900)
+# started: 2026-11-25T20:46:15-06:00
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 85 and seed -3377162401636267135 with 2 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 6716] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-11095613232788255852/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-11095613232788255852/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-11095613232788255852/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-11095613232788255852/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-11095613232788255852/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-11095613232788255852/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-11095613232788255852/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 02:46:16)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 02:46:16.
+Error: Action property CanaryNoPreCandidateDroppedByFollow is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCTickPreElect("1") line 51, col 5 to line 54, col 57 of module MC>
+
+State 3: <MCCrash("1") line 75, col 5 to line 78, col 29 of module MC>
+
+State 4: <MCRestart("1") line 92, col 30 to line 92, col 84 of module MC>
+
+The coverage statistics at 2026-11-26 02:46:17 (see https://explain.tlapl.us/module-coverage-statistics for how to interpret the following statistics).
+<candidateActive line 126, col 5 to line 126, col 19 of module base>: 7
+<vote line 119, col 5 to line 119, col 8 of module base>: 8
+<durableVote line 120, col 5 to line 120, col 15 of module base>: 5
+<durableConfig line 143, col 5 to line 143, col 17 of module base>: 1
+<preGrants line 154, col 5 to line 154, col 13 of module base>: 7
+<sendVotePending line 124, col 5 to line 124, col 19 of module base>: 7
+<effectiveConfigIndex line 142, col 5 to line 142, col 24 of module base>: 1
+<lastLog line 136, col 5 to line 136, col 11 of module base>: 1
+<leaseValid line 125, col 5 to line 125, col 14 of module base>: 1
+<role line 118, col 5 to line 118, col 8 of module base>: 8
+<seenGreaterLog line 147, col 5 to line 147, col 18 of module base>: 1
+<grants line 129, col 5 to line 129, col 10 of module base>: 3
+<effectiveConfig line 141, col 5 to line 141, col 19 of module base>: 1
+<replyMessage line 123, col 5 to line 123, col 16 of module base>: 1
+<logFlushPending line 138, col 5 to line 138, col 19 of module base>: 1
+<crashed line 146, col 5 to line 146, col 11 of module base>: 4
+<committedConfigIndex line 140, col 5 to line 140, col 24 of module base>: 1
+<leaderConfig line 134, col 5 to line 134, col 16 of module base>: 1
+<durableConfigIndex line 144, col 5 to line 144, col 22 of module base>: 1
+<leaderGrants line 135, col 5 to line 135, col 16 of module base>: 1
+<sentVoteReq line 130, col 5 to line 130, col 15 of module base>: 5
+<candidateVote line 127, col 5 to line 127, col 17 of module base>: 8
+<preCandidateVote line 152, col 5 to line 152, col 20 of module base>: 9
+<preCandidateConfig line 153, col 5 to line 153, col 22 of module base>: 1
+<replyPending line 122, col 5 to line 122, col 16 of module base>: 1
+<durableLastLog line 137, col 5 to line 137, col 18 of module base>: 1
+<committedConfig line 139, col 5 to line 139, col 19 of module base>: 1
+<votePersistPending line 121, col 5 to line 121, col 22 of module base>: 7
+<preVoteBase line 22, col 10 to line 22, col 20 of module MC>: 3
+<candidateConfig line 128, col 5 to line 128, col 19 of module base>: 1
+<faultCounters line 9, col 10 to line 9, col 22 of module MC>: 19
+<leaderActive line 131, col 5 to line 131, col 16 of module base>: 1
+<messages line 145, col 5 to line 145, col 12 of module base>: 51
+<leaderCertified line 133, col 5 to line 133, col 19 of module base>: 1
+<preCandidateActive line 151, col 5 to line 151, col 22 of module base>: 7
+<leaderVote line 132, col 5 to line 132, col 14 of module base>: 1
+<MCInit line 115, col 1 to line 115, col 6 of module MC>: 3:3
+<MCTickElect line 28, col 1 to line 28, col 14 of module MC>: 41:102
+<MCExternalElect line 34, col 1 to line 34, col 18 of module MC>: 0:102
+<MCStartTransferElection line 40, col 1 to line 40, col 26 of module MC>: 0:102
+<MCTickPreElect line 50, col 1 to line 50, col 17 of module MC>: 46:102
+<MCExternalPreElect line 56, col 1 to line 56, col 21 of module MC>: 0:100
+<MCAppendJointConfig line 62, col 1 to line 62, col 30 of module MC>: 0:0
+<MCAppendUniformConfig line 68, col 1 to line 68, col 24 of module MC>: 0:0
+<MCCrash line 74, col 1 to line 74, col 10 of module MC>: 43:85
+<MCPersistVote line 88, col 1 to line 88, col 16 of module MC>: 27:32
+<MCFinishVoteBroadcast line 89, col 1 to line 89, col 24 of module MC>: 0:0
+<MCFlushLog line 90, col 1 to line 90, col 13 of module MC>: 0:0
+<MCExpireLease line 91, col 1 to line 91, col 16 of module MC>: 0:0
+<MCRestart line 92, col 1 to line 92, col 12 of module MC>: 17:27
+<MCRefreshServerState line 93, col 1 to line 93, col 23 of module MC>: 82:135
+<MCCommitMembership line 94, col 1 to line 94, col 21 of module MC>: 0:0
+<MCSendVoteRequest line 95, col 1 to line 95, col 23 of module MC>: 6:6
+<MCSendAppendEntries line 96, col 1 to line 96, col 25 of module MC>: 0:0
+<MCReactive line 103, col 1 to line 103, col 10 of module MC (110 8 113 70)>: 38:38
+<MCNext line 121, col 1 to line 121, col 6 of module MC (127 8 127 43)>: 47:51
+<MCTypeOK line 133, col 1 to line 133, col 8 of module MC>
+<DurableVoteNotAhead line 878, col 1 to line 878, col 19 of module base>
+<DurableLogNotAhead line 879, col 1 to line 879, col 18 of module base>
+<VoteRequestAfterDurable line 881, col 1 to line 881, col 23 of module base>
+<GrantedResponseAfterDurable line 884, col 1 to line 884, col 27 of module base>
+<LeaderRoleHasCommittedSelfVote line 887, col 1 to line 887, col 30 of module base>
+<CandidateRoleHasPendingSelfVote line 890, col 1 to line 890, col 31 of module base>
+<MembershipAtMostOneOutstanding line 896, col 1 to line 896, col 30 of module base>
+<NoForgedMessageEndpoints line 901, col 1 to line 901, col 24 of module base>
+<CertifiedLeaderHasFrozenQuorum line 893, col 1 to line 893, col 30 of module base>
+<MessageBound line 132, col 1 to line 132, col 12 of module MC>: 839:839
+<Action line 224, col 7 to line 225, col 77 of module Update>
+End of statistics.
+839 states generated, 348 distinct states found, 293 states left on queue.
+The depth of the complete state graph search is 5.
+Finished in 02s at (2026-11-26 02:46:17)
+Trace exploration spec path: ./Update_TTrace_1795661175.tla
+# finished: 2026-11-25T20:46:18-06:00 rc=13

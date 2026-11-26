@@ -1,0 +1,21 @@
+--- a/stores/memstore/src/lib.rs
++++ b/stores/memstore/src/lib.rs	2026-11-25 18:02:49.538994653 -0600
+@@ -127,6 +127,8 @@
+     DelayBuildingSnapshot,
+     BuildSnapshot,
+     PurgeLog,
++    /// Specular repro hook: delay `save_vote` (slow vote persistence).
++    SaveVote,
+ }
+ 
+ /// Block operations for testing purposes.
+@@ -407,6 +409,9 @@
+     #[tracing::instrument(level = "trace", skip(self))]
+     async fn save_vote(&mut self, vote: &Vote<leader_id_mode::LeaderId<u64, u64>>) -> Result<(), io::Error> {
+         tracing::debug!(?vote, "save_vote");
++        if let Some(d) = self.block.get_blocking(&BlockOperation::SaveVote) {
++            TypeConfig::sleep(d).await;
++        }
+         let mut h = self.vote.write().await;
+ 
+         *h = Some(*vote);

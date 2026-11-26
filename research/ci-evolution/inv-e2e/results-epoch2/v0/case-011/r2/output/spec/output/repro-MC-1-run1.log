@@ -1,0 +1,14 @@
+=== run 1 2026-11-26T00:00:18Z
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/work-source/tests)
+specular: isolate old leader 0; node 1 times out and runs Pre-Vote
+specular: t=4.411µs node1 state=Follower term=1 vote=<T1-N0:Q>
+specular: t=1.013392657s node1 state=Candidate term=2 vote=<T2-N1:->
+specular: history=[(Follower, 1), (Candidate, 2)]
+specular: leader_at_term2_index=None later_term3_index=None
+specular: node2 state=Follower term=2 vote=<T2-N1:->
+specular: client_write on node 1 after self re-election -> Err(APIError(ForwardToLeader(ForwardToLeader { leader_id: None, leader_node: None })))
+thread 't13_specular_mc1_prevote_reelect::specular_mc1_prevote_round_survives_leader_establishment' (12793) panicked at tests/tests/elect/t13_specular_mc1_prevote_reelect.rs:118:5:
+test t13_specular_mc1_prevote_reelect::specular_mc1_prevote_round_survives_leader_establishment ... FAILED
+    t13_specular_mc1_prevote_reelect::specular_mc1_prevote_round_survives_leader_establishment
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 6.52s
+=== exit 101

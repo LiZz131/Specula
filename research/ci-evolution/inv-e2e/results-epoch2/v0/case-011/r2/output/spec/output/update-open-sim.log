@@ -1,0 +1,96 @@
+# command: timeout 30m java -Xmx14g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 15 -metadir /dev/shm/specular-e2e-case-011/update-open-sim-23569 -config Update-open.cfg Update -deadlock -simulate num=999999999 -depth 60
+# started: 2026-11-26T01:55:53Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed 1748586374458583193 with 15 workers on 40 cores with 12743MB heap and 64MB offheap memory [pid: 23582] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-16644605621833772803/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-16644605621833772803/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-16644605621833772803/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-16644605621833772803/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-16644605621833772803/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-16644605621833772803/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-16644605621833772803/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 01:55:54)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 01:55:54.
+Error: Invariant LeaderVoteCoversLocalVote is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 106, col 5 to line 108, col 46 of module MC>
+
+State 2: <MCCrash("3") line 68, col 5 to line 70, col 62 of module MC>
+
+State 3: <MCTickPreElect("2") line 44, col 5 to line 46, col 65 of module MC>
+
+State 4: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 5: <InteractionActions line 103, col 8 to line 103, col 43 of module Update>
+
+State 6: <PreCandidateClearedByFollowing line 60, col 5 to line 62, col 30 of module Update>
+
+State 7: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 8: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+State 9: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 10: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 11: <MCTickPreElect("2") line 44, col 5 to line 46, col 65 of module MC>
+
+State 12: <EstablishLeaderInteraction line 68, col 5 to line 69, col 30 of module Update>
+
+State 13: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 14: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 15: <RestartClearsPreCandidate line 74, col 5 to line 75, col 30 of module Update>
+
+State 16: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 17: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 18: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 19: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 20: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 21: <PreCandidateClearedByFollowing line 60, col 5 to line 62, col 30 of module Update>
+
+State 22: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 23: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+State 24: <PreCandidateClearedByFollowing line 60, col 5 to line 62, col 30 of module Update>
+
+State 25: <EstablishLeaderInteraction line 68, col 5 to line 69, col 30 of module Update>
+
+State 26: <InteractionActions line 97, col 8 to line 101, col 33 of module Update>
+
+State 27: <EstablishLeaderInteraction line 68, col 5 to line 69, col 30 of module Update>
+
+State 28: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+The number of states generated: 249836
+Simulation using seed 1748586374458583193 and aril 0
+Progress: 249890 states checked, 1788 traces generated (trace length: mean=25, var(x)=1040, sd=32)
+Finished in 06s at (2026-11-26 01:56:00)
+Trace exploration spec path: ./Update_TTrace_1795658153.tla
+# finished: 2026-11-26T01:56:00Z rc=12

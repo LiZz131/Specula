@@ -1,0 +1,74 @@
+# command: timeout 30m java -Xmx12g -XX:+UseParallelGC -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -workers 10 -metadir /dev/shm/specular-e2e-case-011/update-open-sim-21511 -config Update-open.cfg Update -simulate num=999999999 -depth 60
+# started: 2026-11-26T01:37:41Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed -6920006881018556350 with 10 workers on 40 cores with 10923MB heap and 64MB offheap memory [pid: 21530] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-17400691047750806763/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-17400691047750806763/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-17400691047750806763/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-17400691047750806763/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-17400691047750806763/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-17400691047750806763/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-17400691047750806763/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 01:37:41)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 01:37:41.
+Error: Deadlock reached.
+Error: The behavior up to this point is:
+State 1: <MCInit line 106, col 5 to line 108, col 46 of module MC>
+
+State 2: <MCTickPreElect("1") line 44, col 5 to line 46, col 65 of module MC>
+
+State 3: <InteractionActions line 103, col 8 to line 103, col 43 of module Update>
+
+State 4: <MCCrash("1") line 68, col 5 to line 70, col 62 of module MC>
+
+State 5: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 6: <MCTickPreElect("3") line 44, col 5 to line 46, col 65 of module MC>
+
+State 7: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 8: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 9: <RestartClearsPreCandidate line 74, col 5 to line 75, col 30 of module Update>
+
+State 10: <PreCandidateClearedByFollowing line 60, col 5 to line 62, col 30 of module Update>
+
+State 11: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+State 12: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 13: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 14: <HandlePreVoteRequestFocus line 45, col 5 to line 46, col 30 of module Update>
+
+State 15: <EnvUpdate line 167, col 5 to line 169, col 60 of module Update>
+
+State 16: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+State 17: <HandlePreVoteResponseFocus line 52, col 5 to line 53, col 30 of module Update>
+
+The number of states generated: 1035
+Simulation using seed -6920006881018556350 and aril 0
+Progress: 1045 states checked, 12 traces generated (trace length: mean=0, var(x)=0, sd=0)
+Finished in 01s at (2026-11-26 01:37:42)
+Trace exploration spec path: ./Update_TTrace_1795657061.tla
+# finished: 2026-11-26T01:37:42Z rc=11

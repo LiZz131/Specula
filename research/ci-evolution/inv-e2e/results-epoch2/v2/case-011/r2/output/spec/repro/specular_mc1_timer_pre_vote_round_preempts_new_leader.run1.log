@@ -1,0 +1,24 @@
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/work/repro/tests)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.68s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 1 test
+
+thread 'tokio-rt-worker' (12149) panicked at openraft/src/engine/engine_impl.rs:977:9:
+leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+EVENTS: ["1->2 vote-rpc term=2 #0 delay=0", "1->2 vote-rpc term=2 #1 delay=100", "1->2 vote-rpc term=3 (timer pre-vote)", "2->1 pre-vote resp term=3 granted=true delayed", "1->2 vote-rpc term=3 (timer pre-vote)", "2->1 pre-vote resp term=3 granted=true delayed"]
+OUTCOME: node1 term=2 state=Candidate leader=None stale_pre_votes_sent=2
+
+thread 't90_specular_pre_vote_repro::specular_mc1_timer_pre_vote_round_preempts_new_leader' (12140) panicked at tests/tests/elect/t90_specular_pre_vote_repro.rs:180:5:
+BUG REPRODUCED (MC-1): node 1 won term 2 but a Pre-Vote round started by its election timer while it was still a Candidate completed after leadership and started a new election: now term=2 state=Candidate
+test t90_specular_pre_vote_repro::specular_mc1_timer_pre_vote_round_preempts_new_leader ... FAILED
+
+failures:
+
+failures:
+    t90_specular_pre_vote_repro::specular_mc1_timer_pre_vote_round_preempts_new_leader
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 5.18s
+
+error: test failed, to rerun pass `-p tests --test elect`

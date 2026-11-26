@@ -1,0 +1,112 @@
+{
+  "prior_v0": {
+    "status": "LIMITED_COVERAGE",
+    "baseline_commit": "b41ce98d43e99e8b0cc5e613e6d18429a8f82706",
+    "source_tree_modified": false,
+    "instrumented_tree_commit": "b41ce98d43e99e8b0cc5e613e6d18429a8f82706",
+    "instrumentation_patch": "harness/instrumentation.patch",
+    "toolchain_used": "nightly-2025-12-31",
+    "baseline_tests": {
+      "openraft_library": {
+        "passed": 478,
+        "failed": 0
+      },
+      "election_integration": {
+        "passed": 2,
+        "failed": 0
+      },
+      "membership_integration": {
+        "passed": 44,
+        "failed": 0
+      },
+      "lifecycle_integration": {
+        "passed": 14,
+        "failed": 0
+      }
+    },
+    "trace_validation": {
+      "status": "LIMITED_COVERAGE",
+      "fresh_files": 7,
+      "records": 7,
+      "all_records_consumed": true,
+      "all_runs_completed_without_error": true,
+      "distinct_states_per_trace": 2
+    },
+    "model_checking": {
+      "status": "LIMITED_COVERAGE",
+      "primary": {
+        "config": "spec/MC.cfg",
+        "states_generated": 5273983,
+        "distinct_states": 640830,
+        "depth": 24,
+        "queue_remaining": 0,
+        "finding": false
+      },
+      "membership_non_vacuity": {
+        "config": "spec/MC-membership.cfg",
+        "states_generated": 1558889,
+        "distinct_states": 181185,
+        "depth": 28,
+        "queue_remaining": 0,
+        "joint_append_evaluations": 2508,
+        "uniform_append_evaluations": 9288,
+        "finding": false
+      }
+    },
+    "cleanup": {
+      "tlc_state_root_removed": true,
+      "background_processes_remaining": false
+    },
+    "limitations": [
+      "Finite three-node universe",
+      "Bounded terms, log indices, messages, elections, membership changes, crashes, and drops",
+      "Seven deterministic single-transition implementation traces",
+      "No fairness or unbounded liveness claim",
+      "TLC uses probabilistic fingerprints; estimates are preserved in logs"
+    ]
+  },
+  "run_id": "incr-315482ff25a1",
+  "status": "LIMITED_COVERAGE",
+  "source_commit": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+  "source_tree_modified": false,
+  "instrumented_tree": "harness/work-source (git worktree, test-only patch)",
+  "instrumentation_patch": "harness/instrumentation.patch",
+  "toolchain_used": "nightly-2026-03-01",
+  "trace_validation": {
+    "status": "PASS_ON_COLLECTED_TRACES",
+    "fresh_files": 17,
+    "events": 20,
+    "all_records_consumed": true,
+    "mutations_rejected": "6/6",
+    "inventory": "spec/trace-inventory.json"
+  },
+  "model_checking": {
+    "status": "LIMITED_COVERAGE",
+    "summary": "spec/model-checking-summary.md",
+    "final_suite": {
+      "MC.cfg": "BFS 8,457,002 distinct, depth 17, budget-stopped, no violation; simulation 14.9M states, no violation",
+      "MC-membership.cfg": "BFS 2,474,412 distinct, depth 19, budget-stopped, no violation; simulation 25.2M states, no violation",
+      "Update_full.cfg": "MC-1 (PreVoteElectionPremiseCurrent, 11 states)",
+      "Update_hunt_stale_membership*.cfg": "MC-2 (PreVoteGrantFromRoundMember, 15 states)",
+      "Update_full_continue.cfg": "BFS 5,468,696 distinct, no violation; simulation found MC-2 (31 states)",
+      "Update_full_continue2.cfg": "simulation 33.7M states, no violation",
+      "Update_focused_continue.cfg": "BFS 3,761,251 distinct, no violation; simulation 25.8M states, no violation",
+      "Update_open_continue.cfg": "rely v3: BFS 4,108,477 distinct, no violation; simulation 27.9M states, no violation",
+      "Update_discharge*.cfg": "rely v3: no violation on both seeds (2,196,042 / 1,188,370 distinct), omitted actions non-vacuous",
+      "canaries": "6/6 reachability witnesses"
+    },
+    "findings": [
+      "MC-1 REPRODUCED",
+      "MC-2 REPRODUCED",
+      "CR-1 FALSE POSITIVE"
+    ]
+  },
+  "findings": [
+    "MC-1 REPRODUCED"
+  ],
+  "cleanup": {
+    "tlc_state_root_removed": true,
+    "background_processes_remaining": false,
+    "artifact_tree": "clean at update 3ab6cdd (worktrees removed)"
+  }
+}

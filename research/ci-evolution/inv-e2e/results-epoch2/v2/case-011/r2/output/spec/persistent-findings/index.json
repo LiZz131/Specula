@@ -1,0 +1,67 @@
+{
+  "MC-1": {
+    "id": "MC-1",
+    "title": "Timer-started Pre-Vote round survives leader establishment and makes the new leader re-elect",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/engine/engine_impl.rs:establish_leader",
+      "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+      "openraft/src/core/raft_core.rs:handle_tick_election",
+      "openraft/src/engine/handler/vote_handler/mod.rs:update_internal_server_state"
+    ],
+    "actions": [
+      "TickPreElect",
+      "HandleVoteResponse",
+      "HandlePreVoteResponse"
+    ],
+    "invariants": [
+      "TickPreVoteRoundNotHeldByLeader",
+      "LeaderNotPreemptedByTimerPreVote"
+    ],
+    "reusable": true,
+    "cause": "handle_tick_election starts a Pre-Vote round for a Candidate whose election timed out; establish_leader/become_leader do not clear pre_candidate, and handle_pre_vote_resp calls elect() on the round's quorum without re-checking role or vote."
+  },
+  "MC-2": {
+    "id": "MC-2",
+    "title": "Completed Pre-Vote round elects a node that left the voters; its self-grant panics RaftCore",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+      "openraft/src/engine/engine_impl.rs:do_elect",
+      "openraft/src/proposer/candidate.rs:grant_by"
+    ],
+    "actions": [
+      "HandlePreVoteResponse",
+      "ElectEffects",
+      "PersistVote",
+      "HandleVoteResponse"
+    ],
+    "invariants": [
+      "CandidateGrantsWithinFrozenVoters"
+    ],
+    "reusable": true,
+    "cause": "handle_pre_vote_resp calls elect() without the is_voter check performed by every old elect() caller; do_elect then builds a candidate over voters that exclude the node and the runtime's local self-grant reaches Candidate::grant_by, whose ex"
+  },
+  "MC-3": {
+    "id": "MC-3",
+    "title": "Repeated Pre-Vote round at the same hypothetical vote counts a delayed grant from a removed node; RaftCore panics",
+    "status": "REPRODUCED",
+    "sites": [
+      "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+      "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+      "openraft/src/engine/engine_impl.rs:pre_elect",
+      "openraft/src/proposer/candidate.rs:grant_by"
+    ],
+    "actions": [
+      "ExternalPreElect",
+      "HandlePreVoteResponse",
+      "AppendJointConfig",
+      "AppendUniformConfig"
+    ],
+    "invariants": [
+      "PreVoteGrantsWithinFrozenVoters"
+    ],
+    "reusable": true,
+    "cause": "Rounds started at an unchanged vote probe the same (term+1, self); the PreVoteResponse gate correlates by leader id only, and handle_pre_vote_resp calls grant_by for any granted response, which panics for a node outside the new round's quor"
+  }
+}

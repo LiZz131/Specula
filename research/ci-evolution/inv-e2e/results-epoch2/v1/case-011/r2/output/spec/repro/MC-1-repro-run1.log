@@ -1,0 +1,26 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 2 tests
+test t13_specular_repro_pre_vote_after_establish::specular_repro_control_without_pre_vote_round ... SPECULAR-REPRO-CONTROL: leader_term=2 n1.state=Leader n1.term=2
+ok
+test t13_specular_repro_pre_vote_after_establish::specular_repro_stale_pre_vote_displaces_new_leader ... 
+thread 'tokio-rt-worker' (14284) panicked at openraft/src/engine/engine_impl.rs:977:9:
+leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULAR-REPRO: leader_term=2 n1.state=Leader n1.term=2 n1.vote=<T2-N1:Q> n2.state=Follower n2.term=2 n2.current_leader=Some(1)
+
+thread 't13_specular_repro_pre_vote_after_establish::specular_repro_stale_pre_vote_displaces_new_leader' (14277) panicked at tests/tests/elect/t13_specular_repro_pre_vote_after_establish.rs:102:5:
+assertion `left == right` failed: the established leader started an election at the next term
+  left: 3
+ right: 2
+FAILED
+
+failures:
+
+failures:
+    t13_specular_repro_pre_vote_after_establish::specular_repro_stale_pre_vote_displaces_new_leader
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 9.87s
+
+error: test failed, to rerun pass `-p tests --test elect`

@@ -1,0 +1,58 @@
+{
+ "schema_version": "2",
+ "system": "openraft (case-011, Pre-Vote update)",
+ "generated_by": "validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "Timer-started Pre-Vote round survives leader establishment and makes the new leader re-elect",
+   "source": "model-checking",
+   "scenario": "U1",
+   "severity": "High",
+   "invariant": "TickPreVoteRoundNotHeldByLeader / LeaderNotPreemptedByTimerPreVote",
+   "config": "Update_hunt_stale_round.cfg (+ Update_hunt_stale_round_consequence.cfg, Update_full.cfg)",
+   "counterexample": "spec/output/upd-hunt-stale-round-consequence.log",
+   "affected_code": [
+    "openraft/src/engine/engine_impl.rs:855-881",
+    "openraft/src/engine/handler/vote_handler/mod.rs:154-231",
+    "openraft/src/engine/engine_impl.rs:533-541",
+    "openraft/src/core/raft_core.rs:1959-2036"
+   ],
+   "summary": "With enable_pre_vote, a Candidate whose real election outlives its election timeout starts a Pre-Vote round (handle_tick_election skips only Leaders). When the real quorum arrives, establish_leader takes only `candidate`; become_leader does not clear `pre_candidate`. The round's later quorum passes the runtime gate and handle_pre_vote_resp calls elect() from the established Leader, bumping the term while the old Leader object stays (debug_assert in try_leader_handler fires; in release the leader abandons leadership and the term inflates)."
+  },
+  {
+   "id": "MC-2",
+   "title": "Completed Pre-Vote round elects a node that left the voters; its self-grant panics RaftCore",
+   "source": "model-checking",
+   "scenario": "U3",
+   "severity": "Medium",
+   "invariant": "CandidateGrantsWithinFrozenVoters",
+   "config": "Update_hunt_nonvoter_elect_cont.cfg",
+   "counterexample": "spec/output/upd-hunt-nonvoter-cont.log",
+   "affected_code": [
+    "openraft/src/engine/engine_impl.rs:515-554",
+    "openraft/src/engine/engine_impl.rs:262-289",
+    "openraft/src/core/raft_core.rs:2290-2302",
+    "openraft/src/proposer/candidate.rs:106-107"
+   ],
+   "summary": "handle_pre_vote_resp calls elect() on a quorum of the round's frozen membership without the is_voter check every old elect() caller performs. If the node removed itself from the voters (kept as learner) while the round was in flight, do_elect builds a candidate over voters that exclude it; the runtime's local self-grant after save_vote reaches Candidate::grant_by, whose expect(\"target not in quorum set\") panics RaftCore."
+  },
+  {
+   "id": "MC-3",
+   "title": "Repeated Pre-Vote round at the same hypothetical vote counts a delayed grant from a removed node; RaftCore panics",
+   "source": "model-checking",
+   "scenario": "U4",
+   "severity": "Medium",
+   "invariant": "PreVoteGrantsWithinFrozenVoters",
+   "config": "Update_hunt_repeat_round_cont.cfg",
+   "counterexample": "spec/output/upd-hunt-repeat-round-cont.log",
+   "affected_code": [
+    "openraft/src/core/raft_core.rs:2067-2090",
+    "openraft/src/engine/engine_impl.rs:297-322",
+    "openraft/src/engine/engine_impl.rs:533-536",
+    "openraft/src/proposer/candidate.rs:106-107"
+   ],
+   "summary": "Pre-Vote rounds started at an unchanged vote all probe the same (term+1, self); the runtime gate correlates PreVoteResponse notifications by leader id only. After a membership change removes a node, a second round accepts that node's delayed grant from the first round, and grant_by panics because the node is not in the new round's quorum set."
+  }
+ ]
+}

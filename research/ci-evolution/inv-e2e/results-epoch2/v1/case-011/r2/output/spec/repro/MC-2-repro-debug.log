@@ -1,0 +1,21 @@
+   Compiling tests v0.10.0-alpha.21 (/work/current/.specular-output/harness/work-source/tests)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.71s
+     Running tests/elect/main.rs (/work/.cache/cargo-target/debug/deps/elect-5d6c2b86d24a8dc2)
+
+running 3 tests
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_control_follower_same_membership_no_panic ... SPECULAR-REPRO-CR2: prober=1 change_membership=false core_alive=true state=Leader term=2 voters=[0, 1, 2]
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_stale_pre_vote_grant_follower_panics ... 
+thread 'tokio-rt-worker' (29869) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+SPECULAR-REPRO-CR2: prober=1 change_membership=true core_alive=false state=Follower term=1 voters=[0, 1]
+ok
+test t14_specular_repro_stale_pre_vote_grant::specular_repro_stale_pre_vote_grant_leader_panics ... 
+thread 'tokio-rt-worker' (29880) panicked at openraft/src/proposer/candidate.rs:107:59:
+target not in quorum set: false
+SPECULAR-REPRO-CR2: prober=0 change_membership=true core_alive=false state=Leader term=1 voters=[0, 1]
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 14.94s
+

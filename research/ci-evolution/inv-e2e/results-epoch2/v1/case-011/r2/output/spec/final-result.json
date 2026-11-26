@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "run_id": "incr-315482ff25a1",
+  "summary": "Pre-Vote update required a model change; the updated model and rebased harness validate 17 fresh traces, and model checking found two reproduced defects: a Pre-Vote round survives leader establishment and makes the new leader re-elect, and a stale Pre-Vote grant from a removed voter panics RaftCore.",
+  "validation_limits": [
+    "LIMITED_COVERAGE: bounded three-node model (MaxTerm 2, MaxLogIndex 4, at most 2 election starts, 2 Pre-Vote starts, 2 membership appends, 1 crash, 1 drop, 5 in-flight messages; hunt configs narrow unrelated faults); every BFS run stopped at its 30-minute budget with a non-empty queue and every simulation is time-bounded, so no run is an exhaustive pass.",
+    "No fairness or liveness property is claimed.",
+    "Trace validation covers 17 engine-level traces (20 events) driven by test fixtures; runtime-only behavior (tick timing, the in-flight-round rate limiter, the RPC timeout, transport errors, the default-grant network implementation) is abstracted; HandlePreVoteResponseTally/Stale/NonMember are model-checked but not observed in traces.",
+    "Open and discharge checks depend on the EnvUpdate rely (v3) and are bounded; the open model is not exhaustive.",
+    "Followers' membership replication is not modeled (inherited abstraction), so the follower variant of MC-2 is covered by the integration reproduction only; the transfer bit of leadership-transfer elections is not propagated in the inherited model (independent of this update).",
+    "Two inherited model defects were repaired in this run (absent-log LogLE equality; HandleVoteResponse lease effects); the prior suite's three-voter MC results were vacuous for leader paths and are not reused.",
+    "Upstream novelty of MC-1/MC-2 is undetermined: issue trackers and history were not searched under the isolation contract."
+  ],
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "Pre-Vote round started while Candidate survives leader establishment and makes the new leader re-elect",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "establish_leader/become_leader do not reset Engine.pre_candidate, and handle_pre_vote_resp calls elect() on a Pre-Vote quorum without checking that the node is still the non-leader whose vote the round probed; a Candidate can start such a round because the tick skips only Leaders and Trigger::elect(true) has no role check.",
+      "trigger": "A Candidate at term T starts a Pre-Vote round (election timer or Trigger::elect(true)) while its real vote replies are in flight; a peer grants both the real vote and the term T+1 Pre-Vote (its uncommitted vote carries no lease); the real grant arrives first and the node becomes Leader at T; the Pre-Vote grant is delivered afterwards, within the RPC timeout.",
+      "consequence": "The freshly established Leader abandons term T and starts an election at T+1 that peers holding its lease reject, leaving the cluster without a working leader for at least a lease and inflating the term (the disruption Pre-Vote is documented to prevent); with debug assertions the stale Leader object trips Engine::try_leader_handler and RaftCore panics.",
+      "severity": "Medium",
+      "evidence": [
+        "spec/confirmation-MC-1.md",
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/MC-1_update_full_PreVoteElectionPremiseCurrent.out",
+        "spec/output/MC-1_final_update_full_PreVoteElectionPremiseCurrent.out",
+        "spec/output/pre-nonmember-repair/mc-update-focused.log",
+        "spec/output/mc-hunt-stale-round.log",
+        "spec/repro/test_bugMC-1_pre_vote_after_establish.rs",
+        "spec/repro/run-MC-1-repro.sh",
+        "spec/repro/MC-1-repro.patch",
+        "spec/repro/MC-1-repro-debug.log",
+        "spec/repro/MC-1-repro-release.log",
+        "spec/repro/MC-1-repro-backtrace.log",
+        "traces/pre_vote_after_establish.ndjson",
+        "spec/output/trace-pre_vote_after_establish.log",
+        "spec/repro/run-all-repro.log"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/engine/engine_impl.rs:establish_leader",
+          "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+          "openraft/src/engine/engine_impl.rs:pre_elect",
+          "openraft/src/engine/handler/vote_handler/mod.rs:become_leader",
+          "openraft/src/core/raft_core.rs:handle_tick_election"
+        ],
+        "actions": [
+          "PreElect",
+          "TickPreElect",
+          "ExternalPreElect",
+          "HandleVoteResponse",
+          "HandlePreVoteResponseElect",
+          "DoElect"
+        ],
+        "invariants": [
+          "PreVoteElectionPremiseCurrent",
+          "PreVoteNeverDisplacesLeader",
+          "EstablishedLeaderHasNoInheritedPreVote"
+        ],
+        "premises": [
+          "A node can start a Pre-Vote round while it is a Candidate: handle_tick_election skips only ServerState::Leader and ExternalCommand::Elect{pre_vote:true} checks only voter membership.",
+          "Leader establishment (establish_leader -> update_vote -> become_leader) does not reset Engine.pre_candidate; only do_elect and become_following do.",
+          "A peer that granted the real vote holds an uncommitted vote without leader lease and therefore grants the term+1 Pre-Vote.",
+          "Message delay may deliver the Pre-Vote grant after the real-vote grant within the vote RPC timeout (election_timeout_min).",
+          "Pre-Vote is enabled (Config::enable_pre_vote / runtime toggle) or requested per call with Trigger::elect(true)."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    fn establish_leader(&mut self) {",
+            "end": "    /// Check if a raft node is in a state that allows to initialize."
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+            "end": "    /// Append entries to follower/learner."
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    fn do_elect(&mut self, leadership_transfer: bool) {",
+            "end": "    /// Start a Pre-Vote round."
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn pre_elect(&mut self) {",
+            "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/handler/vote_handler/mod.rs",
+            "start": "    pub(crate) fn update_internal_server_state(&mut self) {",
+            "end": "    pub(crate) fn server_state_handler(&mut self) -> ServerStateHandler<'_, C> {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "    fn handle_tick_election(&mut self) {",
+            "end": "    /// If a message is sent by a previous Candidate but is received by current Candidate,"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "            Notification::PreVoteResponse {",
+            "end": "            Notification::HigherVote {"
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update_full.cfg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MC-2",
+      "title": "Stale Pre-Vote grant from a node outside the current round's voter set panics RaftCore",
+      "status": "REPRODUCED",
+      "source": "model-checking",
+      "cause": "Pre-Vote responses are correlated only by the pre-candidate leader id, which every round started from the same local vote shares, while each round freezes its own voter set; handle_pre_vote_resp passes any matching grant to Candidate::grant_by, which expects the granter to be in that set.",
+      "trigger": "A node runs a Pre-Vote round while peer P is a voter and P's grant is delayed; the voter set changes so that P is no longer a voter; the node starts another round from the same local vote (e.g. Trigger::elect(true), or the tick); P's delayed grant arrives within the RPC timeout.",
+      "consequence": "grant_by's expect(\"target not in quorum set\") panics and the node's RaftCore task terminates (follower or leader; debug and release builds), so the node stops serving until restarted.",
+      "severity": "High",
+      "evidence": [
+        "spec/confirmation-MC-2.md",
+        "spec/bug-report.md",
+        "spec/findings.json",
+        "spec/output/MC-2_hunt_stale_membership_PreVoteGrantFromRoundMember.out",
+        "spec/output/MC-2_final_hunt_leader_PreVoteGrantFromRoundMember.out",
+        "spec/output/MC-2_full_sim_PreVoteGrantFromRoundMember.out",
+        "spec/repro/test_bugMC-2_stale_pre_vote_grant_nonmember.rs",
+        "spec/repro/specular-repro-all.patch",
+        "spec/repro/run-all-repro.sh",
+        "spec/repro/MC-2-repro-debug.log",
+        "spec/repro/MC-2-repro-release.log",
+        "spec/repro/run-all-repro.log"
+      ],
+      "persistence": {
+        "sites": [
+          "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+          "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+          "openraft/src/proposer/candidate.rs:grant_by",
+          "openraft/src/engine/engine_impl.rs:pre_elect"
+        ],
+        "actions": [
+          "PreElect",
+          "ExternalPreElect",
+          "TickPreElect",
+          "HandlePreVoteResponseNonMember",
+          "AppendJointConfig",
+          "AppendUniformConfig",
+          "CommitMembership"
+        ],
+        "invariants": [
+          "PreVoteGrantFromRoundMember",
+          "NoPanicOnStalePreVoteGrant"
+        ],
+        "premises": [
+          "Two Pre-Vote rounds started from the same local vote have the same correlation key (does_pre_candidate_vote_match compares leader ids only).",
+          "Each round's progress tracker contains only the voters frozen at pre_elect, and grant_by expects the granter to be one of them.",
+          "The voter set can change between two such rounds without changing the local vote (leader-proposed membership change; a follower learns it by AppendEntries with an equal vote).",
+          "A delayed grant can be delivered within the vote RPC timeout (election_timeout_min) after the second round started."
+        ],
+        "dependencies": [
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "    fn does_pre_candidate_vote_match(&self, candidate_vote: &UncommittedVoteOf<C>, msg: impl fmt::Display) -> bool {",
+            "end": "    /// If a message is sent by a previous Leader but is received by current Leader,"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/core/raft_core.rs",
+            "start": "            Notification::PreVoteResponse {",
+            "end": "            Notification::HigherVote {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+            "end": "    /// Append entries to follower/learner."
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/engine/engine_impl.rs",
+            "start": "    pub(crate) fn pre_elect(&mut self) {",
+            "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/proposer/candidate.rs",
+            "start": "    pub(crate) fn new(",
+            "end": "    pub(crate) fn vote_ref(&self) -> &VoteOf<C> {"
+          },
+          {
+            "root": "source",
+            "path": "openraft/src/proposer/candidate.rs",
+            "start": "    pub(crate) fn grant_by(&mut self, target: &C::NodeId) -> bool {",
+            "end": "    /// Return the node ids that have granted this vote."
+          },
+          {
+            "root": "work",
+            "path": "spec/base.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/MC.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update.tla"
+          },
+          {
+            "root": "work",
+            "path": "spec/Update_hunt_stale_membership.cfg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CR-1",
+      "title": "pre_vote.md backward-compatibility paragraph contradicts the implemented transport-error semantics",
+      "status": "FALSE POSITIVE",
+      "source": "code-review",
+      "cause": "docs/protocol/pre_vote.md says the default pre_vote returns Unreachable and that Unreachable counts as a grant; the code's default returns a synthesized grant and never counts a transport error as a grant.",
+      "trigger": "Reading the documentation; at runtime an Unreachable Pre-Vote reply is not a grant (shipped test pre_vote_unreachable_peer_is_not_a_grant).",
+      "consequence": "None in the implementation: the code behavior is the intended one (comments, network trait docs, Config docs, tests); only the prose is stale and should be corrected.",
+      "severity": "Low",
+      "evidence": [
+        "spec/confirmation-CR-1.md",
+        "spec/repro/CR-1-t12-pre-vote.log"
+      ]
+    }
+  ]
+}

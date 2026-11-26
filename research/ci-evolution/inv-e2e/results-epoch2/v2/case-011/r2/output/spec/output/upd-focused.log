@@ -1,0 +1,68 @@
+# command: java -Xmx10g -Dtlc2.TLC.stopAfter=1800 tlc2.TLC -workers 4 -deadlock -metadir /dev/shm/specular-e2e-case-011/upd-focused-9382 -config Update_focused.cfg -dumpTrace json spec/output/cex/upd-focused.json Update.tla
+# started: 2026-11-25T21:14:47Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 127 and seed 8252483387325565254 with 4 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 9406] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-17281848088571050592/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-17281848088571050592/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-17281848088571050592/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-17281848088571050592/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-17281848088571050592/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-17281848088571050592/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-17281848088571050592/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-17281848088571050592/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-17281848088571050592/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 21:14:48)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 21:14:49.
+Progress(7) at 2026-11-25 21:14:52: 23,280 states generated (23,280 s/min), 7,772 distinct states found (7,772 ds/min), 6,405 states left on queue.
+Progress(10) at 2026-11-25 21:15:52: 1,365,113 states generated (1,341,833 s/min), 315,713 distinct states found (307,941 ds/min), 232,849 states left on queue.
+Error: Invariant TickPreVoteRoundNotHeldByLeader is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCExternalElect("1") line 32, col 5 to line 35, col 17 of module MC>
+
+State 3: <MCExternalElect("3") line 32, col 5 to line 35, col 17 of module MC>
+
+State 4: <MCPersistVote("1") line 86, col 21 to line 86, col 79 of module MC>
+
+State 5: <MCTickPreElect("1") line 47, col 5 to line 51, col 82 of module MC>
+
+State 6: <MCSendVoteRequest("1","2") line 93, col 28 to line 93, col 93 of module MC>
+
+State 7: <AffectedActions line 38, col 8 to line 40, col 85 of module Update>
+
+State 8: <MCPersistVote("2") line 86, col 21 to line 86, col 79 of module MC>
+
+State 9: <InteractionActions line 60, col 8 to line 60, col 71 of module Update>
+
+State 10: <InteractionActions line 60, col 8 to line 60, col 71 of module Update>
+
+"CounterExample written: spec/output/cex/upd-focused.json"
+2633155 states generated, 565967 distinct states found, 409577 states left on queue.
+The depth of the complete state graph search is 10.
+Finished in 01min 43s at (2026-11-25 21:16:31)
+Trace exploration spec path: ./Update_TTrace_1795641287.tla
+# exit: 12 finished: 2026-11-25T21:16:31Z

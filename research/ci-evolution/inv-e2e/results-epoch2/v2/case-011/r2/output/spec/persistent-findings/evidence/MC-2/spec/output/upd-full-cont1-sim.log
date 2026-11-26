@@ -1,0 +1,113 @@
+# command: java -Xmx10g -Dtlc2.TLC.stopAfter=1500 tlc2.TLC -workers 6 -deadlock -metadir /dev/shm/specular-e2e-case-011/upd-full-cont1-sim-18864 -config Update_full_cont1.cfg -simulate num=999999999 -depth 60 -dumpTrace json spec/output/cex/upd-full-cont1-sim.json Update.tla
+# started: 2026-11-25T21:46:54Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed 3283561627753278707 with 6 workers on 40 cores with 9102MB heap and 64MB offheap memory [pid: 18903] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-13838411278310114041/_JsonTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file /tmp/tlc-13838411278310114041/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-13838411278310114041/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-13838411278310114041/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-13838411278310114041/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-13838411278310114041/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-13838411278310114041/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-13838411278310114041/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-13838411278310114041/Json.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-25 21:46:55)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-25 21:46:55.
+Error: Invariant CandidateGrantsWithinFrozenVoters is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 118, col 5 to line 120, col 44 of module MC>
+
+State 2: <MCCrash("3") line 73, col 5 to line 76, col 17 of module MC>
+
+State 3: <MCRefreshServerState("1") line 91, col 28 to line 91, col 93 of module MC>
+
+State 4: <MCStartTransferElection("2") line 38, col 5 to line 41, col 17 of module MC>
+
+State 5: <MCPersistVote("2") line 86, col 21 to line 86, col 79 of module MC>
+
+State 6: <MCSendVoteRequest("2","1") line 93, col 28 to line 93, col 93 of module MC>
+
+State 7: <MCRestart("3") line 90, col 17 to line 90, col 71 of module MC>
+
+State 8: <MCSendVoteRequest("2","3") line 93, col 28 to line 93, col 93 of module MC>
+
+State 9: <MCExternalElect("3") line 32, col 5 to line 35, col 17 of module MC>
+
+State 10: <MCExternalPreElect("1") line 54, col 5 to line 58, col 86 of module MC>
+
+State 11: <MCNext line 128, col 8 to line 128, col 43 of module MC>
+
+State 12: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 13: <MCPersistVote("1") line 86, col 21 to line 86, col 79 of module MC>
+
+State 14: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 15: <MCFinishVoteBroadcast("2") line 87, col 29 to line 87, col 95 of module MC>
+
+State 16: <MCExternalPreElect("2") line 54, col 5 to line 58, col 86 of module MC>
+
+State 17: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 18: <MCExpireLease("2") line 89, col 21 to line 89, col 79 of module MC>
+
+State 19: <MCFlushLog("2") line 88, col 18 to line 88, col 73 of module MC>
+
+State 20: <MCAppendJointConfig("2",{"1"}) line 61, col 5 to line 64, col 17 of module MC>
+
+State 21: <MCPersistVote("3") line 86, col 21 to line 86, col 79 of module MC>
+
+State 22: <MCPersistVote("2") line 86, col 21 to line 86, col 79 of module MC>
+
+State 23: <MCFlushLog("2") line 88, col 18 to line 88, col 73 of module MC>
+
+State 24: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 25: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 26: <MCCommitMembership("2") line 92, col 26 to line 92, col 89 of module MC>
+
+State 27: <MCAppendUniformConfig("2") line 67, col 5 to line 70, col 17 of module MC>
+
+State 28: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 29: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+State 30: <MCSendVoteRequest("3","1") line 93, col 28 to line 93, col 93 of module MC>
+
+State 31: <MCFlushLog("2") line 88, col 18 to line 88, col 73 of module MC>
+
+State 32: <MCPersistVote("2") line 86, col 21 to line 86, col 79 of module MC>
+
+State 33: <MCReactive line 112, col 8 to line 115, col 70 of module MC>
+
+The number of states generated: 61780
+Simulation using seed 3283561627753278707 and aril 0
+"CounterExample written: spec/output/cex/upd-full-cont1-sim.json"
+Progress: 61787 states checked, 679 traces generated (trace length: mean=41, var(x)=371, sd=19)
+Finished in 10s at (2026-11-25 21:47:04)
+Trace exploration spec path: ./Update_TTrace_1795643214.tla
+# exit: 12 finished: 2026-11-25T21:47:04Z

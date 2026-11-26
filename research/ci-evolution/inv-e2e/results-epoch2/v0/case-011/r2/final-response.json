@@ -1,0 +1,18 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "The update adds an optional Pre-Vote round (pre_candidate state, PreVote request/response, tick and trigger().elect(pre_vote) paths), so the model was updated (MODEL_CHANGE_REQUIRED). I rebased the prior engine-level harness; the old patch failed on context drift. Its 7 prior scenarios were rerun and 11 Pre-Vote scenarios added, giving 18 fresh traces. All 18 pass real TLC trace validation (TraceConsumed), and all 15 single-field negative controls are rejected. Validation and reachability canaries exposed two prior-model defects, repaired separately: LogLE treated two absent logs as incomparable, and leader establishment did not install the lease. With both repairs reverted and Pre-Vote off, the refactored suite reproduces the prior exhaustive MC graph exactly (640,830 distinct states). Every standard, full-update, focused, open, discharge, toggle, control and canary campaign was run under a 30-minute budget (LIMITED_COVERAGE), with simulation follow-ups. One real defect, MC-1, was found. A Candidate whose election timer fires starts a Pre-Vote round while its real election keeps running. establish_leader does not clear pre_candidate, so the later granted Pre-Vote reply makes handle_pre_vote_resp call elect() on the established Leader. The Leader object then stays at (T, committed) while the vote moves to (T+1, uncommitted), violating LeaderVoteCoversLocalVote (counterexample: 15 states, 14 with no faults). It was REPRODUCED on the updated implementation through the real Raft API, 3/3 runs: Level 1 uses public APIs only, Level 3 is the pure timer path with slow save_vote via a test-storage hook. RaftCore panics at engine_impl.rs:977 with 'leader.vote(<T2-N1:Q>) >= state.vote(<T3-N1:->)'. Both controls stay clean, and with Pre-Vote disabled the property holds through BFS level 20. CR-1, a mismatch in the Pre-Vote docs about whether Unreachable counts as a grant, is documentation-only (FALSE POSITIVE). specular ci-result reports CI verdict FAIL.",
+  "findings_paths": [
+    "/work/current/.specular-output/spec/findings.json",
+    "/work/current/.specular-output/spec/bug-report.md",
+    "/work/current/.specular-output/spec/confirmation-MC-1.md",
+    "/work/current/.specular-output/spec/output/MC-1-counterexample-update-full.log",
+    "/work/current/.specular-output/spec/output/update-nofault.log",
+    "/work/current/.specular-output/spec/output/repro-MC-1-reliability.log",
+    "/work/current/.specular-output/harness/repro/t13_specular_mc1_prevote_reelect.rs",
+    "/work/current/.specular-output/spec/confirmation-CR-1.md",
+    "/work/current/.specular-output/spec/final-result.json",
+    "/work/current/.specular-output/ci-verdict.json"
+  ],
+  "blockers": []
+}

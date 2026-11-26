@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "id": "MC-3",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-4e410cd184be",
+  "source_revision": "3ab6cddc34a5bf127747434bb41e20a1b9ef7769",
+  "reusable": true,
+  "title": "Repeated Pre-Vote round at the same hypothetical vote counts a delayed grant from a removed node; RaftCore panics",
+  "cause": "Rounds started at an unchanged vote probe the same (term+1, self); the PreVoteResponse gate correlates by leader id only, and handle_pre_vote_resp calls grant_by for any granted response, which panics for a node outside the new round's quorum set.",
+  "trigger": "Round A over {0,1,2}; node 1's grant is delayed; node 1 is removed from the voters; round B is started at the same vote over {0,2}; node 1's round-A grant arrives within the RPC timeout.",
+  "consequence": "RaftCore panics ('target not in quorum set') and the node stops serving, in debug and release builds.",
+  "sites": [
+    "openraft/src/core/raft_core.rs:does_pre_candidate_vote_match",
+    "openraft/src/engine/engine_impl.rs:handle_pre_vote_resp",
+    "openraft/src/engine/engine_impl.rs:pre_elect",
+    "openraft/src/proposer/candidate.rs:grant_by"
+  ],
+  "actions": [
+    "ExternalPreElect",
+    "HandlePreVoteResponse",
+    "AppendJointConfig",
+    "AppendUniformConfig"
+  ],
+  "invariants": [
+    "PreVoteGrantsWithinFrozenVoters"
+  ],
+  "premises": [
+    "Two Pre-Vote rounds can be started at an unchanged vote (explicit triggers, or timer re-issue).",
+    "A membership change can remove a responder between the rounds.",
+    "Vote/pre-vote RPC responses can arrive up to election_timeout_min after sending."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "    fn does_pre_candidate_vote_match(&self, candidate_vote: &UncommittedVoteOf<C>, msg: impl fmt::Display) -> bool {",
+      "end": "    /// If a message is sent by a previous Leader but is received by current Leader,",
+      "sha256": "b02ede97536368ea3b20fa9b715ce63f0ff63170f23f78812e001955a77977a6"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/core/raft_core.rs",
+      "start": "            Notification::PreVoteResponse {",
+      "end": "            Notification::HigherVote {",
+      "sha256": "75e235e8dcb4cdf6e605b09046f6ad9b08ab52506f39fae18e73f93c1040e476"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn handle_pre_vote_resp(&mut self, target: C::NodeId, resp: VoteResponse<C>) {",
+      "end": "        // A Pre-Vote response never updates the local vote: the round is side-effect-free.",
+      "sha256": "4d76dc41305bdb9f3582e64319b977375ec0da446aa409805b5e980e8a6b0129"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/proposer/candidate.rs",
+      "start": "    pub(crate) fn grant_by(&mut self, target: &C::NodeId) -> bool {",
+      "end": "    /// Return the node ids that have granted this vote.",
+      "sha256": "30b95bff7001014c0358c5c78753654869ae14e0804b12e4b31504895b92ee1c"
+    },
+    {
+      "root": "source",
+      "path": "openraft/src/engine/engine_impl.rs",
+      "start": "    pub(crate) fn pre_elect(&mut self) {",
+      "end": "    pub(crate) fn leader_ref(&self) -> Option<&Leader<C, LeaderQuorumSet<C>>> {",
+      "sha256": "6fba605a4eb613da868c00f7871391a349cc8230d3356f34c5e582818cc8a0b0"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "HandlePreVoteResponse(i, m, consume) ==",
+      "end": "DeliverPreVoteResponse(m) ==",
+      "sha256": "4efe7558917e2a2f4b03773f1989ccf0e118f0ceb350cf75e369f548aa569081"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "PreElectCore(i) ==",
+      "end": "\\* Tick path with enable_pre_vote and >1 voter (core/raft_core.rs:2012-2031).",
+      "sha256": "40b56c6b1cddf175150578526b4f206552a31c698088dc362c8c2e6d5672868d"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla",
+      "start": "PreVoteGrantsWithinFrozenVoters ==",
+      "end": "\\* REQ-EVIDENCE CandidateGrantsWithinFrozenVoters",
+      "sha256": "c96280d1479aaf870b3ca770c9590b7f28066c4f1b571303be7216792dbacf66"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update_hunt_repeat_round_cont.cfg",
+      "sha256": "b7995d62f95b623f34ba897b44e6c529dcf8123602db083c8d0fb30789303e6d"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-3.md",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/confirmation-MC-3.md",
+      "sha256": "d916c4000006558854eaad6c587765b18c50ebd757366d1cabc3adbfc6ab9b05"
+    },
+    {
+      "original": "spec/output/upd-hunt-repeat-round-cont.log",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/output/upd-hunt-repeat-round-cont.log",
+      "sha256": "fbdc4d376350dc2dd0b0462df38b60f88812e22ed67d0241b955ebea2e4b5cba"
+    },
+    {
+      "original": "spec/repro/t90_specular_pre_vote_repro.rs",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/repro/t90_specular_pre_vote_repro.rs",
+      "sha256": "8ffa3d23489b1320d96f407d93da44f9864acfffc841c6d83db8a4939b08d64b"
+    },
+    {
+      "original": "spec/repro/test_bug3_mc3_repeated_round_removed_grant_panic.sh",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/repro/test_bug3_mc3_repeated_round_removed_grant_panic.sh",
+      "sha256": "e9622951977023972445de91b5505a1210fb7ffcda59529e496f836c1cb3ffb1"
+    },
+    {
+      "original": "spec/repro/specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant.run2.log",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/repro/specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant.run2.log",
+      "sha256": "e53beaccce9a1b5b3d272c41994ccdaefc5ccdd403b445fb7a62c42356fecde7"
+    },
+    {
+      "original": "spec/repro/specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant.backtrace.log",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/repro/specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant.backtrace.log",
+      "sha256": "ddcfc825bccb6571738ecd59a6d111d181d0fe0bc28f1749978845feecf2a4e5"
+    },
+    {
+      "original": "spec/repro/specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant.release.log",
+      "path": "spec/persistent-findings/evidence/MC-3/spec/repro/specular_mc3_repeated_pre_vote_round_accepts_removed_node_grant.release.log",
+      "sha256": "bc28c41f81bd5b4d63b84a983f81804f5b13842ed60cb542bd7cebbb33e4a884"
+    }
+  ]
+}
