@@ -24,6 +24,8 @@ BLIND_TOOLS = BLIND / "tools"
 V0_ROOT = BLIND / "blind-incremental-v0"
 WORK = Path(os.environ.get("INV_E2E_WORK", "/mydata/bingzhuo/inv-e2e"))
 RESULTS = Path(os.environ.get("INV_E2E_RESULTS", HERE / "results"))
+# TLA+ jars (untracked). INV_E2E_LIB points elsewhere, e.g. from a git worktree without lib/.
+LIB = Path(os.environ.get("INV_E2E_LIB", SPECULA / "lib"))
 
 ARMS = ("v0", "v1", "v2")
 # Cases with an accepted V0 (case-008 and case-009 have none).

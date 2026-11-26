@@ -131,7 +131,12 @@ def run_one(arm: str, case_id: str, rep: int, args) -> dict:
             raise StopQueue(f"usage limit without a 5-hour reset time: {(manifest['behavior'].get('error') or {}).get('text')}")
         time.sleep(wait)
         layout = args.layout_of.get((arm, case_id, rep), "specula")  # recorded by run_once (attempt.json is archived)
-        logical = prepare(arm, case_id, rep, layout, args.main_tools_dir if layout == "specular" else None)
+        # Same prior as the voided attempt (prepare.py --prior); attempts without the record used the V0.
+        prior_src, annotated_root, prior_label = args.prior_of.get((arm, case_id, rep), (None, None, None))
+        prior_dir = Path(prior_src) if prior_src else None
+        root = Path(annotated_root) if annotated_root and Path(annotated_root) != WORK / "annotated" else None
+        logical = prepare(arm, case_id, rep, layout, args.main_tools_dir if layout == "specular" else None,
+                          prior_dir, root, prior_label)
         attempt = read_json(logical / "attempt.json")
         attempt["attempt_no"] = attempt_no + 1
         write_json(logical / "attempt.json", attempt)
@@ -149,6 +154,8 @@ def run_once(arm: str, case_id: str, rep: int, args) -> tuple[dict | None, dict]
     ws = Path(attempt["physical"])
     layout = attempt.get("layout", "specula")
     args.layout_of[(arm, case_id, rep)] = layout
+    args.prior_of[(arm, case_id, rep)] = (attempt.get("prior_source"), attempt.get("annotated_root"),
+                                          attempt.get("prior_label"))
     out_dir = attempt.get("output_dir", ".specula-output")
     if layout == "specular" and not args.main_tools:
         raise RuntimeError(f"{logical}: prepared with --layout specular; run with --main-tools")
@@ -260,6 +267,7 @@ def main() -> int:
     parser.add_argument("--main-tools-dir", type=Path, default=WORK / "main-tools")
     args = parser.parse_args()
     args.layout_of = {}
+    args.prior_of = {}
     args.reps = args.reps or [1]
     for arm in args.arms:
         check_arm(arm)
