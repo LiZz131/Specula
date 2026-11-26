@@ -3,7 +3,7 @@
 W=${W:?set W to the experiment WORK dir}; LOG=${LOG:?set LOG to the round log}
 sleep ${SLEEP:-1800}
 echo "== $(date '+%F %T')"; tail -4 "$LOG"
-A=$(ls -t $W/attempts/*/*/r*/log/activity.jsonl 2>/dev/null | head -1)
+A=$(ls -t $W/attempts/*/*/r*/log/activity.jsonl $W/inits/*/r*/log/activity.jsonl 2>/dev/null | head -1)
 if [ -n "$A" ]; then
   echo "activity: $A size=$(stat -c %s "$A") age_min=$(( ($(date +%s) - $(stat -c %Y "$A")) / 60 ))"
   python3 - "$A" <<'PY'
