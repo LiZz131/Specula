@@ -382,6 +382,8 @@ Cursor has no system-prompt option and reads rule files only from the workspace,
 
 Specular resumes the exact Cursor chat recorded for a turn with `--resume`. Cursor does not reject an unknown chat ID: it silently starts an empty chat under that ID. Before resuming, Specular therefore checks that Cursor still stores the chat (under `$CURSOR_CONFIG_DIR/chats` or `~/.cursor/chats`), and refuses to resume one that has been removed.
 
+With `--orchestration=single-session` and `--incremental`, Specular gives Cursor its context tools the same way as the TLC task tool. Cursor CLI has no command that compacts a conversation from a script, so when the controller requests compaction it continues the same chat without compacting it, as with Antigravity CLI; Cursor summarizes the conversation itself when the context window fills. The optional agent sandbox (`SPECULAR_SANDBOX=on`) is not available for Cursor CLI, and Cursor does not provide Specular's agent-side stop gate.
+
 ## Output Structure
 
 Runs are isolated by default under:
