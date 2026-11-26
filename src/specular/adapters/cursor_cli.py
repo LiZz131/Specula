@@ -361,7 +361,9 @@ def main(argv: list[str]) -> int:
 
     # -p: headless. --trust: skip the workspace-trust prompt. --force: without it
     # Cursor silently rejects shell commands (the run still exits 0).
-    command = [executable, "-p", "--output-format", "stream-json", "--trust", "--force"]
+    # --approve-mcps: otherwise configured MCP servers (Specular's from `specular
+    # setup` and the run's TLC tool) stay "not loaded (needs approval)".
+    command = [executable, "-p", "--output-format", "stream-json", "--trust", "--force", "--approve-mcps"]
     if session_id is not None:
         # The exact chat ID captured from this logical turn; never --continue.
         command += ["--resume", session_id]
@@ -377,10 +379,7 @@ def main(argv: list[str]) -> int:
         print(f"cursor-cli adapter: failed to stage prompt: {exc}", file=sys.stderr)
         return 1
     try:
-        with _workspace_mcp(Path.cwd(), child_env) as mcp:
-            if mcp:
-                # Without this Cursor leaves a project MCP server "not loaded (needs approval)".
-                command.append("--approve-mcps")
+        with _workspace_mcp(Path.cwd(), child_env):
             rc = run_json_cli("cursor-cli", command, stream_options, child_env=child_env, missing_cli_hint=INSTALL_HINT)
         if rc not in (0, 127):
             _report_failure(options.log_path)

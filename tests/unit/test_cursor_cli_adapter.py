@@ -216,12 +216,11 @@ def test_invocation_rules_resume_and_usage(tmp_path: Path) -> None:
     assert first.returncode == 0, first.stderr
     recorded = json.loads(capture.read_text())
     argv = recorded["argv"]
-    assert argv[:6] == ["-p", "--output-format", "stream-json", "--trust", "--force", "--model"]
+    assert argv[:7] == ["-p", "--output-format", "stream-json", "--trust", "--force", "--approve-mcps", "--model"]
     assert argv[argv.index("--model") + 1] == "grok-4.7-low"
     added = [argv[index + 1] for index, arg in enumerate(argv) if arg == "--add-dir"]
     assert added == [str(REPO_ROOT), str(target.resolve())]  # Specular root and the target repository
     assert "--resume" not in argv and "--continue" not in argv
-    assert "--approve-mcps" not in argv  # no Specular MCP server in this run
     assert not any("Check invariant" in arg for arg in argv)  # the prompt travels on stdin only
     assert recorded["stdin"] == "NEVER SKIP CHECKS\n\n---\n\nCheck invariant"
     assert log.read_text().strip() == "DONE_OK"
@@ -653,7 +652,7 @@ def test_invalid_tlc_tool_json_skips_registration(tmp_path: Path) -> None:
     env = _env(tmp_path, bin_dir, SPECULAR_TLC_TOOL_JSON="{not json")
     assert _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, tmp_path).returncode == 0
     recorded = json.loads(capture.read_text())
-    assert "--approve-mcps" not in recorded["argv"] and recorded["mcp"] is None
+    assert recorded["mcp"] is None
 
 
 # ── Skills ──────────────────────────────────────────────────────────────────
