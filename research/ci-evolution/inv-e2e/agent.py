@@ -87,16 +87,58 @@ def credential_hours_left() -> float:
     return max(0.0, (_expires(HOME / ".claude/.credentials.json") / 1000 - time.time()) / 3600)
 
 
+def refresh_credentials(timeout_s: int = 180) -> float:
+    """Force one OAuth refresh with the official client; return the host token's hours left.
+
+    The client refreshes only near expiry, so it runs in a throwaway HOME whose credential copy is
+    marked expired, makes one tiny call, and the refreshed credentials replace the host file only
+    if they expire later. Other host sessions read the file, so they pick up the rotated token."""
+    host = HOME / ".claude/.credentials.json"
+    tmp = Path(tempfile.mkdtemp(prefix="inv-e2e-refresh-", dir="/dev/shm"))
+    try:
+        (tmp / ".claude").mkdir()
+        data = json.loads(host.read_text())
+        data["claudeAiOauth"]["expiresAt"] = int(time.time() * 1000) - 60_000
+        box = tmp / ".claude/.credentials.json"
+        box.write_text(json.dumps(data))
+        box.chmod(0o600)
+        config = json.loads((HOME / ".claude.json").read_text()) if (HOME / ".claude.json").exists() else {}
+        for key in ("projects", "githubRepoPaths", "history", "mcpServers"):
+            config.pop(key, None)
+        (tmp / ".claude.json").write_text(json.dumps(config))
+        r = subprocess.run([str(CLAUDE_BIN), "-p", "Reply with OK.", "--model", "claude-haiku-5-5",
+                            "--max-turns", "1", "--setting-sources", "project", "--no-session-persistence"],
+                           cwd=tmp, env={"HOME": str(tmp), "PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"},
+                           capture_output=True, text=True, timeout=timeout_s)
+        new = _expires(box)
+        if r.returncode == 0 and new > _expires(host) and new > time.time() * 1000:
+            staged = host.with_name(host.name + ".inv-e2e-tmp")
+            shutil.copy2(box, staged)
+            staged.chmod(0o600)
+            os.replace(staged, host)
+            print(f"{datetime.now():%F %T} credentials refreshed: {credential_hours_left():.2f} h left", flush=True)
+        else:
+            print(f"{datetime.now():%F %T} credential refresh did not produce a newer token "
+                  f"(rc={r.returncode}): {(r.stderr or r.stdout)[-300:]}", flush=True)
+    except Exception as exc:  # never fatal: the caller falls back to waiting
+        print(f"{datetime.now():%F %T} credential refresh failed: {exc}", flush=True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    return credential_hours_left()
+
+
 def wait_for_credentials(min_hours: float, max_wait_hours: float = 10.0, poll_s: int = 300) -> float:
     """Block until the host's access token has at least min_hours left.
 
     A sandboxed agent that has to refresh its token mid-run can race the host's other Claude
     sessions, which rotate the shared refresh token (epoch-2 round 1: AUTH_ERROR after 234 min).
-    Starting only with a token that outlives the run means the agent never refreshes. The host
-    refreshes on its own when its sessions next call the API after expiry; this only waits."""
+    Starting only with a token that outlives the run means the agent never refreshes. If the token is
+    too short, force a refresh (refresh_credentials); if that fails, wait for the host to refresh."""
     deadline = time.time() + max_wait_hours * 3600
     while True:
         left = credential_hours_left()
+        if left < min_hours:
+            left = refresh_credentials()
         if left >= min_hours:
             return left
         if time.time() > deadline:
