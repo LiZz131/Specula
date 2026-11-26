@@ -111,6 +111,22 @@ def test_rejected_tool_call_is_reported(tmp_path: Path) -> None:
     assert len(completed) == 2 and all("rejected" in line for line in completed)
 
 
+def test_failed_shell_command_reports_its_exit_code(tmp_path: Path) -> None:
+    completed = {
+        "type": "tool_call",
+        "subtype": "completed",
+        "session_id": "s",
+        "tool_call": {
+            "shellToolCall": {
+                "args": {"command": "gh issue view 1"},
+                "result": {"failure": {"command": "gh issue view 1", "exitCode": 1, "stdout": "", "stderr": "x"}},
+            }
+        },
+    }
+    stream_events("cursor-cli", tmp_path / "a.jsonl", tmp_path / "a.log", [json.dumps(completed).encode()])
+    assert (tmp_path / "a.log").read_text().strip() == "adapter tool error: shell: exit code 1"
+
+
 def test_resumed_stream_keeps_the_same_session(tmp_path: Path) -> None:
     status = stream_events("cursor-cli", tmp_path / "a.jsonl", tmp_path / "a.log", _lines("resume.jsonl"))
     assert status.successful_terminal is True

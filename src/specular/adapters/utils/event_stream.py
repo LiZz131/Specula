@@ -682,7 +682,11 @@ def _cursor_cli_tool(record: dict[str, object]) -> tuple[str, dict[str, object]]
 
 
 def _cursor_cli_tool_failure(body: dict[str, object]) -> str | None:
-    """Why a completed Cursor tool call did not run, from the CLI's own result."""
+    """Why a completed Cursor tool call failed, from the CLI's own result.
+
+    ``rejected``: Cursor's permissions refused it; ``error``: the tool failed;
+    ``failure``: it ran unsuccessfully (a shell command's non-zero exit).
+    """
     result = body.get("result")
     if not isinstance(result, dict):
         return None
@@ -690,9 +694,12 @@ def _cursor_cli_tool_failure(body: dict[str, object]) -> str | None:
         detail = result.get(key)
         if detail is None:
             continue
-        reason = (
-            detail.get("reason") or detail.get("message") or detail.get("error") if isinstance(detail, dict) else detail
-        )
+        if isinstance(detail, dict):
+            if key == "failure" and isinstance(detail.get("exitCode"), int):
+                return f"exit code {detail['exitCode']}"
+            reason = detail.get("reason") or detail.get("message") or detail.get("error")
+        else:
+            reason = detail
         if key == "rejected":
             return f"{key} by Cursor permissions" + (f": {reason}" if isinstance(reason, str) and reason else "")
         return f"{key}: {reason}" if isinstance(reason, str) and reason else key
