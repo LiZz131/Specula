@@ -36,7 +36,7 @@ class TestSkillRefs(unittest.TestCase):
     def test_local_skill_adapters_receive_skill_file_path(self) -> None:
         prompt = f"Use {skill_refs.prompt_skill_ids('code-analysis')} now."
 
-        for adapter in ("/adapter/opencode.sh", "/adapter/pi.sh"):
+        for adapter in ("/adapter/opencode.sh", "/adapter/pi.sh", "/adapter/agy.sh", "/adapter/cursor-cli.sh"):
             with self.subTest(adapter=adapter):
                 resolved = skill_refs.materialize_skill_refs(prompt, adapter)
 

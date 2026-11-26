@@ -1021,7 +1021,8 @@ def test_real_launcher_exit_releases_lock_across_namespace(
 @pytest.mark.parametrize("phase", ["spec_validation", "incremental"])
 @pytest.mark.parametrize(
     ("agent", "resume"),
-    [(agent, False) for agent in ("codex", "claude-code", "copilot-cli", "opencode", "pi")] + [("codex", True)],
+    [(agent, False) for agent in ("codex", "claude-code", "copilot-cli", "cursor-cli", "opencode", "pi")]
+    + [("codex", True)],
 )
 def test_all_adapters_receive_tools_without_skill_changes(tmp_path: Path, phase: str, agent: str, resume: bool) -> None:
     case = adapters.AdapterCase()
@@ -1031,7 +1032,7 @@ def test_all_adapters_receive_tools_without_skill_changes(tmp_path: Path, phase:
     env = {"SPECULAR_WORK_DIR": str(tmp_path / "work"), "SPECULAR_PHASE": phase, "SPECULAR_STOP_GATE": "off"}
     tasks.prepare_environment(env, tmp_path / "agent.log", tmp_path)
     env["COPILOT_HELP_TEXT"] = "--autopilot --additional-mcp-config"
-    fake = {"claude-code": "claude", "copilot-cli": "copilot"}.get(agent, agent)
+    fake = {"claude-code": "claude", "copilot-cli": "copilot", "cursor-cli": "cursor-agent"}.get(agent, agent)
     fixture = json.dumps(adapters.CLAUDE_JSON) if agent == "claude-code" else ""
     if agent == "opencode":
         fixture = json.dumps({"type": "step_finish", "part": {"reason": "stop", "tokens": {}, "cost": 0}})
@@ -1039,6 +1040,8 @@ def test_all_adapters_receive_tools_without_skill_changes(tmp_path: Path, phase:
         fixture = json.dumps(
             {"type": "message_end", "message": {"role": "assistant", "content": [], "stopReason": "stop"}}
         )
+    elif agent == "cursor-cli":
+        fixture = json.dumps({"type": "result", "subtype": "success", "result": "ok", "session_id": "s"})
     flags = ["--prompt=tool registration smoke", "--max-turns=1", f"--log={tmp_path / 'agent.log'}"]
     if resume and agent == "codex":
         state = tmp_path / "resume.json"
@@ -1075,6 +1078,10 @@ def test_all_adapters_receive_tools_without_skill_changes(tmp_path: Path, phase:
         elif agent == "opencode":
             config = json.loads(observed["opencode_config"])
             assert config["mcp"]["specular_tlc"]["timeout"] == tasks.CLIENT_TIMEOUT_MS
+        elif agent == "cursor-cli":
+            # The workspace .cursor/mcp.json entry is pinned in test_cursor_cli_adapter.
+            assert "--approve-mcps" in argv
+            assert not (tmp_path / ".cursor").exists()
         else:
             assert argv[argv.index("--extension") + 1] == env["SPECULAR_TLC_TOOL_EXTENSION"]
     finally:

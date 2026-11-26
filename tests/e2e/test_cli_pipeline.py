@@ -897,8 +897,13 @@ class CliE2E(unittest.TestCase):
                             "agent": "opencode",
                             "model": "openai/gpt-5.4",
                         },
+                        "cursor": {
+                            "agent": "cursor-cli",
+                            "model": "grok-4.7-low",
+                        },
                     },
                     "phases": {
+                        "harness": "cursor",
                         "confirm": "confirmation",
                         "review": "reviewer",
                     },
@@ -917,6 +922,10 @@ class CliE2E(unittest.TestCase):
         analysis = next(line for line in lines if "launch_code_analysis.sh" in line)
         confirmation = next(line for line in lines if "launch_bug_confirmation.sh" in line)
         review = next(line for line in lines if "launch_review.sh analysis" in line)
+        harness = next(line for line in lines if "launch_harness_generation.sh" in line)
+        self.assertIn("--agent=cursor-cli", harness)
+        self.assertIn("--model=grok-4.7-low", harness)
+        self.assertNotIn("--effort", harness)
         self.assertIn("--agent=codex", analysis)
         self.assertIn("--model=gpt-5.6-sol", analysis)
         self.assertIn("--effort=ultra", analysis)
@@ -929,6 +938,7 @@ class CliE2E(unittest.TestCase):
         self.assertEqual(meta["agent_config"], str(config))
         self.assertEqual(meta["agent_routes"]["confirm"]["agent"], "copilot-cli")
         self.assertEqual(meta["agent_routes"]["review:analysis"]["agent"], "opencode")
+        self.assertEqual(meta["agent_routes"]["harness"]["agent"], "cursor-cli")
 
     def test_run_json_records_argv(self) -> None:
         root = self.specroot()

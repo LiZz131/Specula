@@ -315,6 +315,8 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
         "PI_EFFORT",
         "AGY_MODEL",
         "AGY_EFFORT",
+        "CURSOR_MODEL",
+        "CURSOR_EFFORT",
     )
 
     def setUp(self) -> None:
@@ -992,6 +994,7 @@ class TestRunMetaAndAttach(EnvIsolatedCase):
             ("opencode", {"OPENCODE_MODEL": "zai/glm-5.2", "OPENCODE_EFFORT": "high"}, "zai/glm-5.2", "high"),
             ("pi", {"PI_MODEL": "openai/gpt-5.5", "PI_EFFORT": "xhigh"}, "openai/gpt-5.5", "xhigh"),
             ("agy", {"AGY_MODEL": "gemini-4-neon-high", "AGY_EFFORT": "high"}, "gemini-4-neon-high", "high"),
+            ("cursor-cli", {"CURSOR_MODEL": "grok-4.7-low", "CURSOR_EFFORT": "low"}, "grok-4.7-low", "low"),
         )
         for agent, environment, expected_model, expected_effort in cases:
             with self.subTest(agent=agent):

@@ -3877,6 +3877,7 @@ class TestCacheContracts(ConfirmCase):
             ("opencode", "OPENCODE_MODEL", "zai/glm-5.2", "OPENCODE_EFFORT", "high"),
             ("pi", "PI_MODEL", "openai/gpt-5.5", "PI_EFFORT", "xhigh"),
             ("agy", "AGY_MODEL", "gemini-4-neon-high", "AGY_EFFORT", "high"),
+            ("cursor-cli", "CURSOR_MODEL", "grok-4.7-low", "CURSOR_EFFORT", "low"),
         )
         for adapter, model_source, model_value, effort_source, effort_value in cases:
             with (
