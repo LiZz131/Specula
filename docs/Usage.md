@@ -23,7 +23,7 @@ The dependencies below are not installed by `specular setup`; install them separ
 | Standard POSIX utilities (`tee`, `tail`, `du`, and others) | Logging and process coordination |
 | `curl` or `wget` | Downloading TLA+ JARs during setup |
 | GitHub CLI (`gh`) | Issue and repository research |
-| Claude Code, Codex, GitHub Copilot CLI, OpenCode, or Pi | Agent execution |
+| Claude Code, Codex, GitHub Copilot CLI, Cursor CLI, OpenCode, Pi, or Antigravity CLI | Agent execution |
 | Target language toolchain and test dependencies | Harness generation and bug reproduction |
 
 The first setup needs network access to GitHub, PyPI, and Maven Central. Agent runs also need access to the selected model provider and any remote repositories the analysis uses. Claude subscription quota monitoring specifically uses `curl`; if it is unavailable, the quota check warns and fails open rather than stopping the pipeline.
@@ -162,7 +162,7 @@ specular run \
   "name|owner/repository|language|reference"
 ```
 
-Supported adapters are `claude-code` (default), `codex`, `copilot-cli`, `opencode`, `pi`, and `agy` (Google Antigravity CLI). Model names and effort values are interpreted by the selected agent. OpenCode and Pi model names use `provider/model` syntax; Antigravity CLI model slugs can be listed with `agy models`.
+Supported adapters are `claude-code` (default), `codex`, `copilot-cli`, `cursor-cli` (Cursor CLI), `opencode`, `pi`, and `agy` (Google Antigravity CLI). Model names and effort values are interpreted by the selected agent. OpenCode and Pi model names use `provider/model` syntax; Antigravity CLI model slugs can be listed with `agy models`; Cursor CLI model slugs can be listed with `cursor-agent models` and already encode the reasoning effort (for example `grok-4.7-low`).
 
 ## Add Specular to CI
 
@@ -352,6 +352,7 @@ We have tested the following agent and model combinations. These observations su
 | OpenCode | `opencode` | Existing provider authentication configured in the native OpenCode CLI |
 | Pi | `pi` | Existing provider authentication configured in the native Pi CLI |
 | Antigravity CLI | `agy` | Existing authentication configured in an interactive `agy` session |
+| Cursor CLI | `cursor-cli` | `cursor-agent login`, or a `CURSOR_API_KEY` environment variable |
 
 Specular launches the installed agent CLI directly and uses its existing credentials. Authenticate the CLI before starting a pipeline. Claude Code runs default to maximum reasoning effort; Codex and Copilot use their configured defaults unless `--effort` is supplied.
 
@@ -359,7 +360,7 @@ Specular runs Copilot CLI with `--autopilot` and fails before launching a task w
 
 After a Copilot invocation, Specular uses that exact session UUID to read cumulative token telemetry from `$COPILOT_HOME/session-store.db`, or `~/.copilot/session-store.db` when `COPILOT_HOME` is unset. The collector opens the database read-only and queries only `assistant_usage_events`; it does not read or export prompts, responses, or other session content. Copilot records cache reads and cache writes inside `input_tokens`, so Specular subtracts both before emitting the normalized uncached-input bucket and avoids counting cache traffic twice. Resume attempts emit cumulative snapshots that the resource summary reduces to deltas. Request count, per-model token buckets, reasoning tokens, duration, nano-AIU, and AI Credits are retained in the usage sidecar. `total_cost_usd` uses GitHub's fixed conversion of 1 AI Credit per 1,000,000,000 nano-AIU and $0.01 per AI Credit; it represents usage value, while the amount added to a bill may be lower when included or pooled credits cover the usage. Missing sessions, databases, events, or supported schema are reported as incomplete telemetry rather than zero usage.
 
-`--max-turns` maps to Copilot's autopilot continuation limit. Claude Code, Codex, OpenCode, and Pi accept the option for adapter compatibility but do not enforce it. The reviews between steps pass a fixed value of 30 instead of the pipeline option; all four adapters still ignore it. Copilot CLI, OpenCode, and Pi do not support Specular's agent-side stop gate.
+`--max-turns` maps to Copilot's autopilot continuation limit. Claude Code, Codex, Cursor CLI, OpenCode, and Pi accept the option for adapter compatibility but do not enforce it. The reviews between steps pass a fixed value of 30 instead of the pipeline option; these adapters still ignore it. Copilot CLI, Cursor CLI, OpenCode, and Pi do not support Specular's agent-side stop gate.
 
 `--policy-retries=N` sets the provider-policy continuation budget for each logical phase agent or confirmation turn. The default is `20`, so one logical turn may advance through at most 20 revised continuation levels after its initial request; `0` disables policy recovery. Automatic rate-limit retries preserve the current level and exact session when available, without resetting or consuming another policy continuation. After a policy interruption, Specular waits up to one hour for TLC tasks started by the interrupted turn before it retries or ends the turn, so their results are on disk for the next attempt.
 
@@ -368,6 +369,18 @@ After a Copilot invocation, Specular uses that exact session UUID to read cumula
 An exact resume preserves the provider-persisted conversation and the files already written in the retained workspace. It cannot restore the terminated CLI process's in-memory state or an in-flight child process, and a provider may omit a partial response that was never committed to the native session.
 
 Specular rechecks confirmation results from versions that did not record which code each worker checked. To restart unfinished confirmations from those versions, use `--fresh-context`. For persistent CI, start a new run without `--run-id`.
+
+### Cursor CLI
+
+Specular supports the Cursor CLI executable `cursor-agent` (the installer also names it `agent`; Specular uses `agent` only when `cursor-agent` is not on `PATH`). It has been tested with Cursor CLI 2026.11.22-e9042b2 on Linux with the `grok-4.7-low` model; older builds still run but print a warning. Install it with `curl https://cursor.com/install -fsS | bash`, then authenticate once with `cursor-agent login` or set `CURSOR_API_KEY`. Set the default model with `CURSOR_MODEL` or `--model`.
+
+Specular runs `cursor-agent -p --output-format stream-json --trust --force --approve-mcps` in the step's working directory, so the agent edits files, runs shell commands, and calls MCP tools without prompting. Without `--force`, Cursor rejects shell commands silently. The prompt is passed on standard input, so prompt size is not limited by the command line. Each run's readable log, raw event stream (`.activity.jsonl`), and token usage (`.usage.json`) are recorded. Cursor reports no cost, so the resource summary marks Cursor cost as incomplete.
+
+Cursor CLI has no reasoning-effort option. Choose the effort in the model slug instead (`cursor-agent models` lists them, for example `grok-4.7-low` or `grok-4.7-high`). `--effort` and `CURSOR_EFFORT` are accepted, but they are ignored with a warning. Avoid the `-fast` variants unless you want Cursor's faster, higher-priced models.
+
+Cursor has no system-prompt option and reads rule files only from the workspace, so Specular places its rules at the start of the prompt instead of writing files into your repository. Skills are referenced by their file paths under the Specular checkout. `specular setup` registers Specular's MCP servers in `~/.cursor/mcp.json` and never overwrites an existing entry with the same name. For each run, Specular adds its TLC task tool to the working directory's `.cursor/mcp.json` (keeping any servers already there) and restores the file afterwards. Cursor ends every MCP tool call after 60 seconds, so each TLC wait returns before that limit and the agent waits again; other MCP calls that run longer than 60 seconds fail, and the agent falls back to the equivalent shell scripts.
+
+Specular resumes the exact Cursor chat recorded for a turn with `--resume`. Cursor does not reject an unknown chat ID: it silently starts an empty chat under that ID. Before resuming, Specular therefore checks that Cursor still stores the chat (under `$CURSOR_CONFIG_DIR/chats` or `~/.cursor/chats`), and refuses to resume one that has been removed.
 
 ## Output Structure
 
@@ -491,7 +504,7 @@ specular run [options] "name|owner/repository|language|reference"
 | Option | Purpose |
 |---|---|
 | `--dry-run` | Print the step commands without starting agents |
-| `--agent=NAME` | Select `claude-code`, `codex`, `copilot-cli`, `opencode`, `pi`, or `agy` |
+| `--agent=NAME` | Select `claude-code`, `codex`, `copilot-cli`, `cursor-cli`, `opencode`, `pi`, or `agy` |
 | `--agent-config=PATH` | Select agent/model profiles by pipeline phase from a JSON file |
 | `--model=NAME` | Override the configured model |
 | `--effort=LEVEL` | Override reasoning effort |
@@ -506,7 +519,7 @@ specular run [options] "name|owner/repository|language|reference"
 | `--tlc-memory-limit=SIZE` | Set the run-wide aggregate TLC heap + direct-memory budget; default is 80% of effective available memory at the first TLC start |
 | `--tlc-worker-limit=N` | Optionally bound aggregate TLC exploration workers; omitted means report-only |
 | `--max-parallel=N` | Set a hard concurrency limit. If omitted, ordinary steps run 1 target agent at a time and per-finding confirmation runs up to 4 Reproducer agents at a time |
-| `--max-turns=N` | Set Copilot's autopilot continuation limit; accepted but ignored by Claude Code, Codex, OpenCode, and Pi |
+| `--max-turns=N` | Set Copilot's autopilot continuation limit; accepted but ignored by Claude Code, Codex, Cursor CLI, OpenCode, and Pi |
 | `--policy-retries=N` | Set provider-policy continuation retries for each phase agent or confirmation turn after its initial adapter invocation (default `20`; `0` disables recovery) |
 | `--transient-resumes=N` | Set native-session continuation retries for retryable provider or transport failures (default `20`; `0` disables recovery) |
 | `--enable-reviews` | Enable reviews between steps |

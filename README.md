@@ -36,7 +36,7 @@ Browse the [case-study archive](https://github.com/specular-org/specula-case-stu
 - [uv](https://docs.astral.sh/uv/)
 - Java 21+ with Maven
 - GitHub CLI `gh`
-- Supported agents (Claude Code, Codex, Copilot CLI, OpenCode, Pi, or Antigravity CLI `agy`). Please contribute [adapters](./scripts/launch/adapters) for new agents.
+- Supported agents (Claude Code, Codex, Copilot CLI, Cursor CLI, OpenCode, Pi, or Antigravity CLI `agy`). Please contribute [adapters](./scripts/launch/adapters) for new agents.
 - Coding agent. (Specular uses coding agents to read code, infer invariants, and reason about counterexamples.)
 - **Machine:** We recommend at least 32 GB of RAM and 100 GB of free disk space; more RAM is preferable. See the [Usage Guide](./docs/Usage.md).
 
