@@ -1,0 +1,189 @@
+{
+ "version": 1,
+ "run_id": "incr-bb5d64a185fa",
+ "summary": "MODEL_CHANGE_REQUIRED: the update moves learner logging of DIFF-synced proposals before the NEWLEADER ACK but does not wait for their fsync. Model, harness and traces were updated; model checking found a CommittedQuorumDurable counterexample that was reproduced on the updated implementation (a transaction served by the leader is lost after the acking learners crash). Two further update-introduced defects were reproduced from code review.",
+ "validation_limits": [
+  "All TLC campaigns are finite-bound: canonical MC/base runs are exhaustive only up to the inherited level-23 state constraint; the full update BFS stopped at its CommittedQuorumDurable counterexample, focused/open/discharge BFS runs stopped at their 30-minute budget (on a superset transition relation) and were followed by 30-minute simulations on the final model (LIMITED_COVERAGE, not proofs).",
+  "The stale data-tree election vote of CR-2 is not represented in the model (votes use durable history); it is evidenced by a real trace only.",
+  "CR-3 (proposal ACK consumed as NEWLEADER ACK) is a liveness/availability issue outside the safety model; confirmed only by reproduction.",
+  "The MC-1 reproduction uses a test-fixture fsync hold (slow disk) and SIGKILL-equivalent data-directory images; without a slow disk the window was not hit in 3 natural-timing runs.",
+  "JDK 21 / in-process multi-server JUnit environment, as in the prior run."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "NEWLEADER ACK is sent before the DIFF-synced transactions are durable",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "Learner.syncWithLeader (NEWLEADER) only enqueues the buffered sync proposals to the asynchronous SyncRequestProcessor via FollowerZooKeeperServer.logRequest and then writes the NEWLEADER ACK; the leader counts that ACK toward the quorum that makes it commit and serve its whole loaded history.",
+   "trigger": "A transaction durable only on the re-elected leader is transferred by DIFF; the learners ACK NEWLEADER, the leader starts serving it, and the acking learners crash before their SyncRequestProcessor fsync while the old leader is unavailable.",
+   "consequence": "A new leader is elected without the transaction that clients already read, and the old leader's only copy is truncated when it rejoins (lost committed write).",
+   "severity": "High",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/mc/update-full-bfs-r3.log",
+    "spec/output/mc/update-hunt-durable-final.log",
+    "spec/output/mc/update-hunt-durable-2s-r3.log",
+    "spec/output/mc/update-hunt-loss-witness-r3.log",
+    "spec/evidence/E1-CQD/tlc.log",
+    "spec/evidence/repro/NewLeaderAckDurabilityReproTest.java",
+    "spec/evidence/repro/logs/bug1-summary.log"
+   ],
+   "persistence": {
+    "sites": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:logRequest",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:waitForNewLeaderAck"
+    ],
+    "actions": [
+     "SyncWithLeaderNewLeader",
+     "LeaderBroadcast",
+     "FsyncOne"
+    ],
+    "invariants": [
+     "CommittedQuorumDurable",
+     "CommittedNeverLostByLeader"
+    ],
+    "premises": [
+     "The learner writes the NEWLEADER ACK without waiting for the SyncRequestProcessor flush of the proposals it just logged.",
+     "The leader activates on a NEWLEADER ACK quorum and serves its whole loaded history.",
+     "Learner process crashes (or power loss) can happen between the ACK and the asynchronous fsync."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "    protected void syncWithLeader(long newLeaderZxid) throws Exception {",
+      "end": "        self.updateElectionVote(newEpoch);"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java",
+      "start": "    public void logRequest(TxnHeader hdr, Record txn, TxnDigest digest) {",
+      "end": "        syncProcessor.processRequest(request);"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "start": "    public void waitForNewLeaderAck(long sid, long zxid) throws InterruptedException {",
+      "end": "                    throw new InterruptedException(\"Timeout while waiting for NEWLEADER to be acked by quorum\");"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/MC.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update-hunt-durable.cfg"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-2",
+   "title": "Learner failure between NEWLEADER and UPTODATE leaks an INITIAL ZooKeeperServer",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "The update starts the learner's request processors at NEWLEADER with startupWithoutServing (state INITIAL), but ZooKeeperServer/LearnerZooKeeperServer.shutdown skip a server that is not RUNNING or ERROR, so a learner that fails before UPTODATE never stops those processors or fast-forwards its data tree.",
+   "trigger": "A learner fails (e.g. read timeout) after handling NEWLEADER and before startServing, then re-joins.",
+   "consequence": "Each failed sync leaks the abandoned server's processor threads (3 failures left 3 extra CommitProcessor threads; none on the old revision); the leaked SyncThread keeps writing the shared log after the peer left the session and the peer's election vote uses a data tree older than its durable log (observed in a real trace).",
+   "severity": "Medium",
+   "evidence": [
+    "spec/confirmation-CR-2.md",
+    "spec/evidence/repro/LearnerInitialStateLeakReproTest.java",
+    "spec/evidence/repro/logs/bug2-summary.log",
+    "traces/diff-sync-uncommitted-log.ndjson"
+   ],
+   "persistence": {
+    "sites": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:shutdown",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+    ],
+    "premises": [
+     "startupWithoutServing leaves the server INITIAL until startServing after UPTODATE.",
+     "canShutdown() accepts only RUNNING and ERROR."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "    protected void syncWithLeader(long newLeaderZxid) throws Exception {",
+      "end": "        self.updateElectionVote(newEpoch);"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    public synchronized void startup() {",
+      "end": "        localSessionEnabled = sessionTracker.isLocalSessionsEnabled();"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    protected boolean canShutdown() {",
+      "end": "        requestPathMetricsCollector.shutdown();"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-3",
+   "title": "A proposal ACK can be consumed as the NEWLEADER ACK",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "The SyncRequestProcessor started at NEWLEADER can write a proposal ACK before the learner thread writes the NEWLEADER ACK; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK and waitForNewLeaderAck drops a mismatched zxid without counting the learner.",
+   "trigger": "Learners DIFF-sync a proposal from a new leader and their learner thread is delayed before writing the NEWLEADER ACK.",
+   "consequence": "The leader misses its NEWLEADER quorum although every learner acked; activation waited for a learner sync timeout and re-sync (about 22 s versus under 4 s on the old revision).",
+   "severity": "Low",
+   "evidence": [
+    "spec/confirmation-CR-3.md",
+    "spec/evidence/repro/NewLeaderAckOrderReproTest.java",
+    "spec/evidence/repro/logs/bug3-summary.log"
+   ],
+   "persistence": {
+    "sites": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:run",
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:waitForNewLeaderAck"
+    ],
+    "premises": [
+     "LearnerHandler consumes the first packet after NEWLEADER as the NEWLEADER ACK.",
+     "Learner-side SyncRequestProcessor ACKs share the learner socket and are not ordered after the NEWLEADER ACK."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "    protected void syncWithLeader(long newLeaderZxid) throws Exception {",
+      "end": "        self.updateElectionVote(newEpoch);"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java",
+      "start": "            LOG.debug(\"Sending NEWLEADER message to {}\", sid);",
+      "end": "            learnerMaster.waitForNewLeaderAck(getSid(), qp.getZxid());"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "start": "    public void waitForNewLeaderAck(long sid, long zxid) throws InterruptedException {",
+      "end": "                    throw new InterruptedException(\"Timeout while waiting for NEWLEADER to be acked by quorum\");"
+     }
+    ]
+   }
+  }
+ ]
+}

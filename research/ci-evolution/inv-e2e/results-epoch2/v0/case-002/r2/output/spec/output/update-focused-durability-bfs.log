@@ -1,0 +1,64 @@
+# command: timeout 1800s java -XX:+UseParallelGC -Xmx8g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Update-focused-durability.cfg -metadir /dev/shm/specular-e2e-case-002/update-focused-durability-bfs -cleanup -workers 3 Update.tla
+# started: 2026-11-26T09:55:31Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 100 and seed 796438449986531336 with 3 workers on 40 cores with 7282MB heap and 64MB offheap memory [pid: 12408] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, OffHeapDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /tmp/tlc-14866898671783355206/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-14866898671783355206/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-14866898671783355206/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-14866898671783355206/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-14866898671783355206/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-14866898671783355206/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-14866898671783355206/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 09:55:33)
+Computing initial states...
+Computed 2 initial states...
+Computed 4 initial states...
+Computed 8 initial states...
+Computed 16 initial states...
+Finished computing initial states: 22 distinct states generated at 2026-11-26 09:55:34.
+Progress(8) at 2026-11-26 09:55:37: 22,117 states generated (22,117 s/min), 8,834 distinct states found (8,834 ds/min), 2,178 states left on queue.
+Error: Invariant CommittedQuorumDurable is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCLeaderSyncFollower(s1,s2,"DIFF") line 50, col 5 to line 50, col 69 of module MC>
+
+State 3: <MCLeaderSendNewLeader(s1,s2) line 51, col 32 to line 51, col 76 of module MC>
+
+State 4: <MCLearnerReadMode(s2) line 59, col 25 to line 59, col 62 of module MC>
+
+State 5: <MCLearnerSyncProposal(s2) line 60, col 29 to line 60, col 70 of module MC>
+
+State 6: <MCLearnerSyncCommit(s2) line 62, col 5 to line 65, col 25 of module MC>
+
+State 7: <MCLearnerNewLeader(s2) line 67, col 5 to line 69, col 25 of module MC>
+
+State 8: <MCLearnerAckNewLeader(s2) line 71, col 5 to line 74, col 25 of module MC>
+
+State 9: <MCLeaderReadNewLeaderAck(s1,s2) line 53, col 5 to line 55, col 25 of module MC>
+
+State 10: <MCLeaderBroadcast(s1) line 56, col 25 to line 56, col 87 of module MC>
+
+34254 states generated, 13804 distinct states found, 3151 states left on queue.
+The depth of the complete state graph search is 10.
+Finished in 06s at (2026-11-26 09:55:38)
+Trace exploration spec path: ./Update_TTrace_1795686931.tla
+# exit: 12  finished: 2026-11-26T09:55:38Z

@@ -1,0 +1,61 @@
+# Modeling brief coverage
+
+This is the standard-path semantic copy of the compatible legacy artifact at
+`../brief-coverage.md`, updated for the repaired canonical suite.
+
+## Scenarios
+
+| Brief scenario | Spec actions/state | Canonical bounded evidence | Implementation trace |
+|---|---|---|---|
+| 1 Election/epoch | `BeginElection` through `LeaderBroadcast` | `base.cfg`, `MC.cfg`, and `MC-hunt-election.cfg` | quorum and restart/recovery traces |
+| 2 DIFF/TRUNC/SNAP | `EnterSyncPhase`, `SelectSync`, `CompleteSync` | canonical configs plus `MC-hunt-sync.cfg` | SNAP, DIFF, and restart/recovery traces |
+| 3 Proposal/commit/apply | proposal, append, fsync, ACK, commit, apply actions | canonical configs plus `MC-hunt-mutation.cfg` | all retained scenarios with pipeline events |
+| 4 Crash/restart/recovery | `TakeSnapshot`, `Crash`, `Restart`, sync repair | canonical configs plus `MC-hunt-recovery.cfg` | abandonment/restart/recovery trace |
+
+## Invariants
+
+| Safety property | Defined | Enabled |
+|---|---|---|
+| `TypeOK` | `base.tla` | base, MC, trace cfgs |
+| `ElectionSafety` | `base.tla` | base, MC, trace cfgs |
+| `OneActiveLeaderPerEpoch` | `base.tla` | base, MC, trace cfgs |
+| `CommittedHistoriesPrefix` | `base.tla` | base, MC, trace cfgs |
+| `ApplyRequiresCommitCertificate` | `base.tla` | base, MC, trace cfgs |
+| `PipelinePrefix` | `base.tla` | base, MC, trace cfgs |
+| `EpochHistoryConsistency` | `base.tla` | base, MC, trace cfgs |
+| `SyncCompletionJustified` | `base.tla` | base, MC, trace cfgs |
+| `HistoryPositionsMonotonicExceptRecovery` | `base.tla` | base and MC cfgs |
+
+The canonical base and MC bounds retain three voting servers, majority quorum,
+two epochs (including re-election), one complete transaction, one bounded
+crash, drop, and snapshot in MC, and exhaustive BFS through TLC level 23. The
+fresh terminal suite exhausted 6,354,157 distinct base states and 21,701,056
+distinct MC states with zero states left on either queue. That depth exceeds the
+preserved depth-22 mutation/apply reachability witness. Pre-existing broader
+runs remain preserved as timeout/open-frontier evidence and are not represented
+as proof.
+
+## Trace-validation coverage
+
+`Trace.tla` accepts no scenario-name filter. Every retained NDJSON file is run
+separately with `TraceMatched` enabled. The trace input assumption checks the
+complete event schema; each step checks all five captured state fields (using
+documented unknown sentinels) and the event-specific zxid/pipeline position.
+
+---
+
+## Incremental update coverage (run incr-8c80add29fe2)
+
+| Update Scenario | Reference actions | Update.tla focus | Property | Configs | Trace evidence |
+|---|---|---|---|---|---|
+| US-1 hand-off before ACK | `SelectSync`, `LearnerNewLeader`, `LearnerAckNewLeader` | `AffectedActions` | `AckedHistoryHandedOff` (U1) | Update-seed-focused-U1(U3).cfg, Update-full-U1U3.cfg, Update-seed-oldcontrol-U1.cfg (control) | `NewLeaderAckSent` check in all fresh traces; old-revision trace rejected |
+| US-2 ACK vs fsync | `LearnerAckNewLeader`, `AppendOne`, `FsyncOne`, `Crash` | `AffectedActions` + `InteractionActions` | `NewLeaderAckDurable` (U2) | Update-seed-focused-U2.cfg, Update-full-U2.cfg, Update-seed-fixedcontrol.cfg (control) | diff-sync-consistency events 82/84/94; operator violated at replay state 83 |
+| US-3 served txn after re-election | US-2 + `LeaderBroadcast`, `Restart`, election/discovery/sync | `FocusedNext` | `CommittedSurvivesLeaderChange` (U3) | Update-seed-focused-U1U3.cfg, Update-seed-full-U1U3.cfg, Update-seed-oldcontrol-U3.cfg, Update-seed-fixedcontrol.cfg | crash inside the window not exercised by the harness (reproduction test covers it) |
+
+Reachability canaries (expected violations = witnesses): `NotUpdateSeed` (16 steps), `NotNewLeaderAckReached`,
+`NotDiffHandoffReached`, inherited `NotElectionReached`, `NotMutationReached`, `NotRecoveryReached`,
+`NotSyncReached` — all re-run on the final model (`spec/output/incr/canary-*.log`, `hunt-*.log`).
+
+Properties enabled per cfg are listed in each `Update*.cfg`; prior safety properties remain enabled in `MC.cfg`,
+`base.cfg`, and `Trace.cfg`. Open/discharge: not applicable — `Update.tla` defines no `EnvUpdate`; every focused
+relation is a restriction of `MCNext`.

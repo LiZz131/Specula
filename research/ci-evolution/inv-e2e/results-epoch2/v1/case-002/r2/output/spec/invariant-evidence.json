@@ -1,0 +1,303 @@
+{
+ "run_id": "incr-8c80add29fe2",
+ "evaluator": "spec/evidence/mkeval.py (one-state TLC spec over the actual UpdateProps/base operators); trace states via spec/evidence/trace-props/TraceU.tla",
+ "entries": [
+  {
+   "property": "AckedHistoryHandedOff",
+   "replaces": null,
+   "decision": "add",
+   "kind": "strengthening (update effect)",
+   "affected_because": "LearnerNewLeader now hands packetsNotCommitted to logRequest before the NEWLEADER ACK (Learner.java:744-760)",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U1_old",
+    "E_U2_mc",
+    "T_U1_trace"
+   ]
+  },
+  {
+   "property": "NewLeaderAckDurable",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new requirement property (update intent)",
+   "affected_because": "The update's stated contract is to sync the uncommitted logs before the NEWLEADER ACK (Learner.java:748); the ACK/fsync boundary is the changed atomicity boundary",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U2_mc",
+    "E_U2_ctl",
+    "T_U2_trace"
+   ],
+   "bug_candidate": true
+  },
+  {
+   "property": "CommittedSurvivesLeaderChange",
+   "replaces": null,
+   "decision": "add",
+   "kind": "new interaction property (consumer-visible)",
+   "affected_because": "A counted NEWLEADER ACK lets the leader serve its initial history (Leader.java:663-688); a later leader must still serve it",
+   "initial_decision": "add",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U3_mc",
+    "E_U3_ctl"
+   ],
+   "bug_candidate": true
+  },
+  {
+   "property": "PipelinePrefix",
+   "decision": "keep",
+   "affected_because": "queued/proposed of a learner now grow inside the sync window (before the ACK)",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U2_mc",
+    "T_keep_traces"
+   ]
+  },
+  {
+   "property": "SyncCompletionJustified",
+   "decision": "keep",
+   "affected_because": "syncJustified is now set by LearnerNewLeader; BROADCAST entry moved behind the leader's ACK quorum",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U2_mc",
+    "T_keep_traces"
+   ]
+  },
+  {
+   "property": "CommittedHistoriesPrefix",
+   "decision": "keep",
+   "affected_because": "LeaderBroadcast now commits the initial history; kept as the unaffected-core control in update cfgs",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "E_U3_mc",
+    "T_keep_traces"
+   ]
+  },
+  {
+   "property": "ApplyRequiresCommitCertificate",
+   "decision": "keep",
+   "affected_because": "LeaderBroadcast applies the initial history and certifies it",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "T_keep_traces"
+   ]
+  },
+  {
+   "property": "HistoryPositionsMonotonicExceptRecovery",
+   "decision": "keep",
+   "affected_because": "SelectSync(TRUNC) and LearnerNewLeader(SNAP) now carry the authorized rollbacks",
+   "initial_decision": "keep",
+   "changed_from_initial": false,
+   "evidence_ids": [
+    "MC_standard_temporal"
+   ]
+  }
+ ],
+ "evidence": [
+  {
+   "id": "E_U1_old",
+   "property": "AckedHistoryHandedOff",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U1_old/E_U1_old.tla",
+   "how_populated": "State 10 of spec/output/incr/seed-oldcontrol-U1.log (final model, NewLeaderLogsPending=FALSE): s2 ACKed NEWLEADER with t1 still only in syncPending",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/E_U1_old/tlc-AckedHistoryHandedOff.log",
+   "impl_produces": {
+    "value": "no (update) / yes (old)",
+    "basis": "new traces satisfy the NewLeaderAckSent hand-off check; real old-revision trace traces/controls/old-follower-diff.ndjson is rejected at event 9 (spec/output/incr/control-oldtrace-newsemantics.log)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:748",
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:124-131"
+    ]
+   },
+   "cell": "strengthening justified"
+  },
+  {
+   "id": "T_U1_trace",
+   "property": "AckedHistoryHandedOff",
+   "role": "keep-on-new",
+   "state_source": "trace",
+   "state": "traces/fresh/diff-sync-consistency.ndjson (all 126 replayed states)",
+   "how_populated": "TLC replay of the real update-scenario trace with INVARIANT AckedHistoryHandedOff; non-empty initial history <<(1,1),(1,2)>> at the s0/s1 ACKs",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/trace-props/tlc-AckedHistoryHandedOff-diff-sync-consistency.log"
+  },
+  {
+   "id": "E_U2_mc",
+   "property": "NewLeaderAckDurable",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U2_mc/E_U2_mc.tla",
+   "how_populated": "State 10 of spec/output/incr/seed-focused-U2.log (final model): s2 ACKed NEWLEADER of epoch 2 with queued=<<t1>>, durable=<<>>",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "also_evaluated": {
+    "AckedHistoryHandedOff": true,
+    "PipelinePrefix": true,
+    "SyncCompletionJustified": true
+   },
+   "log": "spec/evidence/E_U2_mc/tlc-NewLeaderAckDurable.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "T_U2_trace; repro Level 0/1 markers 'durable at ACK = false' (spec/output/incr/repro/)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:748",
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:124-131"
+    ]
+   },
+   "cell": "bug candidate"
+  },
+  {
+   "id": "E_U2_ctl",
+   "property": "NewLeaderAckDurable",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_U2_ctl/E_U2_ctl.tla",
+   "how_populated": "E_U2_mc with t1 durable at s2 (the flush-before-ACK ordering)",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E_U2_ctl/tlc-NewLeaderAckDurable.log"
+  },
+  {
+   "id": "T_U2_trace",
+   "property": "NewLeaderAckDurable",
+   "role": "separating",
+   "state_source": "trace",
+   "state": "traces/fresh/diff-sync-consistency.ndjson state 83",
+   "how_populated": "TLC replay with INVARIANT NewLeaderAckDurable: violated right after s0's NewLeaderAckSent (event 82); s0 TxnDurable only at event 94, leader BROADCAST at event 84",
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "log": "spec/evidence/trace-props/tlc-NewLeaderAckDurable-diff-sync-consistency.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "real updated-implementation run"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "Learner.java:748"
+    ]
+   },
+   "cell": "bug candidate"
+  },
+  {
+   "id": "E_U3_mc",
+   "property": "CommittedSurvivesLeaderChange",
+   "role": "separating",
+   "state_source": "mc",
+   "state": "spec/evidence/E_U3_mc/E_U3_mc.tla",
+   "how_populated": "State 23 of spec/output/incr/seed-focused-U1U3.log (final model): s2 serves epoch 3 without t1 that s1 served in epoch 2",
+   "old": {
+    "claimed": "not checked",
+    "tlc": "not checked"
+   },
+   "new": {
+    "claimed": false,
+    "tlc": false
+   },
+   "also_evaluated": {
+    "CommittedHistoriesPrefix": true,
+    "AckedHistoryHandedOff": true,
+    "ElectionSafety": true,
+    "OneActiveLeaderPerEpoch": true
+   },
+   "log": "spec/evidence/E_U3_mc/tlc-CommittedSurvivesLeaderChange.log",
+   "impl_produces": {
+    "value": "yes",
+    "basis": "harness/repro/test_bug1_newleader_ack_durability.sh Level 1 on artifact/ (spec/output/incr/repro/repro-new.log)"
+   },
+   "requirement": {
+    "value": "forbidden",
+    "citations": [
+     "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java:186-201"
+    ]
+   },
+   "cell": "bug candidate"
+  },
+  {
+   "id": "E_U3_ctl",
+   "property": "CommittedSurvivesLeaderChange",
+   "role": "control",
+   "state_source": "constructed",
+   "state": "spec/evidence/E_U3_ctl/E_U3_ctl.tla",
+   "how_populated": "E_U3_mc with t1 in the new leader's committed history",
+   "expected": true,
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/evidence/E_U3_ctl/tlc-CommittedSurvivesLeaderChange.log"
+  },
+  {
+   "id": "T_keep_traces",
+   "property": "PipelinePrefix, SyncCompletionJustified, CommittedHistoriesPrefix, ApplyRequiresCommitCertificate, EpochHistoryConsistency",
+   "role": "keep",
+   "state_source": "trace",
+   "state": "all states of the 5 fresh new-version traces",
+   "how_populated": "Trace.cfg enables these invariants during replay; records non-empty (e.g. diff-sync-consistency state 83: queued <<(1,1),(1,2)>>, durable <<(1,1)>>)",
+   "new": {
+    "claimed": true,
+    "tlc": true
+   },
+   "log": "spec/output/incr/trace-*.log",
+   "requirement": {
+    "value": "allowed",
+    "citations": [
+     "structural pipeline order: SyncRequestProcessor.java:181-249"
+    ]
+   }
+  },
+  {
+   "id": "MC_standard_temporal",
+   "property": "HistoryPositionsMonotonicExceptRecovery",
+   "role": "keep",
+   "state_source": "mc",
+   "state": "MC.cfg campaign",
+   "how_populated": "PROPERTIES entry of the standard MC round (spec/output/incr/mc-standard.log)",
+   "new": {
+    "claimed": true,
+    "tlc": "see mc-standard.log (budget-limited)"
+   }
+  }
+ ],
+ "bug_candidates": [
+  "E_U2_mc",
+  "T_U2_trace",
+  "E_U3_mc"
+ ],
+ "unresolved": []
+}

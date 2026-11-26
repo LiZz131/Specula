@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "id": "CR-3",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-bb5d64a185fa",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "A proposal ACK can be consumed as the NEWLEADER ACK",
+  "cause": "The SyncRequestProcessor started at NEWLEADER can write a proposal ACK before the learner thread writes the NEWLEADER ACK; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK and waitForNewLeaderAck drops a mismatched zxid without counting the learner.",
+  "trigger": "Learners DIFF-sync a proposal from a new leader and their learner thread is delayed before writing the NEWLEADER ACK.",
+  "consequence": "The leader misses its NEWLEADER quorum although every learner acked; activation waited for a learner sync timeout and re-sync (about 22 s versus under 4 s on the old revision).",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:run",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:waitForNewLeaderAck"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "LearnerHandler consumes the first packet after NEWLEADER as the NEWLEADER ACK.",
+    "Learner-side SyncRequestProcessor ACKs share the learner socket and are not ordered after the NEWLEADER ACK."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "    protected void syncWithLeader(long newLeaderZxid) throws Exception {",
+      "end": "        self.updateElectionVote(newEpoch);",
+      "sha256": "b2c4fcdfcc1c220f1d6e92d35796f9326b8946b86aa9f73b3044f5c0db62c479"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java",
+      "start": "            LOG.debug(\"Sending NEWLEADER message to {}\", sid);",
+      "end": "            learnerMaster.waitForNewLeaderAck(getSid(), qp.getZxid());",
+      "sha256": "8a5d2a132035b4328fa0e47483fe32e216ac051d7cecf6bec614a9eceb71f747"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "start": "    public void waitForNewLeaderAck(long sid, long zxid) throws InterruptedException {",
+      "end": "                    throw new InterruptedException(\"Timeout while waiting for NEWLEADER to be acked by quorum\");",
+      "sha256": "468778732f126708c8b2c9d75c38fdf47ef88d7ca21ef1eeef3c676aab49956f"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-3.md",
+      "path": "spec/persistent-findings/evidence/CR-3/spec/confirmation-CR-3.md",
+      "sha256": "b64db87325a8aa284222264088ec0c6ab600dc18b958088f6204552e8eb68bcf"
+    },
+    {
+      "original": "spec/evidence/repro/NewLeaderAckOrderReproTest.java",
+      "path": "spec/persistent-findings/evidence/CR-3/spec/evidence/repro/NewLeaderAckOrderReproTest.java",
+      "sha256": "4101dc3c8e1a38f18606a6f016e611bca8c816e659cdff7086a2e20d68fe883b"
+    },
+    {
+      "original": "spec/evidence/repro/logs/bug3-summary.log",
+      "path": "spec/persistent-findings/evidence/CR-3/spec/evidence/repro/logs/bug3-summary.log",
+      "sha256": "de25761883ab00bf7d60026dcb8f3779d9cfe79cce623d71ef30b7fbbc586435"
+    }
+  ]
+}

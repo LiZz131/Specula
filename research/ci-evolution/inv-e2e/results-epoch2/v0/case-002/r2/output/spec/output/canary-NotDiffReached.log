@@ -1,0 +1,58 @@
+# command: timeout 900s java -XX:+UseParallelGC -Xmx6g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Canary-NotDiffReached.cfg -metadir /dev/shm/specular-e2e-case-002/canary-NotDiffReached -cleanup -workers 3 Update.tla
+# started: 2026-11-26T10:10:18Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running breadth-first search Model-Checking with fp 31 and seed -709951357269338742 with 3 workers on 40 cores with 5461MB heap and 64MB offheap memory [pid: 19164] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit, OffHeapDiskFPSet, DiskStateQueue).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /work/current/.specular-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-2692441052035638431/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-2692441052035638431/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2692441052035638431/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-2692441052035638431/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-2692441052035638431/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2692441052035638431/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-2692441052035638431/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 10:10:20)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 10:10:21.
+Error: Invariant NotDiffReached is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+
+State 2: <MCBeginElection(s1) line 30, col 5 to line 38, col 32 of module MC>
+
+State 3: <MCCastVote(s2,s1) line 39, col 21 to line 39, col 54 of module MC>
+
+State 4: <MCElectLeader(s1) line 40, col 21 to line 40, col 76 of module MC>
+
+State 5: <MCElectFollow(s2,s1) line 41, col 24 to line 41, col 60 of module MC>
+
+State 6: <MCLeaderProposeEpoch(s1) line 42, col 28 to line 42, col 68 of module MC>
+
+State 7: <MCAcceptEpoch(s2) line 43, col 21 to line 43, col 54 of module MC>
+
+State 8: <MCLeaderSyncFollower(s1,s2,"DIFF") line 50, col 5 to line 50, col 69 of module MC>
+
+42397 states generated, 13805 distinct states found, 8023 states left on queue.
+The depth of the complete state graph search is 8.
+Finished in 05s at (2026-11-26 10:10:24)
+Trace exploration spec path: ./Update_TTrace_1795687818.tla
+# exit: 12  finished: 2026-11-26T10:10:24Z

@@ -1,0 +1,52 @@
+# Model-checking campaign summary
+
+Model column: `pre-FIFO` = before the ReceiveProposal FIFO / SelectSync repairs; `FIFO` = after them but before the FollowLeader-from-LOOKING / volatile-votes restriction (a superset of the final transition relation, so a no-violation result within the same bounds carries over); `final` = final artifacts.
+
+| label | cfg | mode | model | outcome | statistics | depth |
+|---|---|---|---|---|---|---|
+| mc-small-r1 | `MC-small.cfg` | bfs | pre-FIFO | no violation; state space exhausted | 275209 states generated, 99064 distinct states found, 0 states left on queue. | 36 |
+| base-standard-r1 | `base.cfg` | bfs | pre-FIFO | no violation; state space exhausted within CanonicalDepthBound (level <= 23) | 40163937 states generated, 5288478 distinct states found, 0 states left on queue. | 23 |
+| canary-MC-hunt-election | `MC-hunt-election.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotElectionReached is violated | 71 states generated, 24 distinct states found, 9 states left on queue. | 5 |
+| canary-MC-hunt-mutation | `MC-hunt-mutation.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotMutationReached is violated | 12989 states generated, 5598 distinct states found, 408 states left on queue. | 22 |
+| canary-MC-hunt-sync | `MC-hunt-sync.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotSyncReached is violated | 351 states generated, 107 distinct states found, 16 states left on queue. | 10 |
+| canary-MC-hunt-recovery | `MC-hunt-recovery.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotRecoveryReached is violated | 135 states generated, 64 distinct states found, 40 states left on queue. | 5 |
+| canary-MC-hunt-newleader | `MC-hunt-newleader.cfg` | bfs | pre-FIFO (MaxEpoch 1: target unreachable, cfg fixed) | no violation; state space exhausted | 17097 states generated, 7196 distinct states found, 0 states left on queue. | 29 |
+| canary-MC-hunt-uptodate | `MC-hunt-uptodate.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotUpToDateReached is violated | 1874 states generated, 934 distinct states found, 364 states left on queue. | 13 |
+| canary-Update-canary-ackbeforedurable | `Update-canary-ackbeforedurable.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotAckBeforeDurableReached is violated | 10116 states generated, 3269 distinct states found, 952 states left on queue. | 15 |
+| canary-Update-canary-synced | `Update-canary-synced.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotSyncedHistoryCommittedReached is violated | 150258 states generated, 39746 distinct states found, 4699 states left on queue. | 27 |
+| canary-MC-hunt-newleader-r2 | `MC-hunt-newleader.cfg` | bfs | pre-FIFO | expected canary violation (reachability witness): Invariant NotNewLeaderLoggedReached is violated | 33478 states generated, 10164 distinct states found, 2388 states left on queue. | 19 |
+| update-hunt-durable-bfs | `Update-hunt-durable.cfg` | bfs | pre-FIFO | VIOLATION: Invariant CommittedQuorumDurable is violated | 48475259 states generated, 9599171 distinct states found, 2554161 states left on queue. | 28 |
+| mc-standard-r1 | `MC.cfg` | bfs | pre-FIFO | no violation; state space exhausted within CanonicalDepthBound (level <= 23) | 156370524 states generated, 21702968 distinct states found, 0 states left on queue. | 23 |
+| update-hunt-loss-sim | `Update-hunt-loss.cfg` | sim | pre-FIFO | VIOLATION: Invariant CommittedHistoriesPrefix is violated | The number of states generated: 3069361 |  |
+| mc-small-r2 | `MC-small.cfg` | bfs | FIFO | no violation; state space exhausted | 172009 states generated, 61528 distinct states found, 0 states left on queue. | 35 |
+| base-standard-final | `base.cfg` | bfs | FIFO | no violation; state space exhausted within CanonicalDepthBound (level <= 23) | 41201205 states generated, 5498720 distinct states found, 0 states left on queue. | 23 |
+| mc-standard-final | `MC.cfg` | bfs | FIFO | no violation; state space exhausted within CanonicalDepthBound (level <= 23) | 99029412 states generated, 13780963 distinct states found, 0 states left on queue. | 23 |
+| update-hunt-durable-2s-final | `Update-hunt-durable-2s.cfg` | bfs | FIFO (log moved to output/mc/superseded-r2/) | VIOLATION: Invariant CommittedQuorumDurable is violated | 52816 states generated, 14291 distinct states found, 2051 states left on queue. | 27 |
+| update-hunt-loss-witness-bfs | `Update-hunt-loss-witness.cfg` | bfs | FIFO (log moved to output/mc/superseded-r2/) | VIOLATION: Invariant CommittedNeverLostByLeader is violated | 1125623 states generated, 216137 distinct states found, 69390 states left on queue. | 15 |
+| update-hunt-durable-2s-r3 | `Update-hunt-durable-2s.cfg` | bfs | final | VIOLATION: Invariant CommittedQuorumDurable is violated | 34850 states generated, 10027 distinct states found, 1555 states left on queue. | 27 |
+| update-hunt-durable-final | `Update-hunt-durable.cfg` | bfs | FIFO | VIOLATION: Invariant CommittedQuorumDurable is violated | 32240087 states generated, 6834735 distinct states found, 2047615 states left on queue. | 27 |
+| update-hunt-loss-witness-r3 | `Update-hunt-loss-witness.cfg` | bfs | final | VIOLATION: Invariant CommittedNeverLostByLeader is violated | 877383 states generated, 162221 distinct states found, 50335 states left on queue. | 16 |
+| update-hunt-loss-sim-r2 | `Update-hunt-loss.cfg` | sim | FIFO | no violation; simulation budget-terminated (LIMITED_COVERAGE) | The number of states generated: 38887044 |  |
+| update-discharge-bfs | `Update-discharge.cfg` | bfs | FIFO | no violation; BFS budget-terminated with 3317227 states queued (LIMITED_COVERAGE) | 37215010 states generated, 8549349 distinct states found, 3317227 states left on queue. | 23 |
+| update-open-bfs | `Update-open.cfg` | bfs | FIFO | no violation; BFS budget-terminated with 3065223 states queued (LIMITED_COVERAGE) | 41290025 states generated, 7754354 distinct states found, 3065223 states left on queue. | 23 |
+| update-focused-bfs | `Update-focused.cfg` | bfs | FIFO | no violation; BFS budget-terminated with 4550642 states queued (LIMITED_COVERAGE) | 58058034 states generated, 13325015 distinct states found, 4550642 states left on queue. | 26 |
+| update-full-bfs | `Update-full.cfg` | bfs | FIFO | no violation; BFS budget-terminated with 6179393 states queued (LIMITED_COVERAGE) | 71449552 states generated, 16186860 distinct states found, 6179393 states left on queue. | 24 |
+| base-standard-r3 | `base.cfg` | bfs | final | no violation; state space exhausted within CanonicalDepthBound (level <= 23) | 9251190 states generated, 1070724 distinct states found, 0 states left on queue. | 23 |
+| canary-final-MC-hunt-election | `MC-hunt-election.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotElectionReached is violated | 75 states generated, 24 distinct states found, 10 states left on queue. | 4 |
+| canary-final-MC-hunt-mutation | `MC-hunt-mutation.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotMutationReached is violated | 1972 states generated, 1229 distinct states found, 54 states left on queue. | 22 |
+| canary-final-MC-hunt-sync | `MC-hunt-sync.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotSyncReached is violated | 309 states generated, 104 distinct states found, 14 states left on queue. | 9 |
+| canary-final-MC-hunt-recovery | `MC-hunt-recovery.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotRecoveryReached is violated | 96 states generated, 41 distinct states found, 27 states left on queue. | 4 |
+| canary-final-MC-hunt-newleader | `MC-hunt-newleader.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotNewLeaderLoggedReached is violated | 10392 states generated, 3508 distinct states found, 879 states left on queue. | 19 |
+| canary-final-MC-hunt-uptodate | `MC-hunt-uptodate.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotUpToDateReached is violated | 452 states generated, 239 distinct states found, 46 states left on queue. | 13 |
+| canary-final-Update-canary-ackbeforedurable | `Update-canary-ackbeforedurable.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotAckBeforeDurableReached is violated | 2617 states generated, 960 distinct states found, 258 states left on queue. | 15 |
+| canary-final-Update-canary-synced | `Update-canary-synced.cfg` | bfs | final | expected canary violation (reachability witness): Invariant NotSyncedHistoryCommittedReached is violated | 70142 states generated, 20134 distinct states found, 3121 states left on queue. | 27 |
+| mc-standard-r3 | `MC.cfg` | bfs | final | no violation; state space exhausted within CanonicalDepthBound (level <= 23) | 30644496 states generated, 4014474 distinct states found, 0 states left on queue. | 23 |
+| update-full-bfs-r3 | `Update-full.cfg` | bfs | final | VIOLATION: Invariant CommittedQuorumDurable is violated | 81395118 states generated, 16247132 distinct states found, 5316849 states left on queue. | 27 |
+| update-full-sim | `Update-full.cfg` | sim | final | VIOLATION: Invariant CommittedQuorumDurable is violated | The number of states generated: 47181294 |  |
+| update-open-continue-sim | `Update-open-continue.cfg` | sim | final | no violation; simulation budget-terminated (LIMITED_COVERAGE) | The number of states generated: 37644396 |  |
+| update-discharge-sim | `Update-discharge.cfg` | sim | final | no violation; simulation budget-terminated (LIMITED_COVERAGE) | The number of states generated: 60684577 |  |
+| update-focused-continue-sim | `Update-focused-continue.cfg` | sim | final | no violation; simulation budget-terminated (LIMITED_COVERAGE) | The number of states generated: 49122087 |  |
+| update-full-continue-sim | `Update-full-continue.cfg` | sim | final | no violation; simulation budget-terminated (LIMITED_COVERAGE) | The number of states generated: 74373518 |  |
+
+Reachability canaries (`canary-*`, `Not*Reached`) are expected violations; they are witnesses, not findings.
+Logs: `spec/output/mc/<label>.log`; decoded counterexamples: `<label>.decoded.txt`; exact commands: `campaigns.ndjson`.

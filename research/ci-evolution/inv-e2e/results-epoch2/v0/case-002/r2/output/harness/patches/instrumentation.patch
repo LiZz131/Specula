@@ -1,0 +1,701 @@
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
+index 4df319f..07c38e4 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
+@@ -29,6 +29,7 @@
+ import java.util.concurrent.ThreadLocalRandom;
+ import java.util.concurrent.TimeUnit;
+ import org.apache.zookeeper.common.Time;
++import org.apache.zookeeper.server.quorum.SpecularTrace;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ 
+@@ -179,6 +180,7 @@ public void run() {
+ 
+                 // track the number of records written to the log
+                 if (!si.isThrottled() && zks.getZKDatabase().append(si)) {
++                    SpecularTrace.emit("TxnAppended", zks, si.zxid);
+                     if (shouldSnapshot()) {
+                         resetSnapshotStats();
+                         // roll the log
+@@ -240,6 +242,9 @@ private void flush() throws IOException, RequestProcessorException {
+         } else {
+             while (!this.toFlush.isEmpty()) {
+                 final Request i = this.toFlush.remove();
++                if (i.getHdr() != null) {
++                    SpecularTrace.emit("TxnDurable", zks, i.zxid);
++                }
+                 long latency = Time.currentElapsedTime() - i.syncQueueStartTime;
+                 ServerMetrics.getMetrics().SYNC_PROCESSOR_QUEUE_AND_FLUSH_TIME.add(latency);
+                 this.nextProcessor.processRequest(i);
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java
+index f7f99f7..ca3ac35 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java
+@@ -77,6 +77,7 @@
+ import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
+ import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
+ import org.apache.zookeeper.server.quorum.ReadOnlyZooKeeperServer;
++import org.apache.zookeeper.server.quorum.SpecularTrace;
+ import org.apache.zookeeper.server.util.JvmPauseMonitor;
+ import org.apache.zookeeper.server.util.OSMXBean;
+ import org.apache.zookeeper.server.util.RequestPathMetricsCollector;
+@@ -1796,6 +1797,9 @@ public ProcessTxnResult processTxn(Request request) {
+             if (quorumRequest) {
+                 getZKDatabase().addCommittedProposal(request);
+             }
++            if (writeRequest) {
++                SpecularTrace.emit("TxnApplied", this, hdr.getZxid());
++            }
+             return rc;
+         }
+     }
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java
+index f141e85..1e186ff 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java
+@@ -898,6 +898,7 @@ private long getPeerEpoch() {
+     private void setPeerState(long proposedLeader, SyncedLearnerTracker voteSet) {
+         ServerState ss = (proposedLeader == self.getId()) ? ServerState.LEADING : learningState();
+         self.setPeerState(ss);
++        SpecularTrace.emit("ElectionWon", self, proposedZxid);
+         if (ss == ServerState.LEADING) {
+             leadingVoteSet = voteSet;
+         }
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
+index 8d371ae..3047896 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
+@@ -84,6 +84,7 @@ public void logRequest(TxnHeader hdr, Record txn, TxnDigest digest) {
+         request.setTxnDigest(digest);
+         if ((request.zxid & 0xffffffffL) != 0) {
+             pendingTxns.add(request);
++            SpecularTrace.emit("ProposalQueued", self, request.zxid);
+         }
+         syncProcessor.processRequest(request);
+     }
+@@ -108,6 +109,7 @@ public void commit(long zxid) {
+         Request request = pendingTxns.remove();
+         request.logLatency(ServerMetrics.getMetrics().COMMIT_PROPAGATION_LATENCY);
+         commitProcessor.commit(request);
++        SpecularTrace.emit("CommitDelivered", self, request.zxid);
+     }
+ 
+     public synchronized void sync() {
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java
+index 692ce1e..353266c 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java
+@@ -1142,6 +1142,7 @@ public void commit(long zxid) {
+         }
+         QuorumPacket qp = new QuorumPacket(Leader.COMMIT, zxid, null, null);
+         sendPacket(qp);
++        SpecularTrace.emit("LeaderCommitted", self, zxid);
+         ServerMetrics.getMetrics().COMMIT_COUNT.add(1);
+     }
+ 
+@@ -1251,6 +1252,7 @@ public Proposal propose(Request request) throws XidRolloverException {
+             lastProposed = p.packet.getZxid();
+             outstandingProposals.put(lastProposed, p);
+             sendPacket(pp);
++            SpecularTrace.emit("LeaderProposed", self, lastProposed);
+         }
+         ServerMetrics.getMetrics().PROPOSAL_COUNT.add(1);
+         return p;
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
+index 1b6c250..7a8cabf 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
+@@ -523,6 +523,7 @@ protected long registerWithLeader(int pktType) throws IOException {
+             }
+             QuorumPacket ackNewEpoch = new QuorumPacket(Leader.ACKEPOCH, lastLoggedZxid, epochBytes, null);
+             writePacket(ackNewEpoch, true);
++            SpecularTrace.emit("FollowerRegistered", self, lastLoggedZxid);
+             return ZxidUtils.makeZxid(newEpoch, 0);
+         } else {
+             if (newEpoch > self.getAcceptedEpoch()) {
+@@ -600,6 +601,10 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                 LOG.error("Got unexpected packet from leader: {}, exiting ... ", LearnerHandler.packetToString(qp));
+                 ServiceUtils.requestSystemExit(ExitCode.QUORUM_PACKET_ERROR.getValue());
+             }
++            SpecularTrace.emit("SyncSelected", self, qp.getZxid());
++            if (self.getSyncMode() == QuorumPeer.SyncMode.SNAP) {
++                SpecularTrace.emit("SnapshotInstalled", self, qp.getZxid());
++            }
+             zk.getZKDatabase().initConfigInZKDatabase(self.getQuorumVerifier());
+             zk.createSessionTracker();
+ 
+@@ -639,9 +644,11 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                     }
+ 
+                     packetsNotCommitted.add(pif);
++                    SpecularTrace.emit("LearnerSyncProposal", self, pif.hdr.getZxid());
+                     break;
+                 case Leader.COMMIT:
+                 case Leader.COMMITANDACTIVATE:
++                    SpecularTrace.emit("LearnerSyncCommit", self, qp.getZxid());
+                     pif = packetsNotCommitted.peekFirst();
+                     if (pif.hdr.getZxid() == qp.getZxid() && qp.getType() == Leader.COMMITANDACTIVATE) {
+                         QuorumVerifier qv = self.configFromString(new String(((SetDataTxn) pif.rec).getData(), UTF_8));
+@@ -710,6 +717,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                     break;
+                 case Leader.UPTODATE:
+                     LOG.info("Learner received UPTODATE message");
++                    SpecularTrace.emit("UpToDateReceived", self, qp.getZxid());
+                     if (newLeaderQV != null) {
+                         boolean majorChange = self.processReconfig(newLeaderQV, null, null, true);
+                         if (majorChange) {
+@@ -726,6 +734,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                 case Leader.NEWLEADER: // Getting NEWLEADER here instead of in discovery
+                     // means this is Zab 1.0
+                     LOG.info("Learner received NEWLEADER message");
++                    SpecularTrace.emit("NewLeaderReceived", self, qp.getZxid());
+                     if (qp.getData() != null && qp.getData().length > 1) {
+                         try {
+                             QuorumVerifier qv = self.configFromString(new String(qp.getData(), UTF_8));
+@@ -758,6 +767,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                     }
+ 
+                     writePacket(new QuorumPacket(Leader.ACK, newLeaderZxid, null, null), true);
++                    SpecularTrace.emit("NewLeaderAckSent", self, newLeaderZxid);
+                     break;
+                 }
+             }
+@@ -765,6 +775,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+         ack.setZxid(ZxidUtils.makeZxid(newEpoch, 0));
+         writePacket(ack, true);
+         zk.startServing();
++        SpecularTrace.emit("BroadcastReady", self, zk.getZKDatabase().getDataTreeLastProcessedZxid());
+         /*
+          * Update the election vote here to ensure that all members of the
+          * ensemble report the same vote to new servers that start up and
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java
+index b91319e..b920e9e 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java
+@@ -549,6 +549,12 @@ public void run() {
+             // Take any necessary action if we need to send TRUNC or DIFF
+             // startForwarding() will be called in all cases
+             boolean needSnap = syncFollower(peerLastZxid, learnerMaster);
++            if (SpecularTrace.isEnabled()) {
++                QuorumPacket specularFirst = queuedPackets.peek();
++                String specularMode = needSnap ? "SNAP"
++                    : (specularFirst != null && specularFirst.getType() == Leader.TRUNC ? "TRUNC" : "DIFF");
++                SpecularTrace.emitWith("LeaderSyncQueued", specularPeer(), peerLastZxid, getSid(), specularMode);
++            }
+ 
+             // syncs between followers and the leader are exempt from throttling because it
+             // is importatnt to keep the state of quorum servers up-to-date. The exempted syncs
+@@ -600,6 +606,7 @@ public void run() {
+                 queuedPackets.add(newLeaderQP);
+             }
+             bufferedOutput.flush();
++            SpecularTrace.emitWith("NewLeaderQueued", specularPeer(), newLeaderZxid, getSid(), "");
+ 
+             // Start thread that blast packets in the queue to learner
+             startSendingPackets();
+@@ -619,6 +626,7 @@ public void run() {
+             }
+ 
+             LOG.debug("Received NEWLEADER-ACK message from {}", sid);
++            SpecularTrace.emitWith("NewLeaderAckRead", specularPeer(), qp.getZxid(), getSid(), "");
+ 
+             learnerMaster.waitForNewLeaderAck(getSid(), qp.getZxid());
+ 
+@@ -646,6 +654,7 @@ public void run() {
+             //
+             LOG.debug("Sending UPTODATE message to {}", sid);
+             queuedPackets.add(new QuorumPacket(Leader.UPTODATE, -1, null, null));
++            SpecularTrace.emitWith("UpToDateQueued", specularPeer(), 0, getSid(), "");
+ 
+             while (true) {
+                 qp = new QuorumPacket();
+@@ -675,6 +684,7 @@ public void run() {
+                     }
+                     syncLimitCheck.updateAck(qp.getZxid());
+                     learnerMaster.processAck(this.sid, qp.getZxid(), sock.getLocalSocketAddress());
++                    SpecularTrace.emitWith("LeaderAckReceived", specularPeer(), qp.getZxid(), this.sid, "");
+                     break;
+                 case Leader.PING:
+                     // Process the touches
+@@ -772,6 +782,10 @@ protected boolean shouldSendMarkerPacketForLogging() {
+      * @param learnerMaster
+      * @return true if snapshot transfer is needed.
+      */
++    private QuorumPeer specularPeer() {
++        return (learnerMaster instanceof Leader) ? ((Leader) learnerMaster).self : null;
++    }
++
+     boolean syncFollower(long peerLastZxid, LearnerMaster learnerMaster) {
+         /*
+          * When leader election is completed, the leader will set its
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java
+index 15cb172..041b5ef 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java
+@@ -858,6 +858,9 @@ public synchronized void setPeerState(ServerState newState) {
+         } else {
+             LOG.info("Peer state changed: {}", getDetailedPeerState());
+         }
++        if (SpecularTrace.isEnabled()) {
++            SpecularTrace.emit("PeerRoleChanged", this, getLastLoggedZxid());
++        }
+     }
+ 
+     public void setZabState(ZabState zabState) {
+@@ -871,11 +874,17 @@ public void setZabState(ZabState zabState) {
+         }
+         this.zabState.set(zabState);
+         LOG.info("Peer state changed: {}", getDetailedPeerState());
++        if (SpecularTrace.isEnabled()) {
++            SpecularTrace.emit("PhaseChanged", this, getLastLoggedZxid());
++        }
+     }
+ 
+     public void setSyncMode(SyncMode syncMode) {
+         this.syncMode.set(syncMode);
+         LOG.info("Peer state changed: {}", getDetailedPeerState());
++        if (SpecularTrace.isEnabled()) {
++            SpecularTrace.emit("SyncModeChanged", this, getLastLoggedZxid());
++        }
+     }
+ 
+     public ZabState getZabState() {
+@@ -2164,12 +2173,14 @@ public long getAcceptedEpoch() throws IOException {
+     public void setCurrentEpoch(long e) throws IOException {
+         writeLongToFile(CURRENT_EPOCH_FILENAME, e);
+         currentEpoch = e;
++        SpecularTrace.emit("CurrentEpochPersisted", this, ZxidUtils.makeZxid(e, 0));
+ 
+     }
+ 
+     public void setAcceptedEpoch(long e) throws IOException {
+         writeLongToFile(ACCEPTED_EPOCH_FILENAME, e);
+         acceptedEpoch = e;
++        SpecularTrace.emit("AcceptedEpochPersisted", this, ZxidUtils.makeZxid(e, 0));
+     }
+ 
+     public boolean processReconfig(QuorumVerifier qv, Long suggestedLeaderId, Long zxid, boolean restartLE) {
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java
+index 8218dda..12a40a8 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java
+@@ -44,6 +44,7 @@ public void processRequest(Request si) {
+                 si.logLatency(ServerMetrics.getMetrics().PROPOSAL_ACK_CREATION_LATENCY);
+ 
+                 learner.writePacket(qp, false);
++                SpecularTrace.emit("AckSent", learner.self, si.getHdr().getZxid());
+             } catch (IOException e) {
+                 LOG.warn("Closing connection to leader, exception during packet send", e);
+                 try {
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SpecularTrace.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SpecularTrace.java
+new file mode 100644
+index 0000000..95952d7
+--- /dev/null
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SpecularTrace.java
+@@ -0,0 +1,139 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements. See the NOTICE file
++ * distributed with this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0.
++ */
++package org.apache.zookeeper.server.quorum;
++
++import java.io.BufferedWriter;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.OutputStreamWriter;
++import java.nio.charset.StandardCharsets;
++import java.util.concurrent.atomic.AtomicLong;
++import org.apache.zookeeper.server.ZooKeeperServer;
++import org.apache.zookeeper.server.util.ZxidUtils;
++
++/**
++ * Opt-in, synchronous Specular NDJSON instrumentation (rebased from the prior
++ * Specula harness).  Every event carries the emitting node, a zxid
++ * decomposition, the available peer state, and two optional fields: "peer"
++ * (the remote learner of a leader-side LearnerHandler event) and "info"
++ * (event-specific detail such as the sync mode chosen by the leader).
++ */
++public final class SpecularTrace {
++
++    private static final AtomicLong SEQUENCE = new AtomicLong();
++
++    private SpecularTrace() {
++    }
++
++    public static boolean isEnabled() {
++        String path = System.getProperty("specular.trace.file");
++        return path != null && !path.isEmpty();
++    }
++
++    public static void emit(String event, QuorumPeer peer, long zxid) {
++        emitWith(event, peer, zxid, -1, "");
++    }
++
++    public static void emitWith(String event, QuorumPeer peer, long zxid, long remoteSid, String info) {
++        if (!isEnabled()) {
++            return;
++        }
++        if (peer == null) {
++            emit(event, -1, zxid, -1, -1, "unknown", "unknown", "NONE", remoteSid, info);
++            return;
++        }
++        long accepted = -1;
++        long current = -1;
++        try {
++            accepted = peer.getAcceptedEpoch();
++            current = peer.getCurrentEpoch();
++        } catch (IOException e) {
++            // Capture remains useful when epoch files are not initialized yet.
++        }
++        emit(event,
++             peer.getId(),
++             zxid,
++             accepted,
++             current,
++             peer.getPeerState().toString().toLowerCase(),
++             peer.getZabState().toString().toLowerCase(),
++             peer.getSyncMode().toString(),
++             remoteSid,
++             info);
++    }
++
++    public static void emit(String event, ZooKeeperServer server, long zxid) {
++        if (!isEnabled()) {
++            return;
++        }
++        emit(event,
++             server == null ? -1 : server.getServerId(),
++             zxid,
++             -1,
++             -1,
++             "unknown",
++             "unknown",
++             "NONE",
++             -1,
++             "");
++    }
++
++    public static synchronized void emit(
++            String event,
++            long sid,
++            long zxid,
++            long acceptedEpoch,
++            long currentEpoch,
++            String role,
++            String phase,
++            String syncMode,
++            long remoteSid,
++            String info) {
++        String path = System.getProperty("specular.trace.file");
++        if (!isEnabled()) {
++            return;
++        }
++        long sequence = SEQUENCE.incrementAndGet();
++        Thread thread = Thread.currentThread();
++        long txnEpoch = zxid < 0 ? -1 : ZxidUtils.getEpochFromZxid(zxid);
++        long txnCounter = zxid < 0 ? -1 : (zxid & 0xffffffffL);
++        String scenario = System.getProperty("specular.trace.scenario", "unspecified");
++        String line = "{\"tag\":\"trace\",\"scenario\":\"" + escape(scenario)
++            + "\",\"seq\":" + sequence
++            + ",\"timeMillis\":" + System.currentTimeMillis()
++            + ",\"timeNanos\":" + System.nanoTime()
++            + ",\"thread\":{\"id\":" + thread.getId()
++            + ",\"name\":\"" + escape(thread.getName()) + "\"}"
++            + ",\"event\":{\"name\":\"" + escape(event)
++            + "\",\"node\":\"s" + sid
++            + "\",\"peer\":\"" + (remoteSid < 0 ? "" : "s" + remoteSid)
++            + "\",\"info\":\"" + escape(info)
++            + "\",\"zxid\":\"" + zxid + "\""
++            + ",\"txnEpoch\":" + txnEpoch
++            + ",\"txnCounter\":" + txnCounter
++            + ",\"state\":{\"acceptedEpoch\":" + acceptedEpoch
++            + ",\"currentEpoch\":" + currentEpoch
++            + ",\"role\":\"" + escape(role)
++            + "\",\"phase\":\"" + escape(phase)
++            + "\",\"syncMode\":\"" + escape(syncMode)
++            + "\"}}}";
++        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
++                 new FileOutputStream(path, true), StandardCharsets.UTF_8))) {
++            writer.write(line);
++            writer.newLine();
++        } catch (IOException e) {
++            throw new IllegalStateException("Unable to write Specular trace " + path, e);
++        }
++    }
++
++    private static String escape(String value) {
++        return value.replace("\\", "\\\\")
++                    .replace("\"", "\\\"")
++                    .replace("\n", "\\n")
++                    .replace("\r", "\\r");
++    }
++}
+diff --git a/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularUpdateScenariosTest.java b/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularUpdateScenariosTest.java
+new file mode 100644
+index 0000000..3f7cabb
+--- /dev/null
++++ b/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularUpdateScenariosTest.java
+@@ -0,0 +1,260 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements. See the NOTICE file
++ * distributed with this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0.
++ */
++package org.apache.zookeeper.server.quorum;
++
++import static org.apache.zookeeper.server.quorum.ZabUtils.createQuorumPeer;
++import static org.junit.jupiter.api.Assertions.assertEquals;
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.io.IOException;
++import java.net.InetAddress;
++import java.net.InetSocketAddress;
++import java.net.ServerSocket;
++import java.net.Socket;
++import java.nio.ByteBuffer;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.concurrent.atomic.AtomicBoolean;
++import org.apache.jute.BinaryInputArchive;
++import org.apache.jute.BinaryOutputArchive;
++import org.apache.jute.InputArchive;
++import org.apache.jute.OutputArchive;
++import org.apache.zookeeper.ZKTestCase;
++import org.apache.zookeeper.ZooDefs;
++import org.apache.zookeeper.server.ZKDatabase;
++import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
++import org.apache.zookeeper.server.quorum.QuorumPeer.QuorumServer;
++import org.apache.zookeeper.server.util.ZxidUtils;
++import org.apache.zookeeper.test.TestUtils;
++import org.apache.zookeeper.txn.CreateSessionTxn;
++import org.apache.zookeeper.txn.TxnHeader;
++import org.junit.jupiter.api.Test;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ * Specular update-focused learner conversations.  A test-side "leader" speaks
++ * the real Zab 1.0 wire protocol to a real Follower (the same fixture style as
++ * Zab1_0Test#testFollowerConversation).  Each scenario is derived from the
++ * visible update to Learner.syncWithLeader (NEWLEADER now starts the follower
++ * pipeline, logs and clears packetsNotCommitted, then ACKs).
++ *
++ * The tests record what the implementation does and assert the protocol
++ * expectation that the unchanged leader side relies on.  They are run by
++ * harness/run.sh for trace collection (a failing assertion does not prevent
++ * the trace from being kept) and by the reproduction scripts.
++ */
++public class SpecularUpdateScenariosTest extends ZKTestCase {
++
++    private static final Logger LOG = LoggerFactory.getLogger(SpecularUpdateScenariosTest.class);
++    private static final File TEST_DATA = new File(System.getProperty("test.data.dir", "src/test/resources/data"));
++
++    interface Conversation {
++        void converse(InputArchive ia, OutputArchive oa, DelayingFollower f) throws Exception;
++    }
++
++    /** Real Follower whose NEWLEADER-ACK write can be delayed (scheduling delay injection). */
++    static class DelayingFollower extends Follower {
++        QuorumServer leaderQuorumServer;
++        volatile long newLeaderAckDelayMs = 0;
++        final AtomicBoolean newLeaderAckDelayed = new AtomicBoolean(false);
++        final List<Throwable> followLeaderErrors = new ArrayList<>();
++
++        DelayingFollower(QuorumPeer self, FollowerZooKeeperServer zk) {
++            super(self, zk);
++        }
++
++        @Override
++        protected QuorumServer findLeader() {
++            return leaderQuorumServer;
++        }
++
++        @Override
++        void writePacket(QuorumPacket pp, boolean flush) throws IOException {
++            if (pp != null && pp.getType() == Leader.ACK && (pp.getZxid() & 0xffffffffL) == 0
++                && newLeaderAckDelayMs > 0 && newLeaderAckDelayed.compareAndSet(false, true)) {
++                // First zero-counter ACK written by the learner thread is the
++                // NEWLEADER ACK (Learner.java:760).  Delay only that write.
++                try {
++                    Thread.sleep(newLeaderAckDelayMs);
++                } catch (InterruptedException e) {
++                    Thread.currentThread().interrupt();
++                }
++            }
++            super.writePacket(pp, flush);
++        }
++    }
++
++    static void readSkippingPing(InputArchive ia, QuorumPacket qp) throws IOException {
++        while (true) {
++            ia.readRecord(qp, null);
++            if (qp.getType() != Leader.PING) {
++                return;
++            }
++        }
++    }
++
++    private void runConversation(long nlAckDelayMs, Conversation conversation) throws Exception {
++        File tmpDir = File.createTempFile("test", "dir", TEST_DATA);
++        tmpDir.delete();
++        tmpDir.mkdir();
++        Thread followerThread = null;
++        DelayingFollower follower = null;
++        QuorumPeer peer = null;
++        try {
++            peer = createQuorumPeer(tmpDir);
++            FileTxnSnapLog logFactory = new FileTxnSnapLog(tmpDir, tmpDir);
++            peer.setTxnFactory(logFactory);
++            ZKDatabase zkDb = new ZKDatabase(logFactory);
++            FollowerZooKeeperServer zk = new FollowerZooKeeperServer(logFactory, peer, zkDb);
++            peer.setZKDatabase(zkDb);
++            follower = new DelayingFollower(peer, zk);
++            follower.newLeaderAckDelayMs = nlAckDelayMs;
++            peer.follower = follower;
++            ServerSocket ss = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"));
++            follower.leaderQuorumServer = new QuorumServer(1, (InetSocketAddress) ss.getLocalSocketAddress());
++            final DelayingFollower f = follower;
++            followerThread = new Thread(() -> {
++                try {
++                    f.followLeader();
++                } catch (Throwable e) {
++                    synchronized (f.followLeaderErrors) {
++                        f.followLeaderErrors.add(e);
++                    }
++                    LOG.warn("Follower thread ended with exception", e);
++                }
++            });
++            followerThread.start();
++            Socket leaderSocket = ss.accept();
++            InputArchive ia = BinaryInputArchive.getArchive(leaderSocket.getInputStream());
++            OutputArchive oa = BinaryOutputArchive.getArchive(leaderSocket.getOutputStream());
++            conversation.converse(ia, oa, follower);
++        } finally {
++            if (follower != null) {
++                follower.shutdown();
++            }
++            if (followerThread != null) {
++                followerThread.interrupt();
++                followerThread.join();
++            }
++            if (peer != null) {
++                peer.shutdown();
++            }
++            TestUtils.deleteFileRecursively(tmpDir);
++        }
++    }
++
++    /** FOLLOWERINFO -> LEADERINFO(epoch 1) -> ACKEPOCH, exactly as Zab1_0Test. */
++    static void discovery(InputArchive ia, OutputArchive oa, QuorumPacket qp) throws IOException {
++        readSkippingPing(ia, qp);
++        assertEquals(Leader.FOLLOWERINFO, qp.getType());
++        qp.setType(Leader.LEADERINFO);
++        qp.setZxid(ZxidUtils.makeZxid(1, 0));
++        byte[] protoBytes = new byte[4];
++        ByteBuffer.wrap(protoBytes).putInt(0x10000);
++        qp.setData(protoBytes);
++        oa.writeRecord(qp, null);
++        readSkippingPing(ia, qp);
++        assertEquals(Leader.ACKEPOCH, qp.getType());
++    }
++
++    static void proposal(QuorumPacket qp, long zxid, long sessionId) throws IOException {
++        qp.setType(Leader.PROPOSAL);
++        qp.setZxid(zxid);
++        TxnHeader hdr = new TxnHeader(sessionId, 1414, zxid, 55, ZooDefs.OpCode.createSession);
++        CreateSessionTxn cst = new CreateSessionTxn(30000);
++        ByteArrayOutputStream baos = new ByteArrayOutputStream();
++        OutputArchive boa = BinaryOutputArchive.getArchive(baos);
++        boa.writeRecord(hdr, null);
++        boa.writeRecord(cst, null);
++        qp.setData(baos.toByteArray());
++    }
++
++    static void send(OutputArchive oa, int type, long zxid) throws IOException {
++        oa.writeRecord(new QuorumPacket(type, zxid, null, null), null);
++    }
++
++    /**
++     * Scenario "diff-commit-after-newleader": an established leader forwards an
++     * outstanding PROPOSAL before NEWLEADER (Leader.startForwarding) and its
++     * COMMIT after NEWLEADER, before UPTODATE.  Expected (protocol): the
++     * learner completes synchronization and ACKs UPTODATE.
++     */
++    @Test
++    public void testCommitAfterNewLeaderForPreNewLeaderProposal() throws Exception {
++        final long[] observed = new long[2];
++        runConversation(0, (ia, oa, f) -> {
++            QuorumPacket qp = new QuorumPacket();
++            discovery(ia, oa, qp);
++            long p1 = ZxidUtils.makeZxid(1, 1);
++            send(oa, Leader.DIFF, 0);
++            proposal(qp, p1, 0x333);
++            oa.writeRecord(qp, null);
++            send(oa, Leader.NEWLEADER, ZxidUtils.makeZxid(1, 0));
++            send(oa, Leader.COMMIT, p1);
++            send(oa, Leader.UPTODATE, 0);
++            // Collect every ACK the learner writes until the stream ends or 3 s pass.
++            List<Long> acks = new ArrayList<>();
++            long end = System.currentTimeMillis() + 3000;
++            try {
++                while (System.currentTimeMillis() < end && acks.size() < 3) {
++                    readSkippingPing(ia, qp);
++                    if (qp.getType() == Leader.ACK) {
++                        acks.add(qp.getZxid());
++                    }
++                }
++            } catch (IOException e) {
++                LOG.info("Learner closed the connection after {} ACKs: {}", acks.size(), e.toString());
++            }
++            LOG.info("SPECULAR-OBSERVATION commit-after-newleader acks={} followerErrors={} zabState={}",
++                     acks, f.followLeaderErrors, f.self.getZabState());
++            observed[0] = acks.size();
++            observed[1] = f.self.getZabState() == QuorumPeer.ZabState.BROADCAST ? 1 : 0;
++        });
++        // Protocol expectation: NEWLEADER ACK, PROPOSAL ACK and UPTODATE ACK, broadcast reached.
++        assertEquals(1, observed[1], "learner did not reach BROADCAST after a COMMIT that followed NEWLEADER");
++    }
++
++    /**
++     * Scenario "diff-ack-before-newleader-ack": DIFF with one committed
++     * proposal; the learner thread is delayed between logging the buffered
++     * proposal and writing its NEWLEADER ACK.  LearnerHandler.run:609-623
++     * treats the first ACK after NEWLEADER as the NEWLEADER ACK.
++     */
++    @Test
++    public void testProposalAckBeforeNewLeaderAck() throws Exception {
++        final long[] firstAck = new long[1];
++        runConversation(1500, (ia, oa, f) -> {
++            QuorumPacket qp = new QuorumPacket();
++            discovery(ia, oa, qp);
++            long p1 = ZxidUtils.makeZxid(1, 1);
++            send(oa, Leader.DIFF, 0);
++            proposal(qp, p1, 0x444);
++            oa.writeRecord(qp, null);
++            send(oa, Leader.COMMIT, p1);
++            send(oa, Leader.NEWLEADER, ZxidUtils.makeZxid(1, 0));
++            readSkippingPing(ia, qp);
++            firstAck[0] = qp.getZxid();
++            LOG.info("SPECULAR-OBSERVATION first packet after NEWLEADER type={} zxid=0x{}",
++                     qp.getType(), Long.toHexString(qp.getZxid()));
++            send(oa, Leader.UPTODATE, 0);
++            List<Long> rest = new ArrayList<>();
++            long end = System.currentTimeMillis() + 3000;
++            try {
++                while (System.currentTimeMillis() < end && rest.size() < 2) {
++                    readSkippingPing(ia, qp);
++                    rest.add(qp.getZxid());
++                }
++            } catch (IOException e) {
++                LOG.info("stream ended: {}", e.toString());
++            }
++            LOG.info("SPECULAR-OBSERVATION later ACK zxids={}", rest);
++        });
++        assertEquals(ZxidUtils.makeZxid(1, 0), firstAck[0],
++                     "first ACK after NEWLEADER is not the NEWLEADER ACK (LearnerHandler would discard it)");
++    }
++}

@@ -1,0 +1,62 @@
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
+index 4df319f..932849f 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
+@@ -224,6 +224,19 @@ public void run() {
+         LOG.info("SyncRequestProcessor exited!");
+     }
+ 
++    // SPECULAR HYPOTHETICAL-FIX CONTROL (not upstream code): flush watermark.
++    private final Object flushMonitor = new Object();
++    private volatile long lastFlushedZxid = -1;
++
++    public void waitForFlushed(long zxid, long timeoutMs) throws InterruptedException {
++        long end = System.currentTimeMillis() + timeoutMs;
++        synchronized (flushMonitor) {
++            while (lastFlushedZxid < zxid && System.currentTimeMillis() < end) {
++                flushMonitor.wait(Math.max(1, end - System.currentTimeMillis()));
++            }
++        }
++    }
++
+     private void flush() throws IOException, RequestProcessorException {
+         if (this.toFlush.isEmpty()) {
+             return;
+@@ -233,6 +246,16 @@ private void flush() throws IOException, RequestProcessorException {
+ 
+         long flushStartTime = Time.currentElapsedTime();
+         zks.getZKDatabase().commit();
++        long flushedMax = lastFlushedZxid;
++        for (Request r : toFlush) {
++            if (r.getHdr() != null) {
++                flushedMax = Math.max(flushedMax, r.getHdr().getZxid());
++            }
++        }
++        synchronized (flushMonitor) {
++            lastFlushedZxid = flushedMax;
++            flushMonitor.notifyAll();
++        }
+         ServerMetrics.getMetrics().SYNC_PROCESSOR_FLUSH_TIME.add(Time.currentElapsedTime() - flushStartTime);
+ 
+         if (this.nextProcessor == null) {
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
+index 1b6c250..9ffcc58 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
+@@ -751,10 +751,16 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                     zk.startupWithoutServing();
+                     if (zk instanceof FollowerZooKeeperServer) {
+                         FollowerZooKeeperServer fzk = (FollowerZooKeeperServer) zk;
++                        long lastHandedOff = -1;
+                         for (PacketInFlight p : packetsNotCommitted) {
+                             fzk.logRequest(p.hdr, p.rec, p.digest);
++                            lastHandedOff = p.hdr.getZxid();
+                         }
+                         packetsNotCommitted.clear();
++                        // SPECULAR HYPOTHETICAL-FIX CONTROL: ACK only after the handed-off history is durable.
++                        if (lastHandedOff >= 0) {
++                            fzk.syncProcessor.waitForFlushed(lastHandedOff, 60_000);
++                        }
+                     }
+ 
+                     writePacket(new QuorumPacket(Leader.ACK, newLeaderZxid, null, null), true);

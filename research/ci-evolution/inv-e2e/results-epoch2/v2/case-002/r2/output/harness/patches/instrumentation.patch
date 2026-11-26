@@ -1,0 +1,344 @@
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
+index 4df319f..07c38e4 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java
+@@ -29,6 +29,7 @@
+ import java.util.concurrent.ThreadLocalRandom;
+ import java.util.concurrent.TimeUnit;
+ import org.apache.zookeeper.common.Time;
++import org.apache.zookeeper.server.quorum.SpecularTrace;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ 
+@@ -179,6 +180,7 @@ public void run() {
+ 
+                 // track the number of records written to the log
+                 if (!si.isThrottled() && zks.getZKDatabase().append(si)) {
++                    SpecularTrace.emit("TxnAppended", zks, si.zxid);
+                     if (shouldSnapshot()) {
+                         resetSnapshotStats();
+                         // roll the log
+@@ -240,6 +242,9 @@ private void flush() throws IOException, RequestProcessorException {
+         } else {
+             while (!this.toFlush.isEmpty()) {
+                 final Request i = this.toFlush.remove();
++                if (i.getHdr() != null) {
++                    SpecularTrace.emit("TxnDurable", zks, i.zxid);
++                }
+                 long latency = Time.currentElapsedTime() - i.syncQueueStartTime;
+                 ServerMetrics.getMetrics().SYNC_PROCESSOR_QUEUE_AND_FLUSH_TIME.add(latency);
+                 this.nextProcessor.processRequest(i);
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java
+index f7f99f7..ca3ac35 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java
+@@ -77,6 +77,7 @@
+ import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
+ import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
+ import org.apache.zookeeper.server.quorum.ReadOnlyZooKeeperServer;
++import org.apache.zookeeper.server.quorum.SpecularTrace;
+ import org.apache.zookeeper.server.util.JvmPauseMonitor;
+ import org.apache.zookeeper.server.util.OSMXBean;
+ import org.apache.zookeeper.server.util.RequestPathMetricsCollector;
+@@ -1796,6 +1797,9 @@ public ProcessTxnResult processTxn(Request request) {
+             if (quorumRequest) {
+                 getZKDatabase().addCommittedProposal(request);
+             }
++            if (writeRequest) {
++                SpecularTrace.emit("TxnApplied", this, hdr.getZxid());
++            }
+             return rc;
+         }
+     }
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java
+index f141e85..1e186ff 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FastLeaderElection.java
+@@ -898,6 +898,7 @@ private long getPeerEpoch() {
+     private void setPeerState(long proposedLeader, SyncedLearnerTracker voteSet) {
+         ServerState ss = (proposedLeader == self.getId()) ? ServerState.LEADING : learningState();
+         self.setPeerState(ss);
++        SpecularTrace.emit("ElectionWon", self, proposedZxid);
+         if (ss == ServerState.LEADING) {
+             leadingVoteSet = voteSet;
+         }
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
+index 8d371ae..3047896 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java
+@@ -84,6 +84,7 @@ public void logRequest(TxnHeader hdr, Record txn, TxnDigest digest) {
+         request.setTxnDigest(digest);
+         if ((request.zxid & 0xffffffffL) != 0) {
+             pendingTxns.add(request);
++            SpecularTrace.emit("ProposalQueued", self, request.zxid);
+         }
+         syncProcessor.processRequest(request);
+     }
+@@ -108,6 +109,7 @@ public void commit(long zxid) {
+         Request request = pendingTxns.remove();
+         request.logLatency(ServerMetrics.getMetrics().COMMIT_PROPAGATION_LATENCY);
+         commitProcessor.commit(request);
++        SpecularTrace.emit("CommitDelivered", self, request.zxid);
+     }
+ 
+     public synchronized void sync() {
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java
+index 692ce1e..eb96845 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java
+@@ -1559,6 +1559,7 @@ public void waitForNewLeaderAck(long sid, long zxid) throws InterruptedException
+                     sid,
+                     Long.toHexString(currentZxid),
+                     Long.toHexString(zxid));
++                SpecularTrace.emitWithPeer("NewLeaderAckRejected", self, zxid, sid);
+                 return;
+             }
+ 
+@@ -1567,6 +1568,7 @@ public void waitForNewLeaderAck(long sid, long zxid) throws InterruptedException
+              * is a PARTICIPANT.
+              */
+             newLeaderProposal.addAck(sid);
++            SpecularTrace.emitWithPeer("NewLeaderAckCounted", self, zxid, sid);
+ 
+             if (newLeaderProposal.hasAllQuorums()) {
+                 quorumFormed = true;
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
+index 1b6c250..d1af917 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java
+@@ -523,6 +523,7 @@ protected long registerWithLeader(int pktType) throws IOException {
+             }
+             QuorumPacket ackNewEpoch = new QuorumPacket(Leader.ACKEPOCH, lastLoggedZxid, epochBytes, null);
+             writePacket(ackNewEpoch, true);
++            SpecularTrace.emit("FollowerRegistered", self, lastLoggedZxid);
+             return ZxidUtils.makeZxid(newEpoch, 0);
+         } else {
+             if (newEpoch > self.getAcceptedEpoch()) {
+@@ -600,6 +601,10 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                 LOG.error("Got unexpected packet from leader: {}, exiting ... ", LearnerHandler.packetToString(qp));
+                 ServiceUtils.requestSystemExit(ExitCode.QUORUM_PACKET_ERROR.getValue());
+             }
++            SpecularTrace.emit("SyncSelected", self, qp.getZxid());
++            if (self.getSyncMode() == QuorumPeer.SyncMode.SNAP) {
++                SpecularTrace.emit("SnapshotInstalled", self, qp.getZxid());
++            }
+             zk.getZKDatabase().initConfigInZKDatabase(self.getQuorumVerifier());
+             zk.createSessionTracker();
+ 
+@@ -639,6 +644,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                     }
+ 
+                     packetsNotCommitted.add(pif);
++                    SpecularTrace.emit("SyncProposalBuffered", self, pif.hdr.getZxid());
+                     break;
+                 case Leader.COMMIT:
+                 case Leader.COMMITANDACTIVATE:
+@@ -665,6 +671,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                         }
+                     } else {
+                         packetsCommitted.add(qp.getZxid());
++                        SpecularTrace.emit("SyncCommitBuffered", self, qp.getZxid());
+                     }
+                     break;
+                 case Leader.INFORM:
+@@ -757,6 +764,9 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+                         packetsNotCommitted.clear();
+                     }
+ 
++                    // Specular probe: emitted immediately before the NEWLEADER ACK is
++                    // written, so the leader-side NewLeaderAckCounted probe is ordered after it.
++                    SpecularTrace.emit("NewLeaderAck", self, newLeaderZxid);
+                     writePacket(new QuorumPacket(Leader.ACK, newLeaderZxid, null, null), true);
+                     break;
+                 }
+@@ -765,6 +775,7 @@ protected void syncWithLeader(long newLeaderZxid) throws Exception {
+         ack.setZxid(ZxidUtils.makeZxid(newEpoch, 0));
+         writePacket(ack, true);
+         zk.startServing();
++        SpecularTrace.emit("BroadcastReady", self, zk.getZKDatabase().getDataTreeLastProcessedZxid());
+         /*
+          * Update the election vote here to ensure that all members of the
+          * ensemble report the same vote to new servers that start up and
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java
+index 15cb172..041b5ef 100644
+--- a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/QuorumPeer.java
+@@ -858,6 +858,9 @@ public synchronized void setPeerState(ServerState newState) {
+         } else {
+             LOG.info("Peer state changed: {}", getDetailedPeerState());
+         }
++        if (SpecularTrace.isEnabled()) {
++            SpecularTrace.emit("PeerRoleChanged", this, getLastLoggedZxid());
++        }
+     }
+ 
+     public void setZabState(ZabState zabState) {
+@@ -871,11 +874,17 @@ public void setZabState(ZabState zabState) {
+         }
+         this.zabState.set(zabState);
+         LOG.info("Peer state changed: {}", getDetailedPeerState());
++        if (SpecularTrace.isEnabled()) {
++            SpecularTrace.emit("PhaseChanged", this, getLastLoggedZxid());
++        }
+     }
+ 
+     public void setSyncMode(SyncMode syncMode) {
+         this.syncMode.set(syncMode);
+         LOG.info("Peer state changed: {}", getDetailedPeerState());
++        if (SpecularTrace.isEnabled()) {
++            SpecularTrace.emit("SyncModeChanged", this, getLastLoggedZxid());
++        }
+     }
+ 
+     public ZabState getZabState() {
+@@ -2164,12 +2173,14 @@ public long getAcceptedEpoch() throws IOException {
+     public void setCurrentEpoch(long e) throws IOException {
+         writeLongToFile(CURRENT_EPOCH_FILENAME, e);
+         currentEpoch = e;
++        SpecularTrace.emit("CurrentEpochPersisted", this, ZxidUtils.makeZxid(e, 0));
+ 
+     }
+ 
+     public void setAcceptedEpoch(long e) throws IOException {
+         writeLongToFile(ACCEPTED_EPOCH_FILENAME, e);
+         acceptedEpoch = e;
++        SpecularTrace.emit("AcceptedEpochPersisted", this, ZxidUtils.makeZxid(e, 0));
+     }
+ 
+     public boolean processReconfig(QuorumVerifier qv, Long suggestedLeaderId, Long zxid, boolean restartLE) {
+diff --git a/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SpecularTrace.java b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SpecularTrace.java
+new file mode 100644
+index 0000000..67c007e
+--- /dev/null
++++ b/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SpecularTrace.java
+@@ -0,0 +1,130 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements. See the NOTICE file distributed
++ * with this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0.
++ */
++package org.apache.zookeeper.server.quorum;
++
++import java.io.BufferedWriter;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.OutputStreamWriter;
++import java.nio.charset.StandardCharsets;
++import java.util.concurrent.atomic.AtomicLong;
++import org.apache.zookeeper.server.ZooKeeperServer;
++import org.apache.zookeeper.server.util.ZxidUtils;
++
++/** Opt-in, synchronous Specular NDJSON instrumentation. */
++public final class SpecularTrace {
++
++    private static final AtomicLong SEQUENCE = new AtomicLong();
++
++    private SpecularTrace() {
++    }
++
++    public static boolean isEnabled() {
++        String path = System.getProperty("specular.trace.file");
++        return path != null && !path.isEmpty();
++    }
++
++    public static void emit(String event, QuorumPeer peer, long zxid) {
++        emitWithPeer(event, peer, zxid, -1);
++    }
++
++    /** Update probe variant: records the remote participant id as {@code peer}. */
++    public static void emitWithPeer(String event, QuorumPeer peer, long zxid, long otherSid) {
++        if (!isEnabled()) {
++            return;
++        }
++        if (peer == null) {
++            emit(event, -1, zxid, -1, -1, "unknown", "unknown", "NONE", otherSid);
++            return;
++        }
++        long accepted = -1;
++        long current = -1;
++        try {
++            accepted = peer.getAcceptedEpoch();
++            current = peer.getCurrentEpoch();
++        } catch (IOException e) {
++            // Capture remains useful when epoch files are not initialized yet.
++        }
++        emit(event,
++             peer.getId(),
++             zxid,
++             accepted,
++             current,
++             peer.getPeerState().toString().toLowerCase(),
++             peer.getZabState().toString().toLowerCase(),
++             peer.getSyncMode().toString(),
++             otherSid);
++    }
++
++    public static void emit(String event, ZooKeeperServer server, long zxid) {
++        if (!isEnabled()) {
++            return;
++        }
++        emit(event,
++             server == null ? -1 : server.getServerId(),
++             zxid,
++             -1,
++             -1,
++             "unknown",
++             "unknown",
++             "NONE",
++             -1);
++    }
++
++    public static synchronized void emit(
++            String event,
++            long sid,
++            long zxid,
++            long acceptedEpoch,
++            long currentEpoch,
++            String role,
++            String phase,
++            String syncMode,
++            long otherSid) {
++        String path = System.getProperty("specular.trace.file");
++        if (!isEnabled()) {
++            return;
++        }
++        long sequence = SEQUENCE.incrementAndGet();
++        Thread thread = Thread.currentThread();
++        long txnEpoch = zxid < 0 ? -1 : ZxidUtils.getEpochFromZxid(zxid);
++        long txnCounter = zxid < 0 ? -1 : (zxid & 0xffffffffL);
++        String scenario = System.getProperty("specular.trace.scenario", "unspecified");
++        String line = "{\"tag\":\"trace\",\"scenario\":\"" + escape(scenario)
++            + "\",\"seq\":" + sequence
++            + ",\"timeMillis\":" + System.currentTimeMillis()
++            + ",\"timeNanos\":" + System.nanoTime()
++            + ",\"thread\":{\"id\":" + thread.getId()
++            + ",\"name\":\"" + escape(thread.getName()) + "\"}"
++            + ",\"event\":{\"name\":\"" + escape(event)
++            + "\",\"node\":\"s" + sid
++            + "\",\"peer\":\"" + (otherSid < 0 ? "none" : "s" + otherSid)
++            + "\",\"zxid\":\"" + zxid + "\""
++            + ",\"txnEpoch\":" + txnEpoch
++            + ",\"txnCounter\":" + txnCounter
++            + ",\"state\":{\"acceptedEpoch\":" + acceptedEpoch
++            + ",\"currentEpoch\":" + currentEpoch
++            + ",\"role\":\"" + escape(role)
++            + "\",\"phase\":\"" + escape(phase)
++            + "\",\"syncMode\":\"" + escape(syncMode)
++            + "\"}}}";
++        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
++                 new FileOutputStream(path, true), StandardCharsets.UTF_8))) {
++            writer.write(line);
++            writer.newLine();
++        } catch (IOException e) {
++            throw new IllegalStateException("Unable to write Specular trace " + path, e);
++        }
++    }
++
++    private static String escape(String value) {
++        return value.replace("\\", "\\\\")
++                    .replace("\"", "\\\"")
++                    .replace("\n", "\\n")
++                    .replace("\r", "\\r");
++    }
++}

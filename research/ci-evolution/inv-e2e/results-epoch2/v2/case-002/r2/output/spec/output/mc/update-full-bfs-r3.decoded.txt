@@ -1,0 +1,26 @@
+State 1: Init
+State 2: votes{s1:{s1} , s2 |-> {} , s3 |-> {}}
+State 3: votes=(s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+State 4: leadersByEpoch{0:{} , 1 |-> {s1} , 2 |-> {}}; acceptedEpoch{s1:1 , s2 |-> 0 , s3 |-> 0}; role{s1:"leading" , s2 |-> "looking" , s3 |-> "looking"}; phase{s1:"discovery" , s2 |-> "election" , s3 |-> "election"}; leaderOf{s1:s1 , s2 |-> Nil , s3 |-> Nil}
+State 5: role{s1:"leading" , s2 |-> "looking" , s3 |-> "following"}; phase{s1:"discovery" , s2 |-> "election" , s3 |-> "discovery"}; leaderOf{s1:s1 , s2 |-> Nil , s3 |-> s1}
+State 6: acceptedEpoch{s1:1 , s2 |-> 0 , s3 |-> 1}
+State 7: phase{s1:"sync" , s2 |-> "election" , s3 |-> "discovery"}; currentEpoch{s1:1 , s2 |-> 0 , s3 |-> 0}; nlAcks{s1:{s1} , s2 |-> {} , s3 |-> {}}
+State 8: syncSource{s1:Nil , s2 |-> Nil , s3 |-> s1}; phase{s1:"sync" , s2 |-> "election" , s3 |-> "sync"}
+State 9: syncMode{s1:"NONE" , s2 |-> "NONE" , s3 |-> "DIFF"}
+State 10: syncJustified{s1:FALSE , s2 |-> FALSE , s3 |-> TRUE}; syncStage{s1:"idle" , s2 |-> "idle" , s3 |-> "payload"}
+State 11: syncMode{s1:"NONE" , s2 |-> "NONE" , s3 |-> "NONE"}; currentEpoch{s1:1 , s2 |-> 0 , s3 |-> 1}; syncStage{s1:"idle" , s2 |-> "idle" , s3 |-> "newleader"}; nlAcks=(s1 :> {s1, s3} @@ s2 :> {} @@ s3 :> {})
+State 12: phase{s1:"broadcast" , s2 |-> "election" , s3 |-> "sync"}
+State 13: usedTxn={t1}; queued{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<>> , s3 |-> <<>>}; proposed{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<>> , s3 |-> <<>>}; messages={ [ epoch |-> 1, id |-> t1, kind |-> "proposal", from |-> s1, to |-> s2, pos |-> 1 ], [ epoch |-> 1, id |-> t1, kind |->
+State 14: votes=(s1 :> {s1} @@ s2 :> {} @@ s3 :> {}); role{s1:"looking" , s2 |-> "looking" , s3 |-> "following"}; phase{s1:"election" , s2 |-> "election" , s3 |-> "sync"}; leaderOf{s1:Nil , s2 |-> Nil , s3 |-> s1}
+State 15: votes=(s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+State 16: appended{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<>> , s3 |-> <<>>}
+State 17: durable{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<>> , s3 |-> <<>>}
+State 18: leadersByEpoch{0:{} , 1 |-> {s1} , 2 |-> {s1}}; acceptedEpoch{s1:2 , s2 |-> 0 , s3 |-> 1}; role{s1:"leading" , s2 |-> "looking" , s3 |-> "following"}; phase{s1:"discovery" , s2 |-> "election" , s3 |-> "sync"}; leaderOf{s1:s1 , s2 |-> Nil , s3 |-> s1}; nlAcks=(s1 :> {} @@ s2 :> {} @@ s3 :> {})
+State 19: role{s1:"leading" , s2 |-> "following" , s3 |-> "following"}; phase{s1:"discovery" , s2 |-> "discovery" , s3 |-> "sync"}; leaderOf{s1:s1 , s2 |-> s1 , s3 |-> s1}
+State 20: acceptedEpoch{s1:2 , s2 |-> 2 , s3 |-> 1}
+State 21: phase{s1:"sync" , s2 |-> "discovery" , s3 |-> "sync"}; currentEpoch{s1:2 , s2 |-> 0 , s3 |-> 1}; nlAcks{s1:{s1} , s2 |-> {} , s3 |-> {}}
+State 22: syncSource{s1:Nil , s2 |-> s1 , s3 |-> s1}; phase{s1:"sync" , s2 |-> "sync" , s3 |-> "sync"}
+State 23: syncMode{s1:"NONE" , s2 |-> "DIFF" , s3 |-> "NONE"}
+State 24: recovered=(s1 :> <<>> @@ s2 :> <<[epoch |-> 1, id |-> t1]>> @@ s3 :> <<>>); syncCommit=(s1 :> <<>> @@ s2 :> <<[epoch |-> 1, id |-> t1]>> @@ s3 :> <<>>); syncBuf=(s1 :> <<>> @@ s2 :> <<[epoch |-> 1, id |-> t1]>> @@ s3 :> <<>>); syncJustified{s1:FALSE , s2 |-> TRUE , s3 |-> TRUE}; syncStage{s1:"idle" , s2 |-> "payload" , s3 |-> "newleader"}
+State 25: syncMode{s1:"NONE" , s2 |-> "NONE" , s3 |-> "NONE"}; syncBuf=(s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>); currentEpoch{s1:2 , s2 |-> 2 , s3 |-> 1}; queued{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<[epoch |-> 1, id |-> t1]>> , s3 |-> <<>>}; proposed{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<[epoch |-> 1, id |-> t1]>> , s3 |-> <<>>}; syncStage{s1:"idle" , s2 |-> "newleader" , s3 |-> "newleader"}; nlAcks=(s1 :> {s1, s2} @@ s2 :> {} @@ s3 :> {})
+State 26: commitCertified{t1:TRUE}; applied{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<>> , s3 |-> <<>>}; phase{s1:"broadcast" , s2 |-> "sync" , s3 |-> "sync"}; committed{s1:<<[epoch |-> 1, id |-> t1]>> , s2 |-> <<>> , s3 |-> <<>>}

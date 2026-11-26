@@ -1,0 +1,51 @@
+{
+  "CR-2": {
+    "id": "CR-2",
+    "title": "Learner failure between NEWLEADER and UPTODATE leaks an INITIAL ZooKeeperServer",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:shutdown",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "The update starts the learner's request processors at NEWLEADER with startupWithoutServing (state INITIAL), but ZooKeeperServer/LearnerZooKeeperServer.shutdown skip a server that is not RUNNING or ERROR, so a learner that fails before UPTOD"
+  },
+  "CR-3": {
+    "id": "CR-3",
+    "title": "A proposal ACK can be consumed as the NEWLEADER ACK",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:run",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:waitForNewLeaderAck"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "The SyncRequestProcessor started at NEWLEADER can write a proposal ACK before the learner thread writes the NEWLEADER ACK; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK and waitForNewLeaderAck drops a mismatched z"
+  },
+  "MC-1": {
+    "id": "MC-1",
+    "title": "NEWLEADER ACK is sent before the DIFF-synced transactions are durable",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:logRequest",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:waitForNewLeaderAck"
+    ],
+    "actions": [
+      "SyncWithLeaderNewLeader",
+      "LeaderBroadcast",
+      "FsyncOne"
+    ],
+    "invariants": [
+      "CommittedQuorumDurable",
+      "CommittedNeverLostByLeader"
+    ],
+    "reusable": true,
+    "cause": "Learner.syncWithLeader (NEWLEADER) only enqueues the buffered sync proposals to the asynchronous SyncRequestProcessor via FollowerZooKeeperServer.logRequest and then writes the NEWLEADER ACK; the leader counts that ACK toward the quorum tha"
+  }
+}

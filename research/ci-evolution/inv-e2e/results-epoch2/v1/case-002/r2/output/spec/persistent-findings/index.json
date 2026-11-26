@@ -1,0 +1,67 @@
+{
+  "CR-1": {
+    "id": "CR-1",
+    "title": "COMMIT between NEWLEADER and UPTODATE dereferences an empty packetsNotCommitted (NPE)",
+    "status": "REPRODUCED",
+    "sites": [
+      "Learner.java:syncWithLeader COMMIT case",
+      "Learner.java:syncWithLeader NEWLEADER case"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "The update clears packetsNotCommitted at NEWLEADER; the COMMIT branch dereferences packetsNotCommitted.peekFirst() without a null check."
+  },
+  "CR-2": {
+    "id": "CR-2",
+    "title": "Request processors started at NEWLEADER are not shut down when synchronization fails before UPTODATE",
+    "status": "REPRODUCED",
+    "sites": [
+      "Learner.java:syncWithLeader zk.startupWithoutServing",
+      "ZooKeeperServer.java:canShutdown",
+      "LearnerZooKeeperServer.java:shutdown"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "startupWithoutServing starts the processors but leaves state INITIAL; LearnerZooKeeperServer.shutdown returns early because canShutdown() is false."
+  },
+  "CR-3": {
+    "id": "CR-3",
+    "title": "A SyncThread per-txn ACK can overtake the NEWLEADER ACK",
+    "status": "REPRODUCED",
+    "sites": [
+      "Learner.java:syncWithLeader NEWLEADER case",
+      "LearnerHandler.java:run NEWLEADER ACK read",
+      "Leader.java:waitForNewLeaderAck"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "The update starts SyncRequestProcessor/SendAckRequestProcessor and hands off txns before the learner thread writes the NEWLEADER ACK; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK."
+  },
+  "MC-1": {
+    "id": "MC-1",
+    "title": "NEWLEADER ACK is sent before the DIFF-synchronized history is durable",
+    "status": "REPRODUCED",
+    "sites": [
+      "Learner.java:syncWithLeader NEWLEADER case",
+      "FollowerZooKeeperServer.java:logRequest",
+      "SyncRequestProcessor.java:flush",
+      "Leader.java:waitForNewLeaderAck"
+    ],
+    "actions": [
+      "LearnerNewLeader",
+      "LearnerAckNewLeader",
+      "LeaderBroadcast",
+      "FsyncOne",
+      "Crash"
+    ],
+    "invariants": [
+      "NewLeaderAckDurable",
+      "CommittedSurvivesLeaderChange"
+    ],
+    "reusable": true,
+    "cause": "Learner.syncWithLeader hands buffered proposals to FollowerZooKeeperServer.logRequest, which only enqueues to SyncRequestProcessor, and writes the NEWLEADER ACK without waiting for append/fsync; currentEpoch is already persisted."
+  }
+}

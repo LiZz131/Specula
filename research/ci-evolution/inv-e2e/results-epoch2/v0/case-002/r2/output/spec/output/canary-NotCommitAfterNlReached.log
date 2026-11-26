@@ -1,0 +1,171 @@
+# command: timeout 600s java -XX:+UseParallelGC -Xmx4g -cp /work/lib/tla2tools.jar:/work/lib/CommunityModules-deps.jar tlc2.TLC -config Canary-NotCommitAfterNlReached.cfg -metadir /dev/shm/specular-e2e-case-002/canary-NotCommitAfterNlReached -cleanup -workers 2 -simulate -depth 150 Update.tla
+# started: 2026-11-26T10:24:22Z
+TLC2 Version 2026.11.06.222357 (rev: d8fb231)
+Running Random Simulation with seed -77478407230708355 with 2 workers on 40 cores with 3641MB heap and 64MB offheap memory [pid: 21611] (Linux 5.15.0-203-generic amd64, Ubuntu 21.0.13.0.3 64bit).
+Parsing file /work/current/.specular-output/spec/Update.tla
+Parsing file /work/current/.specular-output/spec/MC.tla
+Parsing file /work/current/.specular-output/spec/UpdateProps.tla
+Parsing file /tmp/tlc-1157733790156085077/_TLCTrace.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /work/current/.specular-output/spec/base.tla
+Parsing file /tmp/tlc-1157733790156085077/Naturals.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-1157733790156085077/Integers.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /tmp/tlc-1157733790156085077/Sequences.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-1157733790156085077/FiniteSets.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-1157733790156085077/TLC.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-1157733790156085077/TLCExt.tla (jar:file:/work/lib/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module base
+Semantic processing of module MC
+Semantic processing of module UpdateProps
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module Update
+Linting of module base
+Linting of module MC
+Linting of module UpdateProps
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module Update
+Starting... (2026-11-26 10:24:24)
+Computed 1 initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-26 10:24:24.
+Error: Invariant NotCommitAfterNlReached is violated.
+Error: The behavior up to this point is:
+State 1: <MCInit line 23, col 5 to line 25, col 16 of module MC>
+
+State 2: <MCCastVote(s1,s3) line 39, col 21 to line 39, col 54 of module MC>
+
+State 3: <MCBeginElection(s3) line 30, col 5 to line 38, col 32 of module MC>
+
+State 4: <MCCastVote(s1,s3) line 39, col 21 to line 39, col 54 of module MC>
+
+State 5: <MCCrash(s2) line 91, col 5 to line 94, col 22 of module MC>
+
+State 6: <MCElectFollow(s1,s3) line 41, col 24 to line 41, col 60 of module MC>
+
+State 7: <MCBeginElection(s1) line 30, col 5 to line 38, col 32 of module MC>
+
+State 8: <MCElectFollow(s1,s3) line 41, col 24 to line 41, col 60 of module MC>
+
+State 9: <MCRestart(s2) line 95, col 17 to line 95, col 69 of module MC>
+
+State 10: <MCCastVote(s3,s2) line 39, col 21 to line 39, col 54 of module MC>
+
+State 11: <MCElectLeader(s3) line 40, col 21 to line 40, col 76 of module MC>
+
+State 12: <MCBeginElection(s1) line 30, col 5 to line 38, col 32 of module MC>
+
+State 13: <MCCastVote(s2,s1) line 39, col 21 to line 39, col 54 of module MC>
+
+State 14: <MCCastVote(s2,s2) line 39, col 21 to line 39, col 54 of module MC>
+
+State 15: <MCBeginElection(s1) line 30, col 5 to line 38, col 32 of module MC>
+
+State 16: <MCElectFollow(s1,s3) line 41, col 24 to line 41, col 60 of module MC>
+
+State 17: <MCElectFollow(s2,s3) line 41, col 24 to line 41, col 60 of module MC>
+
+State 18: <MCLeaderProposeEpoch(s3) line 42, col 28 to line 42, col 68 of module MC>
+
+State 19: <MCAcceptEpoch(s2) line 43, col 21 to line 43, col 54 of module MC>
+
+State 20: <MCLeaderSyncFollower(s3,s2,"SNAP") line 50, col 5 to line 50, col 69 of module MC>
+
+State 21: <MCFinishDiscovery(s3) line 45, col 5 to line 47, col 25 of module MC>
+
+State 22: <MCLeaderSendNewLeader(s3,s2) line 51, col 32 to line 51, col 76 of module MC>
+
+State 23: <MCEnterSyncPhase(s2) line 48, col 24 to line 48, col 60 of module MC>
+
+State 24: <MCLearnerReadMode(s2) line 59, col 25 to line 59, col 62 of module MC>
+
+State 25: <MCLearnerNewLeader(s2) line 67, col 5 to line 69, col 25 of module MC>
+
+State 26: <MCLearnerAckNewLeader(s2) line 71, col 5 to line 74, col 25 of module MC>
+
+State 27: <MCAcceptEpoch(s1) line 43, col 21 to line 43, col 54 of module MC>
+
+State 28: <MCLeaderReadNewLeaderAck(s3,s2) line 53, col 5 to line 55, col 25 of module MC>
+
+State 29: <MCLeaderSyncFollower(s3,s1,"SNAP") line 50, col 5 to line 50, col 69 of module MC>
+
+State 30: <MCLeaderSendNewLeader(s3,s1) line 51, col 32 to line 51, col 76 of module MC>
+
+State 31: <MCLeaderBroadcast(s3) line 56, col 25 to line 56, col 87 of module MC>
+
+State 32: <MCPropose(s3,t1) line 80, col 20 to line 80, col 52 of module MC>
+
+State 33: <MCPropose(s3,t2) line 80, col 20 to line 80, col 52 of module MC>
+
+State 34: <MCLeaderSendUpToDate(s3,s2) line 57, col 31 to line 57, col 74 of module MC>
+
+State 35: <MCLearnerSyncProposal(s2) line 60, col 29 to line 60, col 70 of module MC>
+
+State 36: <MCLearnerSyncProposal(s2) line 60, col 29 to line 60, col 70 of module MC>
+
+State 37: <MCAppendOne(s3) line 82, col 19 to line 82, col 50 of module MC>
+
+State 38: <MCEnterSyncPhase(s1) line 48, col 24 to line 48, col 60 of module MC>
+
+State 39: <MCAppendOne(s3) line 82, col 19 to line 82, col 50 of module MC>
+
+State 40: <MCLearnerUpToDate(s2) line 76, col 5 to line 78, col 25 of module MC>
+
+State 41: <MCEnterBroadcast(s2) line 79, col 24 to line 79, col 93 of module MC>
+
+State 42: <MCFsyncOne(s3) line 83, col 18 to line 83, col 48 of module MC>
+
+State 43: <MCLearnerReadMode(s1) line 59, col 25 to line 59, col 62 of module MC>
+
+State 44: <MCFsyncOne(s3) line 83, col 18 to line 83, col 48 of module MC>
+
+State 45: <MCLeaderProcessAck(s3,s2) line 58, col 29 to line 58, col 70 of module MC>
+
+State 46: <MCAppendOne(s2) line 82, col 19 to line 82, col 50 of module MC>
+
+State 47: <MCFsyncOne(s2) line 83, col 18 to line 83, col 48 of module MC>
+
+State 48: <MCLeaderProcessAck(s3,s2) line 58, col 29 to line 58, col 70 of module MC>
+
+State 49: <MCAppendOne(s2) line 82, col 19 to line 82, col 50 of module MC>
+
+State 50: <MCFsyncOne(s2) line 83, col 18 to line 83, col 48 of module MC>
+
+State 51: <MCLeaderProcessAck(s3,s2) line 58, col 29 to line 58, col 70 of module MC>
+
+State 52: <MCLearnerNewLeader(s1) line 67, col 5 to line 69, col 25 of module MC>
+
+State 53: <MCLearnerAckNewLeader(s1) line 71, col 5 to line 74, col 25 of module MC>
+
+State 54: <MCLearnerSyncProposal(s1) line 60, col 29 to line 60, col 70 of module MC>
+
+State 55: <MCLearnerSyncProposal(s1) line 60, col 29 to line 60, col 70 of module MC>
+
+State 56: <MCLeaderReadNewLeaderAck(s3,s1) line 53, col 5 to line 55, col 25 of module MC>
+
+State 57: <MCCommit(s3) line 84, col 16 to line 84, col 66 of module MC>
+
+State 58: <MCApplyOne(s3) line 89, col 18 to line 89, col 69 of module MC>
+
+State 59: <MCLeaderSendUpToDate(s3,s1) line 57, col 31 to line 57, col 74 of module MC>
+
+State 60: <MCReceiveCommit(s2) line 86, col 5 to line 88, col 25 of module MC>
+
+State 61: <MCCommit(s3) line 84, col 16 to line 84, col 66 of module MC>
+
+State 62: <MCApplyOne(s3) line 89, col 18 to line 89, col 69 of module MC>
+
+State 63: <MCReceiveCommit(s2) line 86, col 5 to line 88, col 25 of module MC>
+
+State 64: <MCLearnerSyncCommit(s1) line 62, col 5 to line 65, col 25 of module MC>
+
+The number of states generated: 3035
+Simulation using seed -77478407230708355 and aril 0
+Progress: 3045 states checked, 50 traces generated (trace length: mean=57, var(x)=547, sd=23)
+Finished in 04s at (2026-11-26 10:24:26)
+Trace exploration spec path: ./Update_TTrace_1795688662.tla
+# exit: 12  finished: 2026-11-26T10:24:26Z

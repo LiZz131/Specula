@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "id": "MC-2",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-13b3a238967b",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "SyncRequestProcessor ACK written before the NEWLEADER ACK is consumed as the NEWLEADER ACK",
+  "cause": "The update starts the learner pipeline (startupWithoutServing) before the learner thread writes the NEWLEADER ACK, so a forced proposal's ACK can be the first packet LearnerHandler reads after NEWLEADER.",
+  "trigger": "DIFF sync with at least one proposal; the learner thread is delayed between logRequest and the NEWLEADER ACK write (GC pause, preemption, or a large DIFF batch).",
+  "consequence": "Leader.waitForNewLeaderAck discards the ACK as from a different epoch; the re-elected leader fails to establish its epoch and times out, and an established leader loses that proposal ACK.",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:609-623",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547-1588"
+  ],
+  "actions": [
+    "LearnerNewLeader",
+    "FsyncOne",
+    "LearnerAckNewLeader",
+    "LeaderReadNewLeaderAck"
+  ],
+  "invariants": [
+    "NewLeaderAckFirst"
+  ],
+  "premises": [
+    "LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK and waitForNewLeaderAck ignores a mismatching zxid.",
+    "SyncRequestProcessor and the learner thread share the learner output stream."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "                case Leader.NEWLEADER: // Getting NEWLEADER here instead of in discovery",
+      "end": "        zk.startServing();",
+      "sha256": "71353015c3babd76e470ed137568a1ce932f4d7d1ecc4db6f1711e7bf473c4ab"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java",
+      "sha256": "2afb8dcb750c218b4e722a2b590b3f94a2cc932f5b1f99873743d87a0074ad0a"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "sha256": "8a5d53d4d7554433caf57c903c911f6a70f70e4b8989a0c71ded20a4aa0a730a"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java",
+      "sha256": "e3eb9f59f81b682b2982b84cef13c6a3207b7bf19436f5626b648eac96b932ef"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "LearnerNewLeader(s) ==",
+      "end": "LearnerAckNewLeader(s) ==",
+      "sha256": "ddce58dd3f938f14dd06270c0d17a9a718f45c1e1f576d846f3a40e56f5efd8f"
+    },
+    {
+      "root": "work",
+      "path": "spec/UpdateProps.tla",
+      "sha256": "7a550d81aa794bf1f97e4ee76b81c00a2fbbbf63b25e1666939ef04b608da558"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update-hunt-ackorder.cfg",
+      "sha256": "0345b9470b8c396f01dd0c825bca48cac7af9910f925b4b1ac11cf974d1a4520"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-2.md",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/confirmation-MC-2.md",
+      "sha256": "ae0561bf4d6e349696657631efc75cc4dcfff8bae562cce7219cb7bd42ed1970"
+    },
+    {
+      "original": "spec/output/update-focused-bfs.log",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/update-focused-bfs.log",
+      "sha256": "a8d41dcc4835552d2aa2b33b13a98d819d88b4b122c8c59a7b1bc9913c8301a1"
+    },
+    {
+      "original": "spec/output/update-hunt-ackorder-sim.log",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/update-hunt-ackorder-sim.log",
+      "sha256": "c8e3c78972e4f272360db5ea23d1e6d634c81849bb8b4f969ee183aea1fa8d54"
+    },
+    {
+      "original": "harness/repro/test_bugMC-2_ackorder_cluster.sh",
+      "path": "spec/persistent-findings/evidence/MC-2/harness/repro/test_bugMC-2_ackorder_cluster.sh",
+      "sha256": "0786a215f84522dbfc062563432821bba6e70c79e83d914330bd0836824a1ac3"
+    },
+    {
+      "original": "harness/repro/test_bugMC-2_ackorder_fixture.sh",
+      "path": "spec/persistent-findings/evidence/MC-2/harness/repro/test_bugMC-2_ackorder_fixture.sh",
+      "sha256": "1b881511e0ccdb67f98e0b3ad0152dd5c231a870cce2e11a11d6162d800fc477"
+    },
+    {
+      "original": "harness/src/SpecularUpdateScenariosTest.java",
+      "path": "spec/persistent-findings/evidence/MC-2/harness/src/SpecularUpdateScenariosTest.java",
+      "sha256": "9731062f763dd2b65e55e9652ca68235f28054910940654ef654dcc62b38aaf7"
+    },
+    {
+      "original": "harness/src/SpecularReproTest.java",
+      "path": "spec/persistent-findings/evidence/MC-2/harness/src/SpecularReproTest.java",
+      "sha256": "e6e4178ce354de10785d79fd73adebb3d55baa359431c2201ac3b9444378c3ac"
+    },
+    {
+      "original": "spec/output/repro-ackorder-cluster-new-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/repro-ackorder-cluster-new-surefire-output.txt",
+      "sha256": "91b53a98c1c4c411110c7efe1d5c2a2f8cc750de027ead2f488b01b1c2c2a8f2"
+    },
+    {
+      "original": "spec/output/repro-ackorder-cluster-old-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/repro-ackorder-cluster-old-surefire-output.txt",
+      "sha256": "fe38d627da0df7c582ab3092dded33092634ebbb280dec286516f0b8327640b6"
+    },
+    {
+      "original": "traces/diff-ack-before-newleader-ack.ndjson",
+      "path": "spec/persistent-findings/evidence/MC-2/traces/diff-ack-before-newleader-ack.ndjson",
+      "sha256": "c74d3cb7e201dc1f04742dc212e431374e87df32e0795dbb9ea3d9c5cbab74d1"
+    },
+    {
+      "original": "spec/output/repro-ackorder-fixture-new-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/repro-ackorder-fixture-new-surefire-output.txt",
+      "sha256": "d94b38f7b3204aa39212938fe730bfd6de256b41971ed15272c9fa99b6f40ecb"
+    },
+    {
+      "original": "spec/output/repro-ackorder-fixture-old-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/MC-2/spec/output/repro-ackorder-fixture-old-surefire-output.txt",
+      "sha256": "16225f3af2d8cd416d362f7e82e24aff9e62000ed207b2634fcd56fb1c6ee06d"
+    }
+  ]
+}

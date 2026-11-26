@@ -1,0 +1,73 @@
+{
+ "defects": [
+  {
+   "id": "D-1",
+   "location": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:80-89"
+   ],
+   "trigger": "DIFF sync; learner crashes after writing the NEWLEADER ACK and before its SyncRequestProcessor forces the enqueued entries",
+   "wrong_behavior": "entries committed by the NEWLEADER quorum are durable on fewer than a quorum; with currentEpoch already advanced the learner can win the next election and truncate them",
+   "evidence": "code; traces/diff-sync-uncommitted.ndjson seq 108-118",
+   "category": "protocol",
+   "verification": "MC",
+   "scenario": "U-DUR",
+   "known": null
+  },
+  {
+   "id": "D-2",
+   "location": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:609-623"
+   ],
+   "trigger": "buffered proposals are forced and ACKed by the newly started SyncRequestProcessor before the learner thread writes the NEWLEADER ACK",
+   "wrong_behavior": "the leader reads the proposal ACK as the NEWLEADER ACK and ignores it; the NEWLEADER quorum can fail and the proposal ACK is lost",
+   "evidence": "code; traces/diff-ack-before-newleader-ack.ndjson seq 13-16; harness assertion",
+   "category": "protocol",
+   "verification": "MC",
+   "scenario": "U-ACK",
+   "known": null
+  },
+  {
+   "id": "D-3",
+   "location": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:645-646"
+   ],
+   "trigger": "PROPOSAL received before NEWLEADER and its COMMIT after NEWLEADER (packetsNotCommitted cleared at :757)",
+   "wrong_behavior": "NullPointerException aborts synchronization",
+   "evidence": "code; traces/diff-commit-after-newleader.ndjson; harness assertion",
+   "category": "low-level",
+   "verification": "MC",
+   "scenario": "U-NPE",
+   "known": null
+  },
+  {
+   "id": "D-4",
+   "location": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:711-725",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:764-767"
+   ],
+   "trigger": "pre-Zab1.0 leader sends UPTODATE without NEWLEADER",
+   "wrong_behavior": "startServing() without startupWithoutServing(): request processors never set up",
+   "evidence": "code",
+   "category": "low-level",
+   "verification": "CR",
+   "scenario": null,
+   "known": null
+  },
+  {
+   "id": "D-5",
+   "location": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-786",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751"
+   ],
+   "trigger": "learner fails between NEWLEADER and UPTODATE (state INITIAL)",
+   "wrong_behavior": "shutdown skipped: processors and SyncThread leak, data tree not fast-forwarded",
+   "evidence": "code; traces/diff-sync-uncommitted.ndjson seq 116-131",
+   "category": "concurrency",
+   "verification": "CR",
+   "scenario": "U-LEAK",
+   "known": null
+  }
+ ]
+}

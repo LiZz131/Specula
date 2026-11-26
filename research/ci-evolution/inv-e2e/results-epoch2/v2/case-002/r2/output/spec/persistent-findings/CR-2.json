@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "id": "CR-2",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-bb5d64a185fa",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "Learner failure between NEWLEADER and UPTODATE leaks an INITIAL ZooKeeperServer",
+  "cause": "The update starts the learner's request processors at NEWLEADER with startupWithoutServing (state INITIAL), but ZooKeeperServer/LearnerZooKeeperServer.shutdown skip a server that is not RUNNING or ERROR, so a learner that fails before UPTODATE never stops those processors or fast-forwards its data tree.",
+  "trigger": "A learner fails (e.g. read timeout) after handling NEWLEADER and before startServing, then re-joins.",
+  "consequence": "Each failed sync leaks the abandoned server's processor threads (3 failures left 3 extra CommitProcessor threads; none on the old revision); the leaked SyncThread keeps writing the shared log after the peer left the session and the peer's election vote uses a data tree older than its durable log (observed in a real trace).",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:shutdown",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:shutdown"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "startupWithoutServing leaves the server INITIAL until startServing after UPTODATE.",
+    "canShutdown() accepts only RUNNING and ERROR."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "    protected void syncWithLeader(long newLeaderZxid) throws Exception {",
+      "end": "        self.updateElectionVote(newEpoch);",
+      "sha256": "b2c4fcdfcc1c220f1d6e92d35796f9326b8946b86aa9f73b3044f5c0db62c479"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    public synchronized void startup() {",
+      "end": "        localSessionEnabled = sessionTracker.isLocalSessionsEnabled();",
+      "sha256": "11d3c37b6c7f5391fea332bbc6ebbec9c9ed14d39e56cba9823762736f671bcb"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    protected boolean canShutdown() {",
+      "end": "        requestPathMetricsCollector.shutdown();",
+      "sha256": "12972958657de4c1b90bc961125009d1a78d05aac1a9f9b63284dca457c94ec6"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java",
+      "sha256": "9973cf471be076fd39735a9e8083c826d698eb3ef1c9dec09e4b27bfbe1069b8"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-2.md",
+      "path": "spec/persistent-findings/evidence/CR-2/spec/confirmation-CR-2.md",
+      "sha256": "0dbbab5d72fc80367ab3679aa97cdecb76aa573fb70253d0dd9b631068bccfc6"
+    },
+    {
+      "original": "spec/evidence/repro/LearnerInitialStateLeakReproTest.java",
+      "path": "spec/persistent-findings/evidence/CR-2/spec/evidence/repro/LearnerInitialStateLeakReproTest.java",
+      "sha256": "302fd101252fd030da8f4b5fedb13bcf0f3de13ab1eff86614d6693610af3306"
+    },
+    {
+      "original": "spec/evidence/repro/logs/bug2-summary.log",
+      "path": "spec/persistent-findings/evidence/CR-2/spec/evidence/repro/logs/bug2-summary.log",
+      "sha256": "ca2ebb8894952747bd01113c3b43a5d02b1824e08441078a00273a7d02a629c9"
+    },
+    {
+      "original": "traces/diff-sync-uncommitted-log.ndjson",
+      "path": "spec/persistent-findings/evidence/CR-2/traces/diff-sync-uncommitted-log.ndjson",
+      "sha256": "f54e6436c74ffae91e13baed6f928c8b4fb8e35fbdd5407b00f113074d450f80"
+    }
+  ]
+}

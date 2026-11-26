@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "case_id": "case-002",
+  "purpose": "exact_old_v0_validation_repair",
+  "generated_at_utc": "2026-09-05T06:46:16Z",
+  "verdict": "PASS_WITH_FINITE_BOUND",
+  "trace_first": true,
+  "execution_order": [
+    "trace-follower-diff",
+    "trace-follower-snap-attempt-001",
+    "trace-follower-snap",
+    "trace-leader-abandon-restart-recovery",
+    "trace-quorum-startup-mutation-shutdown",
+    "base-canonical",
+    "mc-canonical"
+  ],
+  "source_policy": {
+    "pristine_source": "/work/source",
+    "instrumented_worktree": "/work/work-source",
+    "exact_old_only": true,
+    "internet_research_used": false,
+    "repository_history_used": false,
+    "new_or_fixed_revision_inspected": false
+  },
+  "inputs": {
+    "scope": {
+      "path": "/work/scope.md",
+      "sha256": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815"
+    },
+    "audit": {
+      "path": "/work/audit/baseline-audit.json",
+      "sha256": "dffb95103151a0637381aece9ae5331ef3fe8bee1a9ce404ce5a9d76a6789657"
+    },
+    "input_manifest": {
+      "path": "/work/input-manifest.json",
+      "sha256": "f0c832d5a3eee30f9dd0ca0c9e3f0d29d62a3377aa4964ce22656dca50795c04"
+    },
+    "preparation_manifest": {
+      "path": "/work/preparation-manifest.json",
+      "sha256": "2f77b4e7104516871a242cb1704340a4aab0429ef3535bce2a580b8df9c1321d"
+    }
+  },
+  "semantic_artifacts": [
+    {
+      "standard_path": "spec/instrumentation-spec.md",
+      "legacy_copy": "instrumentation-spec.md",
+      "standard_sha256": "fc9c8aa72e5c869438b6706655b4f8b19d0a2899246b3d609dbc707ec1e56b73",
+      "legacy_sha256": "c1d5e5743941efabf6b0c51e240fb8fb9b8dd6d88afafb31da0ef50f0220660b"
+    },
+    {
+      "standard_path": "spec/brief-coverage.md",
+      "legacy_copy": "brief-coverage.md",
+      "standard_sha256": "eb36af6c7a5765a0c6b2a137a9cde20115724785bf1b17ba929735d165c0fa4a",
+      "legacy_sha256": "4807f9642c8cd4c2c1faa77116a9f3eca5003fcd13d29703d62fb04ac38ab665"
+    },
+    {
+      "standard_path": "modeling-brief.md",
+      "sha256": "a5883e901764a3dc2e67b96b9556b50aed3c5b2e9c43eb2cd3375886b13315e1"
+    },
+    {
+      "standard_path": "analysis-report.md",
+      "sha256": "459544e8ced98fc9a985506606eeffe439a7be20a8f6046a1f1bb4f6d1ae54be"
+    }
+  ],
+  "specification": {
+    "base": {
+      "module": "spec/base.tla",
+      "config": "spec/base.cfg",
+      "module_sha256": "aaaadbf4d73c5ef246d353dcbc614aca020f06b53dd777ca42f6c7a3e4439f57",
+      "config_sha256": "bf21a10734d82fe3fe664789f60d36c9d8f111197dce7c084744db9dd071e5df"
+    },
+    "trace": {
+      "module": "spec/Trace.tla",
+      "config": "spec/Trace.cfg",
+      "module_sha256": "4a98ee2108fcf0128359c2095ef2dd9e7a9397802ad7d8c7d78e14bd9d8b034a",
+      "config_sha256": "5fb95d534398ab10d23559171cb3cb69f4d696b990add012b29278bb9ea40b2b",
+      "completion_property": "TraceMatched",
+      "scenario_filter": false,
+      "validated_state_fields": [
+        "acceptedEpoch",
+        "currentEpoch",
+        "role",
+        "phase",
+        "syncMode"
+      ],
+      "validated_event_fields": [
+        "name",
+        "node",
+        "zxid",
+        "txnEpoch",
+        "txnCounter"
+      ],
+      "source_backed_transition_gates": {
+        "acceptedEpoch": "AcceptedEpochPersisted",
+        "currentEpoch": "CurrentEpochPersisted",
+        "role": "PeerRoleChanged or nested election PhaseChanged",
+        "phase": "PhaseChanged",
+        "syncMode": "SyncModeChanged"
+      }
+    },
+    "mc": {
+      "module": "spec/MC.tla",
+      "config": "spec/MC.cfg",
+      "module_sha256": "732e2cfc278bbbe5a9f4aa843e8262a5b81ab44ee5336784e42ab716d02e0ffe",
+      "config_sha256": "1c7270913c4d000d4e7a3a88c935eb21502f53f96fa19f64f437a83cc6236032"
+    },
+    "enabled_properties": [
+      "TypeOK",
+      "ElectionSafety",
+      "OneActiveLeaderPerEpoch",
+      "CommittedHistoriesPrefix",
+      "ApplyRequiresCommitCertificate",
+      "PipelinePrefix",
+      "EpochHistoryConsistency",
+      "SyncCompletionJustified",
+      "HistoryPositionsMonotonicExceptRecovery"
+    ]
+  },
+  "trace_validation": {
+    "status": "PASSED",
+    "retained_traces": 5,
+    "retained_records": 383,
+    "all_retained_traces_validated": true,
+    "all_exit_codes_zero": true,
+    "all_naturally_completed": true,
+    "all_zero_states_left_on_queue": true,
+    "items": [
+      {
+        "path": "traces/follower-diff.ndjson",
+        "sha256": "362cf547714df4c931bc8c32580b5562b30e485392fc83ea5abe7e86733814a2",
+        "records": 15,
+        "states_generated": 16,
+        "distinct_states": 16,
+        "states_left_on_queue": 0,
+        "exit_code": 0,
+        "log": "spec/output/repair-suite/trace-follower-diff.log",
+        "log_sha256": "ecab4a287d22295f9f1e605c583efc4f1ec20124df74449861dbe9ad7d1d828b"
+      },
+      {
+        "path": "traces/follower-snap-attempt-001.ndjson",
+        "sha256": "c8e60eb2c19cddbdf9dd1431a3c55ba7d32fb07924cedb4f37a4d3fbd87edb17",
+        "records": 16,
+        "states_generated": 17,
+        "distinct_states": 17,
+        "states_left_on_queue": 0,
+        "exit_code": 0,
+        "log": "spec/output/repair-suite/trace-follower-snap-attempt-001.log",
+        "log_sha256": "5f9973263fc372b65c5916f25ac21a7a8e691798f6d584aa95f905c5cf7dddad"
+      },
+      {
+        "path": "traces/follower-snap.ndjson",
+        "sha256": "e80733e381a4ef9edf43291a2b418345ae5cefac544da12c3aa00ca392e82ac5",
+        "records": 16,
+        "states_generated": 17,
+        "distinct_states": 17,
+        "states_left_on_queue": 0,
+        "exit_code": 0,
+        "log": "spec/output/repair-suite/trace-follower-snap.log",
+        "log_sha256": "060619dabbcc73c9de6f6c6cb0cde2099fc15c4c6e44c9a8a38fe94a17234da2"
+      },
+      {
+        "path": "traces/leader-abandon-restart-recovery.ndjson",
+        "sha256": "e1f446e350220c95a718549befca26e6f544b3c295840ee0a634b78c43b3f7a3",
+        "records": 265,
+        "states_generated": 266,
+        "distinct_states": 266,
+        "states_left_on_queue": 0,
+        "exit_code": 0,
+        "log": "spec/output/repair-suite/trace-leader-abandon-restart-recovery.log",
+        "log_sha256": "2febf5f8fc9a6a7dd101e3f0afd9ae56665b017edb9b11766aaf63cf83084adf"
+      },
+      {
+        "path": "traces/quorum-startup-mutation-shutdown.ndjson",
+        "sha256": "a2f1825aa1580b9aed0eacb40edbd3714634e1da2c57fd97b6ad805c42c3a41d",
+        "records": 71,
+        "states_generated": 72,
+        "distinct_states": 72,
+        "states_left_on_queue": 0,
+        "exit_code": 0,
+        "log": "spec/output/repair-suite/trace-quorum-startup-mutation-shutdown.log",
+        "log_sha256": "b4f4f9cee4c8a5103ebbd49502f2ba2de46aafe2171eedd7063b2db99be858b0"
+      }
+    ]
+  },
+  "canonical_model_checking": {
+    "status": "PASSED",
+    "finite_bound": {
+      "servers": 3,
+      "transactions": 1,
+      "max_epoch": 2,
+      "max_crash": 1,
+      "max_drop": 1,
+      "max_snapshot": 1,
+      "max_tlc_level": 23
+    },
+    "base": {
+      "mode": "bounded_bfs",
+      "exit_code": 0,
+      "natural_completion": true,
+      "states_generated": 52034534,
+      "distinct_states": 6354157,
+      "states_left_on_queue": 0,
+      "depth": 23,
+      "violations": 0,
+      "log": "spec/output/repair-suite/base-canonical.log",
+      "log_sha256": "64eec699904c1ea2a3a3c85b22d8d2450b89a485c94f40a764ce36fc241f3b71"
+    },
+    "mc": {
+      "mode": "bounded_bfs",
+      "exit_code": 0,
+      "natural_completion": true,
+      "states_generated": 171870841,
+      "distinct_states": 21701056,
+      "states_left_on_queue": 0,
+      "depth": 23,
+      "violations": 0,
+      "log": "spec/output/repair-suite/mc-canonical.log",
+      "log_sha256": "bd2ced5f160516604983ac820ef3f4537a62398f61aca30b26111154e77eb67c"
+    }
+  },
+  "syntax_validation": {
+    "status": "PASSED",
+    "all_exit_codes_zero": true,
+    "logs": [
+      "spec/output/repair-suite/sany-base.log",
+      "spec/output/repair-suite/sany-MC.log",
+      "spec/output/repair-suite/sany-Trace.log"
+    ]
+  },
+  "instrumentation": {
+    "patch": "harness/patches/instrumentation.patch",
+    "patch_sha256": "8579c965ec14e81ca914ab05f14e55267893fd2525fc3cfbe493b0483fb58fb6",
+    "pristine_source_dry_run_exit_code": 0,
+    "dry_run_log": "spec/output/repair-suite/instrumentation-patch-dry-run.log",
+    "dry_run_log_sha256": "ff53bfc0f7b6413aa61a3115f7419a796e61938b54c5b67a313b660a5041b5c7"
+  },
+  "coverage": {
+    "event_inventory": "spec/output/repair-suite/event-coverage.json",
+    "event_inventory_sha256": "8e0c8c2bfcbfed09a45d06e21385fec96cd5bc1b400db2189b4a45988c6de613",
+    "observed_event_types": 15,
+    "all_required_state_fields_present": true,
+    "negative_state_validation": {
+      "source_trace": "traces/follower-diff.ndjson",
+      "mutation": "AcceptedEpochPersisted.state.acceptedEpoch: 1 -> 2",
+      "expected_rejection_observed": true,
+      "exit_code": 13,
+      "log": "spec/output/repair-suite/trace-negative-accepted-epoch.log",
+      "log_sha256": "2ace210220f51d4aeb1f607dd7b9c75736296eaabf78f922cd01813756f57ae0",
+      "command_record": "spec/output/repair-suite/negative-checks.ndjson",
+      "command_record_sha256": "faacb2d0a9470847e6015bb284760473b94854e7cd14eecb8ff37c51c354ef8d",
+      "temporary_mutated_trace_removed": true
+    }
+  },
+  "preserved_limited_evidence": [
+    {
+      "path": "spec/output/model-check-main-001.log",
+      "sha256": "e1a66db486253817494f6d9fd86ccb3f8c2f9042982831d8b5e9427dca8a9a81",
+      "classification": "timeout_open_frontier_limited_only",
+      "last_distinct_states": 2165728,
+      "last_states_left_on_queue": 1254444
+    },
+    {
+      "path": "spec/output/mc-canonical-final.log",
+      "sha256": "35417f7b98f47d2d6f7a9cdbf52912dc5db0ec23f93d792475eb769fa8197448",
+      "classification": "interrupted_open_frontier_limited_only",
+      "last_distinct_states": 25115939,
+      "last_states_left_on_queue": 8005640
+    }
+  ],
+  "evidence": {
+    "command_results": "spec/output/repair-suite/command-results.ndjson",
+    "command_results_sha256": "11741226dfae2782957640ac42ba3ebaa19476f439f5fd51d9938650d998fc16",
+    "digests": "spec/output/repair-suite/digests.sha256",
+    "reproducer": "spec/run-validation-suite.sh",
+    "self_check": "spec/check-verification-suite.sh",
+    "self_check_sha256": "04a045049979212fa9fb55b81fe2dfd197a51a1b19dfa640519dd3225457335f",
+    "self_check_log": "spec/output/repair-suite/suite-self-check.log",
+    "self_check_log_sha256": "b35662a60caf9fb03e92aae9a86b086ab2ee1b3c25c9c70ff8a7b7edc8d81694"
+  },
+  "cleanup": {
+    "tlc_state_directories_remaining": 0,
+    "tlc_background_processes_remaining": 0
+  },
+  "limitations": [
+    "The canonical base and MC claims are exhaustive only within the explicit finite constants and TLC level-23 state constraint.",
+    "The retained exact-old harness executed under the available JDK 21 rather than the preferred JDK 8 or validated JDK 11 profile."
+  ]
+}

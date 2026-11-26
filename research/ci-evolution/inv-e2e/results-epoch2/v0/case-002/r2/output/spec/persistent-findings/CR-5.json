@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "id": "CR-5",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-13b3a238967b",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "Pre-Zab1.0 synchronization never starts the learner server",
+  "cause": "The UPTODATE-only (pre-Zab1.0) path now calls zk.startServing() without the startupWithoutServing() that only the NEWLEADER branch performs.",
+  "trigger": "A leader speaking the pre-Zab1.0 protocol (NEWLEADER in discovery, UPTODATE without NEWLEADER in the sync loop).",
+  "consequence": "NullPointerException in Learner.syncWithLeader; the learner never reaches a running BROADCAST state.",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:711-725",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:764-786"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "Only peers speaking the pre-Zab1.0 learner protocol send UPTODATE without NEWLEADER in the sync loop."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "                case Leader.NEWLEADER: // Getting NEWLEADER here instead of in discovery",
+      "end": "        zk.startServing();",
+      "sha256": "71353015c3babd76e470ed137568a1ce932f4d7d1ecc4db6f1711e7bf473c4ab"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    public synchronized void startup() {",
+      "end": "    protected void startJvmPauseMonitor() {",
+      "sha256": "d22acfd6fef49b403d153d1861dccbde9731535af502299d3abf858cd0b3e627"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-5.md",
+      "path": "spec/persistent-findings/evidence/CR-5/spec/confirmation-CR-5.md",
+      "sha256": "f7dbda78c59b3d96ece1f39c64a6f54c2dd868db9e0463b257fa85b739a9e1bc"
+    },
+    {
+      "original": "harness/repro/test_bugCR-5_prezab10.sh",
+      "path": "spec/persistent-findings/evidence/CR-5/harness/repro/test_bugCR-5_prezab10.sh",
+      "sha256": "76e16847d80532ea6263c3590adbba8e4b166dd30c8c16b87685f18c8835cf25"
+    },
+    {
+      "original": "harness/src/SpecularUpdateScenariosTest.java",
+      "path": "spec/persistent-findings/evidence/CR-5/harness/src/SpecularUpdateScenariosTest.java",
+      "sha256": "9731062f763dd2b65e55e9652ca68235f28054910940654ef654dcc62b38aaf7"
+    },
+    {
+      "original": "spec/output/repro-prezab10-fixture-new-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/CR-5/spec/output/repro-prezab10-fixture-new-surefire-output.txt",
+      "sha256": "107a7bfdd27ed6aacc79075f02503de404683ddf85786114452380a7083efb01"
+    },
+    {
+      "original": "spec/output/repro-prezab10-fixture-old-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/CR-5/spec/output/repro-prezab10-fixture-old-surefire-output.txt",
+      "sha256": "ea90a2616cb37ac144d5d72758ff34773680ef5d4af071245d18c8b07dd8208b"
+    }
+  ]
+}

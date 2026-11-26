@@ -1,0 +1,202 @@
+{
+ "schema_version": 1,
+ "case_id": "case-002",
+ "run_id": "incr-8c80add29fe2",
+ "purpose": "blind incremental verification of the update revision",
+ "inputs": {
+  "old_source": {
+   "/work/old-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "9f7a2f68da8c1bf5db0ee1bed1bb117b419a624dd3d63d17dec14744626e3490",
+   "/work/old-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "9a69113a8c5940516e39e71eab3fc99b52cd31c1c5bedf90ae23c7de48d282dc"
+  },
+  "new_source": {
+   "/work/new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111",
+   "/work/new-source/zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866",
+   "/work/new-source/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java": "dfd020c786b989e78afbe0031ba2affe7537501210751d057377a107c6a5faee"
+  },
+  "artifact_head": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "artifact_commits": [
+   "2efbdfc update",
+   "1414ebf baseline"
+  ],
+  "previous_suite": "/work/previous/.specular-output (immutable, read only)",
+  "model_scope_sha256": "34de3b8f51170ed3a0daef9c36b550158f02d37449a48b6111b43137e2807815",
+  "case_json_sha256": "54c1a1c3d56fc400fb4a84b649679b911aaa5d4d69675f364c7a35255e62eb5d",
+  "input_manifest_sha256": "40881d1ff5da5330bff533e207aaddb3c935efab5c62cc170998954a73da2f78",
+  "tla2tools_sha256": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+  "community_modules_sha256": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99"
+ },
+ "isolation": {
+  "history_or_issue_research": false,
+  "internet": "Maven Central for ordinary build dependencies only",
+  "fixed_revision": "not available; a hypothetical flush-before-ACK control patch (controls/fixed-hypothetical-control.patch) was written locally and is not upstream code"
+ },
+ "harness": {
+  "command": "timeout 2400s harness/run.sh",
+  "patch": "harness/patches/instrumentation.patch",
+  "patch_sha256": "50fba3131fa6f71a87e32a211d56a2a5891bd090e2ce46f170dabec9a5e470f1",
+  "old_revision_control_patch": "controls/old-instrumentation.patch",
+  "results": "spec/output/incr/harness/harness-results.ndjson"
+ },
+ "traces": [
+  {
+   "path": "traces/fresh/diff-sync-consistency.ndjson",
+   "records": 125,
+   "sha256": "3a250002045cf1ecb4bad4a9b251594285221b7ba7c0075be6cbe93fcd09a58d",
+   "events": {
+    "PeerRoleChanged": 18,
+    "ElectionWon": 8,
+    "PhaseChanged": 32,
+    "AcceptedEpochPersisted": 8,
+    "FollowerRegistered": 5,
+    "SyncModeChanged": 10,
+    "SyncSelected": 5,
+    "CurrentEpochPersisted": 8,
+    "NewLeaderAckSent": 5,
+    "BroadcastReady": 3,
+    "TxnAppended": 6,
+    "ProposalQueued": 4,
+    "TxnDurable": 6,
+    "CommitDelivered": 2,
+    "TxnApplied": 3,
+    "SyncProposalBuffered": 2
+   }
+  },
+  {
+   "path": "traces/fresh/follower-diff.ndjson",
+   "records": 17,
+   "sha256": "4417552bc80503cbb72e9220b6bab07b8113e705cc6e135bdf457991f03f3409",
+   "events": {
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "SyncProposalBuffered": 1,
+    "CurrentEpochPersisted": 1,
+    "ProposalQueued": 1,
+    "NewLeaderAckSent": 1,
+    "TxnAppended": 1,
+    "BroadcastReady": 1,
+    "CommitDelivered": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   }
+  },
+  {
+   "path": "traces/fresh/follower-snap.ndjson",
+   "records": 18,
+   "sha256": "13f9b8981106d6d9439f7545eb1b1e9c7682b7d54ea38cd70a06d2deffea25f6",
+   "events": {
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "SnapshotInstalled": 1,
+    "CurrentEpochPersisted": 1,
+    "NewLeaderAckSent": 1,
+    "SyncProposalBuffered": 1,
+    "BroadcastReady": 1,
+    "ProposalQueued": 1,
+    "CommitDelivered": 1,
+    "TxnAppended": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   }
+  },
+  {
+   "path": "traces/fresh/leader-abandon-restart-recovery.ndjson",
+   "records": 271,
+   "sha256": "515f6ea87f14c67866272791bf030f1a393d6428bd527db5d3c4d9628b6fe3c0",
+   "events": {
+    "PeerRoleChanged": 19,
+    "ElectionWon": 9,
+    "PhaseChanged": 37,
+    "AcceptedEpochPersisted": 9,
+    "FollowerRegistered": 6,
+    "SyncModeChanged": 12,
+    "SyncSelected": 6,
+    "CurrentEpochPersisted": 9,
+    "NewLeaderAckSent": 6,
+    "BroadcastReady": 6,
+    "TxnAppended": 36,
+    "ProposalQueued": 22,
+    "TxnDurable": 36,
+    "CommitDelivered": 22,
+    "TxnApplied": 35,
+    "SnapshotInstalled": 1
+   }
+  },
+  {
+   "path": "traces/fresh/quorum-startup-mutation-shutdown.ndjson",
+   "records": 72,
+   "sha256": "29edd2e4f9ceef516508f8507992436795905b25510a2d673b8bc617389ac3a7",
+   "events": {
+    "PeerRoleChanged": 4,
+    "ElectionWon": 2,
+    "PhaseChanged": 8,
+    "AcceptedEpochPersisted": 2,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "CurrentEpochPersisted": 2,
+    "NewLeaderAckSent": 1,
+    "BroadcastReady": 1,
+    "TxnAppended": 12,
+    "ProposalQueued": 6,
+    "TxnDurable": 12,
+    "CommitDelivered": 6,
+    "TxnApplied": 12
+   }
+  },
+  {
+   "path": "traces/controls/old-follower-diff.ndjson",
+   "records": 17,
+   "sha256": "82b10cb830702b2381fce9ec7a4cde435a838ec90d0076a07af38c1026654b1c",
+   "events": {
+    "PhaseChanged": 3,
+    "AcceptedEpochPersisted": 1,
+    "FollowerRegistered": 1,
+    "SyncModeChanged": 2,
+    "SyncSelected": 1,
+    "SyncProposalBuffered": 1,
+    "CurrentEpochPersisted": 1,
+    "NewLeaderAckSent": 1,
+    "BroadcastReady": 1,
+    "ProposalQueued": 1,
+    "CommitDelivered": 1,
+    "TxnAppended": 1,
+    "TxnApplied": 1,
+    "TxnDurable": 1
+   },
+   "note": "old-revision control build (controls/old-instrumentation.patch)"
+  }
+ ],
+ "tlc": {
+  "runner": "spec/run-tlc.sh (outer timeout, -metadir under /dev/shm/specular-e2e-case-002, removed after each run)",
+  "commands_and_outcomes": "spec/output/incr/command-results.ndjson",
+  "summary": "spec/model-checking-summary.md"
+ },
+ "reproduction": {
+  "drivers": [
+   "harness/repro/test_bug1_newleader_ack_durability.sh",
+   "harness/repro/test_bug2_commit_after_newleader.sh",
+   "harness/repro/test_bug3_newleader_ack_order.sh"
+  ],
+  "logs": [
+   "spec/output/incr/repro/repro-fixedctl.log",
+   "spec/output/incr/repro/repro-new-level0.log",
+   "spec/output/incr/repro/repro-new.log",
+   "spec/output/incr/repro/repro-old.log",
+   "spec/output/incr/repro/repro2-new.log",
+   "spec/output/incr/repro/repro2-old.log",
+   "spec/output/incr/repro/repro3-new.log",
+   "spec/output/incr/repro/repro3-old.log"
+  ]
+ },
+ "environment": {
+  "java": "openjdk version \"21.0.13.0.3\" 2026-10-24",
+  "maven": "Apache Maven 3.6.3",
+  "cpus": 40
+ }
+}

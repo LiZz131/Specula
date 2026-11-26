@@ -1,0 +1,90 @@
+{
+  "CR-4": {
+    "id": "CR-4",
+    "title": "Learner failing between NEWLEADER and UPTODATE leaks its request processors",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-786",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "startupWithoutServing leaves the learner server INITIAL and canShutdown() accepts only RUNNING or ERROR, so Follower.shutdown() after a failure before UPTODATE does not stop the started processors."
+  },
+  "CR-5": {
+    "id": "CR-5",
+    "title": "Pre-Zab1.0 synchronization never starts the learner server",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:711-725",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:764-786"
+    ],
+    "actions": [],
+    "invariants": [],
+    "reusable": true,
+    "cause": "The UPTODATE-only (pre-Zab1.0) path now calls zk.startServing() without the startupWithoutServing() that only the NEWLEADER branch performs."
+  },
+  "MC-1": {
+    "id": "MC-1",
+    "title": "NEWLEADER quorum commits a DIFF history that acknowledging learners have only enqueued",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743-760",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82-91"
+    ],
+    "actions": [
+      "LearnerNewLeader",
+      "LearnerAckNewLeader",
+      "LeaderBroadcast",
+      "FsyncOne"
+    ],
+    "invariants": [
+      "CommittedQuorumDurable",
+      "CommittedAgreement"
+    ],
+    "reusable": true,
+    "cause": "At NEWLEADER the learner persists currentEpoch and only enqueues the DIFF proposals to the asynchronous SyncRequestProcessor before writing the NEWLEADER ACK that commits the leader's initial history."
+  },
+  "MC-2": {
+    "id": "MC-2",
+    "title": "SyncRequestProcessor ACK written before the NEWLEADER ACK is consumed as the NEWLEADER ACK",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-760",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:609-623",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547-1588"
+    ],
+    "actions": [
+      "LearnerNewLeader",
+      "FsyncOne",
+      "LearnerAckNewLeader",
+      "LeaderReadNewLeaderAck"
+    ],
+    "invariants": [
+      "NewLeaderAckFirst"
+    ],
+    "reusable": true,
+    "cause": "The update starts the learner pipeline (startupWithoutServing) before the learner thread writes the NEWLEADER ACK, so a forced proposal's ACK can be the first packet LearnerHandler reads after NEWLEADER."
+  },
+  "MC-3": {
+    "id": "MC-3",
+    "title": "COMMIT received after NEWLEADER for a proposal buffered before it throws NullPointerException",
+    "status": "REPRODUCED",
+    "sites": [
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:643-669",
+      "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:757"
+    ],
+    "actions": [
+      "LearnerSyncCommit",
+      "LearnerNewLeader",
+      "Propose",
+      "Commit"
+    ],
+    "invariants": [
+      "SyncCommitHasPendingProposal"
+    ],
+    "reusable": true,
+    "cause": "The update clears packetsNotCommitted at NEWLEADER while the unchanged sync-loop COMMIT handler dereferences packetsNotCommitted.peekFirst() without a null check."
+  }
+}

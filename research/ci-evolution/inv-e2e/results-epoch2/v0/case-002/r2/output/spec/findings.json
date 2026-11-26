@@ -1,0 +1,56 @@
+{
+ "schema_version": "2",
+ "system": "Apache ZooKeeper Zab (updated source 2efbdfc)",
+ "generated_by": "validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "NEWLEADER quorum commits a DIFF history that the acknowledging learners have only enqueued",
+   "source": "model-checking",
+   "scenario": "U-DUR",
+   "severity": "Critical",
+   "invariant": "CommittedQuorumDurable",
+   "config": "Update-focused-durability.cfg",
+   "counterexample": "spec/output/update-focused-durability-bfs.log",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:80-89",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:227-252",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:663-712"
+   ],
+   "summary": "At NEWLEADER the updated learner persists currentEpoch and only enqueues the DIFF proposals to the asynchronous SyncRequestProcessor, then writes the NEWLEADER ACK. The leader counts it toward the NEWLEADER quorum, which commits its initial history, so committed entries can be durable on fewer than a quorum. A learner crash in the window loses them, and with currentEpoch already advanced it can win the next election and truncate them. Also violated on the reference behavior replaying the real diff-sync-uncommitted trace."
+  },
+  {
+   "id": "MC-2",
+   "title": "SyncRequestProcessor ACK written before the NEWLEADER ACK is consumed as the NEWLEADER ACK",
+   "source": "model-checking",
+   "scenario": "U-ACK",
+   "severity": "High",
+   "invariant": "NewLeaderAckFirst",
+   "config": "Update-hunt-ackorder.cfg",
+   "counterexample": "spec/output/update-hunt-ackorder-sim.log",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java:40-59",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:609-623",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547-1588"
+   ],
+   "summary": "The update starts the learner's SyncRequestProcessor (startupWithoutServing) before the learner thread writes the NEWLEADER ACK on the same stream. A forced proposal's ACK can precede it; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK and waitForNewLeaderAck ignores the mismatching zxid, so the learner is not counted. Epoch establishment can time out, and for an established leader the proposal ACK is lost."
+  },
+  {
+   "id": "MC-3",
+   "title": "COMMIT received after NEWLEADER for a proposal buffered before it throws NullPointerException",
+   "source": "model-checking",
+   "scenario": "U-NPE",
+   "severity": "High",
+   "invariant": "SyncCommitHasPendingProposal",
+   "config": "Update-hunt-npe.cfg",
+   "counterexample": "spec/output/update-hunt-npe-sim.log",
+   "affected_code": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:643-669",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:757"
+   ],
+   "summary": "The update clears packetsNotCommitted at NEWLEADER, but the unchanged sync-loop COMMIT handler dereferences packetsNotCommitted.peekFirst() without a null check. An established leader forwards outstanding PROPOSALs before NEWLEADER and their COMMITs after it, so the learner throws NullPointerException and abandons synchronization."
+  }
+ ]
+}

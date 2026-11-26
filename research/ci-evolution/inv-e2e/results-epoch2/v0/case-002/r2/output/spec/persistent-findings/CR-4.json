@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "id": "CR-4",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-13b3a238967b",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "Learner failing between NEWLEADER and UPTODATE leaks its request processors",
+  "cause": "startupWithoutServing leaves the learner server INITIAL and canShutdown() accepts only RUNNING or ERROR, so Follower.shutdown() after a failure before UPTODATE does not stop the started processors.",
+  "trigger": "Connection loss, timeout or exception after NEWLEADER and before UPTODATE, followed by the normal Follower.shutdown().",
+  "consequence": "SyncThread and CommitProcessor threads keep running after shutdown, the data tree is not fast-forwarded, and the orphaned SyncThread keeps writing the shared log and ACKs to a dead connection.",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-786",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "QuorumPeer.run calls follower.shutdown() after every followLeader(); LearnerZooKeeperServer.shutdown returns early when canShutdown() is false."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    protected boolean canShutdown() {",
+      "end": "    public boolean isRunning() {",
+      "sha256": "90f914e76645f3f5a23c2d6fee4679fee682fc7d0ccb9f75b0fb850736193e7f"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "start": "    public synchronized void startup() {",
+      "end": "    protected void startJvmPauseMonitor() {",
+      "sha256": "d22acfd6fef49b403d153d1861dccbde9731535af502299d3abf858cd0b3e627"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "                case Leader.NEWLEADER: // Getting NEWLEADER here instead of in discovery",
+      "end": "        zk.startServing();",
+      "sha256": "71353015c3babd76e470ed137568a1ce932f4d7d1ecc4db6f1711e7bf473c4ab"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java",
+      "sha256": "9973cf471be076fd39735a9e8083c826d698eb3ef1c9dec09e4b27bfbe1069b8"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-4.md",
+      "path": "spec/persistent-findings/evidence/CR-4/spec/confirmation-CR-4.md",
+      "sha256": "ad78859d90e604c96994bd6970441e5376ad50e6670360be6e5f0cf1734a26bd"
+    },
+    {
+      "original": "harness/repro/test_bugCR-4_initial_shutdown_leak.sh",
+      "path": "spec/persistent-findings/evidence/CR-4/harness/repro/test_bugCR-4_initial_shutdown_leak.sh",
+      "sha256": "717da09463e1b2cc5e96e9f3ffd916d888aca858ecef6bd3b5ce1ea9348c9f7c"
+    },
+    {
+      "original": "harness/src/SpecularUpdateScenariosTest.java",
+      "path": "spec/persistent-findings/evidence/CR-4/harness/src/SpecularUpdateScenariosTest.java",
+      "sha256": "9731062f763dd2b65e55e9652ca68235f28054910940654ef654dcc62b38aaf7"
+    },
+    {
+      "original": "spec/output/repro-leak-fixture-new-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/CR-4/spec/output/repro-leak-fixture-new-surefire-output.txt",
+      "sha256": "d1eeb48cfb19cc2bc81756a85e6bd8e399577df14fc8a3edcf5ad31e56e7d61e"
+    },
+    {
+      "original": "spec/output/repro-leak-fixture-old-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/CR-4/spec/output/repro-leak-fixture-old-surefire-output.txt",
+      "sha256": "0bd1faa61a468e764fb0fd1e8978b02cf13e83412247eae42709ff0d28cdd2aa"
+    },
+    {
+      "original": "traces/diff-sync-uncommitted.ndjson",
+      "path": "spec/persistent-findings/evidence/CR-4/traces/diff-sync-uncommitted.ndjson",
+      "sha256": "f4390faee3d5bec51995015f15d06477ce768a4e230ec715ddbf60bd0bf71c27"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+ "schema_version": 1,
+ "case_id": "case-002",
+ "run_id": "incr-13b3a238967b",
+ "purpose": "blind incremental Specular run (Generation, Validation, Model Checking, Reproduction)",
+ "source": {
+  "old_commit": "1414ebf (baseline)",
+  "new_commit": "2efbdfc (update)",
+  "artifact": "/work/current/.specular-output/artifact",
+  "changed_files_sha256": {
+   "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111",
+   "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866",
+   "zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/DIFFSyncConsistencyTest.java": "dfd020c786b989e78afbe0031ba2affe7537501210751d057377a107c6a5faee"
+  },
+  "history_or_external_research_used": false
+ },
+ "prior_suite": "/work/previous/.specular-output (immutable; V0 artifacts archived under spec/v0-archive, spec/cfg-archive-v0, spec/output/v0-prior, traces/archived-v0)",
+ "disposition": "MODEL_CHANGE_REQUIRED",
+ "toolchain": {
+  "jdk": "/usr/lib/jvm/java-11-openjdk-amd64 (OpenJDK 11.0.33)",
+  "maven_repo": "/work/.cache/m2",
+  "tla2tools_sha256": "e1f11b75c4b5bc4478ba0ac5cb6ae28e40a01b0016bc33e0aa97da22dfdbcd7f",
+  "community_modules_sha256": "044e8ecdfbca92d51d7eb4469422c2a7da1fe25dc8ad39c4a90e6622d6da4d99"
+ },
+ "commands": {
+  "harness": "harness/run.sh [--no-prepare] [scenario...]  (600 s outer timeout per scenario, 1200 s build)",
+  "trace_validation": "spec/trace-both.sh <scenario>  (TLC Trace.cfg + Trace-witness.cfg, 1800 s outer timeout, -workers 1)",
+  "trace_oracle": "JSON=traces/<scenario>.ndjson spec/tlc.sh trace-oracle-<scenario> TraceOracle.tla TraceOracle.cfg 1800s -workers 1",
+  "model_checking": "spec/campaign.sh <name> <module> <cfg> <workers> <heap> [-simulate -depth N]  (1800 s outer timeout; states under /dev/shm/specular-e2e-case-002/<name>, removed after each run)",
+  "canaries": "spec/tlc.sh canary-<C> Update.tla Canary-<C>.cfg {900s BFS|600s -simulate -depth 150}",
+  "reproduction": "harness/repro/test_bug*.sh -> harness/repro.sh <label> <selector> both (900 s outer timeout per tree)",
+  "final": "specular ci-result --work=/work/current/.specular-output"
+ },
+ "traces": "spec/trace-validation-inventory.md",
+ "campaigns": "spec/model-checking-campaign.md",
+ "limits": [
+  "30-minute TLC budget per run; no exhaustive result claimed (LIMITED_COVERAGE)",
+  "Level 1 timing assistance in MC-1/MC-2 reproductions"
+ ],
+ "outcome": {
+  "findings": [
+   "MC-1",
+   "MC-2",
+   "MC-3",
+   "CR-4",
+   "CR-5"
+  ],
+  "all_reproduced_on_new": true,
+  "old_control": {
+   "MC-1": "fails (pre-existing)",
+   "MC-2": "passes",
+   "MC-3": "passes",
+   "CR-4": "passes",
+   "CR-5": "passes"
+  }
+ }
+}

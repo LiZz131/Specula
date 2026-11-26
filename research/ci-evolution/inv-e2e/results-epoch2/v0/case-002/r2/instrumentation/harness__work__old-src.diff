@@ -1,0 +1,817 @@
+diff --git a/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularReproTest.java b/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularReproTest.java
+new file mode 100644
+index 0000000..ec420a2
+--- /dev/null
++++ b/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularReproTest.java
+@@ -0,0 +1,457 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements. See the NOTICE file
++ * distributed with this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0.
++ */
++package org.apache.zookeeper.server.quorum;
++
++import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
++import static org.junit.jupiter.api.Assertions.assertNotEquals;
++import static org.junit.jupiter.api.Assertions.assertNotNull;
++import static org.junit.jupiter.api.Assertions.assertTrue;
++import static org.junit.jupiter.api.Assertions.fail;
++import java.io.IOException;
++import java.net.SocketTimeoutException;
++import java.util.Map;
++import java.util.concurrent.ConcurrentLinkedQueue;
++import java.util.concurrent.atomic.AtomicBoolean;
++import java.util.concurrent.atomic.AtomicInteger;
++import javax.security.sasl.SaslException;
++import org.apache.zookeeper.CreateMode;
++import org.apache.zookeeper.KeeperException;
++import org.apache.zookeeper.PortAssignment;
++import org.apache.zookeeper.ZooDefs.Ids;
++import org.apache.zookeeper.ZooDefs.OpCode;
++import org.apache.zookeeper.ZooKeeper;
++import org.apache.zookeeper.ZooKeeper.States;
++import org.apache.zookeeper.data.Stat;
++import org.apache.zookeeper.server.FinalRequestProcessor;
++import org.apache.zookeeper.server.Request;
++import org.apache.zookeeper.server.RequestProcessor;
++import org.apache.zookeeper.server.SyncRequestProcessor;
++import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
++import org.apache.zookeeper.server.quorum.Leader.Proposal;
++import org.apache.zookeeper.test.ClientBase;
++import org.apache.zookeeper.test.ClientBase.CountdownWatcher;
++import org.junit.jupiter.api.AfterEach;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.Timeout;
++
++/**
++ * Specular reproduction tests for the update to Learner.syncWithLeader.
++ * Real three-peer ensembles in one JVM (QuorumPeerTestBase), with timing
++ * assistance and crash emulation at real code boundaries:
++ *  - delayed SyncThread start (no logic change): the requests enqueued by
++ *    FollowerZooKeeperServer.logRequest stay in memory when the NEWLEADER ACK
++ *    is sent; a follower "crash" discards that thread with the process;
++ *  - scheduling delay: an armed follower's learner thread is delayed right
++ *    before writing its NEWLEADER ACK (GC pause / preemption).
++ * The setup phase (leader logs a transaction while both followers are down,
++ * then is re-elected in a new epoch and DIFF-syncs it) is the one used by the
++ * update's own DIFFSyncConsistencyTest.
++ */
++public class SpecularReproTest extends QuorumPeerTestBase {
++
++    private static final int SERVER_COUNT = 3;
++    private final MainThread[] mt = new MainThread[SERVER_COUNT];
++
++    /** SyncThread start is delayed while SYNC_DELAY_ARMED (timing assistance). */
++    static final AtomicBoolean SYNC_DELAY_ARMED = new AtomicBoolean(false);
++    /** Set when the test kills the follower processes (crash emulation). */
++    static final AtomicBoolean CRASHED = new AtomicBoolean(false);
++    static final AtomicBoolean FAIL_AT_UPTODATE = new AtomicBoolean(false);
++    static volatile long newLeaderAckDelayMs = 0;
++    static final AtomicInteger DELAYED_SYNC_THREADS = new AtomicInteger();
++    static final ConcurrentLinkedQueue<String> SYNC_EXCEPTIONS = new ConcurrentLinkedQueue<>();
++
++    /**
++     * SyncRequestProcessor whose thread start is delayed (no logic change):
++     * requests enqueued by logRequest stay in memory.  When the test crashes
++     * the follower process (CRASHED), the thread dies with it without running,
++     * i.e. the in-memory queue is lost exactly as in a process crash.
++     */
++    static class DelayedSyncRequestProcessor extends SyncRequestProcessor {
++        DelayedSyncRequestProcessor(FollowerZooKeeperServer zks, RequestProcessor next) {
++            super(zks, next);
++        }
++
++        @Override
++        public void run() {
++            if (SYNC_DELAY_ARMED.get()) {
++                DELAYED_SYNC_THREADS.incrementAndGet();
++            }
++            while (SYNC_DELAY_ARMED.get() && !CRASHED.get()) {
++                try {
++                    Thread.sleep(20);
++                } catch (InterruptedException e) {
++                    return;
++                }
++            }
++            if (CRASHED.get()) {
++                return; // the process died before this thread wrote anything
++            }
++            super.run();
++        }
++    }
++
++    static class CrashableFollowerZooKeeperServer extends FollowerZooKeeperServer {
++        CrashableFollowerZooKeeperServer(FileTxnSnapLog logFactory, QuorumPeer self) throws IOException {
++            super(logFactory, self, self.getZkDb());
++        }
++
++        @Override
++        protected void setupRequestProcessors() {
++            // Same chain as FollowerZooKeeperServer.setupRequestProcessors, with
++            // the start-delayed SyncRequestProcessor.
++            RequestProcessor finalProcessor = new FinalRequestProcessor(this);
++            commitProcessor = new CommitProcessor(finalProcessor, Long.toString(getServerId()), true,
++                                                  getZooKeeperServerListener());
++            commitProcessor.start();
++            firstProcessor = new FollowerRequestProcessor(this, commitProcessor);
++            ((FollowerRequestProcessor) firstProcessor).start();
++            syncProcessor = new DelayedSyncRequestProcessor(this, new SendAckRequestProcessor(getFollower()));
++            syncProcessor.start();
++        }
++    }
++
++    static class ReproQuorumPeer extends QuorumPeer {
++        ReproQuorumPeer() throws SaslException {
++        }
++
++        @Override
++        protected Follower makeFollower(FileTxnSnapLog logFactory) throws IOException {
++            return new Follower(this, new CrashableFollowerZooKeeperServer(logFactory, this)) {
++                private boolean delayed = false;
++
++                @Override
++                protected void syncWithLeader(long newLeaderZxid) throws Exception {
++                    try {
++                        super.syncWithLeader(newLeaderZxid);
++                    } catch (Exception e) {
++                        // observation only: record and rethrow unchanged
++                        StackTraceElement top = e.getStackTrace().length > 0 ? e.getStackTrace()[0] : null;
++                        SYNC_EXCEPTIONS.add("sid=" + self.getId() + " " + e.getClass().getName() + " at " + top);
++                        throw e;
++                    }
++                }
++
++                @Override
++                void readPacket(QuorumPacket pp) throws IOException {
++                    super.readPacket(pp);
++                    if (FAIL_AT_UPTODATE.get() && pp.getType() == Leader.UPTODATE) {
++                        throw new SocketTimeoutException("injected failure while reading UPTODATE");
++                    }
++                }
++
++                @Override
++                void writePacket(QuorumPacket pp, boolean flush) throws IOException {
++                    if (pp != null && pp.getType() == Leader.ACK && (pp.getZxid() & 0xffffffffL) == 0
++                        && !delayed && newLeaderAckDelayMs > 0) {
++                        delayed = true;
++                        try {
++                            Thread.sleep(newLeaderAckDelayMs);
++                        } catch (InterruptedException e) {
++                            Thread.currentThread().interrupt();
++                        }
++                    }
++                    super.writePacket(pp, flush);
++                }
++            };
++        }
++    }
++
++    static class ReproMain extends TestQPMain {
++        @Override
++        protected QuorumPeer getQuorumPeer() throws SaslException {
++            return new ReproQuorumPeer();
++        }
++    }
++
++    private int[] clientPorts = new int[SERVER_COUNT];
++
++    private void startEnsemble() throws Exception {
++        StringBuilder sb = new StringBuilder();
++        for (int i = 0; i < SERVER_COUNT; i++) {
++            clientPorts[i] = PortAssignment.unique();
++            sb.append("server." + i + "=127.0.0.1:" + PortAssignment.unique() + ":" + PortAssignment.unique()
++                      + ":participant;127.0.0.1:" + clientPorts[i] + "\n");
++        }
++        String cfg = sb.toString();
++        for (int i = 0; i < SERVER_COUNT; i++) {
++            mt[i] = new MainThread(i, clientPorts[i], cfg, false) {
++                @Override
++                public TestQPMain getTestQPMain() {
++                    return new ReproMain();
++                }
++            };
++            mt[i].start();
++        }
++        for (int i = 0; i < SERVER_COUNT; i++) {
++            assertTrue(ClientBase.waitForServerUp("127.0.0.1:" + clientPorts[i], CONNECTION_TIMEOUT),
++                       "waiting for server " + i + " being up");
++        }
++    }
++
++    private int findLeader() {
++        for (int i = 0; i < mt.length; i++) {
++            if (mt[i].main.quorumPeer != null && mt[i].main.quorumPeer.leader != null) {
++                return i;
++            }
++        }
++        return -1;
++    }
++
++    /**
++     * Phase 1 of DIFFSyncConsistencyTest: shut both followers down and let the
++     * leader log (but not commit) a create; returns the leader index.
++     */
++    private int leaderLogsUncommittedTxn(ZooKeeper[] zkHolder) throws Exception {
++        int leader = findLeader();
++        CountdownWatcher watch = new CountdownWatcher();
++        ZooKeeper zk = new ZooKeeper("127.0.0.1:" + clientPorts[leader], CONNECTION_TIMEOUT, watch);
++        watch.waitForConnected(CONNECTION_TIMEOUT);
++        Map<Long, Proposal> outstanding = mt[leader].main.quorumPeer.leader.outstandingProposals;
++        int previousTick = mt[leader].main.quorumPeer.tickTime;
++        mt[leader].main.quorumPeer.tickTime = 10_000;
++        Thread.sleep(previousTick);
++        for (int i = 0; i < SERVER_COUNT; i++) {
++            if (i != leader) {
++                mt[i].shutdown();
++            }
++        }
++        try {
++            zk.create("/zk" + leader, "zk".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
++            fail("create /zk" + leader + " should have failed");
++        } catch (KeeperException e) {
++            // expected: no quorum
++        }
++        Proposal p = null;
++        for (Proposal q : outstanding.values()) {
++            if (q.request.getHdr().getType() == OpCode.create) {
++                p = q;
++            }
++        }
++        assertNotNull(p, "leader has no outstanding create proposal");
++        long waited = 0;
++        while (!p.qvAcksetPairs.get(0).getAckset().contains((long) leader)) {
++            if (waited > 2000) {
++                fail("leader did not force its own proposal");
++            }
++            Thread.sleep(100);
++            waited += 100;
++        }
++        // Let the leader notice the lost quorum with the normal tick and step down
++        // before the followers return, so that it is re-elected in a new epoch.
++        mt[leader].main.quorumPeer.tickTime = previousTick;
++        long end = System.currentTimeMillis() + 60_000;
++        while (mt[leader].main.quorumPeer.getPeerState() == QuorumPeer.ServerState.LEADING
++               && System.currentTimeMillis() < end) {
++            Thread.sleep(100);
++        }
++        zkHolder[0] = zk;
++        return leader;
++    }
++
++    private void restartFollowers(int leader) throws Exception {
++        for (int i = 0; i < SERVER_COUNT; i++) {
++            if (i == leader) {
++                continue;
++            }
++            mt[i].start();
++        }
++    }
++
++    private boolean leaderServes(ZooKeeper zk, String path, long timeoutMs) throws Exception {
++        long end = System.currentTimeMillis() + timeoutMs;
++        while (System.currentTimeMillis() < end) {
++            try {
++                Stat stat = zk.exists(path, false);
++                if (stat != null) {
++                    return true;
++                }
++            } catch (KeeperException.ConnectionLossException e) {
++                // retry
++            }
++            Thread.sleep(100);
++        }
++        return false;
++    }
++
++    /**
++     * D-1 / U-DUR.  Both followers acknowledge NEWLEADER of the re-elected
++     * leader, which then serves the DIFF-synced transaction.  The followers'
++     * SyncThreads are delayed (timing assistance) and the follower processes
++     * crash after the NEWLEADER ACK (injected read failure at UPTODATE, then
++     * the processes are killed: CRASHED), before their SyncThread wrote the
++     * enqueued transaction.  The two followers then restart without the old
++     * leader and elect a new leader.  Expected (Zab): the transaction that the
++     * old leader served after the NEWLEADER quorum is still visible.
++     */
++    @Test
++    @Timeout(value = 240)
++    public void testServedTxnSurvivesFollowerCrashAfterNewLeaderAck() throws Exception {
++        startEnsemble();
++        ZooKeeper[] holder = new ZooKeeper[1];
++        int leader = leaderLogsUncommittedTxn(holder);
++        ZooKeeper zk = holder[0];
++        SYNC_DELAY_ARMED.set(true);
++        FAIL_AT_UPTODATE.set(true);
++        restartFollowers(leader);
++        boolean served = leaderServes(zk, "/zk" + leader, 30_000);
++        LOG.info("SPECULAR-OBSERVATION old leader {} serves /zk{}: {}; delayed follower SyncThreads={}",
++                 leader, leader, served, DELAYED_SYNC_THREADS.get());
++        assertTrue(served, "old leader never served /zk" + leader + " (NEWLEADER quorum not reached)");
++        // crash the follower processes: their delayed SyncThreads die unflushed
++        CRASHED.set(true);
++        for (int i = 0; i < SERVER_COUNT; i++) {
++            mt[i].shutdown();
++        }
++        waitForOne(zk, States.CONNECTING);
++        SYNC_DELAY_ARMED.set(false);
++        FAIL_AT_UPTODATE.set(false);
++        CRASHED.set(false);
++        restartFollowers(leader);
++        int newLeader = -1;
++        long end = System.currentTimeMillis() + 60_000;
++        while (newLeader < 0 && System.currentTimeMillis() < end) {
++            Thread.sleep(200);
++            newLeader = findLeader();
++        }
++        assertNotEquals(-1, newLeader, "no new leader elected");
++        assertNotEquals(leader, newLeader, "new leader is still the old leader");
++        zk.close();
++        CountdownWatcher watch = new CountdownWatcher();
++        zk = new ZooKeeper("127.0.0.1:" + clientPorts[newLeader], CONNECTION_TIMEOUT, watch);
++        watch.waitForConnected(CONNECTION_TIMEOUT);
++        Stat val = zk.exists("/zk" + leader, false);
++        LOG.info("SPECULAR-OBSERVATION new leader {} (epoch {}) sees /zk{}: {}", newLeader,
++                 mt[newLeader].main.quorumPeer.getCurrentEpoch(), leader, val != null);
++        zk.close();
++        assertNotNull(val, "Data inconsistency: /zk" + leader + " was served after the NEWLEADER quorum but is lost");
++    }
++
++    /**
++     * D-2 / U-ACK.  Same setup; the followers' learner threads are delayed for
++     * 3 s right before writing the NEWLEADER ACK (no crash, no failure).
++     * Expected: the re-elected leader establishes its epoch with the first
++     * NEWLEADER quorum and serves the transaction well before
++     * initLimit * tickTime (40 s) expires.
++     */
++    @Test
++    @Timeout(value = 240)
++    public void testNewLeaderQuorumWithDelayedNewLeaderAck() throws Exception {
++        startEnsemble();
++        ZooKeeper[] holder = new ZooKeeper[1];
++        int leader = leaderLogsUncommittedTxn(holder);
++        ZooKeeper zk = holder[0];
++        newLeaderAckDelayMs = 3000;
++        long start = System.currentTimeMillis();
++        restartFollowers(leader);
++        boolean served = leaderServes(zk, "/zk" + leader, 25_000);
++        long elapsed = System.currentTimeMillis() - start;
++        long epoch = mt[leader].main.quorumPeer.getCurrentEpoch();
++        LOG.info("SPECULAR-OBSERVATION served={} after {} ms; leader currentEpoch={} acceptedEpoch={}",
++                 served, elapsed, epoch, mt[leader].main.quorumPeer.getAcceptedEpoch());
++        newLeaderAckDelayMs = 0;
++        zk.close();
++        assertTrue(served, "re-elected leader did not establish its epoch within 25 s "
++                   + "(NEWLEADER ACKs consumed as proposal ACKs?)");
++    }
++
++    /**
++     * D-3 / U-NPE, Level 0 (no injection): a follower restarts and rejoins an
++     * established leader while a client keeps writing.  Outstanding proposals
++     * are forwarded before NEWLEADER (Leader.startForwarding) and their COMMITs
++     * may arrive after it.  Expected: the follower synchronizes (BROADCAST)
++     * without an exception in Learner.syncWithLeader.
++     */
++    @Test
++    @Timeout(value = 180)
++    public void testFollowerRejoinsEstablishedLeaderUnderLoad() throws Exception {
++        startEnsemble();
++        int leader = findLeader();
++        int follower = (leader + 1) % SERVER_COUNT;
++        CountdownWatcher watch = new CountdownWatcher();
++        ZooKeeper zk = new ZooKeeper("127.0.0.1:" + clientPorts[leader], CONNECTION_TIMEOUT, watch);
++        watch.waitForConnected(CONNECTION_TIMEOUT);
++        AtomicBoolean stop = new AtomicBoolean(false);
++        AtomicInteger issued = new AtomicInteger();
++        java.util.concurrent.Semaphore window = new java.util.concurrent.Semaphore(200);
++        Thread writer = new Thread(() -> {
++            while (!stop.get()) {
++                try {
++                    window.acquire();
++                } catch (InterruptedException e) {
++                    return;
++                }
++                zk.create("/load-", new byte[16], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL,
++                          (rc, path, ctx, name) -> window.release(), null);
++                issued.incrementAndGet();
++            }
++        });
++        writer.start();
++        int attempts = 0;
++        int npe = 0;
++        boolean synced = true;
++        for (int round = 0; round < 5; round++) {
++            mt[follower].shutdown();
++            Thread.sleep(500);
++            mt[follower].start();
++            attempts++;
++            long end = System.currentTimeMillis() + 20_000;
++            boolean ok = false;
++            while (System.currentTimeMillis() < end) {
++                QuorumPeer qp = mt[follower].getQuorumPeer();
++                if (qp != null && qp.getZabState() == QuorumPeer.ZabState.BROADCAST) {
++                    ok = true;
++                    break;
++                }
++                Thread.sleep(20);
++            }
++            synced &= ok;
++            for (String e : SYNC_EXCEPTIONS) {
++                if (e.contains("NullPointerException")) {
++                    npe++;
++                }
++            }
++            if (npe > 0) {
++                break;
++            }
++        }
++        stop.set(true);
++        writer.join();
++        LOG.info("SPECULAR-OBSERVATION rejoin attempts={} issuedWrites={} syncExceptions={} allSynced={}",
++                 attempts, issued.get(), SYNC_EXCEPTIONS, synced);
++        zk.close();
++        assertTrue(npe == 0, "NullPointerException in Learner.syncWithLeader while rejoining: " + SYNC_EXCEPTIONS);
++    }
++
++    @BeforeEach
++    public void resetInjection() {
++        SYNC_EXCEPTIONS.clear();
++        SYNC_DELAY_ARMED.set(false);
++        CRASHED.set(false);
++        FAIL_AT_UPTODATE.set(false);
++        newLeaderAckDelayMs = 0;
++        DELAYED_SYNC_THREADS.set(0);
++    }
++
++    @AfterEach
++    public void tearDown() {
++        SYNC_DELAY_ARMED.set(false);
++        CRASHED.set(true);
++        FAIL_AT_UPTODATE.set(false);
++        newLeaderAckDelayMs = 0;
++        for (int i = 0; i < mt.length; i++) {
++            try {
++                if (mt[i] != null) {
++                    mt[i].shutdown();
++                }
++            } catch (InterruptedException e) {
++                LOG.warn("interrupted", e);
++            }
++        }
++    }
++}
+diff --git a/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularUpdateScenariosTest.java b/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularUpdateScenariosTest.java
+new file mode 100644
+index 0000000..7dd5d07
+--- /dev/null
++++ b/zookeeper-server/src/test/java/org/apache/zookeeper/server/quorum/SpecularUpdateScenariosTest.java
+@@ -0,0 +1,348 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements. See the NOTICE file
++ * distributed with this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache License, Version 2.0.
++ */
++package org.apache.zookeeper.server.quorum;
++
++import static org.apache.zookeeper.server.quorum.ZabUtils.createQuorumPeer;
++import static org.junit.jupiter.api.Assertions.assertEquals;
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.io.IOException;
++import java.net.InetAddress;
++import java.net.InetSocketAddress;
++import java.net.ServerSocket;
++import java.net.Socket;
++import java.nio.ByteBuffer;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.concurrent.atomic.AtomicBoolean;
++import org.apache.jute.BinaryInputArchive;
++import org.apache.jute.BinaryOutputArchive;
++import org.apache.jute.InputArchive;
++import org.apache.jute.OutputArchive;
++import org.apache.zookeeper.ZKTestCase;
++import org.apache.zookeeper.ZooDefs;
++import org.apache.zookeeper.server.ZKDatabase;
++import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
++import org.apache.zookeeper.server.quorum.QuorumPeer.QuorumServer;
++import org.apache.zookeeper.server.util.ZxidUtils;
++import org.apache.zookeeper.test.TestUtils;
++import org.apache.zookeeper.txn.CreateSessionTxn;
++import org.apache.zookeeper.txn.TxnHeader;
++import org.junit.jupiter.api.Test;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++/**
++ * Specular update-focused learner conversations.  A test-side "leader" speaks
++ * the real Zab 1.0 wire protocol to a real Follower (the same fixture style as
++ * Zab1_0Test#testFollowerConversation).  Each scenario is derived from the
++ * visible update to Learner.syncWithLeader (NEWLEADER now starts the follower
++ * pipeline, logs and clears packetsNotCommitted, then ACKs).
++ *
++ * The tests record what the implementation does and assert the protocol
++ * expectation that the unchanged leader side relies on.  They are run by
++ * harness/run.sh for trace collection (a failing assertion does not prevent
++ * the trace from being kept) and by the reproduction scripts.
++ */
++public class SpecularUpdateScenariosTest extends ZKTestCase {
++
++    private static final Logger LOG = LoggerFactory.getLogger(SpecularUpdateScenariosTest.class);
++    private static final File TEST_DATA = new File(System.getProperty("test.data.dir", "src/test/resources/data"));
++
++    interface Conversation {
++        void converse(InputArchive ia, OutputArchive oa, DelayingFollower f) throws Exception;
++    }
++
++    /** Real Follower whose NEWLEADER-ACK write can be delayed (scheduling delay injection). */
++    static class DelayingFollower extends Follower {
++        QuorumServer leaderQuorumServer;
++        volatile long newLeaderAckDelayMs = 0;
++        final AtomicBoolean newLeaderAckDelayed = new AtomicBoolean(false);
++        final List<Throwable> followLeaderErrors = new ArrayList<>();
++
++        DelayingFollower(QuorumPeer self, FollowerZooKeeperServer zk) {
++            super(self, zk);
++        }
++
++        @Override
++        protected QuorumServer findLeader() {
++            return leaderQuorumServer;
++        }
++
++        @Override
++        void writePacket(QuorumPacket pp, boolean flush) throws IOException {
++            if (pp != null && pp.getType() == Leader.ACK && (pp.getZxid() & 0xffffffffL) == 0
++                && newLeaderAckDelayMs > 0 && newLeaderAckDelayed.compareAndSet(false, true)) {
++                // First zero-counter ACK written by the learner thread is the
++                // NEWLEADER ACK (Learner.java:760).  Delay only that write.
++                try {
++                    Thread.sleep(newLeaderAckDelayMs);
++                } catch (InterruptedException e) {
++                    Thread.currentThread().interrupt();
++                }
++            }
++            super.writePacket(pp, flush);
++        }
++    }
++
++    static void readSkippingPing(InputArchive ia, QuorumPacket qp) throws IOException {
++        while (true) {
++            ia.readRecord(qp, null);
++            if (qp.getType() != Leader.PING) {
++                return;
++            }
++        }
++    }
++
++    private static volatile Socket leaderSide;
++
++    private void runConversation(long nlAckDelayMs, Conversation conversation) throws Exception {
++        File tmpDir = File.createTempFile("test", "dir", TEST_DATA);
++        tmpDir.delete();
++        tmpDir.mkdir();
++        Thread followerThread = null;
++        DelayingFollower follower = null;
++        QuorumPeer peer = null;
++        try {
++            peer = createQuorumPeer(tmpDir);
++            FileTxnSnapLog logFactory = new FileTxnSnapLog(tmpDir, tmpDir);
++            peer.setTxnFactory(logFactory);
++            ZKDatabase zkDb = new ZKDatabase(logFactory);
++            FollowerZooKeeperServer zk = new FollowerZooKeeperServer(logFactory, peer, zkDb);
++            peer.setZKDatabase(zkDb);
++            follower = new DelayingFollower(peer, zk);
++            follower.newLeaderAckDelayMs = nlAckDelayMs;
++            peer.follower = follower;
++            ServerSocket ss = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"));
++            follower.leaderQuorumServer = new QuorumServer(1, (InetSocketAddress) ss.getLocalSocketAddress());
++            final DelayingFollower f = follower;
++            followerThread = new Thread(() -> {
++                try {
++                    f.followLeader();
++                } catch (Throwable e) {
++                    synchronized (f.followLeaderErrors) {
++                        f.followLeaderErrors.add(e);
++                    }
++                    LOG.warn("Follower thread ended with exception", e);
++                }
++            });
++            followerThread.start();
++            Socket leaderSocket = ss.accept();
++            leaderSide = leaderSocket;
++            InputArchive ia = BinaryInputArchive.getArchive(leaderSocket.getInputStream());
++            OutputArchive oa = BinaryOutputArchive.getArchive(leaderSocket.getOutputStream());
++            conversation.converse(ia, oa, follower);
++        } finally {
++            if (follower != null) {
++                follower.shutdown();
++            }
++            if (followerThread != null) {
++                followerThread.interrupt();
++                followerThread.join();
++            }
++            if (peer != null) {
++                peer.shutdown();
++            }
++            TestUtils.deleteFileRecursively(tmpDir);
++        }
++    }
++
++    /** FOLLOWERINFO -> LEADERINFO(epoch 1) -> ACKEPOCH, exactly as Zab1_0Test. */
++    static void discovery(InputArchive ia, OutputArchive oa, QuorumPacket qp) throws IOException {
++        readSkippingPing(ia, qp);
++        assertEquals(Leader.FOLLOWERINFO, qp.getType());
++        qp.setType(Leader.LEADERINFO);
++        qp.setZxid(ZxidUtils.makeZxid(1, 0));
++        byte[] protoBytes = new byte[4];
++        ByteBuffer.wrap(protoBytes).putInt(0x10000);
++        qp.setData(protoBytes);
++        oa.writeRecord(qp, null);
++        readSkippingPing(ia, qp);
++        assertEquals(Leader.ACKEPOCH, qp.getType());
++    }
++
++    static void proposal(QuorumPacket qp, long zxid, long sessionId) throws IOException {
++        qp.setType(Leader.PROPOSAL);
++        qp.setZxid(zxid);
++        TxnHeader hdr = new TxnHeader(sessionId, 1414, zxid, 55, ZooDefs.OpCode.createSession);
++        CreateSessionTxn cst = new CreateSessionTxn(30000);
++        ByteArrayOutputStream baos = new ByteArrayOutputStream();
++        OutputArchive boa = BinaryOutputArchive.getArchive(baos);
++        boa.writeRecord(hdr, null);
++        boa.writeRecord(cst, null);
++        qp.setData(baos.toByteArray());
++    }
++
++    static void send(OutputArchive oa, int type, long zxid) throws IOException {
++        oa.writeRecord(new QuorumPacket(type, zxid, null, null), null);
++    }
++
++    /**
++     * Scenario "diff-commit-after-newleader": an established leader forwards an
++     * outstanding PROPOSAL before NEWLEADER (Leader.startForwarding) and its
++     * COMMIT after NEWLEADER, before UPTODATE.  Expected (protocol): the
++     * learner completes synchronization and ACKs UPTODATE.
++     */
++    @Test
++    public void testCommitAfterNewLeaderForPreNewLeaderProposal() throws Exception {
++        final long[] observed = new long[2];
++        runConversation(0, (ia, oa, f) -> {
++            QuorumPacket qp = new QuorumPacket();
++            discovery(ia, oa, qp);
++            long p1 = ZxidUtils.makeZxid(1, 1);
++            send(oa, Leader.DIFF, 0);
++            proposal(qp, p1, 0x333);
++            oa.writeRecord(qp, null);
++            send(oa, Leader.NEWLEADER, ZxidUtils.makeZxid(1, 0));
++            send(oa, Leader.COMMIT, p1);
++            send(oa, Leader.UPTODATE, 0);
++            // Collect every ACK the learner writes until the stream ends or 3 s pass.
++            List<Long> acks = new ArrayList<>();
++            long end = System.currentTimeMillis() + 3000;
++            try {
++                while (System.currentTimeMillis() < end && acks.size() < 3) {
++                    readSkippingPing(ia, qp);
++                    if (qp.getType() == Leader.ACK) {
++                        acks.add(qp.getZxid());
++                    }
++                }
++            } catch (IOException e) {
++                LOG.info("Learner closed the connection after {} ACKs: {}", acks.size(), e.toString());
++            }
++            LOG.info("SPECULAR-OBSERVATION commit-after-newleader acks={} followerErrors={} zabState={}",
++                     acks, f.followLeaderErrors, f.self.getZabState());
++            observed[0] = acks.size();
++            observed[1] = f.self.getZabState() == QuorumPeer.ZabState.BROADCAST ? 1 : 0;
++        });
++        // Protocol expectation: NEWLEADER ACK, PROPOSAL ACK and UPTODATE ACK, broadcast reached.
++        assertEquals(1, observed[1], "learner did not reach BROADCAST after a COMMIT that followed NEWLEADER");
++    }
++
++    /**
++     * Scenario "diff-ack-before-newleader-ack": DIFF with one committed
++     * proposal; the learner thread is delayed between logging the buffered
++     * proposal and writing its NEWLEADER ACK.  LearnerHandler.run:609-623
++     * treats the first ACK after NEWLEADER as the NEWLEADER ACK.
++     */
++    @Test
++    public void testProposalAckBeforeNewLeaderAck() throws Exception {
++        final long[] firstAck = new long[1];
++        runConversation(1500, (ia, oa, f) -> {
++            QuorumPacket qp = new QuorumPacket();
++            discovery(ia, oa, qp);
++            long p1 = ZxidUtils.makeZxid(1, 1);
++            send(oa, Leader.DIFF, 0);
++            proposal(qp, p1, 0x444);
++            oa.writeRecord(qp, null);
++            send(oa, Leader.COMMIT, p1);
++            send(oa, Leader.NEWLEADER, ZxidUtils.makeZxid(1, 0));
++            readSkippingPing(ia, qp);
++            firstAck[0] = qp.getZxid();
++            LOG.info("SPECULAR-OBSERVATION first packet after NEWLEADER type={} zxid=0x{}",
++                     qp.getType(), Long.toHexString(qp.getZxid()));
++            send(oa, Leader.UPTODATE, 0);
++            List<Long> rest = new ArrayList<>();
++            long end = System.currentTimeMillis() + 3000;
++            try {
++                while (System.currentTimeMillis() < end && rest.size() < 2) {
++                    readSkippingPing(ia, qp);
++                    rest.add(qp.getZxid());
++                }
++            } catch (IOException e) {
++                LOG.info("stream ended: {}", e.toString());
++            }
++            LOG.info("SPECULAR-OBSERVATION later ACK zxids={}", rest);
++        });
++        assertEquals(ZxidUtils.makeZxid(1, 0), firstAck[0],
++                     "first ACK after NEWLEADER is not the NEWLEADER ACK (LearnerHandler would discard it)");
++    }
++
++    static long liveThreads(String prefix) {
++        long n = 0;
++        for (Thread t : Thread.getAllStackTraces().keySet()) {
++            if (t.isAlive() && t.getName().startsWith(prefix)) {
++                n++;
++            }
++        }
++        return n;
++    }
++
++    /**
++     * D-5 / U-LEAK: the connection to the leader is lost after NEWLEADER and
++     * before UPTODATE (the learner is INITIAL).  QuorumPeer then calls
++     * Follower.shutdown(), as it does after every followLeader().  Expected:
++     * the follower's request-processor threads are stopped.
++     */
++    @Test
++    public void testShutdownAfterFailureBetweenNewLeaderAndUpToDate() throws Exception {
++        final long[] leaked = new long[2];
++        runConversation(0, (ia, oa, f) -> {
++            QuorumPacket qp = new QuorumPacket();
++            long before = liveThreads("SyncThread:0") + liveThreads("CommitProcessor:0");
++            discovery(ia, oa, qp);
++            long p1 = ZxidUtils.makeZxid(1, 1);
++            send(oa, Leader.DIFF, 0);
++            proposal(qp, p1, 0x555);
++            oa.writeRecord(qp, null);
++            send(oa, Leader.COMMIT, p1);
++            send(oa, Leader.NEWLEADER, ZxidUtils.makeZxid(1, 0));
++            readSkippingPing(ia, qp);           // NEWLEADER ACK or proposal ACK
++            leaderSide.setSoTimeout(2000);
++            try {
++                readSkippingPing(ia, qp);       // the other one (updated code): the SyncThread is now idle
++            } catch (java.net.SocketTimeoutException e) {
++                LOG.info("no second ACK before UPTODATE (no learner pipeline yet)");
++            }
++            Thread.sleep(300);
++            leaderSide.close();               // connection loss before UPTODATE
++            long end = System.currentTimeMillis() + 5000;
++            while (f.self.getZabState() == QuorumPeer.ZabState.SYNCHRONIZATION && System.currentTimeMillis() < end
++                   && (f.sock == null || !f.sock.isClosed())) {
++                Thread.sleep(20);
++            }
++            Thread.sleep(500);
++            f.shutdown();                       // what QuorumPeer.run does after followLeader()
++            Thread.sleep(1000);
++            leaked[0] = liveThreads("SyncThread:0");
++            leaked[1] = liveThreads("CommitProcessor:0");
++            LOG.info("SPECULAR-OBSERVATION after Follower.shutdown(): SyncThread alive={} CommitProcessor alive={} (before sync: {}) zk.isRunning={}",
++                     leaked[0], leaked[1], before, f.zk.isRunning());
++        });
++        assertEquals(0, leaked[0] + leaked[1], "request-processor threads leaked after Follower.shutdown()");
++    }
++
++    /**
++     * D-4: a pre-Zab1.0 leader sends NEWLEADER during discovery and then
++     * DIFF ... UPTODATE (no NEWLEADER in the sync loop).  Expected: the learner
++     * starts its server and logs the synchronized proposal.
++     */
++    @Test
++    public void testPreZab10LeaderSync() throws Exception {
++        final boolean[] ok = new boolean[1];
++        runConversation(0, (ia, oa, f) -> {
++            QuorumPacket qp = new QuorumPacket();
++            readSkippingPing(ia, qp);
++            assertEquals(Leader.FOLLOWERINFO, qp.getType());
++            send(oa, Leader.NEWLEADER, ZxidUtils.makeZxid(1, 0));   // pre-1.0 discovery
++            long p1 = ZxidUtils.makeZxid(1, 1);
++            send(oa, Leader.DIFF, 0);
++            proposal(qp, p1, 0x666);
++            oa.writeRecord(qp, null);
++            send(oa, Leader.COMMIT, p1);
++            send(oa, Leader.UPTODATE, 0);
++            long end = System.currentTimeMillis() + 3000;
++            while (System.currentTimeMillis() < end && f.self.getZabState() != QuorumPeer.ZabState.BROADCAST) {
++                Thread.sleep(20);
++            }
++            Thread.sleep(300);
++            ok[0] = f.self.getZabState() == QuorumPeer.ZabState.BROADCAST && f.zk.isRunning();
++            LOG.info("SPECULAR-OBSERVATION pre-1.0 sync: zabState={} zk.isRunning={} followLeaderErrors={}",
++                     f.self.getZabState(), f.zk.isRunning(), f.followLeaderErrors);
++        });
++        assertEquals(true, ok[0], "learner did not reach a running BROADCAST state after a pre-Zab1.0 sync");
++    }
++}

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "id": "CR-3",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-8c80add29fe2",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "A SyncThread per-txn ACK can overtake the NEWLEADER ACK",
+  "cause": "The update starts SyncRequestProcessor/SendAckRequestProcessor and hands off txns before the learner thread writes the NEWLEADER ACK; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK.",
+  "trigger": "The learner thread is delayed longer than one append+fsync between logRequest and writing the NEWLEADER ACK.",
+  "consequence": "Leader.waitForNewLeaderAck rejects the ACK as from a different epoch and the real NEWLEADER ACK is ignored; the leader does not form its NEWLEADER quorum and stalls until the init limit.",
+  "sites": [
+    "Learner.java:syncWithLeader NEWLEADER case",
+    "LearnerHandler.java:run NEWLEADER ACK read",
+    "Leader.java:waitForNewLeaderAck"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "SyncThread can write a per-txn ACK before the learner thread writes the NEWLEADER ACK."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "sha256": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java",
+      "sha256": "2afb8dcb750c218b4e722a2b590b3f94a2cc932f5b1f99873743d87a0074ad0a"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "sha256": "8a5d53d4d7554433caf57c903c911f6a70f70e4b8989a0c71ded20a4aa0a730a"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java",
+      "sha256": "e3eb9f59f81b682b2982b84cef13c6a3207b7bf19436f5626b648eac96b932ef"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-3.md",
+      "path": "spec/persistent-findings/evidence/CR-3/spec/confirmation-CR-3.md",
+      "sha256": "b946a9991a0a8e265a4e65234ce21350384a627e81194e0e09659727da6f63a2"
+    },
+    {
+      "original": "spec/output/incr/repro/repro3-new.log",
+      "path": "spec/persistent-findings/evidence/CR-3/spec/output/incr/repro/repro3-new.log",
+      "sha256": "0afccd39ec3eab935fde412b92f9a0a4d2c2fba8b12bf01c45edbffa7ff3c374"
+    },
+    {
+      "original": "spec/output/incr/repro/repro3-old.log",
+      "path": "spec/persistent-findings/evidence/CR-3/spec/output/incr/repro/repro3-old.log",
+      "sha256": "1d771ba8bf9a7123b3d155158d6b74fb6f564dd1050d5f26abc75f1f99cda066"
+    },
+    {
+      "original": "harness/repro/NewLeaderAckOrderReproTest.java",
+      "path": "spec/persistent-findings/evidence/CR-3/harness/repro/NewLeaderAckOrderReproTest.java",
+      "sha256": "2144d68c174d8baeae2b18d6ba669e58706453b067f51b54dcc4c1cbb4c40673"
+    }
+  ]
+}

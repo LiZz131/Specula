@@ -1,0 +1,51 @@
+Witness state for the continuation hunt: State 27 of output/mc/update-hunt-durable-bfs.log with the
+final model's message field pos added (both in-flight PROPOSALs carry entry 1 of s1's history).
+The 27-state path uses no ReceiveProposal and one SelectSync per learner session, so it is also a
+behavior of the final model (FIFO/SelectSync repairs).
+
+State 27: <Action line 123, col 34 to line 123, col 67 of module Update>
+/\ rollbackAuthorized = (s1 :> FALSE @@ s2 :> FALSE @@ s3 :> FALSE)
+/\ recovered = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[epoch |-> 1, id |-> t1]>>)
+/\ votes = (s1 :> {s1, s3} @@ s2 :> {s2} @@ s3 :> {})
+/\ leadersByEpoch = (0 :> {} @@ 1 :> {s1} @@ 2 :> {s1})
+/\ syncMode = (s1 :> "NONE" @@ s2 :> "NONE" @@ s3 :> "NONE")
+/\ commitCertified = (t1 :> TRUE)
+/\ syncCommit = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<[epoch |-> 1, id |-> t1]>>)
+/\ syncSource = (s1 :> Nil @@ s2 :> s1 @@ s3 :> s1)
+/\ applied = (s1 :> <<[epoch |-> 1, id |-> t1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ durable = (s1 :> <<[epoch |-> 1, id |-> t1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acked = (t1 :> {s1})
+/\ usedTxn = {t1}
+/\ everCommitted = {[epoch |-> 1, id |-> t1]}
+/\ appended = (s1 :> <<[epoch |-> 1, id |-> t1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ syncBuf = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ acceptedEpoch = (s1 :> 2 @@ s2 :> 1 @@ s3 :> 2)
+/\ role = (s1 :> "leading" @@ s2 :> "following" @@ s3 :> "following")
+/\ seen = { "durable",
+  "election",
+  "sync",
+  "broadcast",
+  "DIFF",
+  "newleader",
+  "leader",
+  "newleaderLogged",
+  "mutation" }
+/\ syncJustified = (s1 :> FALSE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ phase = (s1 :> "broadcast" @@ s2 :> "sync" @@ s3 :> "sync")
+/\ snapshot = (s1 :> <<>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ currentEpoch = (s1 :> 2 @@ s2 :> 1 @@ s3 :> 2)
+/\ queued = ( s1 :> <<[epoch |-> 1, id |-> t1]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[epoch |-> 1, id |-> t1]>> )
+/\ proposed = ( s1 :> <<[epoch |-> 1, id |-> t1]>> @@
+  s2 :> <<>> @@
+  s3 :> <<[epoch |-> 1, id |-> t1]>> )
+/\ committed = (s1 :> <<[epoch |-> 1, id |-> t1]>> @@ s2 :> <<>> @@ s3 :> <<>>)
+/\ counters = [snapshot |-> 0, drop |-> 0, crash |-> 0]
+/\ syncStage = (s1 :> "idle" @@ s2 :> "newleader" @@ s3 :> "newleader")
+/\ up = (s1 :> TRUE @@ s2 :> TRUE @@ s3 :> TRUE)
+/\ messages = { [epoch |-> 1, id |-> t1, kind |-> "proposal", from |-> s1, to |-> s2, pos |-> 1],
+  [epoch |-> 1, id |-> t1, kind |-> "proposal", from |-> s1, to |-> s3, pos |-> 1] }
+/\ leaderOf = (s1 :> s1 @@ s2 :> s1 @@ s3 :> s1)
+/\ nlAcks = (s1 :> {s1, s3} @@ s2 :> {} @@ s3 :> {})
+

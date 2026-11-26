@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "id": "MC-1",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-13b3a238967b",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "NEWLEADER quorum commits a DIFF history that acknowledging learners have only enqueued",
+  "cause": "At NEWLEADER the learner persists currentEpoch and only enqueues the DIFF proposals to the asynchronous SyncRequestProcessor before writing the NEWLEADER ACK that commits the leader's initial history.",
+  "trigger": "Leader re-elected with an uncommitted logged txn DIFF-syncs both learners; they ACK NEWLEADER and crash before their SyncThread forces the txn; the learners then elect a new leader.",
+  "consequence": "A transaction the old leader served after the NEWLEADER quorum is missing on the new leader (committed data lost).",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82-91"
+  ],
+  "actions": [
+    "LearnerNewLeader",
+    "LearnerAckNewLeader",
+    "LeaderBroadcast",
+    "FsyncOne"
+  ],
+  "invariants": [
+    "CommittedQuorumDurable",
+    "CommittedAgreement"
+  ],
+  "premises": [
+    "FollowerZooKeeperServer.logRequest only enqueues to the SyncRequestProcessor; nothing between logRequest and the NEWLEADER ACK write waits for its flush.",
+    "The leader treats the NEWLEADER quorum as the commit of its loaded history and serves it.",
+    "FLE ranks peer currentEpoch before zxid, so a learner that persisted the new epoch can win the next election with a shorter log."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "                case Leader.NEWLEADER: // Getting NEWLEADER here instead of in discovery",
+      "end": "        zk.startServing();",
+      "sha256": "71353015c3babd76e470ed137568a1ce932f4d7d1ecc4db6f1711e7bf473c4ab"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java",
+      "start": "    public void logRequest(TxnHeader hdr, Record txn, TxnDigest digest) {",
+      "end": "    public void commit(long zxid) {",
+      "sha256": "1430f777cd7c19b23a8a79aae942e4cc18c414809229f9e8fcb135edceed0f0a"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java",
+      "sha256": "c82a706168dc69b2c3e7589c3d75800c40b2372d5695adbee9e40ba9d5cd3ef3"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "sha256": "8a5d53d4d7554433caf57c903c911f6a70f70e4b8989a0c71ded20a4aa0a730a"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "start": "LearnerNewLeader(s) ==",
+      "end": "LearnerAckNewLeader(s) ==",
+      "sha256": "ddce58dd3f938f14dd06270c0d17a9a718f45c1e1f576d846f3a40e56f5efd8f"
+    },
+    {
+      "root": "work",
+      "path": "spec/UpdateProps.tla",
+      "sha256": "7a550d81aa794bf1f97e4ee76b81c00a2fbbbf63b25e1666939ef04b608da558"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update-focused-durability.cfg",
+      "sha256": "a8a8b0ff42ac121aa2ecb6ab8656b5304aedf4ec27dcd40316a4a07f932362da"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-1.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/confirmation-MC-1.md",
+      "sha256": "2e1eb4487d0d9684a385a967447a2f9fe744c2b7a2b5fc1a00e6c38267338bc0"
+    },
+    {
+      "original": "spec/output/update-focused-durability-bfs.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/update-focused-durability-bfs.log",
+      "sha256": "fc229511fb35a8d4a64264b0b5f0472a7fa83cdea40648a65467c94697e45d25"
+    },
+    {
+      "original": "spec/output/update-seeded-durability-bfs.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/update-seeded-durability-bfs.log",
+      "sha256": "10ff79bb80f080163af1bc6e7e530692ddce9adb8f42451791a33357285ae189"
+    },
+    {
+      "original": "spec/output/trace-oracle-diff-sync-uncommitted.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/trace-oracle-diff-sync-uncommitted.log",
+      "sha256": "71b8ac659188824f7f99240470c23f22c0154555e81c0889ff6924edfd012be0"
+    },
+    {
+      "original": "harness/repro/test_bugMC-1_durability.sh",
+      "path": "spec/persistent-findings/evidence/MC-1/harness/repro/test_bugMC-1_durability.sh",
+      "sha256": "906f5503bd68b6dc79de5d800b238e62605ffa0b1834f86e268982da315e0a1c"
+    },
+    {
+      "original": "harness/src/SpecularReproTest.java",
+      "path": "spec/persistent-findings/evidence/MC-1/harness/src/SpecularReproTest.java",
+      "sha256": "e6e4178ce354de10785d79fd73adebb3d55baa359431c2201ac3b9444378c3ac"
+    },
+    {
+      "original": "spec/output/repro-durability-cluster-new-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/repro-durability-cluster-new-surefire-output.txt",
+      "sha256": "b47b01a84a84304e85c411a3b3b230606ffc77447a4f22380220687c3a4ce593"
+    },
+    {
+      "original": "spec/output/repro-durability-cluster-old-surefire-output.txt",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/repro-durability-cluster-old-surefire-output.txt",
+      "sha256": "ef1f7d4882e5ee640738d5078159be4429c68cf5c2e7069af060b3c431592a75"
+    }
+  ]
+}

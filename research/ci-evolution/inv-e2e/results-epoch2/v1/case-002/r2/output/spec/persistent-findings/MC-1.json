@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "id": "MC-1",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-8c80add29fe2",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "NEWLEADER ACK is sent before the DIFF-synchronized history is durable",
+  "cause": "Learner.syncWithLeader hands buffered proposals to FollowerZooKeeperServer.logRequest, which only enqueues to SyncRequestProcessor, and writes the NEWLEADER ACK without waiting for append/fsync; currentEpoch is already persisted.",
+  "trigger": "A leader with an uncommitted logged txn is re-elected; a follower DIFF-syncs it, ACKs NEWLEADER (counted toward the quorum, leader serves the txn) and crashes before SyncThread forces the log; it restarts with the new epoch and, with another server lacking the txn, elects a new leader.",
+  "consequence": "A transaction the previous leader already served after its NEWLEADER quorum is missing at the next leader (lost or truncated cluster-wide).",
+  "sites": [
+    "Learner.java:syncWithLeader NEWLEADER case",
+    "FollowerZooKeeperServer.java:logRequest",
+    "SyncRequestProcessor.java:flush",
+    "Leader.java:waitForNewLeaderAck"
+  ],
+  "actions": [
+    "LearnerNewLeader",
+    "LearnerAckNewLeader",
+    "LeaderBroadcast",
+    "FsyncOne",
+    "Crash"
+  ],
+  "invariants": [
+    "NewLeaderAckDurable",
+    "CommittedSurvivesLeaderChange"
+  ],
+  "premises": [
+    "The NEWLEADER ACK is written without waiting for the SyncRequestProcessor flush of the handed-off proposals.",
+    "The leader counts that ACK toward its NEWLEADER quorum and then serves its initial history.",
+    "Fail-stop crashes lose appended-but-unforced log records; currentEpoch is persisted before the ACK."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "sha256": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java",
+      "sha256": "1b579f658cea9dfd300736660b1d6af58b7449587c5fe1a50cf5d4d84cbfb2cc"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java",
+      "sha256": "c82a706168dc69b2c3e7589c3d75800c40b2372d5695adbee9e40ba9d5cd3ef3"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "sha256": "8a5d53d4d7554433caf57c903c911f6a70f70e4b8989a0c71ded20a4aa0a730a"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java",
+      "sha256": "2afb8dcb750c218b4e722a2b590b3f94a2cc932f5b1f99873743d87a0074ad0a"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "sha256": "33dced6f3ee554d484334660c897161c0a524112edf5168f639bbedce2d1e187"
+    },
+    {
+      "root": "work",
+      "path": "spec/UpdateProps.tla",
+      "sha256": "b6a7649d5077c74fa9ae751660ddbc0b85cbcc2c4d109e4c9e162a0194e4290b"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla",
+      "sha256": "b42cd5276d5a2ab08d392adea280075d29bb1a2cb7118deae0d3cd21f895c28d"
+    },
+    {
+      "root": "work",
+      "path": "spec/UpdateSeed.tla",
+      "sha256": "dcbce815032bf74cef649f9e778b4fa017f4192234061972dcd51f11a661cde8"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update-seed-focused-U1U3.cfg",
+      "sha256": "f75f8fd9aac803fe6d01b8c2710200119080b554ac3b2834a552c658e10e6a46"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-1.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/confirmation-MC-1.md",
+      "sha256": "dcaffb7c55996c963b36a9c8429e722ef244d986086137f7571cbae74c9506a2"
+    },
+    {
+      "original": "spec/bug-report.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/bug-report.md",
+      "sha256": "f77c0a24e6eee05822d9053e7f3ff1b1c0a77ad04af3b80ad19e34304d743027"
+    },
+    {
+      "original": "spec/output/incr/MC-1-U3-counterexample.out",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/incr/MC-1-U3-counterexample.out",
+      "sha256": "a7bafc70ea5d318e3902302f1a362758398422dd8c16a19fda3a5ba5606054d4"
+    },
+    {
+      "original": "spec/output/incr/MC-1-U2-counterexample.out",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/incr/MC-1-U2-counterexample.out",
+      "sha256": "98ed1660f73dedd782eee9923ad197e0b23afc069b58fe6d59f9bcd680b4bdb8"
+    },
+    {
+      "original": "spec/output/incr/repro/repro-new.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/incr/repro/repro-new.log",
+      "sha256": "822390e933cc4c4489365f61593de12d1a14e174357a98c6f7e12915f68840f5"
+    },
+    {
+      "original": "spec/output/incr/repro/repro-old.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/incr/repro/repro-old.log",
+      "sha256": "fda2417aa4a63f71b3c434aabecbd2532e96bd62461f8663f850f1dd79722485"
+    },
+    {
+      "original": "spec/output/incr/repro/repro-fixedctl.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/incr/repro/repro-fixedctl.log",
+      "sha256": "418fefdac17eaf28b541fcf1b968888cb8e1e38fd04c4cedf7bce5abef5a2418"
+    },
+    {
+      "original": "harness/repro/NewLeaderAckDurabilityReproTest.java",
+      "path": "spec/persistent-findings/evidence/MC-1/harness/repro/NewLeaderAckDurabilityReproTest.java",
+      "sha256": "202b63045d96f24132404fa1b1442347ac1c1a8d7a5855026dc3f5d936052dc4"
+    },
+    {
+      "original": "spec/evidence/trace-props/tlc-NewLeaderAckDurable-diff-sync-consistency.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/evidence/trace-props/tlc-NewLeaderAckDurable-diff-sync-consistency.log",
+      "sha256": "02e15320b4665f374ed270219eca4e7e469f2a4e5a912c30c6b9e3d2bbc2afd0"
+    }
+  ]
+}

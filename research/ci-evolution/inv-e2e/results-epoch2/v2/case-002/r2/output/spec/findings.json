@@ -1,0 +1,74 @@
+{
+ "schema_version": "2",
+ "system": "Apache ZooKeeper Zab (incremental run, update 2efbdfc)",
+ "generated_by": "incremental-modeling / validation-workflow",
+ "findings": [
+  {
+   "id": "MC-1",
+   "bug_number": 1,
+   "title": "NEWLEADER ACK sent before the DIFF-synced transactions are durable",
+   "source": "model-checking",
+   "violated_property": "CommittedQuorumDurable",
+   "property_module": "spec/Update.tla",
+   "config": "spec/Update-hunt-durable.cfg",
+   "counterexample": {
+    "log": "spec/output/mc/update-hunt-durable-bfs.log",
+    "decoded": "spec/output/mc/update-hunt-durable-bfs.decoded.txt",
+    "length": 27,
+    "final_model_rerun": "spec/output/mc/update-hunt-durable-final.log"
+   },
+   "actions": [
+    "WinElection",
+    "CompleteSync",
+    "SyncWithLeaderNewLeader",
+    "LeaderBroadcast",
+    "FsyncOne"
+   ],
+   "affected_actions": [
+    "SyncWithLeaderNewLeader"
+   ],
+   "update_related": true,
+   "code_locations": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:748-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:86-88",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:663-712"
+   ],
+   "classification": "Case C",
+   "status": "REPRODUCED",
+   "severity": "High",
+   "confirmation": "spec/confirmation-MC-1.md"
+  },
+  {
+   "id": "CR-2",
+   "bug_number": 2,
+   "title": "Learner failure between NEWLEADER and UPTODATE leaks an INITIAL ZooKeeperServer (processors not shut down, data tree not fast-forwarded)",
+   "source": "code-review",
+   "model_result": "not modeled (stale data-tree vote outside model vocabulary); durability effect of the leaked SyncThread covered by BeginElection leaving the pipeline running",
+   "code_locations": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java:784-807",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java:155-158"
+   ],
+   "update_related": true,
+   "status": "REPRODUCED",
+   "severity": "Medium",
+   "confirmation": "spec/confirmation-CR-2.md"
+  },
+  {
+   "id": "CR-3",
+   "bug_number": 3,
+   "title": "A proposal ACK can be consumed as the NEWLEADER ACK, dropping the learner from the NEWLEADER quorum",
+   "source": "code-review",
+   "model_result": "not modeled (unordered messages; availability)",
+   "code_locations": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:751-760",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java:611-623",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1555-1563"
+   ],
+   "update_related": true,
+   "status": "REPRODUCED",
+   "severity": "Low",
+   "confirmation": "spec/confirmation-CR-3.md"
+  }
+ ]
+}

@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "id": "MC-1",
+  "status": "REPRODUCED",
+  "source": "model-checking",
+  "origin_run": "incr-bb5d64a185fa",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "NEWLEADER ACK is sent before the DIFF-synced transactions are durable",
+  "cause": "Learner.syncWithLeader (NEWLEADER) only enqueues the buffered sync proposals to the asynchronous SyncRequestProcessor via FollowerZooKeeperServer.logRequest and then writes the NEWLEADER ACK; the leader counts that ACK toward the quorum that makes it commit and serve its whole loaded history.",
+  "trigger": "A transaction durable only on the re-elected leader is transferred by DIFF; the learners ACK NEWLEADER, the leader starts serving it, and the acking learners crash before their SyncRequestProcessor fsync while the old leader is unavailable.",
+  "consequence": "A new leader is elected without the transaction that clients already read, and the old leader's only copy is truncated when it rejoins (lost committed write).",
+  "sites": [
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:syncWithLeader",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:logRequest",
+    "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:waitForNewLeaderAck"
+  ],
+  "actions": [
+    "SyncWithLeaderNewLeader",
+    "LeaderBroadcast",
+    "FsyncOne"
+  ],
+  "invariants": [
+    "CommittedQuorumDurable",
+    "CommittedNeverLostByLeader"
+  ],
+  "premises": [
+    "The learner writes the NEWLEADER ACK without waiting for the SyncRequestProcessor flush of the proposals it just logged.",
+    "The leader activates on a NEWLEADER ACK quorum and serves its whole loaded history.",
+    "Learner process crashes (or power loss) can happen between the ACK and the asynchronous fsync."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "start": "    protected void syncWithLeader(long newLeaderZxid) throws Exception {",
+      "end": "        self.updateElectionVote(newEpoch);",
+      "sha256": "b2c4fcdfcc1c220f1d6e92d35796f9326b8946b86aa9f73b3044f5c0db62c479"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java",
+      "start": "    public void logRequest(TxnHeader hdr, Record txn, TxnDigest digest) {",
+      "end": "        syncProcessor.processRequest(request);",
+      "sha256": "e91338bd2b12722ff506181d5a7ec7214f5216f1bf19a732c3bdadf833efe1bb"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java",
+      "start": "    public void waitForNewLeaderAck(long sid, long zxid) throws InterruptedException {",
+      "end": "                    throw new InterruptedException(\"Timeout while waiting for NEWLEADER to be acked by quorum\");",
+      "sha256": "468778732f126708c8b2c9d75c38fdf47ef88d7ca21ef1eeef3c676aab49956f"
+    },
+    {
+      "root": "work",
+      "path": "spec/base.tla",
+      "sha256": "fdda3f01c4e2af8284e4ff4b364bd37c95b3efb86f023b1aad6ddb2cb816ece4"
+    },
+    {
+      "root": "work",
+      "path": "spec/MC.tla",
+      "sha256": "694b8a20af97465b6767deecfd7390185e1051eee9f8700dfd0fe94492065539"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update.tla",
+      "sha256": "150ce1eebd41e04a69361a74cc9b2cef7d8249e5e24673a9967587d4feee011a"
+    },
+    {
+      "root": "work",
+      "path": "spec/Update-hunt-durable.cfg",
+      "sha256": "ee158bf065b0964430afc8621d3d97f4fd720c9e78f22cebd8aa51a94330d25e"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-MC-1.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/confirmation-MC-1.md",
+      "sha256": "511a89695a2a06d6a497c0010e238ae11ff7396522a75a9a1ac0a296459e3b85"
+    },
+    {
+      "original": "spec/bug-report.md",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/bug-report.md",
+      "sha256": "59c87ea9c773f79db028393b89c804dc7c550b7cb6aee1dfd221285a625950c4"
+    },
+    {
+      "original": "spec/output/mc/update-full-bfs-r3.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/mc/update-full-bfs-r3.log",
+      "sha256": "326059ffb82bb4d84e78aac52b1fae395702e5aa2336bad157d01221e11043fb"
+    },
+    {
+      "original": "spec/output/mc/update-hunt-durable-final.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/mc/update-hunt-durable-final.log",
+      "sha256": "b3593299b9c1a67ad9f987705dfc2d2e5024db29c63961e32b13575319be3ca5"
+    },
+    {
+      "original": "spec/output/mc/update-hunt-durable-2s-r3.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/mc/update-hunt-durable-2s-r3.log",
+      "sha256": "463cd56cb65cb1818c01a9a1332f86aaafe83527ed143a8529a9e3e81ece6336"
+    },
+    {
+      "original": "spec/output/mc/update-hunt-loss-witness-r3.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/output/mc/update-hunt-loss-witness-r3.log",
+      "sha256": "6cfb44e921a5470bb24d0134feb8952d9782f5acdbd9e8d161a2573f41d43650"
+    },
+    {
+      "original": "spec/evidence/E1-CQD/tlc.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/evidence/E1-CQD/tlc.log",
+      "sha256": "7970950e86b42aea59d939c73dfca5e8ffde48df51dad7fd6ed4a793d7a17b97"
+    },
+    {
+      "original": "spec/evidence/repro/NewLeaderAckDurabilityReproTest.java",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/evidence/repro/NewLeaderAckDurabilityReproTest.java",
+      "sha256": "d3836b964d930b8f78bb4831b648ce06268a287d4b64f74a6dd3422936664502"
+    },
+    {
+      "original": "spec/evidence/repro/logs/bug1-summary.log",
+      "path": "spec/persistent-findings/evidence/MC-1/spec/evidence/repro/logs/bug1-summary.log",
+      "sha256": "4d445f43d841d1ce6bda71e696eb0db4a6ec44f064e5271ea6758161d766ed4c"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "decision": "MODEL_UPDATED",
+  "workflow_status": "COMPLETED_WITH_LIMITED_COVERAGE",
+  "summary": "MODEL_CHANGE_REQUIRED: the update makes the learner hand its DIFF-synced proposals to logRequest (and start its request processors, clear the sync mode) at NEWLEADER, before the NEWLEADER ACK. The reference suite was revised (split learner sync into SelectSync/LearnerNewLeader/LearnerAckNewLeader/EnterBroadcast, ACK-quorum LeaderBroadcast, plus inherited-model repairs incl. the waitForEpochAck 'follower ahead' guard), Update.tla/UpdateProps.tla/UpdateSeed.tla added, and the prior harness rebased with three update-window probes. Five fresh new-version traces (prior four scenarios plus the update's DIFFSyncConsistencyTest) pass real TLC trace validation; an old-revision control trace is rejected by the update check. Model checking: standard MC.cfg and full-from-Init update checks found no violation within their time budgets (LIMITED_COVERAGE); from an MC-reached seed, NewLeaderAckDurable (9 steps) and CommittedSurvivesLeaderChange (22 steps, also under full MCNext) are violated: the NEWLEADER ACK is still sent before the handed-off txns are fsynced, so a follower crash in that window can lose a txn the leader already served (MC-1). MC-1 was REPRODUCED on the updated and old revisions and passes on a hypothetical flush-before-ACK control; the update only removed the crash-free variant. Code review found three update-introduced defects, all REPRODUCED: NPE on a COMMIT between NEWLEADER and UPTODATE (CR-1), request processors not shut down after a failed sync in INITIAL state (CR-2), and a SyncThread txn ACK overtaking the NEWLEADER ACK (CR-3). specular ci-result verdict: FAIL.",
+  "findings_paths": [
+    "/work/current/.specular-output/spec/findings.json",
+    "/work/current/.specular-output/spec/bug-report.md",
+    "/work/current/.specular-output/spec/final-result.json",
+    "/work/current/.specular-output/confirmed-bugs.md",
+    "/work/current/.specular-output/ci-verdict.json",
+    "/work/current/.specular-output/spec/confirmation-MC-1.md",
+    "/work/current/.specular-output/spec/confirmation-CR-1.md",
+    "/work/current/.specular-output/spec/confirmation-CR-2.md",
+    "/work/current/.specular-output/spec/confirmation-CR-3.md",
+    "/work/current/.specular-output/spec/output/incr/MC-1-U3-counterexample.out",
+    "/work/current/.specular-output/spec/output/incr/MC-1-U3-fullMCNext-counterexample.out",
+    "/work/current/.specular-output/spec/output/incr/MC-1-U2-counterexample.out",
+    "/work/current/.specular-output/spec/output/incr/MC-1-oldcontrol-U3-counterexample.out",
+    "/work/current/.specular-output/harness/repro/NewLeaderAckDurabilityReproTest.java"
+  ],
+  "blockers": []
+}

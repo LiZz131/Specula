@@ -1,0 +1,25 @@
+{
+  "schema_version": "2",
+  "system": "Apache ZooKeeper Zab (case-002 update, run incr-8c80add29fe2)",
+  "generated_by": "validation-workflow",
+  "findings": [
+    {
+      "id": "MC-1",
+      "title": "NEWLEADER ACK is sent before the DIFF-synchronized history is durable",
+      "source": "model-checking",
+      "scenario": "US-2 / US-3 (modeling-brief.md, Incremental update)",
+      "severity": "High",
+      "invariant": "CommittedSurvivesLeaderChange",
+      "config": "Update-seed-focused-U1U3.cfg",
+      "counterexample": "spec/output/incr/MC-1-U3-counterexample.out",
+      "affected_code": [
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:743",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java:760",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java:82",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java:227",
+        "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java:1547"
+      ],
+      "summary": "On NEWLEADER the updated learner persists currentEpoch, hands the DIFF-synced proposals to FollowerZooKeeperServer.logRequest (an enqueue to SyncRequestProcessor) and immediately writes the NEWLEADER ACK without waiting for SyncThread's append/fsync. The leader counts the ACK toward its NEWLEADER quorum and serves its initial history. If the acking follower crashes before the fsync, it restarts with the new currentEpoch but without the synced transactions, can win the next election (FLE prefers the higher epoch), and TRUNCates the old leader: a transaction already served by the previous leader disappears. U2 (NewLeaderAckDurable) is violated in 9 steps and U3 (CommittedSurvivesLeaderChange) in 22 steps from an MC-reached seed; the old revision has the same defect with a wider window."
+    }
+  ]
+}

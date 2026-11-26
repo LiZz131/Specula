@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "CR-1",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-8c80add29fe2",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "COMMIT between NEWLEADER and UPTODATE dereferences an empty packetsNotCommitted (NPE)",
+  "cause": "The update clears packetsNotCommitted at NEWLEADER; the COMMIT branch dereferences packetsNotCommitted.peekFirst() without a null check.",
+  "trigger": "The leader forwards a PROPOSAL before NEWLEADER (startForwarding precedes NEWLEADER) and its COMMIT after NEWLEADER but before UPTODATE.",
+  "consequence": "NullPointerException in Learner.syncWithLeader; the learner abandons synchronization and cannot join until a retry avoids the interleaving.",
+  "sites": [
+    "Learner.java:syncWithLeader COMMIT case",
+    "Learner.java:syncWithLeader NEWLEADER case"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "A COMMIT for a proposal forwarded before NEWLEADER can arrive before UPTODATE."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "sha256": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java",
+      "sha256": "2afb8dcb750c218b4e722a2b590b3f94a2cc932f5b1f99873743d87a0074ad0a"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-1.md",
+      "path": "spec/persistent-findings/evidence/CR-1/spec/confirmation-CR-1.md",
+      "sha256": "30e8cb2569017c4e25fca56a6724b4f8b147d0948a30f31f166818af5a7f34c7"
+    },
+    {
+      "original": "spec/output/incr/repro/repro2-new.log",
+      "path": "spec/persistent-findings/evidence/CR-1/spec/output/incr/repro/repro2-new.log",
+      "sha256": "40f6a4a2c1846f50b07f4e4193f796ea53769df2e3d6480c0e9805ec8052e1d6"
+    },
+    {
+      "original": "spec/output/incr/repro/repro2-old.log",
+      "path": "spec/persistent-findings/evidence/CR-1/spec/output/incr/repro/repro2-old.log",
+      "sha256": "254f1998d3e83e68e41022cd175681bee13b3e319fb64c3d83211639663d4dde"
+    },
+    {
+      "original": "harness/repro/CommitAfterNewLeaderReproTest.java",
+      "path": "spec/persistent-findings/evidence/CR-1/harness/repro/CommitAfterNewLeaderReproTest.java",
+      "sha256": "696de71ca1a4eea7bda519eb062126239eb48f720d500efa9221309bab4b9f8e"
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+ "version": 1,
+ "run_id": "incr-8c80add29fe2",
+ "summary": "MODEL_CHANGE_REQUIRED: the update moves the learner's hand-off of synced proposals before the NEWLEADER ACK. The model, Trace spec and harness were updated and validated; model checking found that the ACK still precedes durability (MC-1, reproduced on the update and the old revision), and code review found three update-introduced sync/lifecycle defects (CR-1..CR-3, reproduced).",
+ "validation_limits": [
+  "All model checking is bounded (3 servers, 1 txn, up to 3 epochs, 2 crashes, 1 drop/snapshot); BFS runs stopped at 30-minute budgets with non-empty queues, so no-violation results are LIMITED_COVERAGE, not proofs.",
+  "The deep U2/U3 witnesses (depth 25/38 from Init) were not reached by BFS or simulation from Init; they were found from a seed state that full MCNext reaches from Init (canary-seed.log) and re-found with full MCNext from that seed.",
+  "Open/discharge checking is not applicable: Update.tla defines no EnvUpdate; focused relations are restrictions of MCNext.",
+  "Not modeled: late joiners to a broadcasting leader, observers, reconfiguration, exception/liveness paths (handled by code review CR-1..CR-3); zxid order approximated by log length; FLE votes persist across rounds; TRUNC does not roll back the visible committed/applied state.",
+  "Fresh traces did not exercise SyncProposalApplied, the TRUNC directive, or a crash inside the ACK-to-fsync window (the reproduction test covers the crash window).",
+  "Known-status (issue/history) searches for the findings were not performed because the run is blind; novelty is undetermined.",
+  "Only JDK 21 was available; the hypothetical flush-before-ACK control is a local patch, not an upstream fix."
+ ],
+ "findings": [
+  {
+   "id": "MC-1",
+   "title": "NEWLEADER ACK is sent before the DIFF-synchronized history is durable",
+   "status": "REPRODUCED",
+   "source": "model-checking",
+   "cause": "Learner.syncWithLeader hands buffered proposals to FollowerZooKeeperServer.logRequest, which only enqueues to SyncRequestProcessor, and writes the NEWLEADER ACK without waiting for append/fsync; currentEpoch is already persisted.",
+   "trigger": "A leader with an uncommitted logged txn is re-elected; a follower DIFF-syncs it, ACKs NEWLEADER (counted toward the quorum, leader serves the txn) and crashes before SyncThread forces the log; it restarts with the new epoch and, with another server lacking the txn, elects a new leader.",
+   "consequence": "A transaction the previous leader already served after its NEWLEADER quorum is missing at the next leader (lost or truncated cluster-wide).",
+   "severity": "High",
+   "evidence": [
+    "spec/confirmation-MC-1.md",
+    "spec/bug-report.md",
+    "spec/output/incr/MC-1-U3-counterexample.out",
+    "spec/output/incr/MC-1-U2-counterexample.out",
+    "spec/output/incr/repro/repro-new.log",
+    "spec/output/incr/repro/repro-old.log",
+    "spec/output/incr/repro/repro-fixedctl.log",
+    "harness/repro/NewLeaderAckDurabilityReproTest.java",
+    "spec/evidence/trace-props/tlc-NewLeaderAckDurable-diff-sync-consistency.log"
+   ],
+   "persistence": {
+    "sites": [
+     "Learner.java:syncWithLeader NEWLEADER case",
+     "FollowerZooKeeperServer.java:logRequest",
+     "SyncRequestProcessor.java:flush",
+     "Leader.java:waitForNewLeaderAck"
+    ],
+    "actions": [
+     "LearnerNewLeader",
+     "LearnerAckNewLeader",
+     "LeaderBroadcast",
+     "FsyncOne",
+     "Crash"
+    ],
+    "invariants": [
+     "NewLeaderAckDurable",
+     "CommittedSurvivesLeaderChange"
+    ],
+    "premises": [
+     "The NEWLEADER ACK is written without waiting for the SyncRequestProcessor flush of the handed-off proposals.",
+     "The leader counts that ACK toward its NEWLEADER quorum and then serves its initial history.",
+     "Fail-stop crashes lose appended-but-unforced log records; currentEpoch is persisted before the ACK."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/FollowerZooKeeperServer.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/SyncRequestProcessor.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java"
+     },
+     {
+      "root": "work",
+      "path": "spec/base.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateProps.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/UpdateSeed.tla"
+     },
+     {
+      "root": "work",
+      "path": "spec/Update-seed-focused-U1U3.cfg"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-1",
+   "title": "COMMIT between NEWLEADER and UPTODATE dereferences an empty packetsNotCommitted (NPE)",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "The update clears packetsNotCommitted at NEWLEADER; the COMMIT branch dereferences packetsNotCommitted.peekFirst() without a null check.",
+   "trigger": "The leader forwards a PROPOSAL before NEWLEADER (startForwarding precedes NEWLEADER) and its COMMIT after NEWLEADER but before UPTODATE.",
+   "consequence": "NullPointerException in Learner.syncWithLeader; the learner abandons synchronization and cannot join until a retry avoids the interleaving.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/confirmation-CR-1.md",
+    "spec/output/incr/repro/repro2-new.log",
+    "spec/output/incr/repro/repro2-old.log",
+    "harness/repro/CommitAfterNewLeaderReproTest.java"
+   ],
+   "persistence": {
+    "sites": [
+     "Learner.java:syncWithLeader COMMIT case",
+     "Learner.java:syncWithLeader NEWLEADER case"
+    ],
+    "premises": [
+     "A COMMIT for a proposal forwarded before NEWLEADER can arrive before UPTODATE."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-2",
+   "title": "Request processors started at NEWLEADER are not shut down when synchronization fails before UPTODATE",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "startupWithoutServing starts the processors but leaves state INITIAL; LearnerZooKeeperServer.shutdown returns early because canShutdown() is false.",
+   "trigger": "Any learner failure between NEWLEADER and startServing (e.g. CR-1 or the read timeout injected by DIFFSyncConsistencyTest).",
+   "consequence": "Leaked FollowerRequestProcessor/CommitProcessor/RequestThrottler threads; the orphaned SyncThread keeps flushing and dies with a critical-thread error writing to the closed learner socket.",
+   "severity": "Low",
+   "evidence": [
+    "spec/confirmation-CR-2.md",
+    "spec/output/incr/repro/repro2-new-markers.txt",
+    "spec/output/incr/harness/harness-diff-sync-consistency.log",
+    "traces/fresh/diff-sync-consistency.ndjson"
+   ],
+   "persistence": {
+    "sites": [
+     "Learner.java:syncWithLeader zk.startupWithoutServing",
+     "ZooKeeperServer.java:canShutdown",
+     "LearnerZooKeeperServer.java:shutdown"
+    ],
+    "premises": [
+     "A learner can fail after NEWLEADER and before startServing."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java"
+     }
+    ]
+   }
+  },
+  {
+   "id": "CR-3",
+   "title": "A SyncThread per-txn ACK can overtake the NEWLEADER ACK",
+   "status": "REPRODUCED",
+   "source": "code-review",
+   "cause": "The update starts SyncRequestProcessor/SendAckRequestProcessor and hands off txns before the learner thread writes the NEWLEADER ACK; LearnerHandler treats the first ACK after NEWLEADER as the NEWLEADER ACK.",
+   "trigger": "The learner thread is delayed longer than one append+fsync between logRequest and writing the NEWLEADER ACK.",
+   "consequence": "Leader.waitForNewLeaderAck rejects the ACK as from a different epoch and the real NEWLEADER ACK is ignored; the leader does not form its NEWLEADER quorum and stalls until the init limit.",
+   "severity": "Medium",
+   "evidence": [
+    "spec/confirmation-CR-3.md",
+    "spec/output/incr/repro/repro3-new.log",
+    "spec/output/incr/repro/repro3-old.log",
+    "harness/repro/NewLeaderAckOrderReproTest.java"
+   ],
+   "persistence": {
+    "sites": [
+     "Learner.java:syncWithLeader NEWLEADER case",
+     "LearnerHandler.java:run NEWLEADER ACK read",
+     "Leader.java:waitForNewLeaderAck"
+    ],
+    "premises": [
+     "SyncThread can write a per-txn ACK before the learner thread writes the NEWLEADER ACK."
+    ],
+    "dependencies": [
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerHandler.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Leader.java"
+     },
+     {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/SendAckRequestProcessor.java"
+     }
+    ]
+   }
+  }
+ ]
+}

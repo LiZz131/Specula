@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "id": "CR-2",
+  "status": "REPRODUCED",
+  "source": "code-review",
+  "origin_run": "incr-8c80add29fe2",
+  "source_revision": "2efbdfc3754df193bce05b9792297c813377cdaf",
+  "reusable": true,
+  "title": "Request processors started at NEWLEADER are not shut down when synchronization fails before UPTODATE",
+  "cause": "startupWithoutServing starts the processors but leaves state INITIAL; LearnerZooKeeperServer.shutdown returns early because canShutdown() is false.",
+  "trigger": "Any learner failure between NEWLEADER and startServing (e.g. CR-1 or the read timeout injected by DIFFSyncConsistencyTest).",
+  "consequence": "Leaked FollowerRequestProcessor/CommitProcessor/RequestThrottler threads; the orphaned SyncThread keeps flushing and dies with a critical-thread error writing to the closed learner socket.",
+  "sites": [
+    "Learner.java:syncWithLeader zk.startupWithoutServing",
+    "ZooKeeperServer.java:canShutdown",
+    "LearnerZooKeeperServer.java:shutdown"
+  ],
+  "actions": [],
+  "invariants": [],
+  "premises": [
+    "A learner can fail after NEWLEADER and before startServing."
+  ],
+  "dependencies": [
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/Learner.java",
+      "sha256": "26b664cf98d8146cad8e33e34c1e7d365c3c887783e5175c5398cb5b34177866"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/ZooKeeperServer.java",
+      "sha256": "84a8f4d44d29bdceb72c7b68874327c830ea9b58552dc04fd94d730d86ac4111"
+    },
+    {
+      "root": "source",
+      "path": "zookeeper-server/src/main/java/org/apache/zookeeper/server/quorum/LearnerZooKeeperServer.java",
+      "sha256": "9973cf471be076fd39735a9e8083c826d698eb3ef1c9dec09e4b27bfbe1069b8"
+    }
+  ],
+  "evidence": [
+    {
+      "original": "spec/confirmation-CR-2.md",
+      "path": "spec/persistent-findings/evidence/CR-2/spec/confirmation-CR-2.md",
+      "sha256": "099f1b341a41551c016218d2b076586cdd281bf0a457baa6e965e7917942f504"
+    },
+    {
+      "original": "spec/output/incr/repro/repro2-new-markers.txt",
+      "path": "spec/persistent-findings/evidence/CR-2/spec/output/incr/repro/repro2-new-markers.txt",
+      "sha256": "801e9306815c4ac7763e1c4d06ca36d22572557ee804d199a2705dbf0384e608"
+    },
+    {
+      "original": "spec/output/incr/harness/harness-diff-sync-consistency.log",
+      "path": "spec/persistent-findings/evidence/CR-2/spec/output/incr/harness/harness-diff-sync-consistency.log",
+      "sha256": "b4474ca2b7a3665024a33f6ee1fed3acf26e92c37640578ab797539b3014285d"
+    },
+    {
+      "original": "traces/fresh/diff-sync-consistency.ndjson",
+      "path": "spec/persistent-findings/evidence/CR-2/traces/fresh/diff-sync-consistency.ndjson",
+      "sha256": "3a250002045cf1ecb4bad4a9b251594285221b7ba7c0075be6cbe93fcd09a58d"
+    }
+  ]
+}
