@@ -30,8 +30,9 @@ The etcd V0–V3 experiments served as the dev set: the skill overlays were writ
 |---|---|---|
 | 1. Subjects | `materialize.py` | `WORK/subjects/<case>/{old-tree,buggy-tree,old-source,new-source,subject.json}`; `WORK/history/<case>.git` (base and its ancestors only) |
 | 2. Skill trees | `build_skills.py [--base-ref REF] --show-diff` | `WORK/skills/<arm>/` + `manifest.json` |
-| 3. v2 annotation | `annotate.py --case ...` | `WORK/annotated/<case>/spec/` (frozen) + manifest |
-| 4. Workspaces | `prepare.py --arm ... --case ... --rep N` | `WORK/neutral/<hex>/` (the sandbox's `/work`); `WORK/attempts/<arm>/<case>/r<N>/{ws,attempt.json}` |
+| 0. ci-init prior (optional) | `prepare_init.py`, `run_init.py` (see "Prior variants") | `WORK/inits/<case>/r<N>/{ws,attempt.json,prior/.specular-output,manifest.json}` |
+| 3. v2 annotation | `annotate.py --case ... [--prior DIR --label L]` | `WORK/annotated/<case>/spec/` (frozen) + manifest; with `--label`, `WORK/annotated-L/<case>/` |
+| 4. Workspaces | `prepare.py --arm ... --case ... --rep N [--prior DIR]` | `WORK/neutral/<hex>/` (the sandbox's `/work`); `WORK/attempts/<arm>/<case>/r<N>/{ws,attempt.json}` |
 | 5. Runs | `run.py --arm ... --case ... --rep N [--plan] [--main-tools]` | `WORK/attempts/.../log/`; `results/<arm>/<case>/r<N>/` |
 | 6. Summary | `collect.py` | `results/summary.{md,json}`, including the skill version of every run |
 | 7. Export | `export.py all` | `results/<arm>/<case>/r<N>/{output,instrumentation,timeline.md,export.json}`; `inputs/` |
@@ -39,7 +40,7 @@ The etcd V0–V3 experiments served as the dev set: the skill overlays were writ
 | Driver | `pipeline.py --case ...` | steps 3–5 and the per-run export (step 7) for several cases (run 6 and 8 by hand afterwards): arms in the fixed order v2, v0, v1, one at a time; the next case is annotated while the current one runs its last arm |
 | Analysis | `analysis/timeline.py`, `analysis/prop_changes.py`, `analysis/prop_events.py` | per-run behavior timeline from the activity log; which prior properties a run kept, changed, deleted or stopped checking; per case, a table of every prior and new property across the arms (`analysis/out/`) |
 
-`WORK` is `$INV_E2E_WORK` (default `/mydata/bingzhuo/inv-e2e`); `results/` can be redirected with `$INV_E2E_RESULTS`.
+`WORK` is `$INV_E2E_WORK` (default `/mydata/bingzhuo/inv-e2e`); `results/` can be redirected with `$INV_E2E_RESULTS`. The TLA+ jars are read from `lib/` of this checkout, or from `$INV_E2E_LIB` (e.g. from a git worktree, which has no untracked `lib/*.jar`).
 
 Other files:
 - `common.py`: paths, the case list, and helpers. It reuses the blind study's `prepare_incremental.py`, which builds the neutral two-commit artifact.
@@ -48,6 +49,63 @@ Other files:
 - `check_annotation.py`: checks that a v2 input changes comments only.
 - `tools/hist.sh`: git history up to the base commit.
 - `prompts/`: the task text, the final-response schema, and the annotation and review prompts.
+
+## Prior variants: P0, P1, P1−, P1a
+
+Every arm above starts from a prior suite. By default it is the blind V0 (P0). The next experiment compares priors; `prepare.py --prior DIR` gives an attempt any prior instead.
+
+| Prior | What it is | How it is made |
+|---|---|---|
+| P0 | the blind V0: old skills, Specula names, single-agent task `../blind-incremental-bugs/tools/baseline-task-template.md`, codex | committed in `../blind-incremental-bugs/blind-incremental-v0/<case>/.specula-output/` (the default of `prepare.py` and `annotate.py`) |
+| P1 | blind ci-init: the same task and scope on the same base source, with main's skills and the Specular v1.5 layout | `prepare_init.py` + `run_init.py` → `WORK/inits/<case>/r<N>/prior/.specular-output/` |
+| P1− | P1 with liveness removed mechanically | **deferred**: `strip_liveness.py` is not written yet |
+| P1a | P1 with `REQ-EVIDENCE` comments (the v2 annotation, made on P1 instead of V0) | `annotate.py --prior <P1> --label P1` → `WORK/annotated-P1/<case>/` |
+
+**ci-init (P1).** `prepare_init.py --case C --rep N` builds a workspace with the layout of the blind V0 generation (`prepare_baselines.py`):
+
+| Path in the sandbox | What | Access |
+|---|---|---|
+| `/work/source` | `WORK/subjects/<case>/old-tree` with one neutral commit `baseline` (fixed author and date; no remote, tag or history) | read-only |
+| `/work/work-source` | byte-identical copy for builds, instrumentation and traces | writable |
+| `/work/scope.md` | `V0_ROOT/<case>/scope.md` | read-only |
+| `/work/prior/.specular-output/` | empty; the agent writes the suite here | writable |
+| `/work/lib`, `/work/tools` | jars; `prepare.tools_dir(..., "specular")` (with `run_model_check.sh`), trace debugger, network guard | read-only |
+| `/work/.agents/skills` (= `/work/.claude/skills`) | `WORK/skills/v0`: main's skills, no overlay (`--skills` picks another tree) | read-only |
+| `/work/{task.md, final-schema.json, input-manifest.json}` | task, `baseline-final-schema.json`, public input map | read-only |
+
+- **Task.** `task.md` is `baseline-task-template.md` with names changed only: Specula → Specular, `.specula-output` → `.specular-output`, `/dev/shm/specula-v0-…` → `/dev/shm/specular-init-…`. The skill names already match the directories of `WORK/skills/v0`. Everything else is kept word for word, including the experiment overrides (no archaeology, no history or internet research). So P0 and P1 differ only in the skill version and the naming. `prepare_init.render_task` refuses a text with an old name left.
+- **Neutral paths.** The workspace is `WORK/neutral/<random hex>`. Case, rep and hashes (source identity, skill tree, scope, task) are in `WORK/inits/<case>/r<N>/attempt.json`, next to a `ws` symlink.
+- **Not reproduced from the V0 generation.** The V0 `input-manifest.json` also had a `prep` block of inspection hints from the original study's `prep/` directory. That directory is not in this repository, so the block is left out. The V0 generation also used only six skills, while `WORK/skills/v0` also has `incremental-modeling` and `bug-confirmation`. The V0 ran on codex, and P1 runs on the claude backend.
+
+`run_init.py --case C --rep N --main-tools [--main-tools-dir DIR]` runs the session with `agent.run_agent`:
+- It runs in the Specular environment (`specular_env`, main's MCP servers), after `wait_for_credentials`.
+- Limits: 4 h and $100 by default (`--timeout`, `--budget`).
+- `USAGE_LIMIT` and `AUTH_ERROR` runs are archived to `WORK/invalid/init-…`, re-prepared and rerun, as in `run.py`. Any other outcome, including `TIMEOUT` and `BUDGET_CAP`, is frozen as it is.
+- The task asks for the final answer as the last message, and nothing is added to the task text. On the claude backend, `run_init.py` therefore takes the answer from the session's result event.
+
+| Path | What |
+|---|---|
+| `WORK/inits/<case>/r<N>/prior/.specular-output/` | the suite, read-only |
+| `…/manifest.json` | prior tree hash, skill tree hash and base commit, main-tools manifest hash, source identity, status, cost, the final answer's status fields |
+| `…/final-response.json`, `work-source.diff`, `log/` | final answer, instrumentation diff against the neutral commit, session log |
+
+**Using a prior.**
+- `prepare.py --prior DIR` takes a `.specula-output` or `.specular-output` directory, or a directory holding one. `{case}` in DIR stands for the case ID, so one call can cover several cases.
+- The prior is copied under the layout's directory name. Paths inside its files are not rewritten; `prepare.py` prints a note when the names differ.
+- `attempt.json` records `prior_source`, `prior_source_tree_sha256`, `prior_source_format` and `prior_label` (`--prior-label`).
+- For v2, `--annotated-root WORK/annotated-<label>` picks the annotations of that prior. `prepare.py` checks that they were made on exactly this prior's `spec/`.
+- Without `--prior`, the workspace is the same as before (verified: same prior and `previous/` tree hashes as the epoch-2 attempts). A usage-limit retry in `run.py` re-prepares with the prior recorded in `attempt.json`.
+
+```sh
+python3 prepare_init.py --case case-011 --rep 1
+python3 run_init.py --case case-011 --rep 1 --main-tools --main-tools-dir WORK/main-tools-r2
+P1='WORK/inits/{case}/r1/prior/.specular-output'
+python3 annotate.py --case case-011 --prior "$P1" --label P1                # P1a
+python3 prepare.py --arm v0 --arm v1 --case case-011 --rep 1 --layout specular --main-tools WORK/main-tools-r2 \
+    --prior "$P1" --prior-label P1
+python3 prepare.py --arm v2 --case case-011 --rep 1 --layout specular --main-tools WORK/main-tools-r2 \
+    --prior "$P1" --prior-label P1a --annotated-root WORK/annotated-P1
+```
 
 ## v2 inputs: annotation
 

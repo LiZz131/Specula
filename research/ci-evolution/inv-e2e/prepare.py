@@ -31,6 +31,13 @@ The three arms differ only in .agents/skills and, for v2, the comments in previo
 current/ spec files. Nothing inside the workspace names the arm: the physical directory
 is WORK/neutral/<random hex>, and the arm, skill-tree hash and prior hash are recorded
 outside it, in WORK/attempts/<arm>/<case>/r<rep>/attempt.json (next to a `ws` symlink).
+
+--prior DIR replaces the blind V0 by another prior suite (e.g. a ci-init prior frozen by
+run_init.py at WORK/inits/<case>/r<N>/prior/.specular-output; `{case}` in DIR is the case ID). It is
+copied under the layout's directory name; attempt.json records its source path, tree hash and
+format. For v2 with such a prior, --annotated-root names the annotations made on it
+(annotate.py --prior DIR --label L writes WORK/annotated-L/<case>); the annotation's recorded spec
+hash must match the prior. Without --prior nothing changes.
 """
 
 from __future__ import annotations
@@ -43,7 +50,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from common import (ARMS, BLIND_TOOLS, CASE_IDS, HERE, SPECULA, V0_ROOT, WORK, blind_helpers, check_arm,
+from common import (ARMS, BLIND_TOOLS, CASE_IDS, HERE, LIB, SPECULA, V0_ROOT, WORK, blind_helpers, check_arm,
                     check_case, read_json, sha256, tree_hash, write_json)
 
 CACHE_DIRS = ("cargo", "cargo-target", "go-build", "go-mod", "gopath", "m2", "rebar3", "tmp")
@@ -67,11 +74,21 @@ def tools_dir(dest: Path, layout: str = "specula") -> None:
         f.chmod(0o755)
 
 
-def overlay_annotated(prior: Path, case_id: str) -> dict:
-    annotated = WORK / "annotated" / case_id
+def overlay_annotated(prior: Path, case_id: str, annotated_root: Path | None = None,
+                      prior_spec_hash: str | None = None) -> dict:
+    """annotated_root: WORK/annotated by default; WORK/annotated-<label> for a non-V0 prior
+    (annotate.py --prior ... --label <label>). prior_spec_hash (given for a non-default prior): the
+    annotation must have been made on exactly this prior's spec/."""
+    annotated = (annotated_root or WORK / "annotated") / case_id
     manifest = annotated / "manifest.json"
     if not manifest.exists() or not read_json(manifest).get("frozen"):
         raise SystemExit(f"{case_id}: no frozen annotation at {annotated}; run annotate.py first")
+    if prior_spec_hash is not None:
+        m = read_json(manifest)
+        made_on = m.get("prior_spec_tree_sha256", m.get("v0_spec_tree_sha256"))
+        if made_on != prior_spec_hash:
+            raise SystemExit(f"{case_id}: annotation at {annotated} was made on spec tree {made_on}, "
+                             f"not on this prior's spec tree {prior_spec_hash}")
     replaced = []
     for path in (annotated / "spec").rglob("*"):
         if path.is_file():
@@ -84,6 +101,28 @@ def overlay_annotated(prior: Path, case_id: str) -> dict:
 
 
 LAYOUTS = {"specula": ".specula-output", "specular": ".specular-output"}
+
+
+def default_prior(case_id: str) -> Path:
+    return V0_ROOT / case_id / ".specula-output"
+
+
+def resolve_prior(template: str | Path | None, case_id: str) -> Path:
+    """--prior DIR: a prior output directory. `{case}` in DIR is replaced by the case ID. DIR is
+    the output directory itself (named .specula-output or .specular-output) or a directory holding
+    exactly one of them. Without --prior: the blind V0 of the case."""
+    if template is None:
+        return default_prior(case_id)
+    path = Path(str(template).replace("{case}", case_id)).resolve()
+    if path.name not in LAYOUTS.values():
+        inner = [path / d for d in LAYOUTS.values() if (path / d).is_dir()]
+        if len(inner) != 1:
+            raise SystemExit(f"--prior {path}: not a .specula-output/.specular-output directory "
+                             "and does not hold exactly one")
+        path = inner[0]
+    if not (path / "spec").is_dir():
+        raise SystemExit(f"--prior {path}: no spec/ directory")
+    return path
 
 # Final reporting as main's IncrementalPhase.build_prompt words it for a final_result_version-1 run.
 SPECULAR_FINAL = """
@@ -153,7 +192,11 @@ def bind_ci_run(stage: Path, main_tools: Path, run_id: str, synthetic: dict) -> 
             "seeded_findings": read_json(index) if index.exists() else None}
 
 
-def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tools: Path | None = None) -> Path:
+def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tools: Path | None = None,
+            prior_dir: Path | None = None, annotated_root: Path | None = None,
+            prior_label: str | None = None) -> Path:
+    """prior_dir None: the blind V0 (the default, unchanged since epoch 1). Otherwise a resolved
+    prior output directory (resolve_prior); it is copied under the layout's directory name."""
     logical = WORK / "attempts" / arm / case_id / f"r{rep}"
     if logical.exists():
         raise SystemExit(f"refusing to overwrite {logical}")
@@ -165,7 +208,12 @@ def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tool
     subject_data = read_json(subject / "subject.json")
     changed = H.normalize_changed_files(subject_data["changed_files"])
     v0 = V0_ROOT / case_id / ".specula-output"
+    custom_prior = prior_dir is not None and prior_dir.resolve() != v0.resolve()
+    prior_src = prior_dir if custom_prior else v0
     out = LAYOUTS[layout]
+    if custom_prior and prior_src.name != out:
+        print(f"{arm} {case_id} r{rep}: note: prior {prior_src.name} is placed as {out}; "
+              "paths inside its files are not rewritten", flush=True)
     if layout == "specular" and not (main_tools and (main_tools / "specular").is_file()):
         raise SystemExit("--layout specular needs --main-tools with the specular CLI (build_main_tools.py)")
 
@@ -177,8 +225,14 @@ def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tool
         shutil.copytree(subject / "new-source", stage / "new-source", symlinks=True)
 
         prior = stage / ".prior"
-        shutil.copytree(v0, prior, symlinks=True)
-        annotation = overlay_annotated(prior, case_id) if arm == "v2" else None
+        shutil.copytree(prior_src, prior, symlinks=True)
+        if custom_prior:  # a frozen prior (run_init.py) is read-only; the copy must be editable
+            H.make_tree_owner_writable(prior)
+        if arm == "v2":
+            annotation = (overlay_annotated(prior, case_id, annotated_root, tree_hash(prior_src / "spec"))
+                          if custom_prior or annotated_root else overlay_annotated(prior, case_id))
+        else:
+            annotation = None
         (stage / "previous").mkdir()
         (stage / "current").mkdir()
         shutil.copytree(prior, stage / f"previous/{out}", symlinks=True)
@@ -204,7 +258,7 @@ def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tool
         shutil.copytree(skills, stage / ".agents/skills", ignore=shutil.ignore_patterns("manifest.json"))
         (stage / "lib").mkdir()
         for jar in ("tla2tools.jar", "CommunityModules-deps.jar"):
-            shutil.copy2(SPECULA / "lib" / jar, stage / "lib" / jar)
+            shutil.copy2(LIB / jar, stage / "lib" / jar)
         tools_dir(stage / "tools", layout)
         run_id = f"incr-{physical.name[:12]}" if layout == "specular" else None
         (stage / "task.md").write_text(task_text(case_id, layout, run_id))
@@ -253,6 +307,11 @@ def prepare(arm: str, case_id: str, rep: int, layout: str = "specula", main_tool
         "skills_tree_sha256": tree_hash(physical / ".agents/skills"),
         "prior_tree_sha256": prior_hash,
         "v0_tree_sha256": tree_hash(v0),
+        "prior_source": str(prior_src),
+        "prior_source_tree_sha256": tree_hash(prior_src),
+        "prior_source_format": prior_src.name,
+        "prior_label": prior_label or ("V0" if not custom_prior else None),
+        "annotated_root": str(annotated_root or WORK / "annotated") if arm == "v2" else None,
         "annotation": annotation,
         "task_sha256": sha256(physical / "task.md"),
         "synthetic_artifact": {k: synthetic[k] for k in ("baseline_commit", "update_commit", "commit_count")},
@@ -275,6 +334,12 @@ def main() -> int:
     parser.add_argument("--rep", type=int, default=1)
     parser.add_argument("--layout", choices=sorted(LAYOUTS), default="specula")
     parser.add_argument("--main-tools", type=Path, help="main-tools build (required for --layout specular)")
+    parser.add_argument("--prior", help="prior output directory (default: the blind V0, "
+                        "V0_ROOT/<case>/.specula-output); `{case}` is replaced by the case ID")
+    parser.add_argument("--prior-label", help="name of the prior (P1, P1a, ...), recorded in attempt.json")
+    parser.add_argument("--annotated-root", type=Path,
+                        help="v2: frozen annotations at <root>/<case> (default WORK/annotated), "
+                             "e.g. WORK/annotated-<prior-label>")
     args = parser.parse_args()
     cases = list(CASE_IDS) if args.all_cases else (args.cases or [])
     if not cases:
@@ -283,9 +348,13 @@ def main() -> int:
         check_arm(arm)
     for case_id in cases:
         check_case(case_id)
+    if args.prior and len(cases) > 1 and "{case}" not in args.prior:
+        raise SystemExit("--prior for several cases needs a `{case}` placeholder")
     for case_id in cases:
+        prior_dir = resolve_prior(args.prior, case_id) if args.prior else None
         for arm in args.arms:
-            prepare(arm, case_id, args.rep, args.layout, args.main_tools)
+            prepare(arm, case_id, args.rep, args.layout, args.main_tools, prior_dir, args.annotated_root,
+                    args.prior_label)
     return 0
 
 
