@@ -525,9 +525,12 @@ for agent in opencode pi agy; do
     esac
   fi
 done
-# Cursor CLI reads Specular skills from the paths in each prompt, so only the
-# MCP servers need registering. Cursor has no `mcp add`; merge into its config.
-if command_exists cursor-agent && ask_yn "Register Specular MCP servers for Cursor CLI (~/.cursor/mcp.json)?"; then
+# Pipeline prompts give Cursor the skill paths in this checkout. Installing the
+# skills also serves interactive use, and ~/.cursor/skills takes precedence over
+# same-named skills Cursor finds in ~/.claude/skills or ~/.agents/skills, which
+# may belong to another checkout. Cursor has no `mcp add`; merge into its config.
+if command_exists cursor-agent && ask_yn "Install Specular skills and MCP servers for Cursor CLI (~/.cursor)?"; then
+  setup_skills "$HOME/.cursor/skills" "$SKILLS_SOURCE"
   for entry in "${MCP_SERVERS[@]}"; do
     IFS='|' read -r mcp_name mcp_python mcp_server <<< "$entry"
     set +e

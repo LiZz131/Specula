@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Added Cursor CLI as a supported agent (`--agent=cursor-cli`), including per-phase selection with `--agent-config`, exact chat resume, usage reporting, and Specular's MCP tools.
+- Added Cursor CLI as a supported agent (`--agent=cursor-cli`), including per-phase selection with `--agent-config`, exact chat resume, usage reporting, skills and MCP tools installed by `specular setup`.
 
 ## [1.5.0] - 2026-11-19
 

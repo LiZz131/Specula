@@ -290,6 +290,16 @@ printf '\\n' >> "$FAKE_COMMAND_LOG"
                 self.assertIn(destination, commands)
                 self.assertIn("registered automatically for incremental runs", result.stdout)
 
+    def test_cursor_setup_installs_skills_and_mcp_servers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result, commands = self.run_setup(root, {"cursor-agent"}, "y\n")
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(f"--target\t{root / 'home/.cursor/skills'}", commands)
+        self.assertEqual(commands.count("setup_cursor_mcp.py\t"), 3)
+        self.assertIn(str(root / "home/.cursor/mcp.json"), commands)
+
     def test_only_agents_on_path_are_prompted(self) -> None:
         for installed_agent in self.AGENT_PROMPTS:
             with self.subTest(installed_agent=installed_agent), tempfile.TemporaryDirectory() as tmp:

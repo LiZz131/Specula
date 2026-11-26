@@ -75,7 +75,8 @@ def test_usage_error() -> None:
 
 def test_setup_registers_every_mcp_server_for_cursor() -> None:
     text = SETUP.read_text()
-    assert 'command_exists cursor-agent && ask_yn "Register Specular MCP servers for Cursor CLI' in text
+    assert 'command_exists cursor-agent && ask_yn "Install Specular skills and MCP servers for Cursor CLI' in text
     block = text[text.index("command_exists cursor-agent") :]
     assert 'for entry in "${MCP_SERVERS[@]}"' in block.split("\nfi\n", 1)[0]
     assert '"$SCRIPT_DIR/setup_cursor_mcp.py"' in block and '"$HOME/.cursor/mcp.json"' in block
+    assert 'setup_skills "$HOME/.cursor/skills" "$SKILLS_SOURCE"' in block

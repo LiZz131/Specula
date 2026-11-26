@@ -65,7 +65,7 @@ specular setup          # installs the agent skills and MCP tools, builds the bu
 
 You need to set up the Specular Agent Skills and MCP with your coding agent.
 
-- Symlink [the Specular `skills` directory](https://github.com/specular-org/Specular/tree/main/skills) to the one read by your coding agent, e.g., `~/.claude/skills` or `.claude/skills` for Claude Code, `~/.codex/skills` or `.agents/skills` for Codex, and `.github/skills` for Copilot CLI.
+- Symlink [the Specular `skills` directory](https://github.com/specular-org/Specular/tree/main/skills) to the one read by your coding agent, e.g., `~/.claude/skills` or `.claude/skills` for Claude Code, `~/.codex/skills` or `.agents/skills` for Codex, `.github/skills` for Copilot CLI, and `~/.cursor/skills` for Cursor CLI.
 - Add the `trace_debugger`, `spec_analyzer`, and `inv_checking_tool` [MCP tools](https://github.com/specular-org/Specular/tree/main/tools/) to your agent config. Please [build the CFA tool](./tools/cfa) with Maven before adding `spec_analyzer`.
 
 ```bash
