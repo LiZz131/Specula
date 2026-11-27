@@ -705,6 +705,8 @@ def test_user_workspace_mcp_config_is_kept_and_restored(tmp_path: Path) -> None:
 
 
 def _state(tmp_path: Path, workspace: Path) -> Path:
+    # Crash-recovery tests must plant what a killed run leaves behind, so they
+    # mirror the adapter's (internal) bookkeeping location.
     key = hashlib.sha256(str(workspace.resolve()).encode()).hexdigest()[:32]
     return tmp_path / "cache/specular/cursor-mcp" / key
 
