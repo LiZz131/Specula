@@ -1084,7 +1084,8 @@ def test_adapters_expose_context_tools_to_single_session_phases(tmp_path: Path, 
         if wired:
             assert servers["specular_context"] == {
                 "command": "${env:SPECULAR_CONTEXT_PYTHON}",
-                "args": ["${env:SPECULAR_CONTEXT_SERVER}"],
+                "args": ["-I", "${env:SPECULAR_CURSOR_MCP_LAUNCHER}"],
+                "env": {"SPECULAR_CURSOR_MCP": "${env:SPECULAR_CURSOR_MCP_CONTEXT}"},
             }
         assert not (tmp_path / ".cursor").exists()  # restored after the run
     else:
