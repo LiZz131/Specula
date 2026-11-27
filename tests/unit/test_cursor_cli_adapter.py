@@ -491,7 +491,7 @@ def test_ignored_launcher_options_are_accepted(tmp_path: Path) -> None:
     )
 
 
-def test_missing_cli_reports_install_hint(tmp_path: Path) -> None:
+def test_missing_cli_is_reported(tmp_path: Path) -> None:
     log = tmp_path / "p.log"
     env = _env(tmp_path, tmp_path / "empty-bin")
     env["PATH"] = str(tmp_path / "empty-bin")
@@ -504,8 +504,7 @@ def test_missing_cli_reports_install_hint(tmp_path: Path) -> None:
         check=False,
     )
     assert result.returncode == 127
-    assert "failed to launch cursor-agent" in result.stderr and "cursor.com/install" in result.stderr
-    assert "cursor.com/install" in log.read_text()
+    assert "failed to launch cursor-agent" in log.read_text()
     assert json.loads(log.with_suffix(".usage.json").read_text())["agent"] == "cursor-cli"
 
 
@@ -550,7 +549,7 @@ def _failing_cli(
 
 
 @pytest.mark.parametrize(
-    ("stderr_lines", "expected_rc", "stderr_hint"),
+    ("stderr_lines", "expected_rc"),
     [
         # Verbatim Cursor CLI 2026.11.22 diagnostics.
         (
@@ -558,37 +557,23 @@ def _failing_cli(
                 "Error: Authentication required. Please run 'agent login' first, or set CURSOR_API_KEY environment variable."
             ],
             1,
-            "authenticate with `cursor-agent login` or set CURSOR_API_KEY",
         ),
-        (
-            ["\x1b[33m⚠ Warning: The provided API key is invalid.\x1b[0m", "Please check you have the right key."],
-            1,
-            "",
-        ),
-        (["Cannot use this model: nope. Available models: auto, grok-4.7-low"], 1, "cursor-agent models"),
+        (["\x1b[33m⚠ Warning: The provided API key is invalid.\x1b[0m", "Please check you have the right key."], 1),
+        (["Cannot use this model: nope. Available models: auto, grok-4.7-low"], 1),
         # Provider failures in the CLI's own text (not yet observed verbatim).
-        (["Error: 429 Too Many Requests: rate limit exceeded"], RATE_LIMIT_RC, ""),
-        (["Error: HTTP 503 service unavailable"], TRANSIENT_FAILURE_RC, ""),
-        (["Error: output blocked by content filtering policy"], POLICY_BLOCKED_RC, ""),
+        (["Error: 429 Too Many Requests: rate limit exceeded"], RATE_LIMIT_RC),
+        (["Error: HTTP 503 service unavailable"], TRANSIENT_FAILURE_RC),
+        (["Error: output blocked by content filtering policy"], POLICY_BLOCKED_RC),
     ],
 )
-def test_cli_diagnostics_are_classified(
-    tmp_path: Path, stderr_lines: list[str], expected_rc: int, stderr_hint: str
-) -> None:
+def test_cli_diagnostics_are_classified(tmp_path: Path, stderr_lines: list[str], expected_rc: int) -> None:
     bin_dir = tmp_path / "bin"
     _failing_cli(bin_dir, stderr_lines)
-    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], _env(tmp_path, bin_dir), tmp_path)
+    log = tmp_path / "p.log"
+    result = _run(["--prompt=x", f"--log={log}"], _env(tmp_path, bin_dir), tmp_path)
     assert result.returncode == expected_rc, result.stderr
-    if stderr_hint:
-        assert stderr_hint in result.stderr
-
-
-def test_auth_failure_is_reported_clearly(tmp_path: Path) -> None:
-    bin_dir = tmp_path / "bin"
-    _failing_cli(bin_dir, ["Error: Authentication required. Please run 'agent login' first."])
-    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], _env(tmp_path, bin_dir), tmp_path)
-    assert result.returncode == 1
-    assert result.stderr.startswith("cursor-cli adapter: Error: Authentication required.")
+    # The CLI's own diagnostic stays in the phase log for the user to read.
+    assert stderr_lines[-1][-20:] in log.read_text()
 
 
 def test_failed_result_text_is_classified(tmp_path: Path) -> None:
@@ -934,38 +919,6 @@ def test_chat_with_messages_but_no_meta_is_resumable(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     argv = json.loads(capture.read_text())["argv"]
     assert argv[argv.index("--resume") + 1] == SESSION
-
-
-def test_generic_agent_executable_is_used_only_if_it_is_cursor(tmp_path: Path) -> None:
-    for version, expected_rc in (("2026.11.22-e9042b2", 0), ("agent 3.1.0", 127)):
-        bin_dir, capture = tmp_path / f"bin-{expected_rc}", tmp_path / f"capture-{expected_rc}.json"
-        _recording_cli(bin_dir, capture)
-        (bin_dir / "cursor-agent").rename(bin_dir / "agent")
-        if expected_rc:
-            (bin_dir / "agent").write_text(f"#!/bin/sh\necho '{version}'\n")
-        env = _env(tmp_path, bin_dir)
-        env["PATH"] = f"{bin_dir}{os.pathsep}/usr/bin{os.pathsep}/bin"
-        result = _run(["--prompt=x", f"--log={tmp_path / f'p{expected_rc}.log'}"], env, tmp_path)
-        assert result.returncode == expected_rc, result.stderr
-        if expected_rc:
-            assert "cursor.com/install" in (tmp_path / f"p{expected_rc}.log").read_text() + result.stderr
-
-
-def test_failure_hint_ignores_agent_text(tmp_path: Path) -> None:
-    bin_dir = tmp_path / "bin"
-    quoted = {
-        "type": "assistant",
-        "session_id": "s",
-        "message": {"content": [{"type": "text", "text": "The handler returns 'request is not authenticated'."}]},
-    }
-    filler = [
-        {"type": "assistant", "session_id": "s", "message": {"content": [{"type": "text", "text": f"step {i}"}]}}
-        for i in range(4)
-    ]
-    _failing_cli(bin_dir, ["Error: something unexpected broke"], exit_code=1, events=[quoted, *filler])
-    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], _env(tmp_path, bin_dir), tmp_path)
-    assert result.returncode == 1
-    assert "cursor-agent login" not in result.stderr and "something unexpected broke" in result.stderr
 
 
 # ── Skills ──────────────────────────────────────────────────────────────────

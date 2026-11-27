@@ -373,7 +373,7 @@ Specular rechecks confirmation results from versions that did not record which c
 
 ### Cursor CLI
 
-Specular supports the Cursor CLI executable `cursor-agent` (the installer also names it `agent`; Specular uses `agent` only when `cursor-agent` is not on `PATH`). It has been tested with Cursor CLI 2026.11.22-e9042b2 on Linux with the `grok-4.7-low` model; older builds still run but print a warning. Install it with `curl https://cursor.com/install -fsS | bash`, then authenticate once with `cursor-agent login` or set `CURSOR_API_KEY`. Set the default model with `CURSOR_MODEL` or `--model`.
+Specular runs the Cursor CLI executable `cursor-agent`. It has been tested with Cursor CLI 2026.11.22-e9042b2 on Linux with the `grok-4.7-low` model; older builds still run but print a warning. Install it with `curl https://cursor.com/install -fsS | bash`, then authenticate once with `cursor-agent login` or set `CURSOR_API_KEY`. Set the default model with `CURSOR_MODEL` or `--model`.
 
 Specular runs `cursor-agent -p --output-format stream-json --trust --force --approve-mcps` in the step's working directory, so the agent edits files, runs shell commands, and calls MCP tools without prompting. Without `--force`, Cursor rejects shell commands silently. The prompt is passed on standard input, so prompt size is not limited by the command line. Each run's readable log, raw event stream (`.activity.jsonl`), and token usage (`.usage.json`) are recorded. Cursor reports no cost, so the resource summary marks Cursor cost as incomplete.
 

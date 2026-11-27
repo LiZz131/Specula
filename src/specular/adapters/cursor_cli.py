@@ -29,7 +29,6 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import stat
 import subprocess
 import sys
@@ -55,29 +54,7 @@ SPECULAR_ROOT = Path(__file__).resolve().parents[3]
 # Oldest Cursor CLI build this adapter has been tested with. Older builds are
 # still attempted; the adapter only warns.
 MIN_TESTED_VERSION = "2026.11.22"
-INSTALL_HINT = "install Cursor CLI with `curl https://cursor.com/install -fsS | bash`, then run `cursor-agent login`"
 _VERSION_RE = re.compile(r"^(\d{4})\.(\d{1,2})\.(\d{1,2})\b")
-_CURSOR_VERSION_RE = re.compile(r"^\d{4}\.\d{1,2}\.\d{1,2}-[0-9a-f]{6,}$")
-
-
-def _executable() -> str:
-    """Cursor installs the same binary as ``cursor-agent`` and the generic ``agent``.
-
-    ``agent`` is a common name, so it is used only when its version string looks
-    like Cursor CLI's; otherwise the launch fails with the install hint.
-    """
-    found = shutil.which("cursor-agent")
-    if found:
-        return found
-    generic = shutil.which("agent")
-    if generic:
-        try:
-            result = subprocess.run([generic, "--version"], capture_output=True, text=True, timeout=15, check=False)
-        except (OSError, subprocess.TimeoutExpired):
-            result = None
-        if result is not None and _CURSOR_VERSION_RE.match(result.stdout.strip()):
-            return generic
-    return "cursor-agent"
 
 
 def _warn_if_untested_version(executable: str) -> None:
@@ -414,42 +391,6 @@ def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[list[str]]:
                     state.rmdir()
 
 
-# The CLI's own failure lines (stderr, merged into the event stream). Only used
-# after the CLI failed, so the readable log holds its diagnostics.
-_FAILURE_HINTS = (
-    (
-        re.compile(r"authentication required|api key is invalid|not authenticated|not logged in", re.IGNORECASE),
-        "authenticate with `cursor-agent login` or set CURSOR_API_KEY",
-    ),
-    (re.compile(r"cannot use this model", re.IGNORECASE), "list the available model slugs with `cursor-agent models`"),
-)
-
-
-def _report_failure(log_path: Path) -> None:
-    """Repeat the CLI's final diagnostic on stderr with an actionable hint."""
-    try:
-        lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
-    except OSError:
-        return
-    # Only the CLI's own lines: its error lines, and the last lines it printed
-    # before exiting. Agent text earlier in the log may quote such phrases.
-    errors = [line.removeprefix("adapter error: ") for line in lines if line.startswith("adapter error: ")]
-    tail = [line.removeprefix("adapter error: ") for line in lines if line.strip()][-3:]
-    if not errors and not tail:
-        return
-    for line in [*reversed(tail), *reversed(errors)]:
-        hint = next((hint for pattern, hint in _FAILURE_HINTS if pattern.search(line)), None)
-        if hint is not None:
-            diagnostic = line
-            break
-    else:
-        if not errors:
-            return
-        diagnostic, hint = errors[-1], None
-    shown = diagnostic if len(diagnostic) <= 300 else diagnostic[:297] + "..."
-    print(f"cursor-cli adapter: {shown}" + (f" ({hint})" if hint else ""), file=sys.stderr)
-
-
 def main(argv: list[str]) -> int:
     if len(argv) == 1 and argv[0] in {"--help", "-h"}:
         print(HELP)
@@ -493,7 +434,7 @@ def main(argv: list[str]) -> int:
             "(choose the effort in the model slug, see `cursor-agent models`)",
             file=sys.stderr,
         )
-    executable = _executable()
+    executable = "cursor-agent"
     _warn_if_untested_version(executable)
 
     # -p: headless. --trust: skip the workspace-trust prompt. --force: without it
@@ -529,10 +470,7 @@ def main(argv: list[str]) -> int:
         return 1
     try:
         with _workspace_mcp(Path.cwd(), child_env):
-            rc = run_json_cli("cursor-cli", command, stream_options, child_env=child_env, missing_cli_hint=INSTALL_HINT)
-        if rc not in (0, 127):
-            _report_failure(options.log_path)
-        return rc
+            return run_json_cli("cursor-cli", command, stream_options, child_env=child_env)
     finally:
         options.cleanup()
         stream_options.cleanup()
