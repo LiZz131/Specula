@@ -88,7 +88,7 @@ More precisely, setup manages:
 | Claude Code | Installs skills and registers all three MCP servers |
 | Codex | `y` installs skills and MCP servers separately; `plugin` generates or updates `specular-codex@specular` for the active Codex profile |
 | GitHub Copilot CLI | Installs skills and, with Copilot CLI 1.0.21+, registers all three MCP servers |
-| Cursor CLI | Installs skills into `~/.cursor/skills` and adds all three MCP servers to `~/.cursor/mcp.json` |
+| Cursor CLI | Installs skills into `~/.cursor/skills` and adds all three MCP servers to `~/.cursor/mcp.json`; see [Cursor CLI](cursor-cli.md#skills-and-mcp-servers) |
 
 For Codex, the global/local choice applies only to skills installed separately with `y`; separate MCP registration and plugin installation use the active Codex profile. Copilot MCP registration is user-level and follows `COPILOT_HOME`; its global/local setup choice also controls only where skills are installed. Setup leaves an existing same-named MCP server unchanged and reports the conflict instead of overwriting it. Older Copilot CLI versions still install the skills, but MCP registration is skipped with an upgrade warning.
 
@@ -163,7 +163,7 @@ specular run \
   "name|owner/repository|language|reference"
 ```
 
-Supported adapters are `claude-code` (default), `codex`, `copilot-cli`, `cursor-cli` (Cursor CLI), `opencode`, `pi`, and `agy` (Google Antigravity CLI). Model names and effort values are interpreted by the selected agent. OpenCode and Pi model names use `provider/model` syntax; Antigravity CLI model slugs can be listed with `agy models`; Cursor CLI model slugs can be listed with `cursor-agent models` and already encode the reasoning effort (for example `grok-4.7-low`).
+Supported adapters are `claude-code` (default), `codex`, `copilot-cli`, `cursor-cli` (Cursor CLI), `opencode`, `pi`, and `agy` (Google Antigravity CLI). Model names and effort values are interpreted by the selected agent. OpenCode and Pi model names use `provider/model` syntax; Antigravity CLI model slugs can be listed with `agy models`; Cursor CLI model names can be listed with `cursor-agent models` and already encode the reasoning effort (for example `grok-4.7-low`); Cursor ignores `--effort`, see [Cursor CLI](cursor-cli.md#models-and-reasoning-effort).
 
 ## Add Specular to CI
 
@@ -357,6 +357,8 @@ We have tested the following agent and model combinations. These observations su
 
 Specular launches the installed agent CLI directly and uses its existing credentials. Authenticate the CLI before starting a pipeline. Claude Code runs default to maximum reasoning effort; Codex and Copilot use their configured defaults unless `--effort` is supplied.
 
+Cursor CLI's behavior and limits are described in [Cursor CLI](cursor-cli.md).
+
 Specular runs Copilot CLI with `--autopilot` and fails before launching a task when the installed CLI does not advertise that capability. Resume-aware pipeline launches require Copilot CLI 1.0.51 or newer plus JSON output; Specular captures the full session UUID and uses `--resume`, refusing ambiguous or missing-session recovery instead of using `--session-id`, which can create an empty session for a stale UUID. Passing `--effort` to Copilot requires Copilot CLI 1.0.4 or newer. OpenCode forwards it as a variant, while Pi forwards it as a thinking level.
 
 After a Copilot invocation, Specular uses that exact session UUID to read cumulative token telemetry from `$COPILOT_HOME/session-store.db`, or `~/.copilot/session-store.db` when `COPILOT_HOME` is unset. The collector opens the database read-only and queries only `assistant_usage_events`; it does not read or export prompts, responses, or other session content. Copilot records cache reads and cache writes inside `input_tokens`, so Specular subtracts both before emitting the normalized uncached-input bucket and avoids counting cache traffic twice. Resume attempts emit cumulative snapshots that the resource summary reduces to deltas. Request count, per-model token buckets, reasoning tokens, duration, nano-AIU, and AI Credits are retained in the usage sidecar. `total_cost_usd` uses GitHub's fixed conversion of 1 AI Credit per 1,000,000,000 nano-AIU and $0.01 per AI Credit; it represents usage value, while the amount added to a bill may be lower when included or pooled credits cover the usage. Missing sessions, databases, events, or supported schema are reported as incomplete telemetry rather than zero usage.
@@ -370,22 +372,6 @@ After a Copilot invocation, Specular uses that exact session UUID to read cumula
 An exact resume preserves the provider-persisted conversation and the files already written in the retained workspace. It cannot restore the terminated CLI process's in-memory state or an in-flight child process, and a provider may omit a partial response that was never committed to the native session.
 
 Specular rechecks confirmation results from versions that did not record which code each worker checked. To restart unfinished confirmations from those versions, use `--fresh-context`. For persistent CI, start a new run without `--run-id`.
-
-### Cursor CLI
-
-Specular runs the Cursor CLI executable `cursor-agent`. It has been tested with Cursor CLI 2026.11.22-e9042b2 on Linux with the `grok-4.7-low` model; older builds still run but print a warning. Install it with `curl https://cursor.com/install -fsS | bash`, then authenticate once with `cursor-agent login` or set `CURSOR_API_KEY`. Set the default model with `CURSOR_MODEL` or `--model`.
-
-Specular runs `cursor-agent -p --output-format stream-json --trust --force --approve-mcps` in the step's working directory, so the agent edits files, runs shell commands, and calls MCP tools without prompting. Without `--force`, Cursor rejects shell commands silently. The prompt is passed on standard input, so prompt size is not limited by the command line. Each run's readable log, raw event stream (`.activity.jsonl`), and token usage (`.usage.json`) are recorded. Cursor reports no cost, so the resource summary marks Cursor cost as incomplete.
-
-Cursor CLI has no reasoning-effort option. Choose the effort in the model slug instead (`cursor-agent models` lists them, for example `grok-4.7-low` or `grok-4.7-high`). `--effort` and `CURSOR_EFFORT` are accepted, but they are ignored with a warning. Avoid the `-fast` variants unless you want Cursor's faster, higher-priced models.
-
-Cursor has no system-prompt option and reads rule files only from the workspace, so Specular places its rules at the start of the prompt instead of writing files into your repository. Skills are referenced by their file paths under the Specular checkout. `specular setup` installs the skills into `~/.cursor/skills`, for interactive use, and registers Specular's MCP servers in `~/.cursor/mcp.json`, never overwriting an existing entry with the same name. Cursor also loads skills from `~/.claude/skills`, `~/.codex/skills`, and `~/.agents/skills`; a skill in `~/.cursor/skills` takes precedence over one with the same name there, so rerun `specular setup` after moving or updating the checkout to keep the agent from reading another checkout's copy. For each run, Specular adds its TLC task tool to the working directory's `.cursor/mcp.json` (keeping any servers already there and the file's permissions) and restores the file afterwards; it leaves a `.cursor/mcp.json` that is a symbolic link unchanged, and the agent then uses the equivalent shell scripts. Cursor ends every MCP tool call after 60 seconds, so each TLC wait returns before that limit and the agent waits again; other MCP calls that run longer than 60 seconds fail, and the agent falls back to the equivalent shell scripts.
-
-Cursor also applies the User Rules of your Cursor account (Cursor Settings → Rules) and any Team Rules set by your team's administrators to every Specular run, including headless ones. They are stored with the account rather than on this machine, so they apply on every machine where you are logged in, and Specular cannot turn them off. A rule meant for interactive use can change Specular's results: for example, a rule asking for replies in another language makes agents write confirmation reports in that language. Review these rules before starting a run and remove ones that conflict with Specular's workflow.
-
-Specular resumes the exact Cursor chat recorded for a turn with `--resume`. Cursor does not reject an unknown chat ID: it silently starts an empty chat under that ID. Before resuming, Specular therefore checks that Cursor still stores the chat (under `$CURSOR_CONFIG_DIR/chats` or `~/.cursor/chats`), and refuses to resume one that has been removed.
-
-With `--orchestration=single-session` and `--incremental`, Specular gives Cursor its context tools the same way as the TLC task tool. Cursor CLI has no command that compacts a conversation from a script, so when the controller requests compaction it continues the same chat without compacting it, as with Antigravity CLI; Cursor summarizes the conversation itself when the context window fills. The optional agent sandbox (`SPECULAR_SANDBOX=on`) is not available for Cursor CLI, and Cursor does not provide Specular's agent-side stop gate.
 
 ## Output Structure
 
