@@ -66,6 +66,7 @@ def test_conflicting_invalid_and_symlinked_configs_are_left_unchanged(tmp_path: 
         assert config.read_bytes() == before
     assert "differs from Specular's" in _register(conflicting).stdout
     assert "symbolic link" in _register(link).stdout
+    assert '"tracedebugger": {"command": ' in _register(conflicting).stdout
 
 
 def test_usage_error() -> None:

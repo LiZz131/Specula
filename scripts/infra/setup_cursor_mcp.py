@@ -66,8 +66,12 @@ def main(argv: list[str]) -> int:
         print(__doc__, file=sys.stderr)
         return 2
     config, name, project_root, python, server = argv
-    status, message = register(Path(config), name, entry(project_root, python, server))
+    wanted = entry(project_root, python, server)
+    status, message = register(Path(config), name, wanted)
     print(message)
+    if status == UNCHANGED:
+        # Like the other agents' setup, show what to add by hand.
+        print(f'  Add under "mcpServers" in {config}: {json.dumps({name: wanted})[1:-1]}')
     return status
 
 
