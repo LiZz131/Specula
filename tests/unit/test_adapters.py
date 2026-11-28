@@ -216,6 +216,8 @@ class AdapterCase(unittest.TestCase):
                 "fi",
             ]
         if name == "cursor-agent":
+            # `mcp enable NAME` approves one workspace server; not an agent run.
+            lines += ['if [[ "${1:-}" == "mcp" ]]; then exit 0; fi']
             # The workspace MCP config Specular writes for this run (restored on exit).
             lines.append(
                 'if [[ -f .cursor/mcp.json ]]; then cp .cursor/mcp.json "${ADAPTER_CURSOR_MCP_FILE:-/dev/null}"; fi'

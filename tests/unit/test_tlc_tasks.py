@@ -1099,7 +1099,7 @@ def test_all_adapters_receive_tools_without_skill_changes(tmp_path: Path, phase:
             config = json.loads(observed["opencode_config"])
             assert config["mcp"]["specular_tlc"]["timeout"] == tasks.CLIENT_TIMEOUT_MS
         elif agent == "cursor-cli":
-            assert "--approve-mcps" in argv
+            assert "--approve-mcps" not in argv  # only Specular's servers, via `mcp enable`
             assert "specular_tlc" in json.loads(observed["cursor_mcp"])["mcpServers"]
             assert not (tmp_path / ".cursor").exists()
         else:

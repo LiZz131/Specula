@@ -226,6 +226,17 @@ def _fake_cli(bin_dir: Path, body: str, *, version: str = "2026.11.22-e9042b2") 
         f"#!{sys.executable}\n"
         "import json, os, sys\n"
         f"if sys.argv[1:] == ['--version']:\n    print({version!r}); raise SystemExit(0)\n"
+        # `mcp enable NAME`: record the approval and whether the workspace file
+        # already names the server; FAKE_APPROVE_EXIT makes it fail.
+        "if sys.argv[1:3] == ['mcp', 'enable']:\n"
+        "    mcp = os.path.join(os.getcwd(), '.cursor', 'mcp.json')\n"
+        "    listed = os.path.exists(mcp) and sys.argv[3] in json.load(open(mcp))['mcpServers']\n"
+        "    os.makedirs(os.environ['CURSOR_CONFIG_DIR'], exist_ok=True)\n"
+        "    with open(os.path.join(os.environ['CURSOR_CONFIG_DIR'], 'approved.log'), 'a') as log:\n"
+        "        log.write(f'{sys.argv[3]} {os.getcwd()} {listed}\\n')\n"
+        "    code = int(os.environ.get('FAKE_APPROVE_EXIT', '0'))\n"
+        "    print('approval failed' if code else 'approved', file=sys.stderr if code else sys.stdout)\n"
+        "    raise SystemExit(code)\n"
         f"{body}\n",
         encoding="utf-8",
     )
@@ -293,14 +304,13 @@ def test_invocation_rules_resume_and_usage(tmp_path: Path) -> None:
     assert first.returncode == 0, first.stderr
     recorded = json.loads(capture.read_text())
     argv = recorded["argv"]
-    assert argv[:8] == [
+    assert argv[:7] == [
         "-p",
         "--output-format",
         "stream-json",
         "--stream-partial-output",
         "--trust",
         "--force",
-        "--approve-mcps",
         "--model",
     ]
     assert argv[argv.index("--model") + 1] == "grok-4.7-low"
@@ -450,7 +460,8 @@ def test_model_and_effort_options(tmp_path: Path) -> None:
     recorded = json.loads(capture.read_text())
     assert recorded["argv"][recorded["argv"].index("--model") + 1] == "grok-4.7-low"
     assert "--effort" not in recorded["argv"]
-    assert "Cursor CLI has no effort option; ignoring effort='high'" in result.stderr
+    assert "Cursor CLI has no effort option, so effort='high' is ignored" in result.stderr
+    assert "for example grok-4.7-low" in result.stderr and "`cursor-agent models`" in result.stderr
     assert "CURSOR_MODEL" not in recorded["env"] and "CURSOR_EFFORT" not in recorded["env"]
 
     # An explicit empty value clears the environment fallback.
@@ -639,7 +650,11 @@ def test_tlc_tool_is_registered_for_the_run_and_removed_after(tmp_path: Path) ->
     assert result.returncode == 0, result.stderr
 
     recorded = json.loads(capture.read_text())
-    assert "--approve-mcps" in recorded["argv"]
+    # Only Specular's own server is approved, after the file names it; never
+    # every configured server (the repository's .cursor/mcp.json may define some).
+    assert "--approve-mcps" not in recorded["argv"]
+    approved = (tmp_path / "cursor-config" / "approved.log").read_text().splitlines()
+    assert approved == [f"specular_tlc {workspace} True"]
     # A constant entry: the run's values travel in one variable, because Cursor
     # starts MCP servers with a minimal environment of its own.
     assert json.loads(recorded["mcp"]) == {
@@ -931,3 +946,24 @@ def test_skill_refs_materialize_local_paths() -> None:
         rendered = materialize_skill_refs(f"Use {prompt_skill_ids('code-analysis')}", adapter)
         assert "read the local Specular skill file at" in rendered
         assert rendered.endswith("SKILL.md`)")
+
+
+def test_a_failed_approval_is_reported_and_the_run_continues(tmp_path: Path) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    env = _env(tmp_path, bin_dir, SPECULAR_TLC_TOOL_JSON=_tlc_tool_json(tmp_path), FAKE_APPROVE_EXIT="1")
+    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], env, workspace)
+    assert result.returncode == 0, result.stderr
+    assert "could not approve the specular_tlc MCP server (approval failed)" in result.stderr
+    assert json.loads(capture.read_text())["mcp"] is not None
+    assert not (workspace / ".cursor").exists()
+
+
+def test_nothing_is_approved_without_specular_servers(tmp_path: Path) -> None:
+    bin_dir, capture = tmp_path / "bin", tmp_path / "capture.json"
+    _recording_cli(bin_dir, capture)
+    result = _run(["--prompt=x", f"--log={tmp_path / 'p.log'}"], _env(tmp_path, bin_dir), tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert not (tmp_path / "cursor-config" / "approved.log").exists()

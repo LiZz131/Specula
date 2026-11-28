@@ -29,6 +29,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -391,6 +392,40 @@ def _workspace_mcp(cwd: Path, env: dict[str, str]) -> Iterator[list[str]]:
                     state.rmdir()
 
 
+def _approve_servers(executable: str, servers: list[str], cwd: Path, env: dict[str, str]) -> None:
+    """Approve only Specular's own workspace servers for this working directory.
+
+    Cursor loads a workspace server only after approval, recorded per directory
+    and server entry. ``--approve-mcps`` would also approve servers the target
+    repository defines in its own .cursor/mcp.json; servers in ~/.cursor/mcp.json
+    need no approval.
+    """
+    for server in servers:
+        try:
+            result = subprocess.run(
+                [executable, "mcp", "enable", server],
+                cwd=cwd,
+                env=env,
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            reason = str(exc)
+        else:
+            if result.returncode == 0:
+                continue
+            lines = (result.stderr or result.stdout).strip().splitlines()
+            reason = lines[-1] if lines else f"exit {result.returncode}"
+        print(
+            f"cursor-cli adapter: could not approve the {server} MCP server ({reason}); "
+            "the agent can still use the equivalent shell scripts",
+            file=sys.stderr,
+        )
+
+
 def main(argv: list[str]) -> int:
     if len(argv) == 1 and argv[0] in {"--help", "-h"}:
         print(HELP)
@@ -430,8 +465,10 @@ def main(argv: list[str]) -> int:
 
     if options.effort:
         print(
-            f"cursor-cli adapter: Cursor CLI has no effort option; ignoring effort={options.effort!r} "
-            "(choose the effort in the model slug, see `cursor-agent models`)",
+            f"cursor-cli adapter: Cursor CLI has no effort option, so effort={options.effort!r} is ignored. "
+            "Cursor selects the effort with the model name: pass a name that includes it as the model "
+            "(--model, CURSOR_MODEL, or a profile's \"model\"), for example grok-4.7-low; "
+            "`cursor-agent models` lists the available names",
             file=sys.stderr,
         )
     executable = "cursor-agent"
@@ -439,8 +476,6 @@ def main(argv: list[str]) -> int:
 
     # -p: headless. --trust: skip the workspace-trust prompt. --force: without it
     # Cursor silently rejects shell commands (the run still exits 0).
-    # --approve-mcps: otherwise configured MCP servers (Specular's from `specular
-    # setup` and the run's TLC tool) stay "not loaded (needs approval)".
     # --stream-partial-output: in whole-message mode Cursor joins the text the
     # agent writes after a background command finishes onto its previous
     # message without a separator, hiding the boundary (and a final VERDICT line).
@@ -452,7 +487,6 @@ def main(argv: list[str]) -> int:
         "--stream-partial-output",
         "--trust",
         "--force",
-        "--approve-mcps",
     ]
     if session_id is not None:
         # The exact chat ID captured from this logical turn; never --continue.
@@ -469,7 +503,9 @@ def main(argv: list[str]) -> int:
         print(f"cursor-cli adapter: failed to stage prompt: {exc}", file=sys.stderr)
         return 1
     try:
-        with _workspace_mcp(Path.cwd(), child_env):
+        with _workspace_mcp(Path.cwd(), child_env) as servers:
+            if servers and shutil.which(executable, path=child_env.get("PATH")):
+                _approve_servers(executable, servers, Path.cwd(), child_env)
             return run_json_cli("cursor-cli", command, stream_options, child_env=child_env)
     finally:
         options.cleanup()
